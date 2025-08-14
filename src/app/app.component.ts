@@ -10,5 +10,5 @@ import { TodosComponent } from './todos/todos.component';
   imports: [RouterOutlet, TodosComponent],
 })
 export class AppComponent {
-  title = 'amplify-angular-template';
+  title = 'ecnelisflyv2';
 }

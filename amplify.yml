@@ -20,7 +20,7 @@ frontend:
       commands:
         - npx ng build --configuration=production
   artifacts:
-    baseDirectory: dist/amplify-angular-template/browser
+    baseDirectory: dist/ecnelisflyv2/browser
     files:
       - '**/*'
   cache:
