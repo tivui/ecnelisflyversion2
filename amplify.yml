@@ -5,9 +5,10 @@ backend:
       commands:
         - nvm install 20.19.0
         - nvm use 20.19.0
+        - npm config set optional false
     build:
       commands:
-        - npm ci --omit=optional --cache .npm --prefer-offline
+        - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
@@ -15,7 +16,8 @@ frontend:
       commands:
         - nvm install 20.19.0
         - nvm use 20.19.0
-        - npm ci --omit=optional
+        - npm config set optional false
+        - npm ci
         - npx ng version
     build:
       commands:
@@ -28,5 +30,3 @@ frontend:
     paths:
       - .npm/**/*
       - node_modules/**/*
-
-
