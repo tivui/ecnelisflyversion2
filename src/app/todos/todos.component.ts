@@ -6,10 +6,11 @@ import type { Schema } from '../../../amplify/data/resource';
 const client = generateClient<Schema>();
 
 @Component({
-    selector: 'app-todos',
-    imports: [CommonModule],
-    templateUrl: './todos.component.html',
-    styleUrl: './todos.component.css'
+  selector: 'app-todos',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './todos.component.html',
+  styleUrl: './todos.component.css',
 })
 export class TodosComponent implements OnInit {
   todos: unknown[] = [];
