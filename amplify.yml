@@ -1,23 +1,29 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        # Installer Node 20.19.0 pour cohérence avec Angular 18
+        - nvm install 20.19.0
+        - nvm use 20.19.0
+        # Installer les dépendances
+        - npm install --omit=optional --legacy-peer-deps
+        # Déployer backend Amplify
+        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+
 frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 20.19.0
-        - nvm use 20.19.0
-        # Nettoyage des caches npm pour éviter conflits
-        - npm cache clean --force
-        # Installation des dépendances, en ignorant les optional deps
-        - npm ci --omit=optional
+        - npx ng version
     build:
       commands:
-        # Compile Angular / front-end
-        - npm run build
+        - npx ng build --configuration=production
   artifacts:
-    baseDirectory: dist
+    baseDirectory: dist/amplify-angular-template/browser
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
       - .npm/**/*
+      - node_modules/**/*
