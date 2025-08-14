@@ -9,6 +9,9 @@ frontend:
   phases:
     preBuild:
       commands:
+        - nvm install 20.22.0
+        - nvm use 20.22.0
+        - npm ci
         - npx ng version
     build:
       commands:
