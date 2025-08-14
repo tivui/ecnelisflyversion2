@@ -7,7 +7,7 @@ backend:
         - nvm install 20.19.0
         - nvm use 20.19.0
         # Installer les dépendances
-        - npm install --omit=optional --legacy-peer-deps
+        - npm install
         # Déployer backend Amplify
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 
