@@ -1,1 +1,8 @@
+<mat-toolbar color="primary">
+  <span>Ma toolbar</span>
+  <span class="spacer"></span>
+  <mat-slide-toggle [checked]="isDark()" (change)="toggleDarkMode()">
+    {{ isDark() ? "Dark 🌚" : "Light 🌞" }}
+  </mat-slide-toggle>
+</mat-toolbar>
 <app-todos></app-todos>
