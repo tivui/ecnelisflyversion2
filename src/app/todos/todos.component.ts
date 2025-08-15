@@ -11,7 +11,7 @@ const client = generateClient<Schema>();
   standalone: true,
   imports: [CommonModule, MatChipsModule],
   templateUrl: './todos.component.html',
-  styleUrl: './todos.component.css',
+  styleUrl: './todos.component.scss',
 })
 export class TodosComponent implements OnInit {
   todos: unknown[] = [];
