@@ -5,4 +5,14 @@
     {{ isDark() ? "Dark 🌚" : "Light 🌞" }}
   </mat-slide-toggle>
 </mat-toolbar>
-<app-todos></app-todos>
+
+<!-- Authenticator -->
+<amplify-authenticator>
+  <ng-template amplifySlot="authenticated" let-user="user" let-signOut="signOut">
+    <div class="content">
+      <h2>Bienvenue {{ user.username }} 🎉</h2>
+      <button mat-raised-button color="warn" (click)="signOut()">Se déconnecter</button>
+      <app-todos></app-todos>
+    </div>
+  </ng-template>
+</amplify-authenticator>
