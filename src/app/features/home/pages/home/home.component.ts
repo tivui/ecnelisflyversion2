@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { AppUserService } from '../../../../core/services/app-user.service';
 import { AppUser } from '../../../../core/models/app-user.model';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
