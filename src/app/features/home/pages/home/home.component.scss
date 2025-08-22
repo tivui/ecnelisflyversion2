@@ -1,0 +1,5 @@
+.home-container {
+  display: grid;
+  place-items: center; /* centre horizontal + vertical */
+  height: calc(100vh - 64px);
+}
