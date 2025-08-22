@@ -19,13 +19,8 @@
 </mat-toolbar>
 
 <!-- Authenticator -->
-@if (showLogin() || authenticator.user) {
-  <amplify-authenticator class="auth-container">
-    <ng-template amplifySlot="authenticated" let-user="user">
-      <div class="content">
-        <h2>Bienvenue {{ user.username }} 🎉</h2>
-        <app-todos></app-todos>
-      </div>
-    </ng-template>
-  </amplify-authenticator>
+@if (showLogin() && !authenticator.user) {
+  <amplify-authenticator class="auth-container"></amplify-authenticator>
 }
+  <router-outlet></router-outlet>
+

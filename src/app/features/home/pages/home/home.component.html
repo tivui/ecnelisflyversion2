@@ -1,0 +1,3 @@
+<div class="home-container" *ngIf="appUser$ | async as appUser">
+  <h1>Bienvenue {{ appUser.username }} 🎉</h1>
+</div>
