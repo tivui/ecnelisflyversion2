@@ -1,3 +1,5 @@
-<div class="home-container" *ngIf="appUser$ | async as appUser">
-  <h1>Bienvenue {{ appUser.username }} 🎉</h1>
+@if(appUser()) {
+  <div class="home-container">
+  <h1>{{ "app.welcome" | translate : { name: appUser()!.username } }}</h1>
 </div>
+}

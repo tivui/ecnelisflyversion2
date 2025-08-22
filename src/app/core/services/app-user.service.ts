@@ -31,12 +31,16 @@ export class AppUserService {
     }
 
     // Fetch user from backend
-    const existing = await this.amplifyService.client.models.User.get({ id: currentAuthUser.sub });
+    const existing = await this.amplifyService.client.models.User.get({
+      id: currentAuthUser.sub,
+    });
     let appUser: AppUser | null;
 
     if (existing.data) {
       const data = existing.data;
-      this.logService.info(`Existing user found: ${data.username} (${data.id})`);
+      this.logService.info(
+        `Existing user found: ${data.username} (${data.id})`,
+      );
       appUser = {
         id: data.id,
         username: data.username,
@@ -47,7 +51,9 @@ export class AppUserService {
       };
     } else {
       // Create minimal user if not found
-      this.logService.info(`No existing user found. Creating minimal user for ${currentAuthUser.username}`);
+      this.logService.info(
+        `No existing user found. Creating minimal user for ${currentAuthUser.username}`,
+      );
       const newUser = await this.amplifyService.client.models.User.create({
         id: currentAuthUser.sub,
         username: currentAuthUser.email ?? currentAuthUser.username,
@@ -58,7 +64,9 @@ export class AppUserService {
       });
 
       if (!newUser.data) {
-        this.logService.error(`Failed to create user for ${currentAuthUser.username}`);
+        this.logService.error(
+          `Failed to create user for ${currentAuthUser.username}`,
+        );
         appUser = null;
       } else {
         const d = newUser.data;
@@ -94,6 +102,17 @@ export class AppUserService {
     // Refresh currentUser observable
     await this.loadCurrentUser();
     return updated;
+  }
+
+  /**
+   * ⚡ Pré-remplir l'utilisateur dès le login Cognito (avant le backend)
+   */
+  setPartialUser(partial: Partial<AppUser>) {
+    const current = this._currentUser.value; // ← on repart de ce qu’on a déjà
+    this._currentUser.next({
+      ...(current ?? {}), // merge avec l’existant
+      ...partial, // ajoute/écrase les champs fournis
+    } as AppUser);
   }
 
   /**

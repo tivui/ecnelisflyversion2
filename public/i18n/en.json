@@ -1,0 +1,12 @@
+{
+  "app": {
+    "welcome": "Welcome {{name}} 🎉",
+    "toolbar": {
+      "login": "Login",
+      "logout": "Logout",
+      "dark": "Dark Mode",
+      "light": "Light Mode",
+      "welcome": "Welcome {{name}} 🎉"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "app": {
+    "welcome": "Bienvenido {{name}} 🎉",
+    "toolbar": {
+      "login": "Iniciar sesión",
+      "logout": "Cerrar sesión",
+      "dark": "Oscuro",
+      "light": "Claro",
+      "welcome": "Bienvenido {{username}} 🎉"
+    }
+  }
+}

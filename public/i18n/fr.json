@@ -1,0 +1,11 @@
+{
+  "app": {
+    "welcome": "Bienvenue {{name}} 🎉",
+    "toolbar": {
+      "login": "Se connecter",
+      "logout": "Se déconnecter",
+      "dark": "Sombre",
+      "light": "Clair"
+    }
+  }
+}
