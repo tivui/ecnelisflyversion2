@@ -5,7 +5,7 @@ import {
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -43,6 +43,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatSelectModule,
     MatInputModule,
     FormsModule,
+    RouterOutlet,
+    RouterLink,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -51,6 +53,7 @@ export class AppComponent implements OnInit {
   private readonly appUserService = inject(AppUserService);
   private readonly logService = inject(LogService);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   public showLogin = signal(false);
   public isDark = signal(false);
@@ -59,50 +62,45 @@ export class AppComponent implements OnInit {
   public selectedLang = signal('fr');
 
   constructor() {
-    // Supported languages in the app
     const supportedLangs: Language[] = ['en', 'fr'];
     this.translate.addLangs(supportedLangs);
 
-    // 1️⃣ Get the previously saved language from localStorage (if any)
     const savedLang = localStorage.getItem('lang');
-
-    // 2️⃣ Otherwise, detect the browser language (e.g. "fr-FR" → "fr")
     const browserLang = navigator.language.split('-')[0];
-
-    // 3️⃣ Choose the final language:
-    //    - If a saved language exists, use it
-    //    - Else, if browser language is supported, use it
-    //    - Else fallback to English
     const defaultLang =
       savedLang ||
       (supportedLangs.includes(browserLang as Language) ? browserLang : 'en');
 
-    // 4️⃣ Apply language settings
-    this.translate.use(defaultLang); // set chosen language
+    this.translate.use(defaultLang);
   }
 
   ngOnInit() {
-    // Load AppUser if already signed-in at app init (for page refresh)
+    // 1️⃣ Chargement initial (rafraîchissement)
     this.appUserService.loadCurrentUser();
 
-    // Listen to Amplify auth events
+    // 2️⃣ Hub auth events
     Hub.listen('auth', async ({ payload }) => {
-                const user = this.authenticator.user;
-
+      // const user = this.authenticator.user;
       switch (payload.event) {
-        case 'signedIn':
+        case 'signedIn': {
           this.logService.info('User signed in via Amplify Hub');
-          // 1️⃣ Pré-remplir directement avec les infos Cognito
-          if (user) {
-            this.appUserService.setPartialUser({
-              username: user.username ?? user.signInDetails?.loginId ?? '',
-              email: user.signInDetails?.loginId ?? '',
-            });
+
+          const appUser = await this.appUserService.loadCurrentUser();
+          if (appUser?.language) {
+            // Language
+            this.selectedLang.set(appUser.language);
+            this.translate.use(appUser.language);
+
+            // Theme
+            this.isDark.set(appUser.theme === 'dark');
+            this.applyTheme(appUser.theme);
           }
 
-          // 2️⃣ Puis compléter avec ton backend (attributs custom, rôles, etc.)
-          await this.appUserService.loadCurrentUser();
+          this.router.navigate(['/home']);
+
           break;
+        }
+
         case 'signedOut':
           this.logService.info('User signed out');
           this.appUserService.clearCurrentUser();
@@ -113,17 +111,30 @@ export class AppComponent implements OnInit {
 
   toggleDarkMode() {
     const dark = !this.isDark();
-    this.isDark.set(dark);
+    const theme = dark ? 'dark' : 'light';
 
-    const body = document.body;
-    body.classList.toggle('dark-theme', dark);
-    body.classList.toggle('light-theme', !dark);
+    this.isDark.set(dark);
+    this.applyTheme(theme);
+
+    // Save in DynamoDB
+    this.appUserService.updateTheme(theme);
   }
 
-  changeLang(event: MatSelectChange) {
-    const lang = event.value;
+  async changeLang(event: MatSelectChange) {
+    const lang = event.value as Language;
+
+    // update local UI immediately
     this.selectedLang.set(lang);
-    localStorage.setItem('lang', lang);
     this.translate.use(lang);
+    localStorage.setItem('lang', lang);
+
+    // persist to DynamoDB
+    await this.appUserService.updateLanguage(lang);
+  }
+
+  private applyTheme(theme: 'light' | 'dark') {
+    const body = document.body;
+    body.classList.toggle('dark-theme', theme === 'dark');
+    body.classList.toggle('light-theme', theme === 'light');
   }
 }

@@ -5,33 +5,39 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
  */
 const schema = a.schema({
   /**
-   * Enum pour les langues supportées
+   * Enum for supported languages
    */
   Language: a.enum(['fr', 'en', 'es']),
 
   /**
-   * Enum pour les types de notifications
+   * Enum for user theme
+   */
+  Theme: a.enum(['light', 'dark']),
+
+  /**
+   * Enum for notification types
    */
   NotificationType: a.enum(['like', 'comment', 'report', 'system']),
 
   /**
-   * Users of the application (lié à Cognito)
+   * Application users (linked to Cognito)
    */
   User: a
     .model({
       // ⚡️ ID = Cognito sub (UUID)
       id: a.id().required(),
 
-      // Infos importées depuis Cognito
+      // Info imported from Cognito
       username: a.string().required(),
       email: a.string().required(),
 
-      // Métadonnées applicatives
+      // Application metadata
       country: a.string(),
       firstName: a.string(),
       lastName: a.string(),
       flag: a.string(),
       language: a.ref('Language'),
+      theme: a.ref('Theme'),
 
       // Relations
       sounds: a.hasMany('Sound', 'userId'),
@@ -39,7 +45,7 @@ const schema = a.schema({
       notifications: a.hasMany('Notification', 'userId'),
       reports: a.hasMany('Report', 'userId'),
 
-      // Champs applicatifs enrichis
+      // Enriched application fields
       likedSoundIds: a.string(),
       favoriteSoundIds: a.string(),
       reportedSoundIds: a.string(),

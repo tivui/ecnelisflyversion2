@@ -2,10 +2,9 @@
   <span>Ecnelis FLY</span>
   <span class="spacer"></span>
 
-  <!-- Language selector -->
   <mat-form-field>
     <mat-label>Langue</mat-label>
-    <mat-select (selectionChange)="changeLang($event)">
+    <mat-select [value]="selectedLang()" (selectionChange)="changeLang($event)">
       @for (l of languages; track l) {
         <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
       }
@@ -13,14 +12,14 @@
   </mat-form-field>
 
   @if (authenticator.user) {
-    <span class="user-email">{{
-      authenticator.user?.signInDetails?.loginId
-    }}</span>
+    <span class="user-email">
+      {{ authenticator.user?.signInDetails?.loginId }}
+    </span>
     <button mat-button color="warn" (click)="authenticator.signOut()">
       <mat-icon>logout</mat-icon> {{ "app.toolbar.logout" | translate }}
     </button>
   } @else {
-    <button mat-button color="accent" (click)="showLogin.set(true)">
+    <button mat-button color="accent" [routerLink]="'/login'">
       <mat-icon>login</mat-icon> {{ "app.toolbar.login" | translate }}
     </button>
   }
@@ -30,8 +29,4 @@
   </mat-slide-toggle>
 </mat-toolbar>
 
-<!-- Authenticator -->
-@if (showLogin() && !authenticator.user) {
-  <amplify-authenticator class="auth-container"></amplify-authenticator>
-}
 <router-outlet></router-outlet>

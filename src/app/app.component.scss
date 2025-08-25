@@ -7,14 +7,3 @@
   font-weight: 500;
 }
 
-/* Centrage vertical/ horizontal de la mire de connexion */
-.auth-container {
-  display: grid;
-  place-items: center;
-  min-height: calc(100vh - 64px); // hauteur totale - toolbar
-}
-
-.content {
-  padding: 2rem;
-  text-align: center;
-}
