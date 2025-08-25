@@ -82,14 +82,18 @@ export class AppComponent implements OnInit {
     Hub.listen('auth', async ({ payload }) => {
       // const user = this.authenticator.user;
       switch (payload.event) {
-        case 'signedIn':
-        {
+        case 'signedIn': {
           this.logService.info('User signed in via Amplify Hub');
 
           const appUser = await this.appUserService.loadCurrentUser();
           if (appUser?.language) {
+            // Language
             this.selectedLang.set(appUser.language);
             this.translate.use(appUser.language);
+
+            // Theme
+            this.isDark.set(appUser.theme === 'dark');
+            this.applyTheme(appUser.theme);
           }
 
           this.router.navigate(['/home']);
@@ -107,10 +111,13 @@ export class AppComponent implements OnInit {
 
   toggleDarkMode() {
     const dark = !this.isDark();
+    const theme = dark ? 'dark' : 'light';
+
     this.isDark.set(dark);
-    const body = document.body;
-    body.classList.toggle('dark-theme', dark);
-    body.classList.toggle('light-theme', !dark);
+    this.applyTheme(theme);
+
+    // Save in DynamoDB
+    this.appUserService.updateTheme(theme);
   }
 
   async changeLang(event: MatSelectChange) {
@@ -123,5 +130,11 @@ export class AppComponent implements OnInit {
 
     // persist to DynamoDB
     await this.appUserService.updateLanguage(lang);
+  }
+
+  private applyTheme(theme: 'light' | 'dark') {
+    const body = document.body;
+    body.classList.toggle('dark-theme', theme === 'dark');
+    body.classList.toggle('light-theme', theme === 'light');
   }
 }

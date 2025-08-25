@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { AppUser } from '../models/app-user.model';
+import { AppUser, Theme } from '../models/app-user.model';
 import { Language } from '../models/i18n.model';
 import { LogService } from './log.service';
 import { BehaviorSubject } from 'rxjs';
@@ -17,7 +17,7 @@ export class AppUserService {
   private readonly _currentUser = new BehaviorSubject<AppUser | null>(null);
   public readonly currentUser$ = this._currentUser.asObservable();
 
- /**
+  /**
    * Load or create the full AppUser
    * Always resolves with a consistent AppUser | null
    */
@@ -46,13 +46,14 @@ export class AppUserService {
           username: d.username,
           email: d.email ?? '',
           language: (d.language ?? 'fr') as Language,
+          theme: (d.theme ?? 'light') as Theme,
           newNotificationCount: d.newNotificationCount ?? 0,
           flashNew: d.flashNew ?? false,
         };
       } else {
         // 🚀 No user → create minimal
         this.logService.info(
-          `No user found, creating minimal user for ${currentAuthUser.username}`
+          `No user found, creating minimal user for ${currentAuthUser.username}`,
         );
 
         const newUser = await this.amplifyService.client.models.User.create({
@@ -60,13 +61,14 @@ export class AppUserService {
           username: currentAuthUser.email ?? currentAuthUser.username,
           email: currentAuthUser.email ?? '',
           language: 'fr',
+          theme: 'dark',
           newNotificationCount: 0,
           flashNew: false,
         });
 
         if (!newUser.data) {
           this.logService.error(
-            `Failed to create user for ${currentAuthUser.username}`
+            `Failed to create user for ${currentAuthUser.username}`,
           );
           appUser = null;
         } else {
@@ -77,6 +79,7 @@ export class AppUserService {
             username: d.username,
             email: d.email ?? '',
             language: (d.language ?? 'fr') as Language,
+            theme: (d.theme ?? 'light') as Theme,
             newNotificationCount: d.newNotificationCount ?? 0,
             flashNew: d.flashNew ?? false,
           };
@@ -99,33 +102,51 @@ export class AppUserService {
   }
 
   async updateLanguage(lang: Language): Promise<AppUser | null> {
-  const current = this._currentUser.value;
-  if (!current) return null;
+    const current = this._currentUser.value;
+    if (!current) return null;
 
-  try {
-    // update in DynamoDB
-    const updated = await this.amplifyService.client.models.User.update({
-      id: current.id,
-      language: lang,
-    });
+    try {
+      // update in DynamoDB
+      const updated = await this.amplifyService.client.models.User.update({
+        id: current.id,
+        language: lang,
+      });
 
-    if (!updated.data) {
-      this.logService.error(`Failed to update language for user ${current.id}`);
+      if (!updated.data) {
+        this.logService.error(
+          `Failed to update language for user ${current.id}`,
+        );
+        return current;
+      }
+
+      const d = updated.data;
+      const appUser: AppUser = {
+        ...current,
+        language: d.language as Language,
+      };
+
+      this._currentUser.next(appUser);
+      return appUser;
+    } catch (err) {
+      this.logService.error(err);
       return current;
     }
-
-    const d = updated.data;
-    const appUser: AppUser = {
-      ...current,
-      language: d.language as Language,
-    };
-
-    this._currentUser.next(appUser);
-    return appUser;
-  } catch (err) {
-    this.logService.error(err);
-    return current;
   }
-}
 
+  async updateTheme(theme: 'light' | 'dark'): Promise<void> {
+    const user = this._currentUser.value;
+    if (!user) return;
+
+    try {
+      await this.amplifyService.client.models.User.update({
+        id: user.id,
+        theme,
+      });
+
+      this._currentUser.next({ ...user, theme });
+      this.logService.info(`Theme updated for ${user.username} → ${theme}`);
+    } catch (error) {
+      this.logService.error(error);
+    }
+  }
 }
