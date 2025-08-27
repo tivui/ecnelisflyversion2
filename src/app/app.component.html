@@ -2,6 +2,7 @@
   <span>Ecnelis FLY</span>
   <span class="spacer"></span>
 
+  <!-- Lang selector -->
   <mat-form-field>
     <mat-label>Langue</mat-label>
     <mat-select [value]="selectedLang()" (selectionChange)="changeLang($event)">
@@ -11,22 +12,35 @@
     </mat-select>
   </mat-form-field>
 
-  @if (authenticator.user) {
-    <span class="user-email">
-      {{ authenticator.user?.signInDetails?.loginId }}
-    </span>
-    <button mat-button color="warn" (click)="authenticator.signOut()">
-      <mat-icon>logout</mat-icon> {{ "app.toolbar.logout" | translate }}
-    </button>
-  } @else {
-    <button mat-button color="accent" [routerLink]="'/login'">
-      <mat-icon>login</mat-icon> {{ "app.toolbar.login" | translate }}
-    </button>
-  }
-
+  <!-- Dark mode -->
   <mat-slide-toggle [checked]="isDark()" (change)="toggleDarkMode()">
     {{ (isDark() ? "app.toolbar.dark" : "app.toolbar.light") | translate }}
   </mat-slide-toggle>
+
+  <!-- Auth -->
+  @if (authenticator.user) {
+    <!-- Avatar button -->
+    <button mat-icon-button >
+      <mat-icon [matMenuTriggerFor]="userMenu">account_circle</mat-icon>
+    </button>
+
+    <!-- User menu -->
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="goToAccount()">
+        <mat-icon>manage_accounts</mat-icon>
+        {{ "app.toolbar.account" | translate }}
+      </button>
+      <button mat-menu-item (click)="authenticator.signOut()">
+        <mat-icon>logout</mat-icon>
+        {{ "app.toolbar.logout" | translate }}
+      </button>
+    </mat-menu>
+  } @else {
+    <button mat-button color="primary" [routerLink]="'/login'">
+      <mat-icon>login</mat-icon>
+      {{ "app.toolbar.login" | translate }}
+    </button>
+  }
 </mat-toolbar>
 
 <router-outlet></router-outlet>

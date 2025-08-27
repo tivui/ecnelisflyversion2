@@ -2,6 +2,7 @@
   "app": {
     "welcome": "Welcome {{name}} 🎉",
     "toolbar": {
+      "account": "Manage my account",
       "login": "Login",
       "logout": "Logout",
       "dark": "Dark Mode",
