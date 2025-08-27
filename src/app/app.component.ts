@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { BrowserService } from './core/services/browser.service';
 import { Theme } from './core/models/app-user.model';
+import { AmplifyI18nService } from './core/services/amplify-i18n.service';
 
 @Component({
   selector: 'app-root',
@@ -60,6 +61,7 @@ export class AppComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly browserService = inject(BrowserService);
+  private readonly amplifyI18n = inject(AmplifyI18nService);
 
   public showLogin = signal(false);
   public isDark = signal(false);
@@ -95,6 +97,7 @@ export class AppComponent implements OnInit {
     // Apply language globally
     this.selectedLang.set(defaultLang);
     this.translate.use(defaultLang);
+    this.amplifyI18n.init(defaultLang);
 
     // 2️⃣ Listen to authentication events (Amplify Hub)
     Hub.listen('auth', async ({ payload }) => {
@@ -107,6 +110,7 @@ export class AppComponent implements OnInit {
             // Update language from user preference
             this.selectedLang.set(appUser.language);
             this.translate.use(appUser.language);
+            this.amplifyI18n.setLanguage(appUser.language);
             localStorage.setItem('lang', appUser.language);
           }
 
@@ -134,6 +138,7 @@ export class AppComponent implements OnInit {
     // Immediately update UI
     this.selectedLang.set(lang);
     this.translate.use(lang);
+    this.amplifyI18n.setLanguage(lang);
     localStorage.setItem('lang', lang);
 
     // Persist to DynamoDB
