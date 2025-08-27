@@ -16,16 +16,17 @@ import {
   AmplifyAuthenticatorModule,
   AuthenticatorService,
 } from '@aws-amplify/ui-angular';
-import { Hub } from 'aws-amplify/utils';
+import { Hub, I18n } from 'aws-amplify/utils';
 import { AppUserService } from './core/services/app-user.service';
 import { LogService } from './core/services/log.service';
 import { Language } from './core/models/i18n.model';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { BrowserService } from './core/services/browser.service';
-import { Theme } from './core/models/app-user.model';
+import { AppUser, Theme } from './core/models/app-user.model';
 import { AmplifyI18nService } from './core/services/amplify-i18n.service';
-import { MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -45,11 +46,10 @@ import { MatTooltipModule} from '@angular/material/tooltip';
     RouterOutlet,
     RouterLink,
     MatMenuModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);
   private readonly appUserService = inject(AppUserService);
@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
 
+  public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
   public isDark = signal(false);
 
@@ -67,6 +68,17 @@ export class AppComponent implements OnInit {
 
   constructor() {
     this.translate.addLangs(this.languages);
+
+    // Subscribe to currentUser$ with automatic unsubscription on destroy
+    this.appUserService.currentUser$
+      .pipe(takeUntilDestroyed())
+      .subscribe((user) => {
+        if (user) {
+          this.applyTheme(user.theme);
+          I18n.setLanguage(user.language);
+          this.selectedLang.set(user.language);
+        }
+      });
   }
 
   async ngOnInit() {
@@ -90,7 +102,7 @@ export class AppComponent implements OnInit {
       }
     }
 
-    // Apply language globally
+    // Apply language globally intially
     this.selectedLang.set(defaultLang);
     this.translate.use(defaultLang);
     this.amplifyI18n.init(defaultLang);
@@ -121,15 +133,16 @@ export class AppComponent implements OnInit {
         }
 
         case 'signedOut':
-          this.logService.info('User signed out');
           this.appUserService.clearCurrentUser();
+
+          // Navigation forcée vers /login
+          this.router.navigate(['/home'], { replaceUrl: true });
           break;
       }
     });
   }
 
   async changeLang(languageSelected: Language) {
-
     // Immediately update UI
     this.selectedLang.set(languageSelected);
     this.translate.use(languageSelected);

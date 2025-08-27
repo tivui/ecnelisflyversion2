@@ -1,0 +1,24 @@
+@use "@angular/material" as mat;
+
+.account-container {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+form {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

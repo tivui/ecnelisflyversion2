@@ -15,7 +15,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class HomeComponent {
   private readonly appUserService = inject(AppUserService);
 
-  /** Transforme l’observable en signal pour @if */
   public appUser = toSignal<AppUser | null>(
     this.appUserService.currentUser$,
     { initialValue: null }

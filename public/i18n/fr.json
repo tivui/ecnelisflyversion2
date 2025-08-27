@@ -7,6 +7,17 @@
       "logout": "Se déconnecter",
       "dark": "Sombre",
       "light": "Clair"
+    },
+    "account": {
+      "title": "Configuration du compte",
+      "username": "Nom d'utilisateur",
+      "email": "Email",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "country": "Pays",
+      "language": "Langue de l'application",
+      "theme": "Thème",
+      "save": "Enregistrer"
     }
   }
 }
