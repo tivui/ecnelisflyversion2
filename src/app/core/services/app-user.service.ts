@@ -52,6 +52,8 @@ export class AppUserService {
           newNotificationCount: d.newNotificationCount ?? 0,
           flashNew: d.flashNew ?? false,
           country: d.country,
+          firstName: d.firstName,
+          lastName: d.lastName
         };
       } else {
         // 🚀 No user → create minimal
@@ -161,6 +163,8 @@ export class AppUserService {
     username?: string;
     email?: string;
     country?: string | null;
+    firstName?: string | null;
+    lastName?: string | null
   }): Promise<AppUser | null> {
     const current = this._currentUser.value;
     if (!current) return null;
@@ -186,6 +190,8 @@ export class AppUserService {
         country: d.country,
         language: d.language as Language,
         theme: d.theme as Theme,
+        firstName: d.firstName,
+        lastName: d.lastName
       };
 
       this._currentUser.next(appUser);

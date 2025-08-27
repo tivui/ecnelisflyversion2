@@ -71,6 +71,29 @@ body.dark-theme {
   background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
 }
 
+.form-wrapper {
+  width: 100%;
+  max-width: 800px;
+  padding: 32px;
+  border-radius: 12px;
+  box-sizing: border-box;
+
+  // Light theme
+  body.light-theme & {
+    background-color: #f1f5fa;
+    color: #1a1a1a;
+  }
+
+  // Dark theme
+  body.dark-theme & {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+  }
+
+  transition: background-color 0.3s, color 0.3s;
+}
+
+
 // main content area
 main.content {
   display: flex;
@@ -145,4 +168,9 @@ li:hover {
 a {
   font-weight: 800;
   text-decoration: none;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  font-size:xx-large;
 }

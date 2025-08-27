@@ -9,7 +9,7 @@
       "light": "Light Mode"
     },
     "account": {
-      "title": "My Account",
+      "title": "Account configuration",
       "username": "Username",
       "email": "Email",
       "firstName": "First Name",

@@ -133,8 +133,10 @@ export class AppComponent implements OnInit {
         }
 
         case 'signedOut':
-          this.logService.info('User signed out');
           this.appUserService.clearCurrentUser();
+
+          // Navigation forcée vers /login
+          this.router.navigate(['/home'], { replaceUrl: true });
           break;
       }
     });

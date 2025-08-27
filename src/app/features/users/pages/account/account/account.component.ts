@@ -134,6 +134,8 @@ export class AccountComponent implements OnInit {
       const updatedUser = await this.appUserService.updateProfile({
         username: values.username ?? '',
         country: values.country ?? null,
+        firstName: values.firstName ?? '',
+        lastName: values.lastName ?? ''
       });
 
       if (updatedUser) {
