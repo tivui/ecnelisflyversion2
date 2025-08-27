@@ -3,7 +3,7 @@ import {
   inject,
   OnInit,
   signal,
-  CUSTOM_ELEMENTS_SCHEMA
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,7 @@ import { BrowserService } from './core/services/browser.service';
 import { AppUser, Theme } from './core/models/app-user.model';
 import { AmplifyI18nService } from './core/services/amplify-i18n.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -68,11 +69,16 @@ export class AppComponent implements OnInit {
   constructor() {
     this.translate.addLangs(this.languages);
 
-    // Watch language changes from ngx-translate
-    this.translate.onLangChange.subscribe(event => {
-      I18n.setLanguage(event.lang);
-      this.selectedLang.set(event.lang as Language);
-    });
+    // Subscribe to currentUser$ with automatic unsubscription on destroy
+    this.appUserService.currentUser$
+      .pipe(takeUntilDestroyed())
+      .subscribe((user) => {
+        if (user) {
+          this.applyTheme(user.theme);
+          I18n.setLanguage(user.language);
+          this.selectedLang.set(user.language);
+        }
+      });
   }
 
   async ngOnInit() {

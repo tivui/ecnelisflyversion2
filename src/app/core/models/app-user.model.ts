@@ -6,6 +6,8 @@ export interface AppUser {
   id: string;                  // Cognito sub
   username: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   language: Language;
   theme: Theme;
   newNotificationCount: number;

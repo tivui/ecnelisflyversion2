@@ -9,11 +9,6 @@
       </mat-form-field>
 
       <mat-form-field>
-        <mat-label>{{ "app.account.email" | translate }}</mat-label>
-        <input matInput formControlName="email" />
-      </mat-form-field>
-
-      <mat-form-field>
         <mat-label>{{ "app.account.firstName" | translate }}</mat-label>
         <input matInput formControlName="firstName" />
       </mat-form-field>
@@ -23,9 +18,24 @@
         <input matInput formControlName="lastName" />
       </mat-form-field>
 
+      <!-- Country autocomplete field -->
       <mat-form-field>
         <mat-label>{{ "app.account.country" | translate }}</mat-label>
-        <input matInput formControlName="country" />
+        <input
+          type="text"
+          matInput
+          formControlName="country"
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onCountrySelected($event.option.value)"
+          [displayWith]="countryName.bind(this)"
+        >
+          @for (country of filteredCountriesSignal(); track country.code) {
+            <mat-option [value]="country.code">{{ country.name }}</mat-option>
+          }
+        </mat-autocomplete>
       </mat-form-field>
 
       <mat-form-field>
