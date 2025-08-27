@@ -5,6 +5,7 @@ import { Language } from '../models/i18n.model';
 import { LogService } from './log.service';
 import { BehaviorSubject } from 'rxjs';
 import { AmplifyService } from './amplify.service';
+import { BrowserService } from './browser.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class AppUserService {
   private readonly authService = inject(AuthService);
   private readonly logService = inject(LogService);
   private readonly amplifyService = inject(AmplifyService);
+  private readonly browserService = inject(BrowserService);
 
   private readonly _currentUser = new BehaviorSubject<AppUser | null>(null);
   public readonly currentUser$ = this._currentUser.asObservable();
@@ -49,6 +51,7 @@ export class AppUserService {
           theme: (d.theme ?? 'light') as Theme,
           newNotificationCount: d.newNotificationCount ?? 0,
           flashNew: d.flashNew ?? false,
+          country: d.country
         };
       } else {
         // 🚀 No user → create minimal
@@ -56,14 +59,17 @@ export class AppUserService {
           `No user found, creating minimal user for ${currentAuthUser.username}`,
         );
 
+        const { language, country } = this.browserService.getLocale();
+
         const newUser = await this.amplifyService.client.models.User.create({
           id: currentAuthUser.sub,
           username: currentAuthUser.email ?? currentAuthUser.username,
           email: currentAuthUser.email ?? '',
-          language: 'fr',
+          language: language,
           theme: 'dark',
           newNotificationCount: 0,
           flashNew: false,
+          country: country,
         });
 
         if (!newUser.data) {
@@ -82,6 +88,7 @@ export class AppUserService {
             theme: (d.theme ?? 'light') as Theme,
             newNotificationCount: d.newNotificationCount ?? 0,
             flashNew: d.flashNew ?? false,
+            country: d.country
           };
         }
       }

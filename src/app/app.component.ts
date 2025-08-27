@@ -20,10 +20,12 @@ import { Hub } from 'aws-amplify/utils';
 import { AppUserService } from './core/services/app-user.service';
 import { LogService } from './core/services/log.service';
 import { Language } from './core/models/i18n.model';
-import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule, MatSelectChange } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
+import { BrowserService } from './core/services/browser.service';
+import { Theme } from './core/models/app-user.model';
+import { AmplifyI18nService } from './core/services/amplify-i18n.service';
+import { MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
@@ -39,65 +41,82 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     AmplifyAuthenticatorModule,
     TranslatePipe,
-    MatFormFieldModule,
-    MatSelectModule,
     MatInputModule,
-    FormsModule,
     RouterOutlet,
     RouterLink,
+    MatMenuModule,
+    MatTooltipModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
+
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);
   private readonly appUserService = inject(AppUserService);
   private readonly logService = inject(LogService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly browserService = inject(BrowserService);
+  private readonly amplifyI18n = inject(AmplifyI18nService);
 
   public showLogin = signal(false);
   public isDark = signal(false);
 
   public languages: Language[] = ['en', 'fr', 'es'];
-  public selectedLang = signal('fr');
+  public selectedLang = signal<Language>('fr');
 
   constructor() {
-    const supportedLangs: Language[] = ['en', 'fr'];
-    this.translate.addLangs(supportedLangs);
-
-    const savedLang = localStorage.getItem('lang');
-    const browserLang = navigator.language.split('-')[0];
-    const defaultLang =
-      savedLang ||
-      (supportedLangs.includes(browserLang as Language) ? browserLang : 'en');
-
-    this.translate.use(defaultLang);
+    this.translate.addLangs(this.languages);
   }
 
-  ngOnInit() {
-    // 1️⃣ Chargement initial (rafraîchissement)
-    this.appUserService.loadCurrentUser();
+  async ngOnInit() {
+    // 1️⃣ Try to load user from backend (if authenticated)
+    const appUser = await this.appUserService.loadCurrentUser();
 
-    // 2️⃣ Hub auth events
+    let defaultLang: Language;
+
+    if (appUser?.language) {
+      // Case 1: Use user's stored language from DynamoDB (highest priority)
+      defaultLang = appUser.language;
+    } else {
+      // Case 2: Try localStorage
+      const savedLang = localStorage.getItem('lang') as Language | null;
+
+      if (savedLang) {
+        defaultLang = savedLang;
+      } else {
+        // Case 3: Fallback to browser language via BrowserService
+        defaultLang = this.browserService.getBrowserLanguage();
+      }
+    }
+
+    // Apply language globally
+    this.selectedLang.set(defaultLang);
+    this.translate.use(defaultLang);
+    this.amplifyI18n.init(defaultLang);
+
+    // 2️⃣ Listen to authentication events (Amplify Hub)
     Hub.listen('auth', async ({ payload }) => {
-      // const user = this.authenticator.user;
       switch (payload.event) {
         case 'signedIn': {
           this.logService.info('User signed in via Amplify Hub');
 
           const appUser = await this.appUserService.loadCurrentUser();
           if (appUser?.language) {
-            // Language
+            // Update language from user preference
             this.selectedLang.set(appUser.language);
             this.translate.use(appUser.language);
+            this.amplifyI18n.setLanguage(appUser.language);
+            localStorage.setItem('lang', appUser.language);
+          }
 
-            // Theme
+          // Apply theme
+          if (appUser?.theme) {
             this.isDark.set(appUser.theme === 'dark');
             this.applyTheme(appUser.theme);
           }
 
           this.router.navigate(['/home']);
-
           break;
         }
 
@@ -109,6 +128,18 @@ export class AppComponent implements OnInit {
     });
   }
 
+  async changeLang(languageSelected: Language) {
+
+    // Immediately update UI
+    this.selectedLang.set(languageSelected);
+    this.translate.use(languageSelected);
+    this.amplifyI18n.setLanguage(languageSelected);
+    localStorage.setItem('lang', languageSelected);
+
+    // Persist to DynamoDB
+    await this.appUserService.updateLanguage(languageSelected);
+  }
+
   toggleDarkMode() {
     const dark = !this.isDark();
     const theme = dark ? 'dark' : 'light';
@@ -116,25 +147,18 @@ export class AppComponent implements OnInit {
     this.isDark.set(dark);
     this.applyTheme(theme);
 
-    // Save in DynamoDB
+    // Save preference in backend
     this.appUserService.updateTheme(theme);
   }
 
-  async changeLang(event: MatSelectChange) {
-    const lang = event.value as Language;
-
-    // update local UI immediately
-    this.selectedLang.set(lang);
-    this.translate.use(lang);
-    localStorage.setItem('lang', lang);
-
-    // persist to DynamoDB
-    await this.appUserService.updateLanguage(lang);
-  }
-
-  private applyTheme(theme: 'light' | 'dark') {
+  private applyTheme(theme: Theme) {
+    // Apply theme CSS classes globally
     const body = document.body;
     body.classList.toggle('dark-theme', theme === 'dark');
     body.classList.toggle('light-theme', theme === 'light');
+  }
+
+  goToAccount() {
+    this.router.navigate(['/account']);
   }
 }
