@@ -4,13 +4,11 @@
 
   <!-- Lang selector -->
   <mat-menu #langMenu="matMenu">
-    <button
-      mat-menu-item
-      *ngFor="let l of languages"
-      (click)="changeLang(l)"
-    >
-      {{ l.toUpperCase() }}
-    </button>
+    @for (l of languages; track l) {
+      <button mat-menu-item (click)="changeLang(l)">
+        {{ l.toUpperCase() }}
+      </button>
+    }
   </mat-menu>
 
   <button mat-button [matMenuTriggerFor]="langMenu">

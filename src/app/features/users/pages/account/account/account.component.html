@@ -1,0 +1,67 @@
+<div class="account-container" @if(appUser())>
+  <h1>{{ "app.account.title" | translate }}</h1>
+
+  <form [formGroup]="accountForm" (ngSubmit)="save()">
+    <div class="form-grid">
+      <mat-form-field>
+        <mat-label>{{ "app.account.username" | translate }}</mat-label>
+        <input matInput formControlName="username" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.email" | translate }}</mat-label>
+        <input matInput formControlName="email" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.firstName" | translate }}</mat-label>
+        <input matInput formControlName="firstName" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.lastName" | translate }}</mat-label>
+        <input matInput formControlName="lastName" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.country" | translate }}</mat-label>
+        <input matInput formControlName="country" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.language" | translate }}</mat-label>
+        <mat-select formControlName="language">
+          @for (l of languages; track l) {
+            <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ "app.account.theme" | translate }}</mat-label>
+        <mat-select formControlName="theme">
+          @for (t of themes; track t) {
+            <mat-option [value]="t">{{ t | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="form-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!accountForm.dirty || accountForm.invalid || saving()"
+      >
+        @if (saving()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          {{ "app.account.save" | translate }}
+        }
+      </button>
+    </div>
+  </form>
+</div>

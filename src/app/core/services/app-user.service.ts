@@ -51,7 +51,7 @@ export class AppUserService {
           theme: (d.theme ?? 'light') as Theme,
           newNotificationCount: d.newNotificationCount ?? 0,
           flashNew: d.flashNew ?? false,
-          country: d.country
+          country: d.country,
         };
       } else {
         // 🚀 No user → create minimal
@@ -88,7 +88,7 @@ export class AppUserService {
             theme: (d.theme ?? 'light') as Theme,
             newNotificationCount: d.newNotificationCount ?? 0,
             flashNew: d.flashNew ?? false,
-            country: d.country
+            country: d.country,
           };
         }
       }
@@ -154,6 +154,45 @@ export class AppUserService {
       this.logService.info(`Theme updated for ${user.username} → ${theme}`);
     } catch (error) {
       this.logService.error(error);
+    }
+  }
+
+  async updateProfile(fields: {
+    username?: string;
+    email?: string;
+    country?: string | null;
+  }): Promise<AppUser | null> {
+    const current = this._currentUser.value;
+    if (!current) return null;
+
+    try {
+      const updated = await this.amplifyService.client.models.User.update({
+        id: current.id,
+        ...fields,
+      });
+
+      if (!updated.data) {
+        this.logService.error(
+          `Failed to update profile for user ${current.id}`,
+        );
+        return current;
+      }
+
+      const d = updated.data;
+      const appUser: AppUser = {
+        ...current,
+        username: d.username,
+        email: d.email,
+        country: d.country,
+        language: d.language as Language,
+        theme: d.theme as Theme,
+      };
+
+      this._currentUser.next(appUser);
+      return appUser;
+    } catch (err) {
+      this.logService.error(err);
+      return current;
     }
   }
 }

@@ -12,3 +12,5 @@ export interface AppUser {
   flashNew: boolean;
   country: string | null;
 }
+export { Language };
+

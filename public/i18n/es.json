@@ -6,8 +6,18 @@
       "login": "Iniciar sesión",
       "logout": "Cerrar sesión",
       "dark": "Oscuro",
-      "light": "Claro",
-      "welcome": "Bienvenido {{username}} 🎉"
+      "light": "Claro"
+    },
+    "account": {
+      "title": "Mi cuenta",
+      "username": "Nombre de usuario",
+      "email": "Correo electrónico",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "country": "País",
+      "language": "App idioma",
+      "theme": "Tema",
+      "save": "Guardar cambios"
     }
   }
 }

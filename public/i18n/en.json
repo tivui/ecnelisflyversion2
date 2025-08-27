@@ -6,8 +6,19 @@
       "login": "Login",
       "logout": "Logout",
       "dark": "Dark Mode",
-      "light": "Light Mode",
-      "welcome": "Welcome {{name}} 🎉"
+      "light": "Light Mode"
+    },
+    "account": {
+      "title": "My Account",
+      "username": "Username",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "country": "Country",
+      "language": "App language",
+      "theme": "Theme",
+      "save": "Save Changes"
     }
   }
 }
+

@@ -3,7 +3,7 @@ import {
   inject,
   OnInit,
   signal,
-  CUSTOM_ELEMENTS_SCHEMA,
+  CUSTOM_ELEMENTS_SCHEMA
 } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,16 +16,16 @@ import {
   AmplifyAuthenticatorModule,
   AuthenticatorService,
 } from '@aws-amplify/ui-angular';
-import { Hub } from 'aws-amplify/utils';
+import { Hub, I18n } from 'aws-amplify/utils';
 import { AppUserService } from './core/services/app-user.service';
 import { LogService } from './core/services/log.service';
 import { Language } from './core/models/i18n.model';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { BrowserService } from './core/services/browser.service';
-import { Theme } from './core/models/app-user.model';
+import { AppUser, Theme } from './core/models/app-user.model';
 import { AmplifyI18nService } from './core/services/amplify-i18n.service';
-import { MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
@@ -45,11 +45,10 @@ import { MatTooltipModule} from '@angular/material/tooltip';
     RouterOutlet,
     RouterLink,
     MatMenuModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);
   private readonly appUserService = inject(AppUserService);
@@ -59,6 +58,7 @@ export class AppComponent implements OnInit {
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
 
+  public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
   public isDark = signal(false);
 
@@ -67,6 +67,12 @@ export class AppComponent implements OnInit {
 
   constructor() {
     this.translate.addLangs(this.languages);
+
+    // Watch language changes from ngx-translate
+    this.translate.onLangChange.subscribe(event => {
+      I18n.setLanguage(event.lang);
+      this.selectedLang.set(event.lang as Language);
+    });
   }
 
   async ngOnInit() {
@@ -90,7 +96,7 @@ export class AppComponent implements OnInit {
       }
     }
 
-    // Apply language globally
+    // Apply language globally intially
     this.selectedLang.set(defaultLang);
     this.translate.use(defaultLang);
     this.amplifyI18n.init(defaultLang);
@@ -129,7 +135,6 @@ export class AppComponent implements OnInit {
   }
 
   async changeLang(languageSelected: Language) {
-
     // Immediately update UI
     this.selectedLang.set(languageSelected);
     this.translate.use(languageSelected);
