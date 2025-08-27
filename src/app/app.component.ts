@@ -20,14 +20,12 @@ import { Hub } from 'aws-amplify/utils';
 import { AppUserService } from './core/services/app-user.service';
 import { LogService } from './core/services/log.service';
 import { Language } from './core/models/i18n.model';
-import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule, MatSelectChange } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { BrowserService } from './core/services/browser.service';
 import { Theme } from './core/models/app-user.model';
 import { AmplifyI18nService } from './core/services/amplify-i18n.service';
+import { MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
@@ -43,13 +41,11 @@ import { AmplifyI18nService } from './core/services/amplify-i18n.service';
     MatButtonModule,
     AmplifyAuthenticatorModule,
     TranslatePipe,
-    MatFormFieldModule,
-    MatSelectModule,
     MatInputModule,
-    FormsModule,
     RouterOutlet,
     RouterLink,
     MatMenuModule,
+    MatTooltipModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -132,17 +128,16 @@ export class AppComponent implements OnInit {
     });
   }
 
-  async changeLang(event: MatSelectChange) {
-    const lang = event.value as Language;
+  async changeLang(languageSelected: Language) {
 
     // Immediately update UI
-    this.selectedLang.set(lang);
-    this.translate.use(lang);
-    this.amplifyI18n.setLanguage(lang);
-    localStorage.setItem('lang', lang);
+    this.selectedLang.set(languageSelected);
+    this.translate.use(languageSelected);
+    this.amplifyI18n.setLanguage(languageSelected);
+    localStorage.setItem('lang', languageSelected);
 
     // Persist to DynamoDB
-    await this.appUserService.updateLanguage(lang);
+    await this.appUserService.updateLanguage(languageSelected);
   }
 
   toggleDarkMode() {

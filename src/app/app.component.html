@@ -3,24 +3,36 @@
   <span class="spacer"></span>
 
   <!-- Lang selector -->
-  <mat-form-field>
-    <mat-label>Langue</mat-label>
-    <mat-select [value]="selectedLang()" (selectionChange)="changeLang($event)">
-      @for (l of languages; track l) {
-        <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
+  <mat-menu #langMenu="matMenu">
+    <button
+      mat-menu-item
+      *ngFor="let l of languages"
+      (click)="changeLang(l)"
+    >
+      {{ l.toUpperCase() }}
+    </button>
+  </mat-menu>
 
-  <!-- Dark mode -->
-  <mat-slide-toggle [checked]="isDark()" (change)="toggleDarkMode()">
-    {{ (isDark() ? "app.toolbar.dark" : "app.toolbar.light") | translate }}
-  </mat-slide-toggle>
+  <button mat-button [matMenuTriggerFor]="langMenu">
+    {{ selectedLang() | uppercase }}
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+
+  <!-- Dark mode toggle with icons -->
+  <button
+    mat-icon-button
+    (click)="toggleDarkMode()"
+    [matTooltip]="
+      (isDark() ? 'app.toolbar.light' : 'app.toolbar.dark') | translate
+    "
+  >
+    <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
+  </button>
 
   <!-- Auth -->
   @if (authenticator.user) {
     <!-- Avatar button -->
-    <button mat-icon-button >
+    <button mat-icon-button>
       <mat-icon [matMenuTriggerFor]="userMenu">account_circle</mat-icon>
     </button>
 
