@@ -1,7 +1,7 @@
 @if (appUser()) {
   <div class="home-container">
     <h2>
-      {{ "app.welcome" | translate: { name: appUser()!.username } }}
+      {{ "home.welcome" | translate: { name: appUser()!.username } }}
       <img
         [src]="'/img/flags/' + appUser()?.country + '.png'"
         alt="{{ appUser()?.country }}"
