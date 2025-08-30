@@ -27,6 +27,7 @@ import { AppUser, Theme } from './core/models/app-user.model';
 import { AmplifyI18nService } from './core/services/amplify-i18n.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -58,10 +59,12 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
+  private readonly authService = inject(AuthService);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
   public isDark = signal(false);
+  public isAdmin = signal(false);
 
   public languages: Language[] = ['en', 'fr', 'es'];
   public selectedLang = signal<Language>('fr');
@@ -84,6 +87,12 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     // 1️⃣ Try to load user from backend (if authenticated)
     const appUser = await this.appUserService.loadCurrentUser();
+
+    // Load current user & groups
+    await this.authService.loadCurrentUser();
+
+    // Check if current user is in ADMIN group
+    this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
     let defaultLang: Language;
 

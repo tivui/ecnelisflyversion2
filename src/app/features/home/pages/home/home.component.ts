@@ -34,7 +34,7 @@ export class HomeComponent {
       const result = await list({
         path: 'sounds/',
       });
-      console.log("result list", result)
+      console.log("result sounds list", result.items)
       const { url } = await getUrl({
         path: 'sounds/test-peche-lancer.mp3',
       });
