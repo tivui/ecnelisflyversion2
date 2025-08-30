@@ -68,9 +68,13 @@ body.light-theme {
 }
 
 body.dark-theme {
-  background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
+  background: linear-gradient(
+    180deg,
+    rgb(1, 31, 96) 0%,
+    rgba(5, 52, 153, 0.69) 70%,
+    rgb(1, 31, 96) 100%
+  );
 }
-
 .form-wrapper {
   width: 100%;
   max-width: 800px;
