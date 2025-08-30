@@ -1,9 +1,20 @@
-@use "@angular/material" as mat;
-
 .account-container {
   display: grid;
   place-items: center;
   padding: 24px;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 12px; // space between title and email chip
+  margin-bottom: 16px;
+}
+
+mat-chip {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  cursor: default;
 }
 
 form {

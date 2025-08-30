@@ -21,7 +21,7 @@
     mat-icon-button
     (click)="toggleDarkMode()"
     [matTooltip]="
-      (isDark() ? 'app.toolbar.light' : 'app.toolbar.dark') | translate
+      (isDark() ? 'toolbar.light' : 'toolbar.dark') | translate
     "
   >
     <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
@@ -38,17 +38,17 @@
     <mat-menu #userMenu="matMenu">
       <button mat-menu-item (click)="goToAccount()">
         <mat-icon>manage_accounts</mat-icon>
-        {{ "app.toolbar.account" | translate }}
+        {{ "toolbar.account" | translate }}
       </button>
       <button mat-menu-item (click)="authenticator.signOut()">
         <mat-icon>logout</mat-icon>
-        {{ "app.toolbar.logout" | translate }}
+        {{ "toolbar.logout" | translate }}
       </button>
     </mat-menu>
   } @else {
     <button mat-button color="primary" [routerLink]="'/login'">
       <mat-icon>login</mat-icon>
-      {{ "app.toolbar.login" | translate }}
+      {{ "toolbar.login" | translate }}
     </button>
   }
 </mat-toolbar>

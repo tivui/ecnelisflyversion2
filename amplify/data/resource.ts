@@ -1,37 +1,29 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { categories, CategoryKey, getSubCategoryKeys } from './categories';
+
+// Generate an array containing all valid category and subcategory keys
+const allCategoryKeys = Object.values(categories).flatMap((cat) => [
+  cat.key,
+  ...cat.subcategories.map((sub) => sub.key),
+]);
+
+// Define an Amplify enum with all valid keys
+const CategoryEnum = a.enum(allCategoryKeys);
 
 /**
  * Single-table schema definition (DynamoDB)
  */
 const schema = a.schema({
-  /**
-   * Enum for supported languages
-   */
   Language: a.enum(['fr', 'en', 'es']),
-
-  /**
-   * Enum for user theme
-   */
   Theme: a.enum(['light', 'dark']),
-
-  /**
-   * Enum for notification types
-   */
   NotificationType: a.enum(['like', 'comment', 'report', 'system']),
+  LicenseType: a.enum(['READ_ONLY', 'PUBLIC_DOMAIN', 'CC_BY', 'CC_BY_NC']),
 
-  /**
-   * Application users (linked to Cognito)
-   */
   User: a
     .model({
-      // ⚡️ ID = Cognito sub (UUID)
       id: a.id().required(),
-
-      // Info imported from Cognito
       username: a.string().required(),
       email: a.string().required(),
-
-      // Application metadata
       country: a.string(),
       firstName: a.string(),
       lastName: a.string(),
@@ -39,13 +31,11 @@ const schema = a.schema({
       language: a.ref('Language'),
       theme: a.ref('Theme'),
 
-      // Relations
       sounds: a.hasMany('Sound', 'userId'),
       comments: a.hasMany('Comment', 'userId'),
       notifications: a.hasMany('Notification', 'userId'),
       reports: a.hasMany('Report', 'userId'),
 
-      // Enriched application fields
       likedSoundIds: a.string(),
       favoriteSoundIds: a.string(),
       reportedSoundIds: a.string(),
@@ -53,14 +43,8 @@ const schema = a.schema({
       newNotificationCount: a.integer().default(0),
       flashNew: a.boolean().default(false),
     })
-    .authorization((allow) => [
-      allow.owner(),
-    ]),
+    .authorization((allow) => [allow.owner()]),
 
-
-  /**
-   * Sounds uploaded by users
-   */
   Sound: a
     .model({
       userId: a.id().required(),
@@ -87,10 +71,8 @@ const schema = a.schema({
       longitude: a.float(),
       city: a.string(),
 
-      category: a.string(),
+      category: a.enum(Object.values(CategoryKey)),
       secondaryCategory: a.string(),
-      tertiaryCategory: a.string(),
-      secondaryCategoryCount: a.integer(),
 
       dateString: a.string(),
       dateTime: a.datetime(),
@@ -122,9 +104,6 @@ const schema = a.schema({
       allow.publicApiKey().to(['read']),
     ]),
 
-  /**
-   * Comments
-   */
   Comment: a
     .model({
       soundId: a.id().required(),
@@ -144,9 +123,6 @@ const schema = a.schema({
       allow.publicApiKey().to(['read']),
     ]),
 
-  /**
-   * Notifications
-   */
   Notification: a
     .model({
       userId: a.id().required(),
@@ -158,9 +134,6 @@ const schema = a.schema({
     })
     .authorization((allow) => [allow.owner()]),
 
-  /**
-   * Reports
-   */
   Report: a
     .model({
       soundId: a.id().required(),

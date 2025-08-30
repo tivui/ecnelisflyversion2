@@ -1,6 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,7 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { LangChangeEvent, TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppUserService } from '../../../../../core/services/app-user.service';
 import { AppUser, Theme } from '../../../../../core/models/app-user.model';
 import { Language } from '../../../../../core/models/i18n.model';
@@ -33,6 +42,8 @@ import esLocale from 'i18n-iso-countries/langs/es.json';
     MatAutocompleteModule,
     TranslatePipe,
     MatProgressSpinnerModule,
+    MatChipsModule,
+    MatTooltipModule,
   ],
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.scss'],
@@ -62,6 +73,9 @@ export class AccountComponent implements OnInit {
   // Country options and filtered results for autocomplete
   public countryOptions: { code: string; name: string }[] = [];
   public filteredCountriesSignal = signal<{ code: string; name: string }[]>([]);
+  public countryCodeControl = this.fb.control<string | null>(null, [
+    Validators.required,
+  ]);
 
   ngOnInit() {
     // Register available locales
@@ -88,16 +102,35 @@ export class AccountComponent implements OnInit {
     });
 
     // Listen to country input changes for filtering
-    this.accountForm.get('country')!.valueChanges.subscribe((val: string | null) => {
-      const filter = (val ?? '').toLowerCase();
-      this.filteredCountriesSignal.set(
-        this.countryOptions.filter((c) => c.name.toLowerCase().includes(filter))
-      );
-    });
+    this.accountForm
+      .get('country')!
+      .valueChanges.subscribe((val: string | null) => {
+        const filter = (val ?? '').toLowerCase();
+        this.filteredCountriesSignal.set(
+          this.countryOptions.filter((c) =>
+            c.name.toLowerCase().includes(filter),
+          ),
+        );
+      });
+
+    // Add validator to only allow existing country codes
+    this.accountForm
+      .get('country')
+      ?.setValidators([
+        Validators.required,
+        this.countryValidator(() => this.countryOptions),
+      ]);
+    this.accountForm.get('country')?.updateValueAndValidity();
 
     // Update country names when language changes
     this.accountForm.get('language')?.valueChanges.subscribe((lang) => {
       this.updateCountryList(lang as Language);
+    });
+
+    // Subscribe Language change from toolbar
+    this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      const newLang = event.lang as Language;
+      this.updateCountryList(newLang);
     });
   }
 
@@ -108,21 +141,29 @@ export class AccountComponent implements OnInit {
     if (lang === 'es') locale = 'es';
 
     this.countryOptions = Object.entries(countries.getNames(locale)).map(
-      ([code, name]) => ({ code, name })
+      ([code, name]) => ({ code, name }),
     );
 
     // Apply filtering based on current country field value
     const val = this.accountForm.get('country')?.value || '';
     this.filteredCountriesSignal.set(
       this.countryOptions.filter((c) =>
-        c.name.toLowerCase().includes(val.toLowerCase())
-      )
+        c.name.toLowerCase().includes(val.toLowerCase()),
+      ),
     );
   }
 
   // Save the form and update user profile
   async save() {
-    if (!this.accountForm.valid || !this.accountForm.dirty || !this.appUser()) return;
+    this.countryCodeControl.updateValueAndValidity();
+
+    if (this.accountForm.invalid || !this.appUser()) {
+      this.countryCodeControl.markAsTouched();
+      return;
+    }
+
+    if (!this.accountForm.valid || !this.accountForm.dirty || !this.appUser())
+      return;
 
     this.saving.set(true);
     const values = this.accountForm.value;
@@ -135,7 +176,7 @@ export class AccountComponent implements OnInit {
         username: values.username ?? '',
         country: values.country ?? null,
         firstName: values.firstName ?? '',
-        lastName: values.lastName ?? ''
+        lastName: values.lastName ?? '',
       });
 
       if (updatedUser) {
@@ -157,6 +198,20 @@ export class AccountComponent implements OnInit {
 
   // Called when a country is selected from the dropdown
   onCountrySelected(code: string) {
+    // Set the exact code when user selects an option
     this.accountForm.get('country')?.setValue(code);
+  }
+
+  private countryValidator(
+    getOptions: () => { code: string; name: string }[],
+  ): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const val = control.value;
+      if (!val) return { required: true };
+
+      // val must be a code in the options
+      const existsByCode = getOptions().some((c) => c.code === val);
+      return existsByCode ? null : { invalidCountry: true };
+    };
   }
 }

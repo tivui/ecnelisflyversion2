@@ -56,36 +56,53 @@ export class AppUserService {
           lastName: d.lastName
         };
       } else {
-        // 🚀 No user → create minimal
+        // 🚀 No user → create minimal user
         this.logService.info(
           `No user found, creating minimal user for ${currentAuthUser.username}`,
         );
 
+        // Get browser locale for language and country
         const { language, country } = this.browserService.getLocale();
 
+        // Derive username from email or fallback to Cognito username
+        const email = currentAuthUser.email ?? currentAuthUser.username ?? '';
+        const usernameFromEmail = email.split('@')[0]; // e.g., "john.doe@example.com" → "john.doe"
+
+        // Derive firstName and lastName from username
+        const nameParts = usernameFromEmail.split('.');
+        const firstNameFallback = nameParts[0] ?? usernameFromEmail;
+        const lastNameFallback = nameParts[1] ?? '';
+
+        // Create minimal user in DynamoDB with pre-filled fields
         const newUser = await this.amplifyService.client.models.User.create({
           id: currentAuthUser.sub,
-          username: currentAuthUser.email ?? currentAuthUser.username,
-          email: currentAuthUser.email ?? '',
+          username: usernameFromEmail,
+          email: email,
+          firstName: firstNameFallback,
+          lastName: lastNameFallback,
           language: language,
-          theme: 'dark',
+          theme: 'light',
           newNotificationCount: 0,
           flashNew: false,
           country: country,
         });
 
         if (!newUser.data) {
+          // Creation failed
           this.logService.error(
             `Failed to create user for ${currentAuthUser.username}`,
           );
           appUser = null;
         } else {
+          // Creation succeeded
           const d = newUser.data;
           this.logService.info(`User created: ${d.username} (${d.id})`);
           appUser = {
             id: d.id,
             username: d.username,
             email: d.email ?? '',
+            firstName: d.firstName,
+            lastName: d.lastName,
             language: (d.language ?? 'fr') as Language,
             theme: (d.theme ?? 'light') as Theme,
             newNotificationCount: d.newNotificationCount ?? 0,

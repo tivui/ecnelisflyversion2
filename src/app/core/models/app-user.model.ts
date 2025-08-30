@@ -12,7 +12,7 @@ export interface AppUser {
   theme: Theme;
   newNotificationCount: number;
   flashNew: boolean;
-  country: string | null;
+  country?: string | null;
 }
 export { Language };
 

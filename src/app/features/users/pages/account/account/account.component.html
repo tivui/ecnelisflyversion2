@@ -1,26 +1,37 @@
 <div class="account-container" @if(appUser())>
-  <h1>{{ "app.account.title" | translate }}</h1>
+  <!-- Title + email chip -->
+  <div class="account-header">
+    <h1>{{ "account.title" | translate }}</h1>
+
+    <mat-chip
+      color="primary"
+      selected
+      matTooltip="{{ 'account.emailHelp' | translate }}"
+    >
+      {{ appUser()?.email }}
+    </mat-chip>
+  </div>
 
   <div class="form-wrapper mat-elevation-z1">
     <form [formGroup]="accountForm" (ngSubmit)="save()">
       <div class="form-grid">
         <mat-form-field>
-          <mat-label>{{ "app.account.username" | translate }}</mat-label>
+          <mat-label>{{ "account.username" | translate }}</mat-label>
           <input matInput formControlName="username" />
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>{{ "app.account.firstName" | translate }}</mat-label>
+          <mat-label>{{ "account.firstName" | translate }}</mat-label>
           <input matInput formControlName="firstName" />
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>{{ "app.account.lastName" | translate }}</mat-label>
+          <mat-label>{{ "account.lastName" | translate }}</mat-label>
           <input matInput formControlName="lastName" />
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>{{ "app.account.country" | translate }}</mat-label>
+          <mat-label>{{ "account.country" | translate }}</mat-label>
           <input
             type="text"
             matInput
@@ -31,6 +42,7 @@
             #auto="matAutocomplete"
             (optionSelected)="onCountrySelected($event.option.value)"
             [displayWith]="countryName.bind(this)"
+            [autoActiveFirstOption]="true"
           >
             @for (country of filteredCountriesSignal(); track country.code) {
               <mat-option [value]="country.code">{{ country.name }}</mat-option>
@@ -39,7 +51,7 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>{{ "app.account.language" | translate }}</mat-label>
+          <mat-label>{{ "account.language" | translate }}</mat-label>
           <mat-select formControlName="language">
             @for (l of languages; track l) {
               <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
@@ -48,7 +60,7 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>{{ "app.account.theme" | translate }}</mat-label>
+          <mat-label>{{ "account.theme" | translate }}</mat-label>
           <mat-select formControlName="theme">
             @for (t of themes; track t) {
               <mat-option [value]="t">{{ t | translate }}</mat-option>
@@ -69,7 +81,7 @@
           @if (saving()) {
             <mat-spinner diameter="20"></mat-spinner>
           } @else {
-            {{ "app.account.save" | translate }}
+            {{ "account.save" | translate }}
           }
         </button>
       </div>
