@@ -106,7 +106,7 @@ export class AuthService {
   /**
    * Checks if the user belongs to one group
    * @param groupName a single group name
-   * @returns true if the user belongs to at least one of the groups
+   * @returns true if the user belongs to this group
    */
   isInGroup(groupName: CognitoGroup): boolean {
     const groups = this._groups();

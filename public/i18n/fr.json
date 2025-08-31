@@ -6,8 +6,10 @@
     "account": "Gérer mon compte",
     "login": "Se connecter",
     "logout": "Se déconnecter",
-    "dark": "Sombre",
-    "light": "Clair"
+    "admin" : {
+      "dashboard" : "Tableau de bord",
+      "manage-database" : "Gérer la bdd"
+    }
   },
   "account": {
     "title": "Configuration du compte",

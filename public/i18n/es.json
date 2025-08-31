@@ -6,8 +6,10 @@
     "account": "Gestionar mi cuenta",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
-    "dark": "Oscuro",
-    "light": "Claro"
+    "admin" : {
+      "dashboard" : "Panel de administración",
+      "manage-database" : "Administrar base de datos"
+    }
   },
   "account": {
     "title": "Configuración del cuento",
@@ -138,7 +140,7 @@
     "humanfly.lolfly": "Risas",
     "humanfly.vomitfly": "Vómitos",
     "humanfly.whistlehumanfly": "Silbidos",
-     "itemfly": "Sonidos de objetos",
+    "itemfly": "Sonidos de objetos",
     "itemfly.alarmfly": "Alarmas, timbres",
     "itemfly.householdfly": "Electrodomésticos (lavadoras, aspiradoras, lavavajillas, escobas, planchas...)",
     "itemfly.hififly": "Dispositivos de foto y vídeo",

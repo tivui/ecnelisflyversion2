@@ -4,18 +4,22 @@
 
   <!-- Admin settings wheel -->
   @if (authenticator.user && isAdmin()) {
-    <button mat-icon-button [matMenuTriggerFor]="adminMenu" matTooltip="Settings">
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="adminMenu"
+      matTooltip="Settings"
+    >
       <mat-icon>settings</mat-icon>
     </button>
 
     <mat-menu #adminMenu="matMenu">
       <button mat-menu-item>
         <mat-icon>manage_accounts</mat-icon>
-        Admin Dashboard
+        {{ "toolbar.admin.dashboard" | translate }}
       </button>
-      <button mat-menu-item>
-        <mat-icon>security</mat-icon>
-        Manage Users
+      <button mat-menu-item [routerLink]="'/admin/database/import-sound-from-files'">
+        <mat-icon>storage</mat-icon>
+        {{ "toolbar.admin.manage-database" | translate }}
       </button>
     </mat-menu>
   }
@@ -38,9 +42,7 @@
   <button
     mat-icon-button
     (click)="toggleDarkMode()"
-    [matTooltip]="
-      (isDark() ? 'toolbar.light' : 'toolbar.dark') | translate
-    "
+    [matTooltip]="(isDark() ? 'toolbar.light' : 'toolbar.dark') | translate"
   >
     <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
   </button>
