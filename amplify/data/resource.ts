@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { categories, CategoryKey, getSubCategoryKeys } from './categories';
+import { importSounds } from '../functions/import-sounds/resource';
 
 // Generate an array containing all valid category and subcategory keys
 const allCategoryKeys = Object.values(categories).flatMap((cat) => [
@@ -145,6 +146,13 @@ const schema = a.schema({
       reason: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
+
+  importSounds: a
+    .query()
+    .arguments({ fileContent: a.json() })
+    .returns(a.boolean())
+    .authorization((allow) => [allow.groups(['ADMIN'])])
+    .handler(a.handler.function(importSounds)),
 });
 
 export type Schema = ClientSchema<typeof schema>;

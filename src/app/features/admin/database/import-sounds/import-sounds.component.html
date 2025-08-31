@@ -1,0 +1,12 @@
+
+
+<input type="file" class="file-upload" accept=".json" (change)="onFileSelected($event)">
+
+@if (isLoading) {
+  <div>Import en cours...</div>
+}
+
+@if (message) {
+<div>{{ message }}</div>
+}
+
