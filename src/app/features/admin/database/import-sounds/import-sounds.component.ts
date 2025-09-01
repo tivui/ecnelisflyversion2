@@ -30,7 +30,7 @@ export class ImportSoundsComponent {
         this.isLoading = true;
         const client = this.amplify.client;
 
-        const result = await client.queries.importSounds({
+        const result = await client.mutations.importSounds({
           fileContent: JSON.stringify({ sounds: json }),
         });
 

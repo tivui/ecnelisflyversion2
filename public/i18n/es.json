@@ -6,6 +6,8 @@
     "account": "Gestionar mi cuenta",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
+    "dark": "Oscuro",
+    "light": "Claro",
     "admin" : {
       "dashboard" : "Panel de administración",
       "manage-database" : "Administrar base de datos"

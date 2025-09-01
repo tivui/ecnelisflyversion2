@@ -54,12 +54,6 @@ const schema = a.schema({
       title: a.string().required(),
       title_i18n: a.json(),
 
-      description: a.string(),
-      description_i18n: a.json(),
-
-      shortTitle: a.string(),
-      shortTitle_i18n: a.json(),
-
       shortStory: a.string(),
       shortStory_i18n: a.json(),
 
@@ -148,12 +142,15 @@ const schema = a.schema({
     .authorization((allow) => [allow.owner()]),
 
   importSounds: a
-    .query()
+    .mutation()
     .arguments({ fileContent: a.json() })
     .returns(a.boolean())
     .authorization((allow) => [allow.groups(['ADMIN'])])
     .handler(a.handler.function(importSounds)),
-});
+})
+.authorization((allow) => [
+  allow.resource(importSounds) // permet à la fonction d’accéder aux opérations Data
+]);;
 
 export type Schema = ClientSchema<typeof schema>;
 
