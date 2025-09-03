@@ -8,9 +8,9 @@
     "logout": "Cerrar sesión",
     "dark": "Oscuro",
     "light": "Claro",
-    "admin" : {
-      "dashboard" : "Panel de administración",
-      "manage-database" : "Administrar base de datos"
+    "admin": {
+      "dashboard": "Panel de administración",
+      "manage-database": "Administrar base de datos"
     }
   },
   "account": {
@@ -23,6 +23,11 @@
     "language": "App idioma",
     "theme": "Tema",
     "save": "Guardar cambios"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Importar sonidos"
+    }
   },
   "categories": {
     "ambiancefly": "Sonidos ambientales",

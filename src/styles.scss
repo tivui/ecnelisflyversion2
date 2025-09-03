@@ -178,3 +178,13 @@ h1 {
   font: var(--mat-sys-headline-large);
   font-size:xx-large;
 }
+
+// =======================
+// TABS
+// =======================
+
+:root {
+  @include mat.tabs-overrides((
+    background-color: var(--mat-sys-primary-container)
+  ));
+}

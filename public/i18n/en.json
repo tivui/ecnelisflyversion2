@@ -8,9 +8,9 @@
     "logout": "Logout",
     "dark": "Dark Mode",
     "light": "Light Mode",
-    "admin" : {
-      "dashboard" : "Admin dashboard",
-      "manage-database" : "Manage database"
+    "admin": {
+      "dashboard": "Admin dashboard",
+      "manage-database": "Manage database"
     }
   },
   "account": {
@@ -23,6 +23,11 @@
     "language": "App language",
     "theme": "Theme",
     "save": "Save Changes"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Import sounds"
+    }
   },
   "categories": {
     "ambiancefly": "Ambient sounds",

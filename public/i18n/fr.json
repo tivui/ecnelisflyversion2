@@ -8,9 +8,9 @@
     "logout": "Se déconnecter",
     "dark": "Sombre",
     "light": "Clair",
-    "admin" : {
-      "dashboard" : "Tableau de bord",
-      "manage-database" : "Gérer la bdd"
+    "admin": {
+      "dashboard": "Tableau de bord",
+      "manage-database": "Gérer la bdd"
     }
   },
   "account": {
@@ -23,6 +23,11 @@
     "language": "Langue de l'application",
     "theme": "Thème",
     "save": "Enregistrer"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Importer les sons"
+    }
   },
   "categories": {
     "ambiancefly": "Sons d'ambiances",
