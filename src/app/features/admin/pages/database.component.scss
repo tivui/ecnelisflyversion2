@@ -3,3 +3,17 @@
   place-items: center;
   padding: 24px;
 }
+
+.database-container {
+  .form-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; // espace entre tabs et contenu
+    padding: 16px;
+  }
+
+  nav[mat-tab-nav-bar] {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
+

@@ -1,10 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { AmplifyService } from '../../../../core/services/amplify.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-import-sounds',
   standalone: true,
-  imports: [],
+  imports: [MatFormFieldModule, MatInputModule, MatIcon, MatButtonModule],
   templateUrl: './import-sounds.component.html',
   styleUrl: './import-sounds.component.scss',
 })
@@ -14,12 +18,14 @@ export class ImportSoundsComponent {
   fileContent: any = null;
   isLoading = false;
   message = '';
+  fileName = '';
 
-  async onFileSelected(event: Event) {
+  onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
+    this.fileName = file.name;
     const reader = new FileReader();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
