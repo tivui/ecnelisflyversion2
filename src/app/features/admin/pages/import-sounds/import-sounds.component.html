@@ -1,0 +1,30 @@
+<div class="form-wrapper">
+  <mat-form-field appearance="outline">
+    <mat-label>Importer un JSON</mat-label>
+    <input matInput [value]="fileName" readonly />
+    <button class="input-file-button"
+      mat-raised-button
+      color="primary"
+      matSuffix
+      (click)="fileInput.click()"
+    >
+      <mat-icon>upload_file</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <input
+    type="file"
+    #fileInput
+    hidden
+    accept=".json"
+    (change)="onFileSelected($event)"
+  />
+</div>
+
+@if (isLoading) {
+  <div>Import en cours...</div>
+}
+
+@if (message) {
+  <div>{{ message }}</div>
+}

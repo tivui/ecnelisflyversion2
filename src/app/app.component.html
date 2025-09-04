@@ -2,6 +2,28 @@
   <span>Ecnelis FLY</span>
   <span class="spacer"></span>
 
+  <!-- Admin settings wheel -->
+  @if (authenticator.user && isAdmin()) {
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="adminMenu"
+      matTooltip="Settings"
+    >
+      <mat-icon>settings</mat-icon>
+    </button>
+
+    <mat-menu #adminMenu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>manage_accounts</mat-icon>
+        {{ "toolbar.admin.dashboard" | translate }}
+      </button>
+      <button mat-menu-item [routerLink]="'/admin/database'">
+        <mat-icon>storage</mat-icon>
+        {{ "toolbar.admin.manage-database" | translate }}
+      </button>
+    </mat-menu>
+  }
+
   <!-- Lang selector -->
   <mat-menu #langMenu="matMenu">
     @for (l of languages; track l) {
@@ -20,9 +42,7 @@
   <button
     mat-icon-button
     (click)="toggleDarkMode()"
-    [matTooltip]="
-      (isDark() ? 'toolbar.light' : 'toolbar.dark') | translate
-    "
+    [matTooltip]="(isDark() ? 'toolbar.light' : 'toolbar.dark') | translate"
   >
     <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
   </button>

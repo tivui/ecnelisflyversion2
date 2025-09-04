@@ -7,7 +7,11 @@
     "login": "Login",
     "logout": "Logout",
     "dark": "Dark Mode",
-    "light": "Light Mode"
+    "light": "Light Mode",
+    "admin": {
+      "dashboard": "Admin dashboard",
+      "manage-database": "Manage database"
+    }
   },
   "account": {
     "title": "Account configuration",
@@ -19,6 +23,11 @@
     "language": "App language",
     "theme": "Theme",
     "save": "Save Changes"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Import sounds"
+    }
   },
   "categories": {
     "ambiancefly": "Ambient sounds",

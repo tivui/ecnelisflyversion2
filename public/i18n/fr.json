@@ -7,7 +7,11 @@
     "login": "Se connecter",
     "logout": "Se déconnecter",
     "dark": "Sombre",
-    "light": "Clair"
+    "light": "Clair",
+    "admin": {
+      "dashboard": "Tableau de bord",
+      "manage-database": "Gérer la bdd"
+    }
   },
   "account": {
     "title": "Configuration du compte",
@@ -19,6 +23,11 @@
     "language": "Langue de l'application",
     "theme": "Thème",
     "save": "Enregistrer"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Importer les sons"
+    }
   },
   "categories": {
     "ambiancefly": "Sons d'ambiances",

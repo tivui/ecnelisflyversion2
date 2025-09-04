@@ -12,12 +12,18 @@ export interface CurrentUser {
   email?: string;
 }
 
+/** Cognito groups used in the app */
+export type CognitoGroup = 'ADMIN';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private _user = signal<CurrentUser | null>(null);
   readonly user = this._user.asReadonly();
+
+  private _groups = signal<string[]>([]);
+  readonly groups = this._groups.asReadonly();
 
   /**
    * Load the currently authenticated user.
@@ -34,6 +40,9 @@ export class AuthService {
       };
 
       this._user.set(currentUser);
+
+      await this.loadGroups();
+
       return currentUser;
     } catch {
       this._user.set(null);
@@ -74,5 +83,33 @@ export class AuthService {
   async signOut() {
     await signOut();
     this._user.set(null);
+  }
+
+ /**
+   * Load current Cognito user group(s) and cast to CognitoGroup type
+   */
+  async loadGroups(forceRefresh = false): Promise<CognitoGroup[]> {
+    const session = await this.getSession(forceRefresh);
+
+    const rawGroups = session?.accessToken?.payload['cognito:groups'];
+
+    const groups = Array.isArray(rawGroups)
+      ? (rawGroups as CognitoGroup[])
+      : rawGroups
+        ? [rawGroups as CognitoGroup]
+        : [];
+
+    this._groups.set(groups);
+    return groups;
+  }
+
+  /**
+   * Checks if the user belongs to one group
+   * @param groupName a single group name
+   * @returns true if the user belongs to this group
+   */
+  isInGroup(groupName: CognitoGroup): boolean {
+    const groups = this._groups();
+    return groups.includes(groupName);
   }
 }

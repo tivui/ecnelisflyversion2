@@ -7,7 +7,11 @@
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "dark": "Oscuro",
-    "light": "Claro"
+    "light": "Claro",
+    "admin": {
+      "dashboard": "Panel de administración",
+      "manage-database": "Administrar base de datos"
+    }
   },
   "account": {
     "title": "Configuración del cuento",
@@ -19,6 +23,11 @@
     "language": "App idioma",
     "theme": "Tema",
     "save": "Guardar cambios"
+  },
+  "admin": {
+    "database": {
+      "importSounds": "Importar sonidos"
+    }
   },
   "categories": {
     "ambiancefly": "Sonidos ambientales",
@@ -138,7 +147,7 @@
     "humanfly.lolfly": "Risas",
     "humanfly.vomitfly": "Vómitos",
     "humanfly.whistlehumanfly": "Silbidos",
-     "itemfly": "Sonidos de objetos",
+    "itemfly": "Sonidos de objetos",
     "itemfly.alarmfly": "Alarmas, timbres",
     "itemfly.householdfly": "Electrodomésticos (lavadoras, aspiradoras, lavavajillas, escobas, planchas...)",
     "itemfly.hififly": "Dispositivos de foto y vídeo",
