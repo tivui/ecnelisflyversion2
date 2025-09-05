@@ -38,16 +38,45 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
   };
 
   for (const sound of content.sounds) {
-    // Find user by email
-    const users = await client.models.User.list({
-      filter: { email: { eq: sound.email } },
+    let users = await client.models.User.list({
+      filter: { username: { eq: sound.username } },
     });
-    if (!users.data.length) {
-      console.warn(`[IMPORT] No user found for email: ${sound.email}`);
-      stats.skipped++;
-      continue;
+
+    let user;
+    if (users.data.length > 0) {
+      user = users.data[0];
+    } else {
+      try {
+        const created = await client.models.User.create({
+          username: sound.username,
+          email: sound.email || undefined, // facultatif
+          country: sound.country || undefined,
+          language: 'fr', // valeur par défaut
+          theme: 'light', // valeur par défaut
+        });
+
+        if (created.errors && created.errors.length > 0) {
+          console.error(
+            `[IMPORT] Failed to create user "${sound.username}":`,
+            created.errors,
+          );
+          stats.skipped++;
+          continue;
+        }
+
+        user = created.data;
+        console.info(
+          `[IMPORT] Created minimal user "${sound.username}" with id=${user!.id}`,
+        );
+      } catch (err) {
+        console.error(
+          `[IMPORT] Exception while creating user "${sound.username}":`,
+          err,
+        );
+        stats.skipped++;
+        continue;
+      }
     }
-    const user = users.data[0];
 
     // Parse date fields
     let dateTime: string | undefined;
@@ -107,7 +136,7 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
     // Create new Sound record with try/catch
     try {
       const result = await client.models.Sound.create({
-        userId: user.id,
+        userId: user!.id,
         title: sound.title,
         title_i18n: sound.title_i18n ? JSON.stringify(sound.title_i18n) : '{}',
         shortStory: sound.short_story,
@@ -136,19 +165,19 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
 
       if (result.errors && result.errors.length > 0) {
         console.error(
-          `[IMPORT] Failed to create sound "${sound.title}" for user ${user.email}:`,
+          `[IMPORT] Failed to create sound "${sound.title}" for user ${user!.username}:`,
           JSON.stringify(result.errors, null, 2),
         );
         stats.skipped++;
       } else {
         console.info(
-          `[IMPORT] Successfully created sound "${sound.title}" for user ${user.email} (id=${result.data?.id})`,
+          `[IMPORT] Successfully created sound "${sound.title}" for user ${user!.username} (id=${result.data?.id})`,
         );
         stats.imported++;
       }
     } catch (err) {
       console.error(
-        `[IMPORT] Exception while creating sound "${sound.title}" for user ${user.email}:`,
+        `[IMPORT] Exception while creating sound "${sound.title}" for user ${user!.username}:`,
         err,
       );
       stats.skipped++;

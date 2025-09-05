@@ -5,7 +5,7 @@ export type Theme = 'light' | 'dark'
 export interface AppUser {
   id: string;                  // Cognito sub
   username: string;
-  email: string;
+  email?: string;
   firstName?: string | null;
   lastName?: string | null;
   language: Language;
