@@ -46,7 +46,7 @@ export class AppUserService {
         appUser = {
           id: d.id,
           username: d.username,
-          email: d.email ?? '',
+          email: d.email ?? undefined,
           language: (d.language ?? 'fr') as Language,
           theme: (d.theme ?? 'light') as Theme,
           newNotificationCount: d.newNotificationCount ?? 0,
@@ -203,7 +203,7 @@ export class AppUserService {
       const appUser: AppUser = {
         ...current,
         username: d.username,
-        email: d.email,
+        email: d.email ?? undefined,
         country: d.country,
         language: d.language as Language,
         theme: d.theme as Theme,

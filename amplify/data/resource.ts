@@ -24,7 +24,7 @@ const schema = a
       .model({
         id: a.id().required(),
         username: a.string().required(),
-        email: a.string().required(),
+        email: a.string(),
         country: a.string(),
         firstName: a.string(),
         lastName: a.string(),
