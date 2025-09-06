@@ -62,6 +62,7 @@ export class MapflyComponent implements OnInit {
           icon: icon({
             ...L.Icon.Default.prototype.options,
             iconUrl: `img/markers/marker_${catTronquee}.png`,
+            iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
             shadowUrl: 'img/markers/markers-shadow.png',
             iconSize: [32, 43],
             iconAnchor: [15, 40],
