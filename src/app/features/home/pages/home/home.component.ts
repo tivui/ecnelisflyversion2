@@ -9,11 +9,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { getUrl, list } from 'aws-amplify/storage';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, RouterLink],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
@@ -33,17 +34,6 @@ export class HomeComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // const { data, errors } =
-    //   await this.amplifyService.client.models.Sound.listSoundsByCategoryAndStatus(
-    //     {
-    //       category: CategoryKey.ANIMAL,
-    //       status: {
-    //         eq: 'public',
-    //       },
-    //     },
-    //   );
-    // const { data, errors } =  await this.amplifyService.client.models.Sound.list();
-    // const { data, errors } = await this.amplifyService.client.queries.listSoundsForMap({});
     const { data, errors } = await this.amplifyService.client.queries.listSoundsForMap({category: CategoryKey.ANIMAL});
     console.log('data', data);
     console.log('errors', errors);
