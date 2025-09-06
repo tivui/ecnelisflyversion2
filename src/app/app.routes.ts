@@ -4,6 +4,7 @@ import { authGuard } from './core/services/auth-guard.service';
 import { HomeComponent } from './features/home/pages/home/home.component';
 import { LoginComponent } from './core/pages/auth/login/login.component';
 import { AccountComponent } from './features/users/pages/account/account/account.component';
+import { MapflyComponent } from './features/map/pages/mapfly/mapfly.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -22,5 +23,6 @@ export const routes: Routes = [
   },
 
   { path: 'login', component: LoginComponent },
+  { path: 'mapfly', component: MapflyComponent },
   { path: '**', redirectTo: 'home' },
 ];
