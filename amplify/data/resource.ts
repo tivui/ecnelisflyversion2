@@ -1,6 +1,7 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { categories, CategoryKey, getSubCategoryKeys } from './categories';
-import { importSounds } from '../functions/import-sounds/resource';
+import { importSounds,  } from '../functions/import-sounds/resource';
+import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 
 // Generate an array containing all valid category and subcategory keys
 const allCategoryKeys = Object.values(categories).flatMap((cat) => [
@@ -24,7 +25,7 @@ const schema = a
       .model({
         id: a.id().required(),
         username: a.string().required(),
-        email: a.string(),
+        email: a.string().required(),
         country: a.string(),
         firstName: a.string(),
         lastName: a.string(),
@@ -41,7 +42,10 @@ const schema = a
         newNotificationCount: a.integer().default(0),
         flashNew: a.boolean().default(false),
       })
-      .authorization((allow) => [allow.owner()]),
+      .authorization((allow) => [
+        allow.owner(),
+        allow.publicApiKey().to(['read']),
+      ]),
 
     Sound: a
       .model({
@@ -81,9 +85,20 @@ const schema = a
         hashtags: a.string(),
         shortHashtags: a.string(),
       })
+      .secondaryIndexes((index) => [
+        index('userId')
+          .sortKeys(['status'])
+          .queryField('listSoundsByUserAndStatus'),
+        index('category')
+          .sortKeys(['status'])
+          .queryField('listSoundsByCategoryAndStatus'),
+        index('status').queryField('listSoundsByStatus'),
+      ])
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
       ]),
 
     importSounds: a
@@ -92,9 +107,25 @@ const schema = a
       .returns(a.json())
       .authorization((allow) => [allow.groups(['ADMIN'])])
       .handler(a.handler.function(importSounds)),
+
+    listSoundsForMap: a
+      .query()
+      .arguments({
+        userId: a.id(), // optional
+        category: a.string(), // optional
+      })
+      .returns(a.ref('Sound').array())
+      .authorization((allow) => [
+        allow.publicApiKey(),
+        allow.authenticated(),
+        allow.groups(['ADMIN']),
+      ])
+      .handler(a.handler.function(listSoundsForMap)),
   })
+
   .authorization((allow) => [
-    allow.resource(importSounds), // permet à la fonction d’accéder aux opérations Data
+    allow.resource(importSounds),
+    allow.resource(listSoundsForMap),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

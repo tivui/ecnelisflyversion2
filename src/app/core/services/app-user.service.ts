@@ -92,6 +92,7 @@ export class AppUserService {
           this.logService.error(
             `Failed to create user for ${currentAuthUser.username}`,
           );
+          console.error("error", newUser.errors)
           appUser = null;
         } else {
           // Creation succeeded
