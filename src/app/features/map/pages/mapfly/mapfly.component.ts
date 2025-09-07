@@ -1,28 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import L, { icon, latLng, marker } from 'leaflet';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
 import { Sound } from '../../../../core/models/sound.model';
 import { SoundsService } from '../../../../core/services/sounds.service';
+import { StorageService } from '../../../../core/services/storage.service';
+import { AppUserService } from '../../../../core/services/app-user.service';
 
 @Component({
   selector: 'app-mapfly',
   standalone: true,
   templateUrl: './mapfly.component.html',
   styleUrls: ['./mapfly.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class MapflyComponent implements OnInit {
+  private readonly appUserService = inject(AppUserService);
   private readonly route = inject(ActivatedRoute);
   private readonly amplifyService = inject(AmplifyService);
   private readonly soundsService = inject(SoundsService);
+  private readonly storageService = inject(StorageService);
 
-  map!: L.Map;
+  private map!: L.Map;
+  private currentUserLanguage = 'fr';
 
   async ngOnInit() {
-    // Initialiser la carte
+    this.appUserService.currentUser$.subscribe(user => {
+      if (user?.language) {
+        this.currentUserLanguage = user.language;
+      }
+    });
+
+    // Init map
     this.map = L.map('map', {
-      center: latLng(46.5, 2.5), // France
+      center: latLng(46.5, 2.5),
       zoom: 5,
     });
 
@@ -30,7 +42,7 @@ export class MapflyComponent implements OnInit {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
-    // récupérer query params
+    // Get query params
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
     const category = this.route.snapshot.queryParamMap.get('category') as
       | CategoryKey
@@ -51,28 +63,70 @@ export class MapflyComponent implements OnInit {
       this.soundsService.map(raw),
     );
 
-        sounds
-      .filter((s) => s.latitude !== undefined && s.longitude !== undefined)
-      .forEach((s) => {
-        const catTronquee = s.secondaryCategory
-          ? s.secondaryCategory.slice(0, -3)
-          : 'default';
+    for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
+      const catTronquee = s.secondaryCategory
+        ? s.secondaryCategory.slice(0, -3)
+        : 'default';
+      const url = await this.storageService.getSoundUrl(s.filename);
+      const mimeType = this.soundsService.getMimeType(s.filename);
 
-        marker([s.latitude!, s.longitude!], {
-          icon: icon({
-            ...L.Icon.Default.prototype.options,
-            iconUrl: `img/markers/marker_${catTronquee}.png`,
-            iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
-            shadowUrl: 'img/markers/markers-shadow.png',
-            iconSize: [32, 43],
-            iconAnchor: [15, 40],
-            shadowAnchor: [8, 10],
-            popupAnchor: [0, -35],
-          }),
-        })
-          .bindPopup(`<b>${s.title}</b><br>${s.filename}`)
-          .addTo(this.map);
+      // Initial title
+      const popupTitle = s.title;
+
+      const popup = marker([s.latitude!, s.longitude!], {
+        icon: icon({
+          ...L.Icon.Default.prototype.options,
+          iconUrl: `img/markers/marker_${catTronquee}.png`,
+          iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
+          shadowUrl: 'img/markers/markers-shadow.png',
+          iconSize: [32, 43],
+          iconAnchor: [15, 40],
+          shadowAnchor: [8, 10],
+          popupAnchor: [0, -35],
+        }),
+      }).addTo(this.map);
+
+      // Bind popup with translate button
+      popup.bindPopup(`
+        <div class="popup-container">
+          <b id="title-${s.filename}">${popupTitle}</b>
+          <button id="translate-${s.filename}" style="margin-left:8px;">Traduire</button>
+          <br>
+          <audio controls preload="metadata" style="width:100%">
+            <source src="${url}" type="${mimeType}">
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      `);
+
+      // Add event listener for translate button
+      popup.on('popupopen', () => {
+        const btn = document.getElementById(`translate-${s.filename}`);
+        const titleEl = document.getElementById(`title-${s.filename}`);
+        if (btn && titleEl) {
+          btn.addEventListener('click', () => {
+            // Parse title_i18n if it's still a string
+            let title_i18n_obj: Record<string, string> | undefined;
+            if (typeof s.title_i18n === 'string') {
+              try {
+                title_i18n_obj = JSON.parse(s.title_i18n);
+              } catch (err) {
+                console.error('Failed to parse title_i18n', err);
+                title_i18n_obj = undefined;
+              }
+            } else {
+              title_i18n_obj = s.title_i18n;
+            }
+
+            const lang = this.currentUserLanguage.toLowerCase().trim();
+            if (title_i18n_obj && lang in title_i18n_obj) {
+              titleEl.textContent = title_i18n_obj[lang];
+            } else {
+              alert('Traduction non disponible pour cette langue');
+            }
+          });
+        }
       });
+    }
   }
-
 }

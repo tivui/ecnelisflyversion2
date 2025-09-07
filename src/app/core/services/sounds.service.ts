@@ -1,19 +1,22 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Sound } from '../models/sound.model'
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoundsService {
-  // Transforme un objet brut Amplify en instance Sound
+  private readonly storageService = inject(StorageService);
+
+  // Transform raw dynamo db object any to client sound model used in the app
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map(raw: any): Sound {
     return new Sound({
       userId: raw.userId,
       title: raw.title,
-      title_i18n: raw.title_i18n,
+      title_i18n: JSON.parse(raw.title_i18n),
       shortStory: raw.shortStory,
-      shortStory_i18n: raw.shortStory_i18n,
+      shortStory_i18n: JSON.parse(raw.shortStory_i18n),
       filename: raw.filename,
       status: raw.status,
       latitude: raw.latitude,
@@ -35,4 +38,31 @@ export class SoundsService {
       shortHashtags: raw.shortHashtags,
     });
   }
+
+  /**
+   * Get a presigned URL for a Sound's audio file
+   * @param sound Sound object
+   */
+  async getAudioUrl(sound: Sound): Promise<string> {
+    if (!sound.filename) {
+      throw new Error('Sound has no filename');
+    }
+    return this.storageService.getSoundUrl(sound.filename);
+  }
+
+  // Detect MIME type from file extension
+  getMimeType(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'mp3': return 'audio/mpeg';
+      case 'wav': return 'audio/wav';
+      case 'ogg': return 'audio/ogg';
+      case 'aac': return 'audio/aac';
+      case 'flac': return 'audio/flac';
+      case 'm4a': return 'audio/mp4';
+      case 'opus': return 'audio/opus';
+      default: return 'application/octet-stream';
+    }
+  }
 }
+
