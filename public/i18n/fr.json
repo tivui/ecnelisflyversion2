@@ -2,6 +2,11 @@
   "home": {
     "welcome": "Bienvenue {{name}} 🎉"
   },
+  "common": {
+    "action": {
+      "translate": "Traduire"
+    }
+  },
   "toolbar": {
     "account": "Gérer mon compte",
     "login": "Se connecter",

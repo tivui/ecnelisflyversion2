@@ -7,6 +7,7 @@ import { Sound } from '../../../../core/models/sound.model';
 import { SoundsService } from '../../../../core/services/sounds.service';
 import { StorageService } from '../../../../core/services/storage.service';
 import { AppUserService } from '../../../../core/services/app-user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-mapfly',
@@ -21,18 +22,20 @@ export class MapflyComponent implements OnInit {
   private readonly amplifyService = inject(AmplifyService);
   private readonly soundsService = inject(SoundsService);
   private readonly storageService = inject(StorageService);
+  private readonly translate = inject(TranslateService);
 
   private map!: L.Map;
   private currentUserLanguage = 'fr';
 
   async ngOnInit() {
-    this.appUserService.currentUser$.subscribe(user => {
+    // Listen to current user and language changes
+    this.appUserService.currentUser$.subscribe((user) => {
       if (user?.language) {
         this.currentUserLanguage = user.language;
       }
     });
 
-    // Init map
+    // Initialize map
     this.map = L.map('map', {
       center: latLng(46.5, 2.5),
       zoom: 5,
@@ -59,9 +62,7 @@ export class MapflyComponent implements OnInit {
       return;
     }
 
-    const sounds: Sound[] = (data ?? []).map((raw) =>
-      this.soundsService.map(raw),
-    );
+    const sounds: Sound[] = (data ?? []).map((raw) => this.soundsService.map(raw));
 
     for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
       const catTronquee = s.secondaryCategory
@@ -69,8 +70,6 @@ export class MapflyComponent implements OnInit {
         : 'default';
       const url = await this.storageService.getSoundUrl(s.filename);
       const mimeType = this.soundsService.getMimeType(s.filename);
-
-      // Initial title
       const popupTitle = s.title;
 
       const popup = marker([s.latitude!, s.longitude!], {
@@ -90,7 +89,9 @@ export class MapflyComponent implements OnInit {
       popup.bindPopup(`
         <div class="popup-container">
           <b id="title-${s.filename}">${popupTitle}</b>
-          <button id="translate-${s.filename}" style="margin-left:8px;">Traduire</button>
+          <button id="translate-${s.filename}" style="margin-left:8px;">${this.translate.instant(
+            'common.action.translate'
+          )}</button>
           <br>
           <audio controls preload="metadata" style="width:100%">
             <source src="${url}" type="${mimeType}">
@@ -103,29 +104,34 @@ export class MapflyComponent implements OnInit {
       popup.on('popupopen', () => {
         const btn = document.getElementById(`translate-${s.filename}`);
         const titleEl = document.getElementById(`title-${s.filename}`);
-        if (btn && titleEl) {
-          btn.addEventListener('click', () => {
-            // Parse title_i18n if it's still a string
-            let title_i18n_obj: Record<string, string> | undefined;
-            if (typeof s.title_i18n === 'string') {
-              try {
-                title_i18n_obj = JSON.parse(s.title_i18n);
-              } catch (err) {
-                console.error('Failed to parse title_i18n', err);
-                title_i18n_obj = undefined;
-              }
-            } else {
-              title_i18n_obj = s.title_i18n;
-            }
+        if (!btn || !titleEl) return;
 
-            const lang = this.currentUserLanguage.toLowerCase().trim();
-            if (title_i18n_obj && lang in title_i18n_obj) {
-              titleEl.textContent = title_i18n_obj[lang];
-            } else {
-              alert('Traduction non disponible pour cette langue');
+        // Reactive translation of the button
+        this.translate.stream('common.action.translate').subscribe((translated) => {
+          btn.textContent = translated;
+        });
+
+        btn.addEventListener('click', () => {
+          let title_i18n_obj: Record<string, string> | undefined;
+          if (typeof s.title_i18n === 'string') {
+            try {
+              title_i18n_obj = JSON.parse(s.title_i18n);
+            } catch (err) {
+              console.error('Failed to parse title_i18n', err);
+              title_i18n_obj = undefined;
             }
-          });
-        }
+          } else {
+            title_i18n_obj = s.title_i18n;
+          }
+
+          const lang = this.currentUserLanguage.toLowerCase().trim();
+          if (title_i18n_obj && lang in title_i18n_obj) {
+            titleEl.textContent = title_i18n_obj[lang];
+          } else {
+            // Use translated alert message
+            alert(this.translate.instant('common.message.translation_not_available'));
+          }
+        });
       });
     }
   }
