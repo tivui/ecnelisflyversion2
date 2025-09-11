@@ -28,11 +28,9 @@ export class MapflyComponent implements OnInit {
   private currentUserLanguage = 'fr';
 
   async ngOnInit() {
-    // Listen to current user and language changes
+    // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
-      if (user?.language) {
-        this.currentUserLanguage = user.language;
-      }
+      if (user?.language) this.currentUserLanguage = user.language;
     });
 
     // Initialize Leaflet map
@@ -45,39 +43,35 @@ export class MapflyComponent implements OnInit {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
-    // Get query params from route
+    // Get query params
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
-    const category = this.route.snapshot.queryParamMap.get('category') as
-      | CategoryKey
-      | undefined;
+    const category = this.route.snapshot.queryParamMap.get('category') as CategoryKey | undefined;
 
-    // Fetch sounds for map
-    const { data, errors } =
-      await this.amplifyService.client.queries.listSoundsForMap({
-        userId,
-        category,
-      });
+    const { data, errors } = await this.amplifyService.client.queries.listSoundsForMap({ userId, category });
 
     if (errors?.length) {
       console.error('Error listSoundsForMap', errors);
       return;
     }
 
-    // Map raw data to Sound model
-    const sounds: Sound[] = (data ?? []).map((raw) =>
-      this.soundsService.map(raw),
-    );
+    const sounds: Sound[] = (data ?? []).map((raw) => this.soundsService.map(raw));
 
-    // Iterate over sounds with coordinates
     for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
-      const catTronquee = s.secondaryCategory
-        ? s.secondaryCategory.slice(0, -3)
-        : 'default';
+      const catTronquee = s.secondaryCategory ? s.secondaryCategory.slice(0, -3) : 'default';
       const url = await this.storageService.getSoundUrl(s.filename);
       const mimeType = this.soundsService.getMimeType(s.filename);
       const popupTitle = s.title;
 
-      // Create Leaflet marker
+      // Parse i18n titles once
+      let title_i18n_obj: Record<string, string> | undefined;
+      if (typeof s.title_i18n === 'string') {
+        try { title_i18n_obj = JSON.parse(s.title_i18n); }
+        catch (err) { console.error('Failed to parse title_i18n', err); }
+      } else {
+        title_i18n_obj = s.title_i18n;
+      }
+
+      // Create marker
       const popup = marker([s.latitude!, s.longitude!], {
         icon: icon({
           ...L.Icon.Default.prototype.options,
@@ -91,7 +85,7 @@ export class MapflyComponent implements OnInit {
         }),
       }).addTo(this.map);
 
-      // Bind popup content (basic HTML, will be updated later)
+      // Bind popup HTML
       popup.bindPopup(`
         <div class="popup-container">
           <b id="title-${s.filename}">${popupTitle}</b>
@@ -104,88 +98,46 @@ export class MapflyComponent implements OnInit {
         </div>
       `);
 
-      // Listen when popup is opened
-      // Listen when the popup is opened
       popup.on('popupopen', () => {
-        const btnContainer = document.getElementById(
-          `btn-container-${s.filename}`,
-        );
+        const btnContainer = document.getElementById(`btn-container-${s.filename}`);
         const titleEl = document.getElementById(`title-${s.filename}`);
         if (!btnContainer || !titleEl) return;
 
-        // Parse i18n title once
-        let title_i18n_obj: Record<string, string> | undefined;
-        if (typeof s.title_i18n === 'string') {
-          try {
-            title_i18n_obj = JSON.parse(s.title_i18n);
-          } catch (err) {
-            console.error('Failed to parse title_i18n', err);
-          }
-        } else {
-          title_i18n_obj = s.title_i18n;
-        }
-
-        // Function to update the translate button based on current language
-        const updateTranslateButton = (lang: string) => {
-          // Get translated title for the current language
-          const translatedForLang =
-            title_i18n_obj && lang in title_i18n_obj
-              ? title_i18n_obj[lang]
-              : undefined;
-
-          // Get the current displayed title
+        // Utility function to handle translation logic
+        const refreshTranslateButton = () => {
+          const lang = this.currentUserLanguage.toLowerCase().trim();
+          const translated = title_i18n_obj && lang in title_i18n_obj ? title_i18n_obj[lang] : undefined;
           const currentTitle = titleEl.textContent?.trim();
-
-          // Get existing button if any
           let btn = document.getElementById(`translate-${s.filename}`);
 
-          // If translation exists and differs from current title, show/update button
-          if (translatedForLang && translatedForLang !== currentTitle) {
+          if (translated && translated !== currentTitle) {
             if (!btn) {
-              // Create button if it doesn't exist
               btn = document.createElement('button');
               btn.id = `translate-${s.filename}`;
               btn.style.marginLeft = '8px';
               btnContainer.appendChild(btn);
 
-              // Add click listener
               btn.addEventListener('click', () => {
-                // recalcule la traduction au moment du clic
-                const currentLang = this.currentUserLanguage
-                  .toLowerCase()
-                  .trim();
-                const currentTranslation =
-                  title_i18n_obj && currentLang in title_i18n_obj
-                    ? title_i18n_obj[currentLang]
-                    : popupTitle;
-
-                // update title
-                titleEl.textContent = currentTranslation;
-
-                // hide button after translation
+                // Calculate translation dynamically on click
+                const clickLang = this.currentUserLanguage.toLowerCase().trim();
+                const clickTranslated = title_i18n_obj && clickLang in title_i18n_obj ? title_i18n_obj[clickLang] : popupTitle;
+                titleEl.textContent = clickTranslated;
                 btn!.style.display = 'none';
               });
             }
-
-            // Always update button text based on current TranslateService
+            // Always update button text according to current language
             btn.textContent = this.translate.instant('common.action.translate');
             btn.style.display = 'inline-block';
-          } else {
-            // Otherwise hide button
-            if (btn) btn.style.display = 'none';
+          } else if (btn) {
+            btn.style.display = 'none';
           }
         };
 
-        // Initial render based on current user language
-        updateTranslateButton(this.currentUserLanguage.toLowerCase().trim());
+        // Initial render
+        refreshTranslateButton();
 
-        // Subscribe to user language changes dynamically
-        const sub = this.appUserService.currentUser$.subscribe((user) => {
-          const lang = user?.language?.toLowerCase().trim() ?? 'fr';
-          updateTranslateButton(lang);
-        });
-
-        // Optional: clean up subscription when popup closes
+        // React to dynamic language changes
+        const sub = this.appUserService.currentUser$.subscribe(() => refreshTranslateButton());
         popup.on('popupclose', () => sub.unsubscribe());
       });
     }
