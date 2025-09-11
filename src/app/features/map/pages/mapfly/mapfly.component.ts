@@ -35,7 +35,7 @@ export class MapflyComponent implements OnInit {
       }
     });
 
-    // Initialize map
+    // Initialize Leaflet map
     this.map = L.map('map', {
       center: latLng(46.5, 2.5),
       zoom: 5,
@@ -45,12 +45,13 @@ export class MapflyComponent implements OnInit {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
-    // Get query params
+    // Get query params from route
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
     const category = this.route.snapshot.queryParamMap.get('category') as
       | CategoryKey
       | undefined;
 
+    // Fetch sounds for map
     const { data, errors } =
       await this.amplifyService.client.queries.listSoundsForMap({
         userId,
@@ -58,12 +59,16 @@ export class MapflyComponent implements OnInit {
       });
 
     if (errors?.length) {
-      console.error('Erreur listSoundsForMap', errors);
+      console.error('Error listSoundsForMap', errors);
       return;
     }
 
-    const sounds: Sound[] = (data ?? []).map((raw) => this.soundsService.map(raw));
+    // Map raw data to Sound model
+    const sounds: Sound[] = (data ?? []).map((raw) =>
+      this.soundsService.map(raw),
+    );
 
+    // Iterate over sounds with coordinates
     for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
       const catTronquee = s.secondaryCategory
         ? s.secondaryCategory.slice(0, -3)
@@ -72,6 +77,7 @@ export class MapflyComponent implements OnInit {
       const mimeType = this.soundsService.getMimeType(s.filename);
       const popupTitle = s.title;
 
+      // Create Leaflet marker
       const popup = marker([s.latitude!, s.longitude!], {
         icon: icon({
           ...L.Icon.Default.prototype.options,
@@ -85,13 +91,11 @@ export class MapflyComponent implements OnInit {
         }),
       }).addTo(this.map);
 
-      // Bind popup with translate button
+      // Bind popup content (basic HTML, will be updated later)
       popup.bindPopup(`
         <div class="popup-container">
           <b id="title-${s.filename}">${popupTitle}</b>
-          <button id="translate-${s.filename}" style="margin-left:8px;">${this.translate.instant(
-            'common.action.translate'
-          )}</button>
+          <div id="btn-container-${s.filename}"></div>
           <br>
           <audio controls preload="metadata" style="width:100%">
             <source src="${url}" type="${mimeType}">
@@ -100,38 +104,89 @@ export class MapflyComponent implements OnInit {
         </div>
       `);
 
-      // Add event listener for translate button
+      // Listen when popup is opened
+      // Listen when the popup is opened
       popup.on('popupopen', () => {
-        const btn = document.getElementById(`translate-${s.filename}`);
+        const btnContainer = document.getElementById(
+          `btn-container-${s.filename}`,
+        );
         const titleEl = document.getElementById(`title-${s.filename}`);
-        if (!btn || !titleEl) return;
+        if (!btnContainer || !titleEl) return;
 
-        // Reactive translation of the button
-        this.translate.stream('common.action.translate').subscribe((translated) => {
-          btn.textContent = translated;
-        });
+        // Parse i18n title once
+        let title_i18n_obj: Record<string, string> | undefined;
+        if (typeof s.title_i18n === 'string') {
+          try {
+            title_i18n_obj = JSON.parse(s.title_i18n);
+          } catch (err) {
+            console.error('Failed to parse title_i18n', err);
+          }
+        } else {
+          title_i18n_obj = s.title_i18n;
+        }
 
-        btn.addEventListener('click', () => {
-          let title_i18n_obj: Record<string, string> | undefined;
-          if (typeof s.title_i18n === 'string') {
-            try {
-              title_i18n_obj = JSON.parse(s.title_i18n);
-            } catch (err) {
-              console.error('Failed to parse title_i18n', err);
-              title_i18n_obj = undefined;
+        // Function to update the translate button based on current language
+        const updateTranslateButton = (lang: string) => {
+          // Get translated title for the current language
+          const translatedForLang =
+            title_i18n_obj && lang in title_i18n_obj
+              ? title_i18n_obj[lang]
+              : undefined;
+
+          // Get the current displayed title
+          const currentTitle = titleEl.textContent?.trim();
+
+          // Get existing button if any
+          let btn = document.getElementById(`translate-${s.filename}`);
+
+          // If translation exists and differs from current title, show/update button
+          if (translatedForLang && translatedForLang !== currentTitle) {
+            if (!btn) {
+              // Create button if it doesn't exist
+              btn = document.createElement('button');
+              btn.id = `translate-${s.filename}`;
+              btn.style.marginLeft = '8px';
+              btnContainer.appendChild(btn);
+
+              // Add click listener
+              btn.addEventListener('click', () => {
+                // recalcule la traduction au moment du clic
+                const currentLang = this.currentUserLanguage
+                  .toLowerCase()
+                  .trim();
+                const currentTranslation =
+                  title_i18n_obj && currentLang in title_i18n_obj
+                    ? title_i18n_obj[currentLang]
+                    : popupTitle;
+
+                // update title
+                titleEl.textContent = currentTranslation;
+
+                // hide button after translation
+                btn!.style.display = 'none';
+              });
             }
-          } else {
-            title_i18n_obj = s.title_i18n;
-          }
 
-          const lang = this.currentUserLanguage.toLowerCase().trim();
-          if (title_i18n_obj && lang in title_i18n_obj) {
-            titleEl.textContent = title_i18n_obj[lang];
+            // Always update button text based on current TranslateService
+            btn.textContent = this.translate.instant('common.action.translate');
+            btn.style.display = 'inline-block';
           } else {
-            // Use translated alert message
-            alert(this.translate.instant('common.message.translation_not_available'));
+            // Otherwise hide button
+            if (btn) btn.style.display = 'none';
           }
+        };
+
+        // Initial render based on current user language
+        updateTranslateButton(this.currentUserLanguage.toLowerCase().trim());
+
+        // Subscribe to user language changes dynamically
+        const sub = this.appUserService.currentUser$.subscribe((user) => {
+          const lang = user?.language?.toLowerCase().trim() ?? 'fr';
+          updateTranslateButton(lang);
         });
+
+        // Optional: clean up subscription when popup closes
+        popup.on('popupclose', () => sub.unsubscribe());
       });
     }
   }
