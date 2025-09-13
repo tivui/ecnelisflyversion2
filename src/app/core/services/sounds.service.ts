@@ -13,10 +13,18 @@ export class SoundsService {
   map(raw: any): Sound {
     return new Sound({
       userId: raw.userId,
+      user: raw.user
+        ? {
+            username: raw.user.username,
+            country: raw.user.country,
+          }
+        : undefined,
       title: raw.title,
-      title_i18n: JSON.parse(raw.title_i18n),
+      title_i18n: raw.title_i18n ? JSON.parse(raw.title_i18n) : undefined,
       shortStory: raw.shortStory,
-      shortStory_i18n: JSON.parse(raw.shortStory_i18n),
+      shortStory_i18n: raw.shortStory_i18n
+        ? JSON.parse(raw.shortStory_i18n)
+        : undefined,
       filename: raw.filename,
       status: raw.status,
       latitude: raw.latitude,
@@ -25,17 +33,15 @@ export class SoundsService {
       category: raw.category,
       secondaryCategory: raw.secondaryCategory,
       dateTime: raw.dateTime ? new Date(raw.dateTime) : undefined,
-      recordDateTime: raw.recordDateTime ? new Date(raw.recordDateTime) : undefined,
+      recordDateTime: raw.recordDateTime
+        ? new Date(raw.recordDateTime)
+        : undefined,
       equipment: raw.equipment,
-      layer: raw.layer,
       license: raw.license,
-      likesCount: raw.likesCount,
       url: raw.url,
       urlTitle: raw.urlTitle,
       secondaryUrl: raw.secondaryUrl,
       secondaryUrlTitle: raw.secondaryUrlTitle,
-      hashtags: raw.hashtags,
-      shortHashtags: raw.shortHashtags,
     });
   }
 

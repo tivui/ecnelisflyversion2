@@ -8,6 +8,8 @@ import { SoundsService } from '../../../../core/services/sounds.service';
 import { StorageService } from '../../../../core/services/storage.service';
 import { AppUserService } from '../../../../core/services/app-user.service';
 import { TranslateService } from '@ngx-translate/core';
+import { GraphQLResult } from 'aws-amplify/api';
+import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 
 @Component({
   selector: 'app-mapfly',
@@ -45,31 +47,30 @@ export class MapflyComponent implements OnInit {
 
     // Get query params
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
-    const category = this.route.snapshot.queryParamMap.get('category') as CategoryKey | undefined;
+    const category = this.route.snapshot.queryParamMap.get('category') as
+      | CategoryKey
+      | undefined;
 
-    const { data, errors } = await this.amplifyService.client.queries.listSoundsForMap({ userId, category });
+    const result = (await this.amplifyService.client.graphql({
+      query: ListSoundsForMapWithAppUser,
+      variables: { category, userId },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 
-    if (errors?.length) {
-      console.error('Error listSoundsForMap', errors);
-      return;
-    }
+    // Cast amplify result to sound model client
+    const soundsData = result?.data?.listSoundsForMap ?? [];
 
-    const sounds: Sound[] = (data ?? []).map((raw) => this.soundsService.map(raw));
+    const sounds: Sound[] = soundsData.map((raw) =>
+      this.soundsService.map(raw),
+    );
 
     for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
-      const catTronquee = s.secondaryCategory ? s.secondaryCategory.slice(0, -3) : 'default';
+      const catTronquee = s.secondaryCategory
+        ? s.secondaryCategory.slice(0, -3)
+        : 'default';
       const url = await this.storageService.getSoundUrl(s.filename);
       const mimeType = this.soundsService.getMimeType(s.filename);
       const popupTitle = s.title;
-
-      // Parse i18n titles once
-      let title_i18n_obj: Record<string, string> | undefined;
-      if (typeof s.title_i18n === 'string') {
-        try { title_i18n_obj = JSON.parse(s.title_i18n); }
-        catch (err) { console.error('Failed to parse title_i18n', err); }
-      } else {
-        title_i18n_obj = s.title_i18n;
-      }
 
       // Create marker
       const popup = marker([s.latitude!, s.longitude!], {
@@ -88,10 +89,14 @@ export class MapflyComponent implements OnInit {
       // Bind popup HTML
       popup.bindPopup(`
         <div class="popup-container">
-          <b id="title-${s.filename}">${popupTitle}</b>
-          <div id="btn-container-${s.filename}"></div>
-          <br>
-          <audio controls preload="metadata" style="width:100%">
+          <b class="popup-title" id="title-${s.filename}">${popupTitle}</b>
+          <div id="btn-container-title-${s.filename}"></div>
+          <p class="popup-shortstory" id="shortStory-${s.filename}">
+            ${s.shortStory ?? ''}
+          </p>
+          <div id="btn-container-shortStory-${s.filename}"></div>
+          <div id="links-${s.filename}" class="popup-links"></div>
+          <audio controls preload="metadata">
             <source src="${url}" type="${mimeType}">
             Your browser does not support the audio element.
           </audio>
@@ -99,33 +104,92 @@ export class MapflyComponent implements OnInit {
       `);
 
       popup.on('popupopen', () => {
-        const btnContainer = document.getElementById(`btn-container-${s.filename}`);
         const titleEl = document.getElementById(`title-${s.filename}`);
-        if (!btnContainer || !titleEl) return;
+        const shortStoryEl = document.getElementById(
+          `shortStory-${s.filename}`,
+        );
+        const btnTitleContainer = document.getElementById(
+          `btn-container-title-${s.filename}`,
+        );
+        const btnStoryContainer = document.getElementById(
+          `btn-container-shortStory-${s.filename}`,
+        );
+        const linksContainer = document.getElementById(`links-${s.filename}`);
 
-        // Utility function to handle translation logic
-        const refreshTranslateButton = () => {
+        if (
+          !titleEl ||
+          !shortStoryEl ||
+          !btnTitleContainer ||
+          !btnStoryContainer ||
+          !linksContainer
+        )
+          return;
+
+        // Parse JSON i18n fields (using helper)
+        const title_i18n_obj = this.parseI18n(s.title_i18n);
+        const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
+
+        // --- 🆕 Add links if present ---
+        linksContainer.innerHTML = '';
+        const links: string[] = [];
+        if (s.url) {
+          const text =
+            s.urlTitle || this.translate.instant('common.link.moreInfo');
+          links.push(
+            `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+          );
+        }
+        if (s.secondaryUrl) {
+          const text =
+            s.secondaryUrlTitle ||
+            this.translate.instant('common.link.moreInfo');
+          links.push(
+            `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+          );
+        }
+        if (links.length) {
+          linksContainer.innerHTML = links.join(' | ');
+        }
+
+        // Create/update single translate button
+        const setupSingleTranslateButton = () => {
           const lang = this.currentUserLanguage.toLowerCase().trim();
-          const translated = title_i18n_obj && lang in title_i18n_obj ? title_i18n_obj[lang] : undefined;
-          const currentTitle = titleEl.textContent?.trim();
-          let btn = document.getElementById(`translate-${s.filename}`);
+          const translatedTitle = title_i18n_obj?.[lang];
+          const translatedStory = story_i18n_obj?.[lang];
 
-          if (translated && translated !== currentTitle) {
+          const currentTitle = titleEl.textContent?.trim();
+          const currentStory = shortStoryEl.textContent?.trim();
+
+          let btn = document.getElementById(
+            `translate-all-${s.filename}`,
+          ) as HTMLButtonElement | null;
+
+          const shouldShow =
+            (translatedTitle && translatedTitle !== currentTitle) ||
+            (translatedStory && translatedStory !== currentStory);
+
+          if (shouldShow) {
             if (!btn) {
               btn = document.createElement('button');
-              btn.id = `translate-${s.filename}`;
+              btn.id = `translate-all-${s.filename}`;
               btn.style.marginLeft = '8px';
-              btnContainer.appendChild(btn);
+              btnTitleContainer.appendChild(btn);
 
               btn.addEventListener('click', () => {
-                // Calculate translation dynamically on click
-                const clickLang = this.currentUserLanguage.toLowerCase().trim();
-                const clickTranslated = title_i18n_obj && clickLang in title_i18n_obj ? title_i18n_obj[clickLang] : popupTitle;
-                titleEl.textContent = clickTranslated;
+                const currentLang = this.currentUserLanguage
+                  .toLowerCase()
+                  .trim();
+
+                if (title_i18n_obj?.[currentLang]) {
+                  titleEl.textContent = title_i18n_obj[currentLang];
+                }
+                if (story_i18n_obj?.[currentLang]) {
+                  shortStoryEl.textContent = story_i18n_obj[currentLang];
+                }
+
                 btn!.style.display = 'none';
               });
             }
-            // Always update button text according to current language
             btn.textContent = this.translate.instant('common.action.translate');
             btn.style.display = 'inline-block';
           } else if (btn) {
@@ -133,13 +197,27 @@ export class MapflyComponent implements OnInit {
           }
         };
 
-        // Initial render
-        refreshTranslateButton();
+        setupSingleTranslateButton();
 
-        // React to dynamic language changes
-        const sub = this.appUserService.currentUser$.subscribe(() => refreshTranslateButton());
+        // Re-run when user language changes
+        const sub = this.appUserService.currentUser$.subscribe(() =>
+          setupSingleTranslateButton(),
+        );
         popup.on('popupclose', () => sub.unsubscribe());
       });
     }
+  }
+
+  private parseI18n(field?: string | Record<string, string>) {
+    if (!field) return undefined;
+    if (typeof field === 'string') {
+      try {
+        return JSON.parse(field);
+      } catch {
+        console.error('Failed to parse i18n field', field);
+        return undefined;
+      }
+    }
+    return field;
   }
 }
