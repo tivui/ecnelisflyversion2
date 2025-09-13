@@ -47,10 +47,14 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
       user = users.data[0];
     } else {
       try {
+        const countryCode = sound.flag
+          ? sound.flag.replace(/\.png$/i, '') // enlève le ".png"
+          : undefined;
+
         const created = await client.models.User.create({
           username: sound.username,
           email: sound.email || undefined, // facultatif
-          country: sound.country || undefined,
+          country: countryCode,
           language: 'fr', // valeur par défaut
           theme: 'light', // valeur par défaut
         });
