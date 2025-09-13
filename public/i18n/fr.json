@@ -34,6 +34,9 @@
       "importSounds": "Importer les sons"
     }
   },
+  "mapfly": {
+  "record-info": "Enregistré à {{city}} par {{username}}"
+  },
   "categories": {
     "ambiancefly": "Sons d'ambiances",
     "ambiancefly.agriculturefly": "Ambiance de travaux agricoles",

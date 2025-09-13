@@ -33,7 +33,9 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   const allItems: any[] = [];
 
   // Helper pour paginer
-  const fetchAllPages = async <T extends keyof typeof client.models.Sound>(
+  const fetchAllPages = async <
+    T extends keyof typeof client.models.Sound
+  >(
     query: T,
     variables: Parameters<(typeof client.models.Sound)[T]>[0],
   ) => {
@@ -79,10 +81,15 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   } else {
     for (const status of statuses) {
       await fetchAllPages('listSoundsByStatus', {
-        status: status,
+        status,
       });
     }
   }
 
-  return allItems;
+  // --- Ensure proper GraphQL shape for AppSync resolvers ---
+  return allItems.map((sound) => ({
+    ...sound,
+    __typename: 'Sound',
+    userId: sound.userId, // must be explicit for relation to resolve
+  }));
 };

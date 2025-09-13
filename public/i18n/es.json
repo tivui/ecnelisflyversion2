@@ -34,6 +34,9 @@
       "importSounds": "Importar sonidos"
     }
   },
+  "mapfly": {
+    "record-info": "Grabado en {{city}} por {{username}}"
+  },
   "categories": {
     "ambiancefly": "Sonidos ambientales",
     "ambiancefly.agriculturefly": "Ambiente de trabajo agrícola",

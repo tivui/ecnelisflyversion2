@@ -165,6 +165,7 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
         secondaryUrlTitle: sound.url_title_2 || undefined,
         hashtags,
         shortHashtags,
+        city : sound.ville
       });
 
       if (result.errors && result.errors.length > 0) {

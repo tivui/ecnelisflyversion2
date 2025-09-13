@@ -54,11 +54,13 @@ export class MapflyComponent implements OnInit {
     const result = (await this.amplifyService.client.graphql({
       query: ListSoundsForMapWithAppUser,
       variables: { category, userId },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 
-    // Cast amplify result to sound model client
+    // Récupère le tableau de sons depuis data.listSoundsForMap
     const soundsData = result?.data?.listSoundsForMap ?? [];
+
+    console.log('soundsData', soundsData);
 
     const sounds: Sound[] = soundsData.map((raw) =>
       this.soundsService.map(raw),
@@ -96,6 +98,12 @@ export class MapflyComponent implements OnInit {
           </p>
           <div id="btn-container-shortStory-${s.filename}"></div>
           <div id="links-${s.filename}" class="popup-links"></div>
+
+          <p id="record-info-${s.filename}"
+            class="popup-record-info"
+            style="font-style: italic; font-size: 0.9em; margin-top: 6px;">
+          </p>
+
           <audio controls preload="metadata">
             <source src="${url}" type="${mimeType}">
             Your browser does not support the audio element.
@@ -115,15 +123,59 @@ export class MapflyComponent implements OnInit {
           `btn-container-shortStory-${s.filename}`,
         );
         const linksContainer = document.getElementById(`links-${s.filename}`);
+        const recordInfoEl = document.getElementById(
+          `record-info-${s.filename}`,
+        );
+
+        if (recordInfoEl && s.user?.username) {
+          const text = this.translate.instant('mapfly.record-info', {
+            city: s.city ?? '',
+            username: s.user.username,
+          });
+
+          const flagImg = s.user.country
+            ? `<img src="/img/flags/${s.user.country}.png"
+            alt="${s.user.country}"
+            style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+            : '';
+
+          recordInfoEl.innerHTML = `${text} ${flagImg}`;
+        }
 
         if (
           !titleEl ||
           !shortStoryEl ||
           !btnTitleContainer ||
           !btnStoryContainer ||
+          !recordInfoEl ||
           !linksContainer
         )
           return;
+
+        const updateRecordInfo = () => {
+          if (recordInfoEl && s.user?.username) {
+            const text = this.translate.instant('mapfly.record-info', {
+              city: s.city ?? '',
+              username: s.user.username,
+            });
+
+            const flagImg = s.user.country
+              ? `<img src="/img/flags/${s.user.country}.png"
+            alt="${s.user.country}"
+            style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+              : '';
+
+            recordInfoEl.innerHTML = `${text} ${flagImg}`;
+          }
+        };
+
+        // Initial render
+        updateRecordInfo();
+
+        // Subscribe to language changes only for record info
+        const recordSub = this.appUserService.currentUser$.subscribe(() => {
+          updateRecordInfo();
+        });
 
         // Parse JSON i18n fields (using helper)
         const title_i18n_obj = this.parseI18n(s.title_i18n);
@@ -200,10 +252,13 @@ export class MapflyComponent implements OnInit {
         setupSingleTranslateButton();
 
         // Re-run when user language changes
-        const sub = this.appUserService.currentUser$.subscribe(() =>
+        const translateSub = this.appUserService.currentUser$.subscribe(() =>
           setupSingleTranslateButton(),
         );
-        popup.on('popupclose', () => sub.unsubscribe());
+        popup.on('popupclose', () => {
+          recordSub.unsubscribe();
+          translateSub.unsubscribe();
+        });
       });
     }
   }
