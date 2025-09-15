@@ -32,17 +32,13 @@ export class MapflyComponent implements OnInit {
   private currentUserLanguage = 'fr';
 
   async ngOnInit() {
-    // Listen to user language changes (keeps currentUserLanguage up to date)
+    // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
       if (user?.language) this.currentUserLanguage = user.language;
     });
 
     // Initialize Leaflet map
-    this.map = L.map('map', {
-      center: latLng(46.5, 2.5),
-      zoom: 5,
-    });
-
+    this.map = L.map('map', { center: latLng(46.5, 2.5), zoom: 5 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
@@ -58,7 +54,6 @@ export class MapflyComponent implements OnInit {
       variables: { category, userId },
     })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 
-    // Get sounds array from response
     const soundsData = result?.data?.listSoundsForMap ?? [];
     const sounds: Sound[] = soundsData.map((raw) =>
       this.soundsService.map(raw),
@@ -76,7 +71,7 @@ export class MapflyComponent implements OnInit {
 
         return L.divIcon({
           html: `<div class="cluster ${digitsClass}">${count}</div>`,
-          className: '', // on vide la classe par défaut pour ne pas appliquer le style vert/orange/rouge
+          className: '',
           iconSize: L.point(40, 40),
         });
       },
@@ -88,7 +83,6 @@ export class MapflyComponent implements OnInit {
         : 'default';
       const url = await this.storageService.getSoundUrl(s.filename);
       const mimeType = this.soundsService.getMimeType(s.filename);
-      const popupTitle = s.title;
 
       // Create marker
       const m = marker([s.latitude!, s.longitude!], {
@@ -104,10 +98,9 @@ export class MapflyComponent implements OnInit {
         }),
       });
 
-      // Bind popup HTML
       m.bindPopup(`
         <div class="popup-container">
-          <b class="popup-title" id="title-${s.filename}">${popupTitle}</b>
+          <b class="popup-title" id="title-${s.filename}">${s.title}</b>
           <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
           <div id="btn-container-title-${s.filename}"></div>
           <div id="btn-container-shortStory-${s.filename}"></div>
@@ -125,7 +118,7 @@ export class MapflyComponent implements OnInit {
         </div>
       `);
 
-      // Popup event logic
+      // --- Popup logic ---
       m.on('popupopen', () => {
         const titleEl = document.getElementById(`title-${s.filename}`);
         const shortStoryEl = document.getElementById(
@@ -151,89 +144,79 @@ export class MapflyComponent implements OnInit {
         )
           return;
 
-        // --- Update "record info" ---
-        const updateRecordInfo = () => {
-          if (recordInfoEl && s.user?.username) {
-            const flagImg = s.user.country
-              ? ` <img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
-              : '';
-            const clickableId = `record-link-${s.filename}`;
-            const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
-            const translated = this.translate.instant('mapfly.record-info', {
-              city: s.city ?? '',
-              username: userLinkHtml,
-            });
-            recordInfoEl.innerHTML = translated;
-
-            const linkEl = document.getElementById(clickableId);
-            if (linkEl) {
-              linkEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tree = this.router.createUrlTree(['/mapfly'], {
-                  queryParams: { userId: s.userId },
-                });
-                const relativeUrl = this.router.serializeUrl(tree);
-                const fullUrl = window.location.origin + relativeUrl;
-                const newWindow = window.open(fullUrl, '_blank');
-                if (newWindow) newWindow.opener = null;
-              });
-            }
-          } else recordInfoEl.innerHTML = '';
-        };
-        updateRecordInfo();
-        const recordSub = this.appUserService.currentUser$.subscribe(() =>
-          updateRecordInfo(),
-        );
-
-        // --- i18n parsing ---
         const title_i18n_obj = this.parseI18n(s.title_i18n);
         const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
 
-        // --- External links ---
-        linksContainer.innerHTML = '';
-        const links: string[] = [];
-        if (s.url)
-          links.push(
-            `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.urlTitle || this.translate.instant('common.link.moreInfo')}</a>`,
+        // --- Update record info ---
+        const updateRecordInfo = () => {
+          if (!recordInfoEl || !s.user?.username) return;
+          const flagImg = s.user.country
+            ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+            : '';
+          const clickableId = `record-link-${s.filename}`;
+          const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
+          recordInfoEl.innerHTML = this.translate.instant(
+            'mapfly.record-info',
+            { city: s.city ?? '', username: userLinkHtml },
           );
-        if (s.secondaryUrl)
-          links.push(
-            `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${s.secondaryUrlTitle || this.translate.instant('common.link.moreInfo')}</a>`,
-          );
-        if (links.length) linksContainer.innerHTML = links.join(' | ');
+
+          const linkEl = document.getElementById(clickableId);
+          if (linkEl) {
+            linkEl.addEventListener('click', (e) => {
+              e.preventDefault();
+              const tree = this.router.createUrlTree(['/mapfly'], {
+                queryParams: { userId: s.userId },
+              });
+              const newWindow = window.open(
+                window.location.origin + this.router.serializeUrl(tree),
+                '_blank',
+              );
+              if (newWindow) {
+                newWindow.opener = null;
+              }
+            });
+          }
+        };
+
+        updateRecordInfo();
 
         // --- Translate button ---
-        const setupSingleTranslateButton = () => {
+        let btn = document.getElementById(
+          `translate-all-${s.filename}`,
+        ) as HTMLButtonElement | null;
+        const updateTranslateButton = () => {
           const lang = this.currentUserLanguage.toLowerCase().trim();
           const translatedTitle = title_i18n_obj?.[lang];
           const translatedStory = story_i18n_obj?.[lang];
           const currentTitle = titleEl.textContent?.trim();
           const currentStory = shortStoryEl.textContent?.trim();
-
-          let btn = document.getElementById(
-            `translate-all-${s.filename}`,
-          ) as HTMLButtonElement | null;
           const shouldShow =
             (translatedTitle && translatedTitle !== currentTitle) ||
             (translatedStory && translatedStory !== currentStory);
+
           if (shouldShow) {
             if (!btn) {
               btn = document.createElement('button');
               btn.id = `translate-all-${s.filename}`;
               btn.classList.add('translate-btn');
               btn.style.marginLeft = '8px';
+
               const iconSpan = document.createElement('span');
               iconSpan.classList.add('material-icons');
               iconSpan.textContent = 'translate';
+
               const textSpan = document.createElement('span');
               textSpan.classList.add('btn-label');
               textSpan.textContent = this.translate.instant(
                 'common.action.translate',
               );
+
               btn.appendChild(iconSpan);
               btn.appendChild(textSpan);
               btnTitleContainer.appendChild(btn);
+
               btn.addEventListener('click', () => {
+                const lang = this.currentUserLanguage.toLowerCase().trim();
                 if (title_i18n_obj?.[lang])
                   titleEl.textContent = title_i18n_obj[lang];
                 if (story_i18n_obj?.[lang])
@@ -248,17 +231,18 @@ export class MapflyComponent implements OnInit {
                 );
             }
             btn.style.display = 'inline-flex';
-          } else if (btn) btn.style.display = 'none';
+          } else if (btn) {
+            btn.style.display = 'none';
+          }
         };
-        setupSingleTranslateButton();
-        const translateSub = this.appUserService.currentUser$.subscribe(() =>
-          setupSingleTranslateButton(),
-        );
+
+        updateTranslateButton();
 
         // --- Zoom & Download buttons ---
         const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
         const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
         const downloadBtn = document.getElementById(`download-${s.filename}`);
+
         if (zoomInBtn)
           zoomInBtn.addEventListener('click', () =>
             this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
@@ -280,18 +264,26 @@ export class MapflyComponent implements OnInit {
             document.body.removeChild(a);
           });
 
-        // Cleanup subscriptions on popup close
+        // --- Subscriptions ---
+        const recordSub = this.appUserService.currentUser$.subscribe(() =>
+          updateRecordInfo(),
+        );
+        const translateSub = this.appUserService.currentUser$.subscribe(() =>
+          updateTranslateButton(),
+        );
+
+        // --- Cleanup ---
         m.on('popupclose', () => {
           recordSub.unsubscribe();
           translateSub.unsubscribe();
         });
       });
 
-      // --- ADD MARKER TO CLUSTER ---
+      // --- Add marker to cluster ---
       markersCluster.addLayer(m);
     }
 
-    // --- ADD CLUSTER TO MAP ---
+    // --- Add cluster to map ---
     this.map.addLayer(markersCluster);
   }
 
