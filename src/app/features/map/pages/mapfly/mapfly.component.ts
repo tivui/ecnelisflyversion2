@@ -10,6 +10,7 @@ import { AppUserService } from '../../../../core/services/app-user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
+import 'leaflet.markercluster';
 
 @Component({
   selector: 'app-mapfly',
@@ -55,15 +56,31 @@ export class MapflyComponent implements OnInit {
     const result = (await this.amplifyService.client.graphql({
       query: ListSoundsForMapWithAppUser,
       variables: { category, userId },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 
     // Get sounds array from response
     const soundsData = result?.data?.listSoundsForMap ?? [];
-
     const sounds: Sound[] = soundsData.map((raw) =>
       this.soundsService.map(raw),
     );
+
+    // --- MarkerCluster ---
+    const markersCluster = L.markerClusterGroup({
+      iconCreateFunction: (cluster) => {
+        const count = cluster.getChildCount();
+        let digitsClass = '';
+        if (count < 10) digitsClass = 'digits-1';
+        else if (count < 100) digitsClass = 'digits-2';
+        else if (count < 1000) digitsClass = 'digits-3';
+        else digitsClass = 'digits-4';
+
+        return L.divIcon({
+          html: `<div class="cluster ${digitsClass}">${count}</div>`,
+          className: '', // on vide la classe par défaut pour ne pas appliquer le style vert/orange/rouge
+          iconSize: L.point(40, 40),
+        });
+      },
+    });
 
     for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
       const catTronquee = s.secondaryCategory
@@ -74,7 +91,7 @@ export class MapflyComponent implements OnInit {
       const popupTitle = s.title;
 
       // Create marker
-      const popup = marker([s.latitude!, s.longitude!], {
+      const m = marker([s.latitude!, s.longitude!], {
         icon: icon({
           ...L.Icon.Default.prototype.options,
           iconUrl: `img/markers/marker_${catTronquee}.png`,
@@ -85,39 +102,31 @@ export class MapflyComponent implements OnInit {
           shadowAnchor: [8, 10],
           popupAnchor: [0, -35],
         }),
-      }).addTo(this.map);
+      });
 
-      // Bind popup HTML (note: record-info element will be filled dynamically)
-      popup.bindPopup(`
+      // Bind popup HTML
+      m.bindPopup(`
         <div class="popup-container">
           <b class="popup-title" id="title-${s.filename}">${popupTitle}</b>
-          <p class="popup-shortstory" id="shortStory-${s.filename}">
-          ${s.shortStory ?? ''}
-          </p>
+          <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
           <div id="btn-container-title-${s.filename}"></div>
           <div id="btn-container-shortStory-${s.filename}"></div>
           <div id="links-${s.filename}" class="popup-links"></div>
-
-          <p id="record-info-${s.filename}"
-            class="popup-record-info"
-            style="font-style: italic; font-size: 0.9em; margin-top: 6px;">
-          </p>
-
-          <audio controls controls controlsList="nodownload noplaybackrate" preload="metadata">
+          <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+          <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
             <source src="${url}" type="${mimeType}">
             Your browser does not support the audio element.
           </audio>
-
           <div id="btn-container-${s.filename}" class="popup-btn-group">
             <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
             <button class="download-btn material-icons" id="download-${s.filename}">download</button>
             <button class="zoom-btn material-icons" id="zoom-in-${s.filename}">add</button>
           </div>
-
         </div>
       `);
 
-      popup.on('popupopen', () => {
+      // Popup event logic
+      m.on('popupopen', () => {
         const titleEl = document.getElementById(`title-${s.filename}`);
         const shortStoryEl = document.getElementById(
           `shortStory-${s.filename}`,
@@ -132,7 +141,6 @@ export class MapflyComponent implements OnInit {
         const recordInfoEl = document.getElementById(
           `record-info-${s.filename}`,
         );
-
         if (
           !titleEl ||
           !shortStoryEl ||
@@ -143,61 +151,39 @@ export class MapflyComponent implements OnInit {
         )
           return;
 
-        // --- Update "record info" with username clickable span ---
+        // --- Update "record info" ---
         const updateRecordInfo = () => {
           if (recordInfoEl && s.user?.username) {
             const flagImg = s.user.country
-              ? ` <img src="/img/flags/${s.user.country}.png"
-            alt="${s.user.country}"
-            style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+              ? ` <img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
               : '';
-
             const clickableId = `record-link-${s.filename}`;
             const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
-
             const translated = this.translate.instant('mapfly.record-info', {
               city: s.city ?? '',
               username: userLinkHtml,
             });
-
             recordInfoEl.innerHTML = translated;
 
-            // Attach click handler → open /mapfly?userId=xxx in NEW tab
             const linkEl = document.getElementById(clickableId);
             if (linkEl) {
               linkEl.addEventListener('click', (e) => {
                 e.preventDefault();
-
-                // Build Angular route URL with query params
                 const tree = this.router.createUrlTree(['/mapfly'], {
                   queryParams: { userId: s.userId },
                 });
                 const relativeUrl = this.router.serializeUrl(tree);
                 const fullUrl = window.location.origin + relativeUrl;
-
-                // Open in a new tab
                 const newWindow = window.open(fullUrl, '_blank');
-                if (newWindow) {
-                  try {
-                    newWindow.opener = null;
-                  } catch {
-                    // Some browsers may block setting opener
-                  }
-                }
+                if (newWindow) newWindow.opener = null;
               });
             }
-          } else {
-            recordInfoEl.innerHTML = '';
-          }
+          } else recordInfoEl.innerHTML = '';
         };
-
-        // Initial render
         updateRecordInfo();
-
-        // Subscribe to user/lang changes
-        const recordSub = this.appUserService.currentUser$.subscribe(() => {
-          updateRecordInfo();
-        });
+        const recordSub = this.appUserService.currentUser$.subscribe(() =>
+          updateRecordInfo(),
+        );
 
         // --- i18n parsing ---
         const title_i18n_obj = this.parseI18n(s.title_i18n);
@@ -206,122 +192,85 @@ export class MapflyComponent implements OnInit {
         // --- External links ---
         linksContainer.innerHTML = '';
         const links: string[] = [];
-        if (s.url) {
-          const text =
-            s.urlTitle || this.translate.instant('common.link.moreInfo');
+        if (s.url)
           links.push(
-            `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+            `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.urlTitle || this.translate.instant('common.link.moreInfo')}</a>`,
           );
-        }
-        if (s.secondaryUrl) {
-          const text =
-            s.secondaryUrlTitle ||
-            this.translate.instant('common.link.moreInfo');
+        if (s.secondaryUrl)
           links.push(
-            `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+            `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${s.secondaryUrlTitle || this.translate.instant('common.link.moreInfo')}</a>`,
           );
-        }
-        if (links.length) {
-          linksContainer.innerHTML = links.join(' | ');
-        }
+        if (links.length) linksContainer.innerHTML = links.join(' | ');
 
-        // --- Translate button logic ---
+        // --- Translate button ---
         const setupSingleTranslateButton = () => {
           const lang = this.currentUserLanguage.toLowerCase().trim();
           const translatedTitle = title_i18n_obj?.[lang];
           const translatedStory = story_i18n_obj?.[lang];
-
           const currentTitle = titleEl.textContent?.trim();
           const currentStory = shortStoryEl.textContent?.trim();
 
           let btn = document.getElementById(
             `translate-all-${s.filename}`,
           ) as HTMLButtonElement | null;
-
           const shouldShow =
             (translatedTitle && translatedTitle !== currentTitle) ||
             (translatedStory && translatedStory !== currentStory);
-
           if (shouldShow) {
             if (!btn) {
               btn = document.createElement('button');
               btn.id = `translate-all-${s.filename}`;
               btn.classList.add('translate-btn');
               btn.style.marginLeft = '8px';
-
-              // Icône Material
               const iconSpan = document.createElement('span');
               iconSpan.classList.add('material-icons');
               iconSpan.textContent = 'translate';
-
-              // Texte (label)
               const textSpan = document.createElement('span');
               textSpan.classList.add('btn-label');
               textSpan.textContent = this.translate.instant(
                 'common.action.translate',
               );
-
-              // Assembler bouton
               btn.appendChild(iconSpan);
               btn.appendChild(textSpan);
-
               btnTitleContainer.appendChild(btn);
-
-              // Action clic
               btn.addEventListener('click', () => {
-                const currentLang = this.currentUserLanguage
-                  .toLowerCase()
-                  .trim();
-
-                if (title_i18n_obj?.[currentLang]) {
-                  titleEl.textContent = title_i18n_obj[currentLang];
-                }
-                if (story_i18n_obj?.[currentLang]) {
-                  shortStoryEl.textContent = story_i18n_obj[currentLang];
-                }
-
+                if (title_i18n_obj?.[lang])
+                  titleEl.textContent = title_i18n_obj[lang];
+                if (story_i18n_obj?.[lang])
+                  shortStoryEl.textContent = story_i18n_obj[lang];
                 btn!.style.display = 'none';
               });
             } else {
-              // Si déjà créé, on met à jour le label
               const textSpan = btn.querySelector('.btn-label');
-              if (textSpan) {
+              if (textSpan)
                 textSpan.textContent = this.translate.instant(
                   'common.action.translate',
                 );
-              }
             }
-
             btn.style.display = 'inline-flex';
-          } else if (btn) {
-            btn.style.display = 'none';
-          }
+          } else if (btn) btn.style.display = 'none';
         };
-
         setupSingleTranslateButton();
-
         const translateSub = this.appUserService.currentUser$.subscribe(() =>
           setupSingleTranslateButton(),
         );
 
+        // --- Zoom & Download buttons ---
         const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
         const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
         const downloadBtn = document.getElementById(`download-${s.filename}`);
-
-        if (zoomInBtn) {
-          zoomInBtn.addEventListener('click', () => {
-            this.map.setView([s.latitude! + 0.0015, s.longitude!], 17);
-          });
-        }
-
-        if (zoomOutBtn) {
-          zoomOutBtn.addEventListener('click', () => {
-            const newLat = s.latitude! > 20 ? s.latitude! : s.latitude! + 30;
-            this.map.setView([newLat, s.longitude!], 2);
-          });
-        }
-
-        if (downloadBtn) {
+        if (zoomInBtn)
+          zoomInBtn.addEventListener('click', () =>
+            this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
+          );
+        if (zoomOutBtn)
+          zoomOutBtn.addEventListener('click', () =>
+            this.map.setView(
+              [s.latitude! > 20 ? s.latitude! : s.latitude! + 30, s.longitude!],
+              2,
+            ),
+          );
+        if (downloadBtn)
           downloadBtn.addEventListener('click', () => {
             const a = document.createElement('a');
             a.href = url;
@@ -330,15 +279,20 @@ export class MapflyComponent implements OnInit {
             a.click();
             document.body.removeChild(a);
           });
-        }
 
-        // Cleanup
-        popup.on('popupclose', () => {
+        // Cleanup subscriptions on popup close
+        m.on('popupclose', () => {
           recordSub.unsubscribe();
           translateSub.unsubscribe();
         });
       });
+
+      // --- ADD MARKER TO CLUSTER ---
+      markersCluster.addLayer(m);
     }
+
+    // --- ADD CLUSTER TO MAP ---
+    this.map.addLayer(markersCluster);
   }
 
   private parseI18n(field?: string | Record<string, string>) {
