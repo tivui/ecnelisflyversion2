@@ -9,14 +9,8 @@
         height="16"
       />
     </h2>
-    @if (audioUrl) {
       <div class="audio-controls">
-        <button (click)="play()">▶️ Play</button>
-        <button (click)="stop()">⏹ Stop</button>
         <button [routerLink]="'/mapfly'">🌍Map</button>
       </div>
-    } @else {
-      <p>Chargement du son...</p>
-    }
   </div>
 }

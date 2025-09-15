@@ -45,6 +45,7 @@ const schema = a
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read'])
       ]),
 
     Sound: a

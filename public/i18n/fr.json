@@ -2,6 +2,11 @@
   "home": {
     "welcome": "Bienvenue {{name}} 🎉"
   },
+  "common": {
+    "action": {
+      "translate": "Traduire"
+    }
+  },
   "toolbar": {
     "account": "Gérer mon compte",
     "login": "Se connecter",
@@ -28,6 +33,9 @@
     "database": {
       "importSounds": "Importer les sons"
     }
+  },
+  "mapfly": {
+  "record-info": "Enregistré à {{city}} par {{username}}"
   },
   "categories": {
     "ambiancefly": "Sons d'ambiances",
