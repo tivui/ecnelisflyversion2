@@ -143,6 +143,31 @@ export class MapflyComponent implements OnInit {
             `btn-container-shortStory-${s.filename}`,
           );
           const linksContainer = document.getElementById(`links-${s.filename}`);
+          // --- External links ---
+          if (linksContainer) {
+            const links: string[] = [];
+
+            if (s.url) {
+              const text =
+                s.urlTitle || this.translate.instant('common.link.moreInfo');
+              links.push(
+                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+              );
+            }
+
+            if (s.secondaryUrl) {
+              const text =
+                s.secondaryUrlTitle ||
+                this.translate.instant('common.link.moreInfo');
+              links.push(
+                `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+              );
+            }
+
+            if (links.length) {
+              linksContainer.innerHTML = links.join(' | ');
+            }
+          }
           const recordInfoEl = document.getElementById(
             `record-info-${s.filename}`,
           );
