@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import L, { icon, latLng, marker } from 'leaflet';
 import { AmplifyService } from '../../../../core/services/amplify.service';
@@ -31,6 +37,8 @@ export class MapflyComponent implements OnInit {
   private map!: L.Map;
   private currentUserLanguage = 'fr';
 
+  public isLoading = signal(false);
+
   async ngOnInit() {
     // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
@@ -38,7 +46,7 @@ export class MapflyComponent implements OnInit {
     });
 
     // Initialize Leaflet map
-    this.map = L.map('map', { center: latLng(46.5, 2.5), zoom: 5 });
+    this.map = L.map('map', { center: latLng(30, 2.5), zoom: 3 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
@@ -49,56 +57,60 @@ export class MapflyComponent implements OnInit {
       | CategoryKey
       | undefined;
 
-    const result = (await this.amplifyService.client.graphql({
-      query: ListSoundsForMapWithAppUser,
-      variables: { category, userId },
-    })) as GraphQLResult<{ listSoundsForMap: any[] }>;
+    try {
+      this.isLoading.set(true);
 
-    const soundsData = result?.data?.listSoundsForMap ?? [];
-    const sounds: Sound[] = soundsData.map((raw) =>
-      this.soundsService.map(raw),
-    );
+      const result = (await this.amplifyService.client.graphql({
+        query: ListSoundsForMapWithAppUser,
+        variables: { category, userId },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 
-    // --- MarkerCluster ---
-    const markersCluster = L.markerClusterGroup({
-      iconCreateFunction: (cluster) => {
-        const count = cluster.getChildCount();
-        let digitsClass = '';
-        if (count < 10) digitsClass = 'digits-1';
-        else if (count < 100) digitsClass = 'digits-2';
-        else if (count < 1000) digitsClass = 'digits-3';
-        else digitsClass = 'digits-4';
+      const soundsData = result?.data?.listSoundsForMap ?? [];
+      const sounds: Sound[] = soundsData.map((raw) =>
+        this.soundsService.map(raw),
+      );
 
-        return L.divIcon({
-          html: `<div class="cluster ${digitsClass}">${count}</div>`,
-          className: '',
-          iconSize: L.point(40, 40),
-        });
-      },
-    });
+      // --- MarkerCluster ---
+      const markersCluster = L.markerClusterGroup({
+        iconCreateFunction: (cluster) => {
+          const count = cluster.getChildCount();
+          let digitsClass = '';
+          if (count < 10) digitsClass = 'digits-1';
+          else if (count < 100) digitsClass = 'digits-2';
+          else if (count < 1000) digitsClass = 'digits-3';
+          else digitsClass = 'digits-4';
 
-    for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
-      const catTronquee = s.secondaryCategory
-        ? s.secondaryCategory.slice(0, -3)
-        : 'default';
-      const url = await this.storageService.getSoundUrl(s.filename);
-      const mimeType = this.soundsService.getMimeType(s.filename);
-
-      // Create marker
-      const m = marker([s.latitude!, s.longitude!], {
-        icon: icon({
-          ...L.Icon.Default.prototype.options,
-          iconUrl: `img/markers/marker_${catTronquee}.png`,
-          iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
-          shadowUrl: 'img/markers/markers-shadow.png',
-          iconSize: [32, 43],
-          iconAnchor: [15, 40],
-          shadowAnchor: [8, 10],
-          popupAnchor: [0, -35],
-        }),
+          return L.divIcon({
+            html: `<div class="cluster ${digitsClass}">${count}</div>`,
+            className: '',
+            iconSize: L.point(40, 40),
+          });
+        },
       });
 
-      m.bindPopup(`
+      for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
+        const catTronquee = s.secondaryCategory
+          ? s.secondaryCategory.slice(0, -3)
+          : 'default';
+        const url = await this.storageService.getSoundUrl(s.filename);
+        const mimeType = this.soundsService.getMimeType(s.filename);
+
+        // Create marker
+        const m = marker([s.latitude!, s.longitude!], {
+          icon: icon({
+            ...L.Icon.Default.prototype.options,
+            iconUrl: `img/markers/marker_${catTronquee}.png`,
+            iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
+            shadowUrl: 'img/markers/markers-shadow.png',
+            iconSize: [32, 43],
+            iconAnchor: [15, 40],
+            shadowAnchor: [8, 10],
+            popupAnchor: [0, -35],
+          }),
+        });
+
+        m.bindPopup(`
         <div class="popup-container">
           <b class="popup-title" id="title-${s.filename}">${s.title}</b>
           <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
@@ -118,173 +130,179 @@ export class MapflyComponent implements OnInit {
         </div>
       `);
 
-      // --- Popup logic ---
-      m.on('popupopen', () => {
-        const titleEl = document.getElementById(`title-${s.filename}`);
-        const shortStoryEl = document.getElementById(
-          `shortStory-${s.filename}`,
-        );
-        const btnTitleContainer = document.getElementById(
-          `btn-container-title-${s.filename}`,
-        );
-        const btnStoryContainer = document.getElementById(
-          `btn-container-shortStory-${s.filename}`,
-        );
-        const linksContainer = document.getElementById(`links-${s.filename}`);
-        const recordInfoEl = document.getElementById(
-          `record-info-${s.filename}`,
-        );
-        if (
-          !titleEl ||
-          !shortStoryEl ||
-          !btnTitleContainer ||
-          !btnStoryContainer ||
-          !recordInfoEl ||
-          !linksContainer
-        )
-          return;
-
-        const title_i18n_obj = this.parseI18n(s.title_i18n);
-        const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
-
-        // --- Update record info ---
-        const updateRecordInfo = () => {
-          if (!recordInfoEl || !s.user?.username) return;
-          const flagImg = s.user.country
-            ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
-            : '';
-          const clickableId = `record-link-${s.filename}`;
-          const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
-          recordInfoEl.innerHTML = this.translate.instant(
-            'mapfly.record-info',
-            { city: s.city ?? '', username: userLinkHtml },
+        // --- Popup logic ---
+        m.on('popupopen', () => {
+          const titleEl = document.getElementById(`title-${s.filename}`);
+          const shortStoryEl = document.getElementById(
+            `shortStory-${s.filename}`,
           );
+          const btnTitleContainer = document.getElementById(
+            `btn-container-title-${s.filename}`,
+          );
+          const btnStoryContainer = document.getElementById(
+            `btn-container-shortStory-${s.filename}`,
+          );
+          const linksContainer = document.getElementById(`links-${s.filename}`);
+          const recordInfoEl = document.getElementById(
+            `record-info-${s.filename}`,
+          );
+          if (
+            !titleEl ||
+            !shortStoryEl ||
+            !btnTitleContainer ||
+            !btnStoryContainer ||
+            !recordInfoEl ||
+            !linksContainer
+          )
+            return;
 
-          const linkEl = document.getElementById(clickableId);
-          if (linkEl) {
-            linkEl.addEventListener('click', (e) => {
-              e.preventDefault();
-              const tree = this.router.createUrlTree(['/mapfly'], {
-                queryParams: { userId: s.userId },
+          const title_i18n_obj = this.parseI18n(s.title_i18n);
+          const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
+
+          // --- Update record info ---
+          const updateRecordInfo = () => {
+            if (!recordInfoEl || !s.user?.username) return;
+            const flagImg = s.user.country
+              ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+              : '';
+            const clickableId = `record-link-${s.filename}`;
+            const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
+            recordInfoEl.innerHTML = this.translate.instant(
+              'mapfly.record-info',
+              { city: s.city ?? '', username: userLinkHtml },
+            );
+
+            const linkEl = document.getElementById(clickableId);
+            if (linkEl) {
+              linkEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tree = this.router.createUrlTree(['/mapfly'], {
+                  queryParams: { userId: s.userId },
+                });
+                const newWindow = window.open(
+                  window.location.origin + this.router.serializeUrl(tree),
+                  '_blank',
+                );
+                if (newWindow) {
+                  newWindow.opener = null;
+                }
               });
-              const newWindow = window.open(
-                window.location.origin + this.router.serializeUrl(tree),
-                '_blank',
-              );
-              if (newWindow) {
-                newWindow.opener = null;
-              }
-            });
-          }
-        };
+            }
+          };
 
-        updateRecordInfo();
+          updateRecordInfo();
 
-        // --- Translate button ---
-        let btn = document.getElementById(
-          `translate-all-${s.filename}`,
-        ) as HTMLButtonElement | null;
-        const updateTranslateButton = () => {
-          const lang = this.currentUserLanguage.toLowerCase().trim();
-          const translatedTitle = title_i18n_obj?.[lang];
-          const translatedStory = story_i18n_obj?.[lang];
-          const currentTitle = titleEl.textContent?.trim();
-          const currentStory = shortStoryEl.textContent?.trim();
-          const shouldShow =
-            (translatedTitle && translatedTitle !== currentTitle) ||
-            (translatedStory && translatedStory !== currentStory);
+          // --- Translate button ---
+          let btn = document.getElementById(
+            `translate-all-${s.filename}`,
+          ) as HTMLButtonElement | null;
+          const updateTranslateButton = () => {
+            const lang = this.currentUserLanguage.toLowerCase().trim();
+            const translatedTitle = title_i18n_obj?.[lang];
+            const translatedStory = story_i18n_obj?.[lang];
+            const currentTitle = titleEl.textContent?.trim();
+            const currentStory = shortStoryEl.textContent?.trim();
+            const shouldShow =
+              (translatedTitle && translatedTitle !== currentTitle) ||
+              (translatedStory && translatedStory !== currentStory);
 
-          if (shouldShow) {
-            if (!btn) {
-              btn = document.createElement('button');
-              btn.id = `translate-all-${s.filename}`;
-              btn.classList.add('translate-btn');
-              btn.style.marginLeft = '8px';
+            if (shouldShow) {
+              if (!btn) {
+                btn = document.createElement('button');
+                btn.id = `translate-all-${s.filename}`;
+                btn.classList.add('translate-btn');
+                btn.style.marginLeft = '8px';
 
-              const iconSpan = document.createElement('span');
-              iconSpan.classList.add('material-icons');
-              iconSpan.textContent = 'translate';
+                const iconSpan = document.createElement('span');
+                iconSpan.classList.add('material-icons');
+                iconSpan.textContent = 'translate';
 
-              const textSpan = document.createElement('span');
-              textSpan.classList.add('btn-label');
-              textSpan.textContent = this.translate.instant(
-                'common.action.translate',
-              );
-
-              btn.appendChild(iconSpan);
-              btn.appendChild(textSpan);
-              btnTitleContainer.appendChild(btn);
-
-              btn.addEventListener('click', () => {
-                const lang = this.currentUserLanguage.toLowerCase().trim();
-                if (title_i18n_obj?.[lang])
-                  titleEl.textContent = title_i18n_obj[lang];
-                if (story_i18n_obj?.[lang])
-                  shortStoryEl.textContent = story_i18n_obj[lang];
-                btn!.style.display = 'none';
-              });
-            } else {
-              const textSpan = btn.querySelector('.btn-label');
-              if (textSpan)
+                const textSpan = document.createElement('span');
+                textSpan.classList.add('btn-label');
                 textSpan.textContent = this.translate.instant(
                   'common.action.translate',
                 );
+
+                btn.appendChild(iconSpan);
+                btn.appendChild(textSpan);
+                btnTitleContainer.appendChild(btn);
+
+                btn.addEventListener('click', () => {
+                  const lang = this.currentUserLanguage.toLowerCase().trim();
+                  if (title_i18n_obj?.[lang])
+                    titleEl.textContent = title_i18n_obj[lang];
+                  if (story_i18n_obj?.[lang])
+                    shortStoryEl.textContent = story_i18n_obj[lang];
+                  btn!.style.display = 'none';
+                });
+              } else {
+                const textSpan = btn.querySelector('.btn-label');
+                if (textSpan)
+                  textSpan.textContent = this.translate.instant(
+                    'common.action.translate',
+                  );
+              }
+              btn.style.display = 'inline-flex';
+            } else if (btn) {
+              btn.style.display = 'none';
             }
-            btn.style.display = 'inline-flex';
-          } else if (btn) {
-            btn.style.display = 'none';
-          }
-        };
+          };
 
-        updateTranslateButton();
+          updateTranslateButton();
 
-        // --- Zoom & Download buttons ---
-        const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
-        const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
-        const downloadBtn = document.getElementById(`download-${s.filename}`);
+          // --- Zoom & Download buttons ---
+          const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
+          const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
+          const downloadBtn = document.getElementById(`download-${s.filename}`);
 
-        if (zoomInBtn)
-          zoomInBtn.addEventListener('click', () =>
-            this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
+          if (zoomInBtn)
+            zoomInBtn.addEventListener('click', () =>
+              this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
+            );
+          if (zoomOutBtn)
+            zoomOutBtn.addEventListener('click', () =>
+              this.map.setView(
+                [
+                  s.latitude! > 20 ? s.latitude! : s.latitude! + 30,
+                  s.longitude!,
+                ],
+                2,
+              ),
+            );
+          if (downloadBtn)
+            downloadBtn.addEventListener('click', () => {
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = s.filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            });
+
+          // --- Subscriptions ---
+          const recordSub = this.appUserService.currentUser$.subscribe(() =>
+            updateRecordInfo(),
           );
-        if (zoomOutBtn)
-          zoomOutBtn.addEventListener('click', () =>
-            this.map.setView(
-              [s.latitude! > 20 ? s.latitude! : s.latitude! + 30, s.longitude!],
-              2,
-            ),
+          const translateSub = this.appUserService.currentUser$.subscribe(() =>
+            updateTranslateButton(),
           );
-        if (downloadBtn)
-          downloadBtn.addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = s.filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+
+          // --- Cleanup ---
+          m.on('popupclose', () => {
+            recordSub.unsubscribe();
+            translateSub.unsubscribe();
           });
-
-        // --- Subscriptions ---
-        const recordSub = this.appUserService.currentUser$.subscribe(() =>
-          updateRecordInfo(),
-        );
-        const translateSub = this.appUserService.currentUser$.subscribe(() =>
-          updateTranslateButton(),
-        );
-
-        // --- Cleanup ---
-        m.on('popupclose', () => {
-          recordSub.unsubscribe();
-          translateSub.unsubscribe();
         });
-      });
 
-      // --- Add marker to cluster ---
-      markersCluster.addLayer(m);
+        // --- Add marker to cluster ---
+        markersCluster.addLayer(m);
+      }
+
+      // --- Add cluster to map ---
+      this.map.addLayer(markersCluster);
+    } finally {
+      this.isLoading.set(false);
     }
-
-    // --- Add cluster to map ---
-    this.map.addLayer(markersCluster);
   }
 
   private parseI18n(field?: string | Record<string, string>) {

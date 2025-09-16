@@ -43,6 +43,7 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
     do {
       const pageResult = await (client.models.Sound[query] as any)({
         ...variables,
+        limit: 100,
         nextToken,
       });
 
@@ -81,7 +82,7 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   } else {
     for (const status of statuses) {
       await fetchAllPages('listSoundsByStatus', {
-        status,
+        status
       });
     }
   }
