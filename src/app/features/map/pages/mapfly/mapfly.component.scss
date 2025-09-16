@@ -1,4 +1,72 @@
 /* mapfly.component.scss */
+.map-container {
+  position: relative;
+}
+
+/* Overlay over the map */
+.spinner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+  transition: background-color 0.3s ease;
+
+  /* Light mode */
+  body.light-theme & {
+    background-color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Dark mode */
+  body.dark-theme & {
+    background-color: rgba(20, 20, 30, 0.65);
+  }
+}
+
+/* Conteneur loader */
+.spinner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  animation: fadeIn 0.4s ease-out;
+
+  img.spinner-img {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+  }
+
+  .spinner-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: "Inter", system-ui, sans-serif;
+
+    body.light-theme & {
+      color: #333;
+    }
+
+    body.dark-theme & {
+      color: #ddd;
+    }
+  }
+}
+
+/* Apparition douce */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 #map {
   height: calc(100vh - 64px - 50px);
   width: 100%;
