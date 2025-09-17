@@ -17,6 +17,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 import 'leaflet.markercluster';
+import Fuse from 'fuse.js';
+import 'leaflet-search';
 
 @Component({
   selector: 'app-mapfly',
@@ -89,6 +91,9 @@ export class MapflyComponent implements OnInit {
         },
       });
 
+      // Prepare data for search
+      const searchData: Record<string, L.LatLng> = {};
+
       for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
         const catTronquee = s.secondaryCategory
           ? s.secondaryCategory.slice(0, -3)
@@ -143,31 +148,36 @@ export class MapflyComponent implements OnInit {
             `btn-container-shortStory-${s.filename}`,
           );
           const linksContainer = document.getElementById(`links-${s.filename}`);
+
           // --- External links ---
           if (linksContainer) {
             const links: string[] = [];
 
             if (s.url) {
-              const text =
-                s.urlTitle || this.translate.instant('common.link.moreInfo');
-              links.push(
-                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-              );
+              const text = s.urlTitle?.trim() || s.url;
+              if (text) {
+                links.push(
+                  `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                );
+              }
             }
 
             if (s.secondaryUrl) {
-              const text =
-                s.secondaryUrlTitle ||
-                this.translate.instant('common.link.moreInfo');
-              links.push(
-                `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-              );
+              const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
+              if (text) {
+                links.push(
+                  `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                );
+              }
             }
 
             if (links.length) {
               linksContainer.innerHTML = links.join(' | ');
+            } else {
+              linksContainer.innerHTML = ''; // nothing if link empty (null)
             }
           }
+
           const recordInfoEl = document.getElementById(
             `record-info-${s.filename}`,
           );
@@ -325,6 +335,54 @@ export class MapflyComponent implements OnInit {
 
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
+
+      // --- FUSE.JS SEARCH ---
+      const fuse = new Fuse(sounds, {
+        keys: ['title', 'shortStory', 'keywords'],
+        threshold: 0.4,
+      });
+
+      // Table de correspondance pour retrouver les markers
+      const markerLookup: Record<string, L.Marker> = {};
+
+      markersCluster.eachLayer((layer: any) => {
+        if (layer instanceof L.Marker) {
+          const title = (layer.getPopup()?.getContent() as string)?.match(
+            /id="title-[^"]+">([^<]+)/,
+          )?.[1];
+          if (title) {
+            markerLookup[title] = layer;
+          }
+        }
+      });
+
+      const controlSearch = new (L.Control as any).Search({
+        position: 'topright',
+        layer: L.featureGroup(), // hack: besoin d’un layer valide, mais on va surcharger filterData
+        initial: false,
+        collapsed: false,
+        zoom: 17,
+        textPlaceholder: 'RECHERCHE PAR TITRE OU #MOTSCLÉS',
+        buildTip: (text: string) => `<span>${text}</span>`,
+        filterData: (text: string, records: any) => {
+          const results = fuse.search(text).slice(0, 5);
+          const ret: Record<string, L.LatLng> = {};
+          results.forEach((r) => {
+            const marker = markerLookup[r.item.title];
+            if (marker) ret[r.item.title] = marker.getLatLng();
+          });
+          return ret;
+        },
+      }).on('search:locationfound', (e: any) => {
+        if (e.layer) {
+          // Déclenche l’ouverture du cluster si le marker est dedans
+          markersCluster.zoomToShowLayer(e.layer, () => {
+            e.layer.openPopup();
+          });
+        }
+      });
+
+      this.map.addControl(controlSearch);
     } finally {
       this.isLoading.set(false);
     }
