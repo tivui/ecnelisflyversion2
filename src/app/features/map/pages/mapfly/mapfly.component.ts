@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   OnInit,
@@ -5,8 +6,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import * as L from 'leaflet';
+(window as any).L = L;
 import { ActivatedRoute, Router } from '@angular/router';
-import L, { icon, latLng, marker } from 'leaflet';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
 import { Sound } from '../../../../core/models/sound.model';
@@ -17,6 +19,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 import 'leaflet.markercluster';
+import 'leaflet-search';
+import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
+import Fuse from 'fuse.js';
 
 @Component({
   selector: 'app-mapfly',
@@ -46,7 +51,7 @@ export class MapflyComponent implements OnInit {
     });
 
     // Initialize Leaflet map
-    this.map = L.map('map', { center: latLng(30, 2.5), zoom: 3 });
+    this.map = L.map('map', { center: L.latLng(30, 2.5), zoom: 3 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
@@ -80,7 +85,6 @@ export class MapflyComponent implements OnInit {
           else if (count < 100) digitsClass = 'digits-2';
           else if (count < 1000) digitsClass = 'digits-3';
           else digitsClass = 'digits-4';
-
           return L.divIcon({
             html: `<div class="cluster ${digitsClass}">${count}</div>`,
             className: '',
@@ -89,16 +93,55 @@ export class MapflyComponent implements OnInit {
         },
       });
 
+      // --- Subgroups pour chaque catégorie ---
+      const fgAll = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // "TOUT"
+      const fg1 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // ANIMALFLY
+      const fg2 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // NATURALFLY
+      const fg3 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // AMBIANCEFLY
+      const fg4 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // MUSICFLY
+      const fg5 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // HUMANFLY
+      const fg6 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // FOODFLY
+      const fg7 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // ITEMFLY
+      const fg8 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // SPORTFLY
+      const fg9 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // TRANSPORTFLY
+
+      // --- 4️⃣ Préparation markers ---
+      const markerLookup: Record<string, L.Marker> = {};
+
+      // FeatureGroup pour recherche (invisible)
+      const fgSearch = L.featureGroup().addTo(this.map);
+
       for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
         const catTronquee = s.secondaryCategory
           ? s.secondaryCategory.slice(0, -3)
           : 'default';
+        const category: CategoryKey = s.category!;
         const url = await this.storageService.getSoundUrl(s.filename);
         const mimeType = this.soundsService.getMimeType(s.filename);
 
         // Create marker
-        const m = marker([s.latitude!, s.longitude!], {
-          icon: icon({
+        const m = L.marker([s.latitude!, s.longitude!], {
+          icon: L.icon({
             ...L.Icon.Default.prototype.options,
             iconUrl: `img/markers/marker_${catTronquee}.png`,
             iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
@@ -130,6 +173,38 @@ export class MapflyComponent implements OnInit {
         </div>
       `);
 
+        // Ajout au groupe correct
+        fgAll.addLayer(m); // toujours dans "TOUT"
+        switch (category) {
+          case 'animalfly':
+            fg1.addLayer(m);
+            break;
+          case 'naturalfly':
+            fg2.addLayer(m);
+            break;
+          case 'ambiancefly':
+            fg3.addLayer(m);
+            break;
+          case 'musicfly':
+            fg4.addLayer(m);
+            break;
+          case 'humanfly':
+            fg5.addLayer(m);
+            break;
+          case 'foodfly':
+            fg6.addLayer(m);
+            break;
+          case 'itemfly':
+            fg7.addLayer(m);
+            break;
+          case 'sportfly':
+            fg8.addLayer(m);
+            break;
+          case 'transportfly':
+            fg9.addLayer(m);
+            break;
+        }
+
         // --- Popup logic ---
         m.on('popupopen', () => {
           const titleEl = document.getElementById(`title-${s.filename}`);
@@ -143,31 +218,36 @@ export class MapflyComponent implements OnInit {
             `btn-container-shortStory-${s.filename}`,
           );
           const linksContainer = document.getElementById(`links-${s.filename}`);
+
           // --- External links ---
           if (linksContainer) {
             const links: string[] = [];
 
             if (s.url) {
-              const text =
-                s.urlTitle || this.translate.instant('common.link.moreInfo');
-              links.push(
-                `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-              );
+              const text = s.urlTitle?.trim() || s.url;
+              if (text) {
+                links.push(
+                  `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                );
+              }
             }
 
             if (s.secondaryUrl) {
-              const text =
-                s.secondaryUrlTitle ||
-                this.translate.instant('common.link.moreInfo');
-              links.push(
-                `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-              );
+              const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
+              if (text) {
+                links.push(
+                  `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                );
+              }
             }
 
             if (links.length) {
               linksContainer.innerHTML = links.join(' | ');
+            } else {
+              linksContainer.innerHTML = ''; // nothing if link empty (null)
             }
           }
+
           const recordInfoEl = document.getElementById(
             `record-info-${s.filename}`,
           );
@@ -320,11 +400,80 @@ export class MapflyComponent implements OnInit {
         });
 
         // --- Add marker to cluster ---
-        markersCluster.addLayer(m);
+        markerLookup[s.title] = m; // lookup pour Fuse.js
+
+        // Marker invisible pour la recherche
+        const searchMarker = L.marker([s.latitude!, s.longitude!], {
+          opacity: 0,
+          title: s.title,
+        });
+        fgSearch.addLayer(searchMarker);
       }
 
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
+
+      // --- 5️⃣ Contrôle des layers ---
+      const overlays = {
+        TOUT: fgAll,
+        ANIMALFLY: fg1,
+        NATURALFLY: fg2,
+        AMBIANCEFLY: fg3,
+        MUSICFLY: fg4,
+        HUMANFLY: fg5,
+        FOODFLY: fg6,
+        ITEMFLY: fg7,
+        SPORTFLY: fg8,
+        TRANSPORTFLY: fg9,
+      };
+
+      L.control
+        .layers({}, overlays, { collapsed: false, position: 'bottomright' })
+        .addTo(this.map);
+
+      // Fuse.js
+      const fuse = new Fuse(sounds, {
+        keys: ['title', 'shortStory', 'keywords'],
+        threshold: 0.4,
+      });
+
+      // Contrôle recherche
+      const controlSearch = new (L.Control as any).Search({
+        layer: fgSearch,
+        sourceData: (text: string, callResponse: any) => {
+          const results = fuse.search(text).slice(0, 5);
+
+          // clé = texte à afficher, valeur = objet contenant loc (marker)
+          const ret: Record<string, { loc: L.LatLng }> = {};
+          results.forEach((r) => {
+            const marker = markerLookup[r.item.title];
+            if (marker) {
+              ret[r.item.title] = { loc: marker.getLatLng() };
+              console.log('Fuse result:', r.item.title, marker.getLatLng());
+            }
+          });
+
+          callResponse(ret);
+        },
+        position: 'topright',
+        zoom: 17,
+        initial: false,
+        collapsed: false,
+        textPlaceholder: 'RECHERCHE PAR TITRE OU #MOTSCLÉS',
+
+        // buildTip reçoit la key et l'objet {loc} et retourne le texte à afficher
+        buildTip: (text: string) => {
+          return `<span>${text}</span>`; // afficher le titre
+        },
+      }).on('search:locationfound', (e: any) => {
+        const realMarker = markerLookup[e.text];
+        if (realMarker)
+          markersCluster.zoomToShowLayer(realMarker, () =>
+            realMarker.openPopup(),
+          );
+      });
+
+      this.map.addControl(controlSearch);
     } finally {
       this.isLoading.set(false);
     }
