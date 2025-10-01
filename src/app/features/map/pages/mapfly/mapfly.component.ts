@@ -462,7 +462,7 @@ export class MapflyComponent implements OnInit {
         textPlaceholder: 'RECHERCHE PAR TITRE OU #MOTSCLÉS',
 
         // buildTip reçoit la key et l'objet {loc} et retourne le texte à afficher
-        buildTip: (text: string, val: { loc: L.LatLng }) => {
+        buildTip: (text: string) => {
           return `<span>${text}</span>`; // afficher le titre
         },
       }).on('search:locationfound', (e: any) => {
