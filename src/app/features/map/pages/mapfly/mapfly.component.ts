@@ -6,8 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import * as L from 'leaflet';
-(window as any).L = L;
+import L from 'leaflet';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
@@ -93,50 +92,37 @@ export class MapflyComponent implements OnInit {
         },
       });
 
-      // Sécurisation du plugin featuregroup.subgroup
-      const subGroupFn = (L.featureGroup as any).subGroup;
-
-      const fgAll = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg1 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg2 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg3 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg4 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg5 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg6 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg7 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg8 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      const fg9 = subGroupFn
-        ? subGroupFn(markersCluster).addTo(this.map)
-        : L.featureGroup().addTo(this.map);
-
-      console.log('Subgroups loaded?', !!subGroupFn);
+      // --- Subgroups pour chaque catégorie ---
+      const fgAll = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // "TOUT"
+      const fg1 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // ANIMALFLY
+      const fg2 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // NATURALFLY
+      const fg3 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // AMBIANCEFLY
+      const fg4 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // MUSICFLY
+      const fg5 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // HUMANFLY
+      const fg6 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // FOODFLY
+      const fg7 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // ITEMFLY
+      const fg8 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // SPORTFLY
+      const fg9 = (L.featureGroup as any)
+        .subGroup(markersCluster)
+        .addTo(this.map); // TRANSPORTFLY
 
       // --- 4️⃣ Préparation markers ---
       const markerLookup: Record<string, L.Marker> = {};
