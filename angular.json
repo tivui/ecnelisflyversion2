@@ -35,10 +35,7 @@
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/leaflet/dist/leaflet.js",
-              "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
