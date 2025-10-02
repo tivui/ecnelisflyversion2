@@ -21,6 +21,7 @@ import 'leaflet.markercluster';
 import 'leaflet-search';
 import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-mapfly',
@@ -43,6 +44,38 @@ export class MapflyComponent implements OnInit {
 
   public isLoading = signal(false);
 
+  // --- Fonds de carte ---
+  osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 21,
+    maxNativeZoom: 18,
+  });
+
+  esri = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+      attribution:
+        'Tiles © Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+      maxZoom: 21,
+      maxNativeZoom: 19,
+    },
+  );
+
+  mapbox = L.tileLayer(
+    `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${environment.mapboxToken}`,
+    {
+      attribution: '© Mapbox © OpenStreetMap © Esri — Satellite & Streets',
+      maxZoom: 21,
+      maxNativeZoom: 19,
+    },
+  );
+
+  baseMaps = {
+    OpenStreetMap: this.osm,
+    'Esri Satellite': this.esri,
+    'Mapbox Satellite+Streets': this.mapbox,
+  };
+
   async ngOnInit() {
     // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
@@ -51,9 +84,11 @@ export class MapflyComponent implements OnInit {
 
     // Initialize Leaflet map
     this.map = L.map('map', { center: L.latLng(30, 2.5), zoom: 3 });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-    }).addTo(this.map);
+    this.osm.addTo(this.map);
+
+    L.control
+      .layers(this.baseMaps, {}, { collapsed: false, position: 'topleft' })
+      .addTo(this.map);
 
     // Get query params
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
