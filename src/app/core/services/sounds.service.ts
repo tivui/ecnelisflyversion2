@@ -42,6 +42,7 @@ export class SoundsService {
       urlTitle: raw.urlTitle,
       secondaryUrl: raw.secondaryUrl,
       secondaryUrlTitle: raw.secondaryUrlTitle,
+      hashtags: raw.hashtags
     });
   }
 

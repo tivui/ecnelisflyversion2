@@ -109,6 +109,7 @@ export class MapflyComponent implements OnInit {
       const sounds: Sound[] = soundsData.map((raw) =>
         this.soundsService.map(raw),
       );
+      console.log('sounds', sounds);
 
       // --- MarkerCluster ---
       const markersCluster = L.markerClusterGroup({
@@ -434,12 +435,13 @@ export class MapflyComponent implements OnInit {
         });
 
         // --- Add marker to cluster ---
-        markerLookup[s.title] = m; // lookup pour Fuse.js
+        markerLookup[s.filename] = m; // lookup pour Fuse.js
 
         // Marker invisible pour la recherche
         const searchMarker = L.marker([s.latitude!, s.longitude!], {
           opacity: 0,
-          title: s.title,
+          title:
+            `${s.title} ${s.hashtags?.replace(/[#,@]/g, ' ').replace(/,/g, ' ').trim() || ''}`.trim(),
         });
         fgSearch.addLayer(searchMarker);
       }
@@ -465,46 +467,60 @@ export class MapflyComponent implements OnInit {
         .layers({}, overlays, { collapsed: false, position: 'bottomright' })
         .addTo(this.map);
 
-      // Fuse.js
-      const fuse = new Fuse(sounds, {
-        keys: ['title', 'shortStory', 'keywords'],
-        threshold: 0.4,
+      // --- 🔍 Préparation des données pour Fuse ---
+      const soundsForSearch = sounds.map((s) => {
+        const title = (s.title || '').trim();
+        const hashtags = (s.hashtags || '')
+          .replace(/[#,@]/g, ' ')
+          .replace(/,/g, ' ')
+          .trim();
+        return {
+          filename: s.filename, // identifiant interne
+          // Texte complet combiné pour indexation et affichage
+          combinedText: `${title} ${hashtags}`.trim(),
+        };
       });
 
-      // Contrôle recherche
+      // --- Fuse.js ---
+      const fuse = new Fuse(soundsForSearch, {
+        keys: ['combinedText'],
+        threshold: 0.3,
+        ignoreLocation: true,
+        distance: 1000,
+      });
+
+      // --- Contrôle de recherche ---
       const controlSearch = new (L.Control as any).Search({
         layer: fgSearch,
         sourceData: (text: string, callResponse: any) => {
-          const results = fuse.search(text).slice(0, 5);
+          const results = fuse.search(text).slice(0, 10);
 
-          // clé = texte à afficher, valeur = objet contenant loc (marker)
-          const ret: Record<string, { loc: L.LatLng }> = {};
+          // Clé affichée = titre + hashtags
+          const ret: Record<string, { loc: L.LatLng; filename: string }> = {};
           results.forEach((r) => {
-            const marker = markerLookup[r.item.title];
+            const marker = markerLookup[r.item.filename];
             if (marker) {
-              ret[r.item.title] = { loc: marker.getLatLng() };
-              console.log('Fuse result:', r.item.title, marker.getLatLng());
+              const key = r.item.combinedText; // affichage + clé unique
+              ret[key] = {
+                loc: marker.getLatLng(),
+                filename: r.item.filename,
+              };
             }
           });
-
           callResponse(ret);
         },
         position: 'topright',
         zoom: 17,
         initial: false,
         collapsed: false,
-        textPlaceholder: 'RECHERCHE PAR TITRE OU #MOTSCLÉS',
-
-        // buildTip reçoit la key et l'objet {loc} et retourne le texte à afficher
-        buildTip: (text: string) => {
-          return `<span>${text}</span>`; // afficher le titre
-        },
+        textPlaceholder: 'Titre ou #Hashtags...',
+        buildTip: (text: string) => `<span>${text}</span>`,
       }).on('search:locationfound', (e: any) => {
-        const realMarker = markerLookup[e.text];
-        if (realMarker)
-          markersCluster.zoomToShowLayer(realMarker, () =>
-            realMarker.openPopup(),
-          );
+        // retrouver le bon marker à partir du texte combiné
+        const found = markerLookup[e.layer?.options.filename || e.text];
+        if (found) {
+          markersCluster.zoomToShowLayer(found, () => found.openPopup());
+        }
       });
 
       this.map.addControl(controlSearch);
