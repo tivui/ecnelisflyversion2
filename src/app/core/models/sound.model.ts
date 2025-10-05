@@ -36,6 +36,8 @@ export class Sound {
   secondaryUrl?: string;
   secondaryUrlTitle?: string;
 
+  hashtags?: string;
+
   constructor(init?: Partial<Sound>) {
     Object.assign(this, init);
   }
