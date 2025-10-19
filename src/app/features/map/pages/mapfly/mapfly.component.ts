@@ -102,7 +102,12 @@ export class MapflyComponent implements OnInit {
     const zoom = parseInt(params.get(MAP_QUERY_KEYS.zoom) ?? '3', 10);
     const basemapKey = params.get(MAP_QUERY_KEYS.basemap) ?? 'osm';
 
-    this.map = L.map('map', { center: L.latLng(lat, lng), zoom });
+    this.map = L.map('map', {
+      center: L.latLng(lat, lng),
+      zoom,
+      attributionControl: false,
+    });
+
     // --- Base layers object ---
     const baseLayers = { esri: this.esri, osm: this.osm, mapbox: this.mapbox };
 
