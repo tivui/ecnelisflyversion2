@@ -35,7 +35,16 @@
     }
   },
   "mapfly": {
-  "record-info": "Enregistré à {{city}} par {{username}}"
+    "loading": "Chargement...",
+    "record-info": "Enregistré à {{city}} par {{username}}",
+    "baselayers": {
+      "esri": "SATELLITE",
+      "osm": "RUES",
+      "mapbox": "SATELLITE + RUES"
+    },
+    "categories": {
+      "all": "TOUT"
+    }
   },
   "categories": {
     "ambiancefly": "Sons d'ambiances",

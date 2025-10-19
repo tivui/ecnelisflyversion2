@@ -14,7 +14,7 @@ import { Sound } from '../../../../core/models/sound.model';
 import { SoundsService } from '../../../../core/services/sounds.service';
 import { StorageService } from '../../../../core/services/storage.service';
 import { AppUserService } from '../../../../core/services/app-user.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 import 'leaflet.markercluster';
@@ -22,10 +22,13 @@ import 'leaflet-search';
 import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
+import '../../../../core/scripts/leaflet/grouped-layers';
+import { ALL_GROUP_KEYS, MAP_QUERY_KEYS } from '../../../../core/models/map.model';
 
 @Component({
   selector: 'app-mapfly',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './mapfly.component.html',
   styleUrls: ['./mapfly.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -70,11 +73,26 @@ export class MapflyComponent implements OnInit {
     },
   );
 
-  baseMaps = {
-    OpenStreetMap: this.osm,
-    'Esri Satellite': this.esri,
-    'Mapbox Satellite+Streets': this.mapbox,
-  };
+  private baseLayersControl!: L.Control.Layers;
+  private getTranslatedBaseMaps(): Record<string, L.TileLayer> {
+    return {
+      [this.translate.instant('mapfly.baselayers.esri')]: this.esri,
+      [this.translate.instant('mapfly.baselayers.osm')]: this.osm,
+      [this.translate.instant('mapfly.baselayers.mapbox')]: this.mapbox,
+    };
+  }
+
+  private groupedLayersControl: any;
+  private fgAll!: L.FeatureGroup;
+  private fg1!: L.FeatureGroup;
+  private fg2!: L.FeatureGroup;
+  private fg3!: L.FeatureGroup;
+  private fg4!: L.FeatureGroup;
+  private fg5!: L.FeatureGroup;
+  private fg6!: L.FeatureGroup;
+  private fg7!: L.FeatureGroup;
+  private fg8!: L.FeatureGroup;
+  private fg9!: L.FeatureGroup;
 
   async ngOnInit() {
     // Listen to user language changes
@@ -82,19 +100,109 @@ export class MapflyComponent implements OnInit {
       if (user?.language) this.currentUserLanguage = user.language;
     });
 
-    // Initialize Leaflet map
-    this.map = L.map('map', { center: L.latLng(30, 2.5), zoom: 3 });
-    this.osm.addTo(this.map);
+    // Get query params (user + map)
+    const params = this.route.snapshot.queryParamMap;
 
-    L.control
-      .layers(this.baseMaps, {}, { collapsed: false, position: 'topleft' })
-      .addTo(this.map);
-
-    // Get query params
-    const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
-    const category = this.route.snapshot.queryParamMap.get('category') as
+    const userId = params.get(MAP_QUERY_KEYS.userId) ?? undefined;
+    const category = params.get(MAP_QUERY_KEYS.category) as
       | CategoryKey
       | undefined;
+
+    // --- Paramètres initiaux de la carte ---
+    const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
+    const lng = parseFloat(params.get(MAP_QUERY_KEYS.lng) ?? '2.5');
+    const zoom = parseInt(params.get(MAP_QUERY_KEYS.zoom) ?? '3', 10);
+    const basemapKey = params.get(MAP_QUERY_KEYS.basemap) ?? 'osm';
+
+    this.map = L.map('map', {
+      center: L.latLng(lat, lng),
+      zoom,
+      attributionControl: false,
+    });
+
+    // --- Base layers object ---
+    const baseLayers = { esri: this.esri, osm: this.osm, mapbox: this.mapbox };
+
+    // --- Choix du fond initial ---
+    const selectedBaseLayer =
+      baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
+    selectedBaseLayer.addTo(this.map);
+
+    // --- Contrôle des fonds de carte avec traduction dynamique ---
+    this.baseLayersControl = L.control
+      .layers(
+        this.getTranslatedBaseMaps(),
+        {},
+        { collapsed: false, position: 'topleft' },
+      )
+      .addTo(this.map);
+
+    // Met à jour dynamiquement les libellés si la langue change
+    this.translate.onLangChange.subscribe(() => {
+      // Supprime le contrôle existant
+      this.baseLayersControl.remove();
+
+      // Crée un nouveau avec les traductions mises à jour
+      this.baseLayersControl = L.control
+        .layers(
+          this.getTranslatedBaseMaps(),
+          {},
+          { collapsed: false, position: 'topleft' },
+        )
+        .addTo(this.map);
+
+      // Mise à jour label controleur overlays
+
+      if (!this.groupedLayersControl) return;
+
+      const newLabel = this.translate.instant('mapfly.categories.all');
+      const layers = this.groupedLayersControl._layers;
+      layers.forEach((l: any) => {
+        console.log(l.group.key)
+        if (l.overlay && ALL_GROUP_KEYS.includes(l.group.key)) {
+          l.name = newLabel;
+          const groupContainer =
+            this.groupedLayersControl._domGroups[l.group.id];
+          if (groupContainer) {
+            const span = groupContainer.querySelector(
+              '.leaflet-control-layers-group-name',
+            );
+            if (span) span.textContent = newLabel;
+          }
+        }
+      });
+    });
+
+    // 🧭 Met à jour les query params quand la carte bouge
+    this.map.on('moveend zoomend', () => {
+      const center = this.map.getCenter();
+      const zoom = this.map.getZoom();
+
+      this.router.navigate([], {
+        queryParamsHandling: 'merge',
+        queryParams: {
+          [MAP_QUERY_KEYS.lat]: center.lat.toFixed(4),
+          [MAP_QUERY_KEYS.lng]: center.lng.toFixed(4),
+          [MAP_QUERY_KEYS.zoom]: zoom,
+        },
+        replaceUrl: true,
+      });
+    });
+
+    // 🎨 Écoute changement de fond de carte
+    this.map.on('baselayerchange', (e: any) => {
+      let newBasemapKey = 'osm'; // fallback
+
+      if (e.layer === this.esri) newBasemapKey = 'esri';
+      else if (e.layer === this.mapbox) newBasemapKey = 'mapbox';
+      else if (e.layer === this.osm) newBasemapKey = 'osm';
+
+      this.router.navigate([], {
+        queryParamsHandling: 'merge',
+        queryParams: { [MAP_QUERY_KEYS.basemap]: newBasemapKey },
+        replaceUrl: true,
+      });
+    });
 
     try {
       this.isLoading.set(true);
@@ -109,7 +217,6 @@ export class MapflyComponent implements OnInit {
       const sounds: Sound[] = soundsData.map((raw) =>
         this.soundsService.map(raw),
       );
-      console.log('sounds', sounds);
 
       // --- MarkerCluster ---
       const markersCluster = L.markerClusterGroup({
@@ -129,34 +236,34 @@ export class MapflyComponent implements OnInit {
       });
 
       // --- Subgroups pour chaque catégorie ---
-      const fgAll = (L.featureGroup as any)
+      this.fgAll = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // "TOUT"
-      const fg1 = (L.featureGroup as any)
+      this.fg1 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // ANIMALFLY
-      const fg2 = (L.featureGroup as any)
+      this.fg2 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // NATURALFLY
-      const fg3 = (L.featureGroup as any)
+      this.fg3 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // AMBIANCEFLY
-      const fg4 = (L.featureGroup as any)
+      this.fg4 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // MUSICFLY
-      const fg5 = (L.featureGroup as any)
+      this.fg5 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // HUMANFLY
-      const fg6 = (L.featureGroup as any)
+      this.fg6 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // FOODFLY
-      const fg7 = (L.featureGroup as any)
+      this.fg7 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // ITEMFLY
-      const fg8 = (L.featureGroup as any)
+      this.fg8 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // SPORTFLY
-      const fg9 = (L.featureGroup as any)
+      this.fg9 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // TRANSPORTFLY
 
@@ -209,34 +316,34 @@ export class MapflyComponent implements OnInit {
       `);
 
         // Ajout au groupe correct
-        fgAll.addLayer(m); // toujours dans "TOUT"
+        this.fgAll.addLayer(m); // toujours dans "TOUT"
         switch (category) {
           case 'animalfly':
-            fg1.addLayer(m);
+            this.fg1.addLayer(m);
             break;
           case 'naturalfly':
-            fg2.addLayer(m);
+            this.fg2.addLayer(m);
             break;
           case 'ambiancefly':
-            fg3.addLayer(m);
+            this.fg3.addLayer(m);
             break;
           case 'musicfly':
-            fg4.addLayer(m);
+            this.fg4.addLayer(m);
             break;
           case 'humanfly':
-            fg5.addLayer(m);
+            this.fg5.addLayer(m);
             break;
           case 'foodfly':
-            fg6.addLayer(m);
+            this.fg6.addLayer(m);
             break;
           case 'itemfly':
-            fg7.addLayer(m);
+            this.fg7.addLayer(m);
             break;
           case 'sportfly':
-            fg8.addLayer(m);
+            this.fg8.addLayer(m);
             break;
           case 'transportfly':
-            fg9.addLayer(m);
+            this.fg9.addLayer(m);
             break;
         }
 
@@ -449,23 +556,37 @@ export class MapflyComponent implements OnInit {
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
 
-      // --- 5️⃣ Contrôle des layers ---
-      const overlays = {
-        TOUT: fgAll,
-        ANIMALFLY: fg1,
-        NATURALFLY: fg2,
-        AMBIANCEFLY: fg3,
-        MUSICFLY: fg4,
-        HUMANFLY: fg5,
-        FOODFLY: fg6,
-        ITEMFLY: fg7,
-        SPORTFLY: fg8,
-        TRANSPORTFLY: fg9,
+      const allGroupName = this.translate.instant('mapfly.categories.all');
+
+      const categoryOverlays = {
+        [allGroupName]: {
+          "<img src='img/logos/overlays/layer_control_animalfly.png' width = 30 /> <span>ANIMALFLY</span>": this.fg1,
+          "<img src='img/logos/overlays/layer_control_naturalfly.png' width = 30 /> <span>NATURALFLY</span>": this.fg2,
+          "<img src='img/logos/overlays/layer_control_ambiancefly.png' width = 30 /> <span>AMBIANCEFLY</span>": this.fg3,
+          "<img src='img/logos/overlays/layer_control_musicfly.png' width = 30 /> <span>MUSICFLY</span>": this.fg4,
+          "<img src='img/logos/overlays/layer_control_humanfly.png' width = 30 /> <span>HUMANFLY</span>": this.fg5,
+          "<img src='img/logos/overlays/layer_control_foodfly.png' width = 30 /> <span>FOODFLY</span>": this.fg6,
+          "<img src='img/logos/overlays/layer_control_itemfly.png' width = 30 /> <span>ITEMFLY</span>": this.fg7,
+          "<img src='img/logos/overlays/layer_control_sportfly.png' width = 30 /> <span>SPORTFLY</span>": this.fg8,
+          "<img src='img/logos/overlays/layer_control_transportfly.png' width = 30 /> <span>TRANSPORTFLY</span>": this.fg9,
+        },
       };
 
-      L.control
-        .layers({}, overlays, { collapsed: false, position: 'bottomright' })
-        .addTo(this.map);
+      // Ajout d'un paramètre `groupKey` pour la logique interne
+      this.groupedLayersControl = (L as any).control.groupedLayers(
+        {},
+        categoryOverlays,
+        {
+          collapsed: true,
+          position: 'bottomright',
+          autoZIndex: false,
+          groupCheckboxes: true,
+          exclusiveGroups: [],
+          // clé logique du groupe parent
+          groupKey: 'all',
+        },
+      );
+      this.groupedLayersControl.addTo(this.map);
 
       // --- 🔍 Préparation des données pour Fuse ---
       const soundsForSearch = sounds.map((s) => {
