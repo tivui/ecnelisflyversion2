@@ -22,6 +22,7 @@ import 'leaflet-search';
 import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
+import '../../../../core/scripts/leaflet/grouped-layers';
 
 @Component({
   selector: 'app-mapfly',
@@ -449,23 +450,33 @@ export class MapflyComponent implements OnInit {
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
 
-      // --- 5️⃣ Contrôle des layers ---
-      const overlays = {
-        TOUT: fgAll,
-        ANIMALFLY: fg1,
-        NATURALFLY: fg2,
-        AMBIANCEFLY: fg3,
-        MUSICFLY: fg4,
-        HUMANFLY: fg5,
-        FOODFLY: fg6,
-        ITEMFLY: fg7,
-        SPORTFLY: fg8,
-        TRANSPORTFLY: fg9,
+      // Contrôle des catégories séparé (TOUT décoché par défaut)
+      const categoryOverlays = {
+        TOUT: {
+          ANIMALFLY: fg1,
+          NATURALFLY: fg2,
+          AMBIANCEFLY: fg3,
+          MUSICFLY: fg4,
+          HUMANFLY: fg5,
+          FOODFLY: fg6,
+          ITEMFLY: fg7,
+          SPORTFLY: fg8,
+          TRANSPORTFLY: fg9,
+        },
       };
 
-      L.control
-        .layers({}, overlays, { collapsed: false, position: 'bottomright' })
-        .addTo(this.map);
+      const groupedLayersControl = (L as any).control.groupedLayers(
+        {}, // baseLayers
+        categoryOverlays,
+        {
+          collapsed: true,
+          position: 'bottomright',
+          autoZIndex: false,
+          groupCheckboxes: true,
+          exclusiveGroups: [],
+        },
+      );
+      groupedLayersControl.addTo(this.map);
 
       // --- 🔍 Préparation des données pour Fuse ---
       const soundsForSearch = sounds.map((s) => {
