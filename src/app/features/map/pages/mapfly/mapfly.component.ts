@@ -560,15 +560,15 @@ export class MapflyComponent implements OnInit {
 
       const categoryOverlays = {
         [allGroupName]: {
-          ANIMALFLY: this.fg1,
-          NATURALFLY: this.fg2,
-          AMBIANCEFLY: this.fg3,
-          MUSICFLY: this.fg4,
-          HUMANFLY: this.fg5,
-          FOODFLY: this.fg6,
-          ITEMFLY: this.fg7,
-          SPORTFLY: this.fg8,
-          TRANSPORTFLY: this.fg9,
+          "<img src='img/logos/overlays/layer_control_animalfly.png' width = 30 /> <span>ANIMALFLY</span>": this.fg1,
+          "<img src='img/logos/overlays/layer_control_naturalfly.png' width = 30 /> <span>NATURALFLY</span>": this.fg2,
+          "<img src='img/logos/overlays/layer_control_ambiancefly.png' width = 30 /> <span>AMBIANCEFLY</span>": this.fg3,
+          "<img src='img/logos/overlays/layer_control_musicfly.png' width = 30 /> <span>MUSICFLY</span>": this.fg4,
+          "<img src='img/logos/overlays/layer_control_humanfly.png' width = 30 /> <span>HUMANFLY</span>": this.fg5,
+          "<img src='img/logos/overlays/layer_control_foodfly.png' width = 30 /> <span>FOODFLY</span>": this.fg6,
+          "<img src='img/logos/overlays/layer_control_itemfly.png' width = 30 /> <span>ITEMFLY</span>": this.fg7,
+          "<img src='img/logos/overlays/layer_control_sportfly.png' width = 30 /> <span>SPORTFLY</span>": this.fg8,
+          "<img src='img/logos/overlays/layer_control_transportfly.png' width = 30 /> <span>TRANSPORTFLY</span>": this.fg9,
         },
       };
 
