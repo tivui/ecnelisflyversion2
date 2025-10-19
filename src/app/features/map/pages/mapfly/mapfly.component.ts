@@ -23,7 +23,7 @@ import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
 import '../../../../core/scripts/leaflet/grouped-layers';
-import { MAP_QUERY_KEYS } from '../../../../core/models/map.model';
+import { ALL_GROUP_KEYS, MAP_QUERY_KEYS } from '../../../../core/models/map.model';
 
 @Component({
   selector: 'app-mapfly',
@@ -82,6 +82,18 @@ export class MapflyComponent implements OnInit {
     };
   }
 
+  private groupedLayersControl: any;
+  private fgAll!: L.FeatureGroup;
+  private fg1!: L.FeatureGroup;
+  private fg2!: L.FeatureGroup;
+  private fg3!: L.FeatureGroup;
+  private fg4!: L.FeatureGroup;
+  private fg5!: L.FeatureGroup;
+  private fg6!: L.FeatureGroup;
+  private fg7!: L.FeatureGroup;
+  private fg8!: L.FeatureGroup;
+  private fg9!: L.FeatureGroup;
+
   async ngOnInit() {
     // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
@@ -138,6 +150,27 @@ export class MapflyComponent implements OnInit {
           { collapsed: false, position: 'topleft' },
         )
         .addTo(this.map);
+
+      // Mise à jour label controleur overlays
+
+      if (!this.groupedLayersControl) return;
+
+      const newLabel = this.translate.instant('mapfly.categories.all');
+      const layers = this.groupedLayersControl._layers;
+      layers.forEach((l: any) => {
+        console.log(l.group.key)
+        if (l.overlay && ALL_GROUP_KEYS.includes(l.group.key)) {
+          l.name = newLabel;
+          const groupContainer =
+            this.groupedLayersControl._domGroups[l.group.id];
+          if (groupContainer) {
+            const span = groupContainer.querySelector(
+              '.leaflet-control-layers-group-name',
+            );
+            if (span) span.textContent = newLabel;
+          }
+        }
+      });
     });
 
     // 🧭 Met à jour les query params quand la carte bouge
@@ -184,7 +217,6 @@ export class MapflyComponent implements OnInit {
       const sounds: Sound[] = soundsData.map((raw) =>
         this.soundsService.map(raw),
       );
-      console.log('sounds', sounds);
 
       // --- MarkerCluster ---
       const markersCluster = L.markerClusterGroup({
@@ -204,34 +236,34 @@ export class MapflyComponent implements OnInit {
       });
 
       // --- Subgroups pour chaque catégorie ---
-      const fgAll = (L.featureGroup as any)
+      this.fgAll = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // "TOUT"
-      const fg1 = (L.featureGroup as any)
+      this.fg1 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // ANIMALFLY
-      const fg2 = (L.featureGroup as any)
+      this.fg2 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // NATURALFLY
-      const fg3 = (L.featureGroup as any)
+      this.fg3 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // AMBIANCEFLY
-      const fg4 = (L.featureGroup as any)
+      this.fg4 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // MUSICFLY
-      const fg5 = (L.featureGroup as any)
+      this.fg5 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // HUMANFLY
-      const fg6 = (L.featureGroup as any)
+      this.fg6 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // FOODFLY
-      const fg7 = (L.featureGroup as any)
+      this.fg7 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // ITEMFLY
-      const fg8 = (L.featureGroup as any)
+      this.fg8 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // SPORTFLY
-      const fg9 = (L.featureGroup as any)
+      this.fg9 = (L.featureGroup as any)
         .subGroup(markersCluster)
         .addTo(this.map); // TRANSPORTFLY
 
@@ -284,34 +316,34 @@ export class MapflyComponent implements OnInit {
       `);
 
         // Ajout au groupe correct
-        fgAll.addLayer(m); // toujours dans "TOUT"
+        this.fgAll.addLayer(m); // toujours dans "TOUT"
         switch (category) {
           case 'animalfly':
-            fg1.addLayer(m);
+            this.fg1.addLayer(m);
             break;
           case 'naturalfly':
-            fg2.addLayer(m);
+            this.fg2.addLayer(m);
             break;
           case 'ambiancefly':
-            fg3.addLayer(m);
+            this.fg3.addLayer(m);
             break;
           case 'musicfly':
-            fg4.addLayer(m);
+            this.fg4.addLayer(m);
             break;
           case 'humanfly':
-            fg5.addLayer(m);
+            this.fg5.addLayer(m);
             break;
           case 'foodfly':
-            fg6.addLayer(m);
+            this.fg6.addLayer(m);
             break;
           case 'itemfly':
-            fg7.addLayer(m);
+            this.fg7.addLayer(m);
             break;
           case 'sportfly':
-            fg8.addLayer(m);
+            this.fg8.addLayer(m);
             break;
           case 'transportfly':
-            fg9.addLayer(m);
+            this.fg9.addLayer(m);
             break;
         }
 
@@ -524,23 +556,25 @@ export class MapflyComponent implements OnInit {
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
 
-      // Contrôle des catégories séparé (TOUT décoché par défaut)
+      const allGroupName = this.translate.instant('mapfly.categories.all');
+
       const categoryOverlays = {
-        TOUT: {
-          ANIMALFLY: fg1,
-          NATURALFLY: fg2,
-          AMBIANCEFLY: fg3,
-          MUSICFLY: fg4,
-          HUMANFLY: fg5,
-          FOODFLY: fg6,
-          ITEMFLY: fg7,
-          SPORTFLY: fg8,
-          TRANSPORTFLY: fg9,
+        [allGroupName]: {
+          ANIMALFLY: this.fg1,
+          NATURALFLY: this.fg2,
+          AMBIANCEFLY: this.fg3,
+          MUSICFLY: this.fg4,
+          HUMANFLY: this.fg5,
+          FOODFLY: this.fg6,
+          ITEMFLY: this.fg7,
+          SPORTFLY: this.fg8,
+          TRANSPORTFLY: this.fg9,
         },
       };
 
-      const groupedLayersControl = (L as any).control.groupedLayers(
-        {}, // baseLayers
+      // Ajout d'un paramètre `groupKey` pour la logique interne
+      this.groupedLayersControl = (L as any).control.groupedLayers(
+        {},
         categoryOverlays,
         {
           collapsed: true,
@@ -548,9 +582,11 @@ export class MapflyComponent implements OnInit {
           autoZIndex: false,
           groupCheckboxes: true,
           exclusiveGroups: [],
+          // clé logique du groupe parent
+          groupKey: 'all',
         },
       );
-      groupedLayersControl.addTo(this.map);
+      this.groupedLayersControl.addTo(this.map);
 
       // --- 🔍 Préparation des données pour Fuse ---
       const soundsForSearch = sounds.map((s) => {

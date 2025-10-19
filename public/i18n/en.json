@@ -41,6 +41,9 @@
       "esri": "SATELLITE",
       "osm": "STREETS",
       "mapbox": "SATELLITE + STREETS"
+    },
+    "categories": {
+      "all": "ALL"
     }
   },
   "categories": {

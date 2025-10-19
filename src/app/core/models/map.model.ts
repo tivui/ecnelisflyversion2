@@ -15,3 +15,7 @@ export const MAP_QUERY_KEYS = {
   zoom: 'zoom',
   basemap: 'basemap',
 } as const;
+
+export const ALL_GROUP_KEYS = ['TOUT', 'ALL', 'TODO'] as const;
+
+

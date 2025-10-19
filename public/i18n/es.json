@@ -41,6 +41,9 @@
       "esri": "SATELITE",
       "osm": "CALLES",
       "mapbox": "SATELITE + CALLES"
+    },
+    "categories": {
+      "all": "TODO"
     }
   },
   "categories": {

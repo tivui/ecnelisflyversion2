@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import L from 'leaflet';
+import { ALL_GROUP_KEYS } from '../../models/map.model';
 
 /**
  * L.Control.GroupedLayers - Layer control with groupings and exclusivity
@@ -192,7 +193,13 @@ import L from 'leaflet';
     const exclusive =
       (this as any)._indexOf((this as any).options.exclusiveGroups, group) !==
       -1;
-    _layer.group = { name: group, id: groupId, exclusive };
+
+    _layer.group = {
+      name: group,
+      id: groupId,
+      exclusive,
+      key: group
+    };
 
     if (
       (this as any).options.autoZIndex &&
@@ -287,8 +294,8 @@ import L from 'leaflet';
           (groupInput as any).groupID = obj.group.id;
           (groupInput as any).legend = this;
 
-          // ✅ coche automatiquement la case du groupe "TOUT"
-          if (obj.group.name === 'TOUT') {
+          // Pas optimum dynamiquement pour i18n mais fait le café
+          if (ALL_GROUP_KEYS.includes(obj.group.name)) {
             groupInput.checked = true;
           }
 
