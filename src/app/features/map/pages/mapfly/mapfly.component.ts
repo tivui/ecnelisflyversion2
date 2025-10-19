@@ -14,7 +14,7 @@ import { Sound } from '../../../../core/models/sound.model';
 import { SoundsService } from '../../../../core/services/sounds.service';
 import { StorageService } from '../../../../core/services/storage.service';
 import { AppUserService } from '../../../../core/services/app-user.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 import 'leaflet.markercluster';
@@ -23,10 +23,12 @@ import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
 import '../../../../core/scripts/leaflet/grouped-layers';
+import { MAP_QUERY_KEYS } from '../../../../core/models/map.model';
 
 @Component({
   selector: 'app-mapfly',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './mapfly.component.html',
   styleUrls: ['./mapfly.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -86,9 +88,28 @@ export class MapflyComponent implements OnInit {
       if (user?.language) this.currentUserLanguage = user.language;
     });
 
-    // Initialize Leaflet map
-    this.map = L.map('map', { center: L.latLng(30, 2.5), zoom: 3 });
-    this.osm.addTo(this.map);
+    // Get query params (user + map)
+    const params = this.route.snapshot.queryParamMap;
+
+    const userId = params.get(MAP_QUERY_KEYS.userId) ?? undefined;
+    const category = params.get(MAP_QUERY_KEYS.category) as
+      | CategoryKey
+      | undefined;
+
+    // --- Paramètres initiaux de la carte ---
+    const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
+    const lng = parseFloat(params.get(MAP_QUERY_KEYS.lng) ?? '2.5');
+    const zoom = parseInt(params.get(MAP_QUERY_KEYS.zoom) ?? '3', 10);
+    const basemapKey = params.get(MAP_QUERY_KEYS.basemap) ?? 'osm';
+
+    this.map = L.map('map', { center: L.latLng(lat, lng), zoom });
+    // --- Base layers object ---
+    const baseLayers = { esri: this.esri, osm: this.osm, mapbox: this.mapbox };
+
+    // --- Choix du fond initial ---
+    const selectedBaseLayer =
+      baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
+    selectedBaseLayer.addTo(this.map);
 
     // --- Contrôle des fonds de carte avec traduction dynamique ---
     this.baseLayersControl = L.control
@@ -114,11 +135,36 @@ export class MapflyComponent implements OnInit {
         .addTo(this.map);
     });
 
-    // Get query params
-    const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;
-    const category = this.route.snapshot.queryParamMap.get('category') as
-      | CategoryKey
-      | undefined;
+    // 🧭 Met à jour les query params quand la carte bouge
+    this.map.on('moveend zoomend', () => {
+      const center = this.map.getCenter();
+      const zoom = this.map.getZoom();
+
+      this.router.navigate([], {
+        queryParamsHandling: 'merge',
+        queryParams: {
+          [MAP_QUERY_KEYS.lat]: center.lat.toFixed(4),
+          [MAP_QUERY_KEYS.lng]: center.lng.toFixed(4),
+          [MAP_QUERY_KEYS.zoom]: zoom,
+        },
+        replaceUrl: true,
+      });
+    });
+
+    // 🎨 Écoute changement de fond de carte
+    this.map.on('baselayerchange', (e: any) => {
+      let newBasemapKey = 'osm'; // fallback
+
+      if (e.layer === this.esri) newBasemapKey = 'esri';
+      else if (e.layer === this.mapbox) newBasemapKey = 'mapbox';
+      else if (e.layer === this.osm) newBasemapKey = 'osm';
+
+      this.router.navigate([], {
+        queryParamsHandling: 'merge',
+        queryParams: { [MAP_QUERY_KEYS.basemap]: newBasemapKey },
+        replaceUrl: true,
+      });
+    });
 
     try {
       this.isLoading.set(true);

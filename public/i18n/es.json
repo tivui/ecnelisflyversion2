@@ -35,6 +35,7 @@
     }
   },
   "mapfly": {
+    "loading": "Cargando...",
     "record-info": "Grabado en {{city}} por {{username}}",
     "baselayers": {
       "esri": "SATELITE",

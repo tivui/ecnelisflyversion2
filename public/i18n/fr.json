@@ -35,6 +35,7 @@
     }
   },
   "mapfly": {
+    "loading": "Chargement...",
     "record-info": "Enregistré à {{city}} par {{username}}",
     "baselayers": {
       "esri": "SATELLITE",
