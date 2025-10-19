@@ -71,11 +71,14 @@ export class MapflyComponent implements OnInit {
     },
   );
 
-  baseMaps = {
-    OpenStreetMap: this.osm,
-    'Esri Satellite': this.esri,
-    'Mapbox Satellite+Streets': this.mapbox,
-  };
+  private baseLayersControl!: L.Control.Layers;
+  private getTranslatedBaseMaps(): Record<string, L.TileLayer> {
+    return {
+      [this.translate.instant('mapfly.baselayers.esri')]: this.esri,
+      [this.translate.instant('mapfly.baselayers.osm')]: this.osm,
+      [this.translate.instant('mapfly.baselayers.mapbox')]: this.mapbox,
+    };
+  }
 
   async ngOnInit() {
     // Listen to user language changes
@@ -87,9 +90,29 @@ export class MapflyComponent implements OnInit {
     this.map = L.map('map', { center: L.latLng(30, 2.5), zoom: 3 });
     this.osm.addTo(this.map);
 
-    L.control
-      .layers(this.baseMaps, {}, { collapsed: false, position: 'topleft' })
+    // --- Contrôle des fonds de carte avec traduction dynamique ---
+    this.baseLayersControl = L.control
+      .layers(
+        this.getTranslatedBaseMaps(),
+        {},
+        { collapsed: false, position: 'topleft' },
+      )
       .addTo(this.map);
+
+    // Met à jour dynamiquement les libellés si la langue change
+    this.translate.onLangChange.subscribe(() => {
+      // Supprime le contrôle existant
+      this.baseLayersControl.remove();
+
+      // Crée un nouveau avec les traductions mises à jour
+      this.baseLayersControl = L.control
+        .layers(
+          this.getTranslatedBaseMaps(),
+          {},
+          { collapsed: false, position: 'topleft' },
+        )
+        .addTo(this.map);
+    });
 
     // Get query params
     const userId = this.route.snapshot.queryParamMap.get('userId') ?? undefined;

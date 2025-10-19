@@ -35,7 +35,12 @@
     }
   },
   "mapfly": {
-    "record-info": "Grabado en {{city}} por {{username}}"
+    "record-info": "Grabado en {{city}} por {{username}}",
+    "baselayers": {
+      "esri": "SATELITE",
+      "osm": "CALLES",
+      "mapbox": "SATELITE + CALLES"
+    }
   },
   "categories": {
     "ambiancefly": "Sonidos ambientales",

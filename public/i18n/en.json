@@ -35,7 +35,12 @@
     }
   },
   "mapfly": {
-    "record-info": "Recorded in {{city}} by {{username}}"
+    "record-info": "Recorded in {{city}} by {{username}}",
+    "baselayers": {
+      "esri": "SATELLITE",
+      "osm": "STREETS",
+      "mapbox": "SATELLITE + STREETS"
+    }
   },
   "categories": {
     "ambiancefly": "Ambient sounds",
