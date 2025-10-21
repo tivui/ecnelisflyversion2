@@ -23,7 +23,10 @@ import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
 import '../../../../core/scripts/leaflet/grouped-layers';
-import { ALL_GROUP_KEYS, MAP_QUERY_KEYS } from '../../../../core/models/map.model';
+import {
+  ALL_GROUP_KEYS,
+  MAP_QUERY_KEYS,
+} from '../../../../core/models/map.model';
 
 @Component({
   selector: 'app-mapfly',
@@ -123,10 +126,25 @@ export class MapflyComponent implements OnInit {
     // --- Base layers object ---
     const baseLayers = { esri: this.esri, osm: this.osm, mapbox: this.mapbox };
 
-    // --- Choix du fond initial ---
-    const selectedBaseLayer =
-      baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
-    selectedBaseLayer.addTo(this.map);
+    // --- Choix du fond initial avec logique dynamique ---
+    let userHasSelectedBase = false; // ⚑ drapeau
+    let activeBaseLayer: L.TileLayer;
+
+    // Si un basemap est passé dans les query params → on le respecte
+    if (params.has(MAP_QUERY_KEYS.basemap)) {
+      activeBaseLayer =
+        baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
+    } else {
+      // Pas de param → comportement automatique selon le zoom initial
+      if (zoom <= 4) {
+        activeBaseLayer = this.esri; // satellite lointain
+      } else {
+        activeBaseLayer = this.mapbox; // satellite + rues proche
+      }
+    }
+
+    // Ajoute le fond de carte initial
+    activeBaseLayer.addTo(this.map);
 
     // --- Contrôle des fonds de carte avec traduction dynamique ---
     this.baseLayersControl = L.control
@@ -158,7 +176,7 @@ export class MapflyComponent implements OnInit {
       const newLabel = this.translate.instant('mapfly.categories.all');
       const layers = this.groupedLayersControl._layers;
       layers.forEach((l: any) => {
-        console.log(l.group.key)
+        console.log(l.group.key);
         if (l.overlay && ALL_GROUP_KEYS.includes(l.group.key)) {
           l.name = newLabel;
           const groupContainer =
@@ -189,10 +207,19 @@ export class MapflyComponent implements OnInit {
       });
     });
 
+    let isAutoBaseSwitch = false;
+
     // 🎨 Écoute changement de fond de carte
     this.map.on('baselayerchange', (e: any) => {
-      let newBasemapKey = 'osm'; // fallback
+      if (isAutoBaseSwitch) {
+        // ✅ ignore les changements automatiques dus au zoom
+        isAutoBaseSwitch = false;
+        return;
+      }
 
+      userHasSelectedBase = true; // ⚑ l’utilisateur a choisi manuellement
+
+      let newBasemapKey = 'osm'; // fallback
       if (e.layer === this.esri) newBasemapKey = 'esri';
       else if (e.layer === this.mapbox) newBasemapKey = 'mapbox';
       else if (e.layer === this.osm) newBasemapKey = 'osm';
@@ -202,6 +229,34 @@ export class MapflyComponent implements OnInit {
         queryParams: { [MAP_QUERY_KEYS.basemap]: newBasemapKey },
         replaceUrl: true,
       });
+    });
+
+    // 🔭 Changement automatique du fond si l’utilisateur n’a pas choisi manuellement
+    this.map.on('zoomend', () => {
+      if (userHasSelectedBase) return;
+
+      const currentZoom = this.map.getZoom();
+      const thresholdZoom = 6;
+
+      // Recalcule à chaque fois quelle couche est réellement visible
+      const hasEsri = this.map.hasLayer(this.esri);
+      const hasMapbox = this.map.hasLayer(this.mapbox);
+
+      // Si on est trop zoomé → Mapbox
+      if (currentZoom > thresholdZoom && !hasMapbox) {
+        if (hasEsri) this.map.removeLayer(this.esri);
+        isAutoBaseSwitch = true;
+        this.map.addLayer(this.mapbox);
+        activeBaseLayer = this.mapbox;
+      }
+
+      // Si on dézoome → Esri
+      else if (currentZoom <= thresholdZoom && !hasEsri) {
+        if (hasMapbox) this.map.removeLayer(this.mapbox);
+        isAutoBaseSwitch = true;
+        this.map.addLayer(this.esri);
+        activeBaseLayer = this.esri;
+      }
     });
 
     try {
@@ -560,15 +615,24 @@ export class MapflyComponent implements OnInit {
 
       const categoryOverlays = {
         [allGroupName]: {
-          "<img src='img/logos/overlays/layer_control_animalfly.png' width = 30 /> <span>ANIMALFLY</span>": this.fg1,
-          "<img src='img/logos/overlays/layer_control_naturalfly.png' width = 30 /> <span>NATURALFLY</span>": this.fg2,
-          "<img src='img/logos/overlays/layer_control_ambiancefly.png' width = 30 /> <span>AMBIANCEFLY</span>": this.fg3,
-          "<img src='img/logos/overlays/layer_control_musicfly.png' width = 30 /> <span>MUSICFLY</span>": this.fg4,
-          "<img src='img/logos/overlays/layer_control_humanfly.png' width = 30 /> <span>HUMANFLY</span>": this.fg5,
-          "<img src='img/logos/overlays/layer_control_foodfly.png' width = 30 /> <span>FOODFLY</span>": this.fg6,
-          "<img src='img/logos/overlays/layer_control_itemfly.png' width = 30 /> <span>ITEMFLY</span>": this.fg7,
-          "<img src='img/logos/overlays/layer_control_sportfly.png' width = 30 /> <span>SPORTFLY</span>": this.fg8,
-          "<img src='img/logos/overlays/layer_control_transportfly.png' width = 30 /> <span>TRANSPORTFLY</span>": this.fg9,
+          "<img src='img/logos/overlays/layer_control_animalfly.png' width = 30 /> <span>ANIMALFLY</span>":
+            this.fg1,
+          "<img src='img/logos/overlays/layer_control_naturalfly.png' width = 30 /> <span>NATURALFLY</span>":
+            this.fg2,
+          "<img src='img/logos/overlays/layer_control_ambiancefly.png' width = 30 /> <span>AMBIANCEFLY</span>":
+            this.fg3,
+          "<img src='img/logos/overlays/layer_control_musicfly.png' width = 30 /> <span>MUSICFLY</span>":
+            this.fg4,
+          "<img src='img/logos/overlays/layer_control_humanfly.png' width = 30 /> <span>HUMANFLY</span>":
+            this.fg5,
+          "<img src='img/logos/overlays/layer_control_foodfly.png' width = 30 /> <span>FOODFLY</span>":
+            this.fg6,
+          "<img src='img/logos/overlays/layer_control_itemfly.png' width = 30 /> <span>ITEMFLY</span>":
+            this.fg7,
+          "<img src='img/logos/overlays/layer_control_sportfly.png' width = 30 /> <span>SPORTFLY</span>":
+            this.fg8,
+          "<img src='img/logos/overlays/layer_control_transportfly.png' width = 30 /> <span>TRANSPORTFLY</span>":
+            this.fg9,
         },
       };
 
