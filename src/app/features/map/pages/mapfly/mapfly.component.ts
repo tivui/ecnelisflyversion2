@@ -28,7 +28,6 @@ import {
   MAP_QUERY_KEYS,
 } from '../../../../core/models/map.model';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
-import 'leaflet-geosearch/assets/css/leaflet.css';
 
 @Component({
   selector: 'app-mapfly',
