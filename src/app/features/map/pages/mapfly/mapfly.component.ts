@@ -27,6 +27,8 @@ import {
   ALL_GROUP_KEYS,
   MAP_QUERY_KEYS,
 } from '../../../../core/models/map.model';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import 'leaflet-geosearch/assets/css/leaflet.css';
 
 @Component({
   selector: 'app-mapfly',
@@ -117,6 +119,8 @@ export class MapflyComponent implements OnInit {
     const zoom = parseInt(params.get(MAP_QUERY_KEYS.zoom) ?? '3', 10);
     const basemapKey = params.get(MAP_QUERY_KEYS.basemap) ?? 'osm';
 
+    let isSearchActive = false;
+
     this.map = L.map('map', {
       center: L.latLng(lat, lng),
       zoom,
@@ -134,6 +138,7 @@ export class MapflyComponent implements OnInit {
     if (params.has(MAP_QUERY_KEYS.basemap)) {
       activeBaseLayer =
         baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
+      userHasSelectedBase = true;
     } else {
       // Pas de param → comportement automatique selon le zoom initial
       if (zoom <= 4) {
@@ -151,7 +156,7 @@ export class MapflyComponent implements OnInit {
       .layers(
         this.getTranslatedBaseMaps(),
         {},
-        { collapsed: false, position: 'topleft' },
+        { collapsed: false, position: 'bottomleft' },
       )
       .addTo(this.map);
 
@@ -165,7 +170,7 @@ export class MapflyComponent implements OnInit {
         .layers(
           this.getTranslatedBaseMaps(),
           {},
-          { collapsed: false, position: 'topleft' },
+          { collapsed: false, position: 'bottomleft' },
         )
         .addTo(this.map);
 
@@ -176,7 +181,6 @@ export class MapflyComponent implements OnInit {
       const newLabel = this.translate.instant('mapfly.categories.all');
       const layers = this.groupedLayersControl._layers;
       layers.forEach((l: any) => {
-        console.log(l.group.key);
         if (l.overlay && ALL_GROUP_KEYS.includes(l.group.key)) {
           l.name = newLabel;
           const groupContainer =
@@ -233,7 +237,7 @@ export class MapflyComponent implements OnInit {
 
     // 🔭 Changement automatique du fond si l’utilisateur n’a pas choisi manuellement
     this.map.on('zoomend', () => {
-      if (userHasSelectedBase) return;
+      if (userHasSelectedBase || isSearchActive) return;
 
       const currentZoom = this.map.getZoom();
       const thresholdZoom = 6;
@@ -701,14 +705,31 @@ export class MapflyComponent implements OnInit {
         textPlaceholder: 'Titre ou #Hashtags...',
         buildTip: (text: string) => `<span>${text}</span>`,
       }).on('search:locationfound', (e: any) => {
+        isSearchActive = true; // 🚫 bloque le changement de base layer automatique
         // retrouver le bon marker à partir du texte combiné
         const found = markerLookup[e.layer?.options.filename || e.text];
         if (found) {
           markersCluster.zoomToShowLayer(found, () => found.openPopup());
         }
+
+        // 🕒 après un petit délai, on réactive la logique automatique
+        setTimeout(() => (isSearchActive = false), 1500);
       });
 
       this.map.addControl(controlSearch);
+
+      const provider = new OpenStreetMapProvider();
+
+      const searchControl = GeoSearchControl({
+        provider: provider,
+      });
+
+      this.map.addControl(searchControl);
+
+      this.map.on('geosearch/showlocation', () => {
+        isSearchActive = true;
+        setTimeout(() => (isSearchActive = false), 1500);
+      });
     } finally {
       this.isLoading.set(false);
     }
