@@ -98,6 +98,9 @@ export class MapflyComponent implements OnInit {
   private fg8!: L.FeatureGroup;
   private fg9!: L.FeatureGroup;
 
+  // ✅ ajoute cette ligne ici :
+  private overlaysInitialized = false;
+
   async ngOnInit() {
     // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
@@ -150,17 +153,44 @@ export class MapflyComponent implements OnInit {
     // Ajoute le fond de carte initial
     activeBaseLayer.addTo(this.map);
 
-    // --- Contrôle des fonds de carte avec traduction dynamique ---
-    this.baseLayersControl = L.control
-      .layers(
-        this.getTranslatedBaseMaps(),
-        {},
-        { collapsed: false, position: 'bottomleft' },
-      )
-      .addTo(this.map);
+    // --- ✅ Attendre la traduction avant d'initialiser le contrôle ---
+    this.translate
+      .get([
+        'mapfly.baselayers.esri',
+        'mapfly.baselayers.osm',
+        'mapfly.baselayers.mapbox',
+      ])
+      .subscribe((t) => {
+        const baseMaps = {
+          [t['mapfly.baselayers.esri']]: this.esri,
+          [t['mapfly.baselayers.osm']]: this.osm,
+          [t['mapfly.baselayers.mapbox']]: this.mapbox,
+        };
+
+        this.baseLayersControl = L.control
+          .layers(baseMaps, {}, { collapsed: false, position: 'bottomleft' })
+          .addTo(this.map);
+      });
 
     // Met à jour dynamiquement les libellés si la langue change
     this.translate.onLangChange.subscribe(() => {
+      this.groupedLayersControl.remove();
+
+      const newCategoryOverlays = this.buildCategoryOverlays();
+      this.groupedLayersControl = (L as any).control.groupedLayers(
+        {},
+        newCategoryOverlays,
+        {
+          collapsed: true,
+          position: 'bottomright',
+          autoZIndex: false,
+          groupCheckboxes: true,
+          exclusiveGroups: [],
+          groupKey: 'all',
+        },
+      );
+      this.groupedLayersControl.addTo(this.map);
+
       // Supprime le contrôle existant
       this.baseLayersControl.remove();
 
@@ -614,30 +644,7 @@ export class MapflyComponent implements OnInit {
       // --- Add cluster to map ---
       this.map.addLayer(markersCluster);
 
-      const allGroupName = this.translate.instant('mapfly.categories.all');
-
-      const categoryOverlays = {
-        [allGroupName]: {
-          "<img src='img/logos/overlays/layer_control_animalfly.png' width = 30 /> <span>ANIMALFLY</span>":
-            this.fg1,
-          "<img src='img/logos/overlays/layer_control_naturalfly.png' width = 30 /> <span>NATURALFLY</span>":
-            this.fg2,
-          "<img src='img/logos/overlays/layer_control_ambiancefly.png' width = 30 /> <span>AMBIANCEFLY</span>":
-            this.fg3,
-          "<img src='img/logos/overlays/layer_control_musicfly.png' width = 30 /> <span>MUSICFLY</span>":
-            this.fg4,
-          "<img src='img/logos/overlays/layer_control_humanfly.png' width = 30 /> <span>HUMANFLY</span>":
-            this.fg5,
-          "<img src='img/logos/overlays/layer_control_foodfly.png' width = 30 /> <span>FOODFLY</span>":
-            this.fg6,
-          "<img src='img/logos/overlays/layer_control_itemfly.png' width = 30 /> <span>ITEMFLY</span>":
-            this.fg7,
-          "<img src='img/logos/overlays/layer_control_sportfly.png' width = 30 /> <span>SPORTFLY</span>":
-            this.fg8,
-          "<img src='img/logos/overlays/layer_control_transportfly.png' width = 30 /> <span>TRANSPORTFLY</span>":
-            this.fg9,
-        },
-      };
+      const categoryOverlays = this.buildCategoryOverlays();
 
       // Ajout d'un paramètre `groupKey` pour la logique interne
       this.groupedLayersControl = (L as any).control.groupedLayers(
@@ -745,5 +752,35 @@ export class MapflyComponent implements OnInit {
       }
     }
     return field;
+  }
+
+  private buildCategoryOverlays(): Record<
+    string,
+    Record<string, L.FeatureGroup>
+  > {
+    const allGroupName = this.translate.instant('mapfly.categories.all');
+
+    const categories: { key: CategoryKey; fg: L.FeatureGroup }[] = [
+      { key: CategoryKey.ANIMAL, fg: this.fg1 },
+      { key: CategoryKey.NATURAL, fg: this.fg2 },
+      { key: CategoryKey.AMBIANCE, fg: this.fg3 },
+      { key: CategoryKey.MUSIC, fg: this.fg4 },
+      { key: CategoryKey.HUMAN, fg: this.fg5 },
+      { key: CategoryKey.FOOD, fg: this.fg6 },
+      { key: CategoryKey.ITEM, fg: this.fg7 },
+      { key: CategoryKey.SPORT, fg: this.fg8 },
+      { key: CategoryKey.TRANSPORT, fg: this.fg9 },
+    ];
+
+    const overlayEntries = categories.map(({ key, fg }) => {
+      const translated = this.translate.instant(`categories.${key}`);
+      const label = `
+      <img src="img/logos/overlays/layer_control_${key}.png" width="30" />
+      <span>${translated}</span>
+    `;
+      return [label, fg];
+    });
+
+    return { [allGroupName]: Object.fromEntries(overlayEntries) };
   }
 }

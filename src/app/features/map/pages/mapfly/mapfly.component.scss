@@ -793,3 +793,29 @@ body.dark-theme .leaflet-popup-tip {
 .leaflet-control-geosearch button.reset:hover {
   background: #f5f5f5;
 }
+
+.leaflet-marker-pane img.leaflet-marker-icon {
+  pointer-events: auto !important;
+  z-index: 500 !important;
+}
+
+.leaflet-marker-pane .marker-cluster {
+  z-index: 600 !important;
+}
+
+/* ✅ Clics uniquement sur les markers visibles */
+.leaflet-marker-pane img.leaflet-marker-icon[style*="opacity: 1"],
+.leaflet-marker-pane img.leaflet-marker-icon:not([style*="opacity"]) {
+  pointer-events: auto !important;
+  z-index: 500 !important;
+}
+
+/* 👻 Empêche les markers cachés d'intercepter le clic */
+.leaflet-marker-pane img.leaflet-marker-icon[style*="opacity: 0"] {
+  pointer-events: none !important;
+}
+
+/* 🔝 Les clusters doivent rester au-dessus */
+.leaflet-marker-pane .marker-cluster {
+  z-index: 600 !important;
+}
