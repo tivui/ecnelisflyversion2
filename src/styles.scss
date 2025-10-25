@@ -58,10 +58,9 @@ body {
   min-height: 100vh;
   width: 100vw;
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+
   display: flex;
-  flex-direction: column;
-  min-height: calc(var(--real-vh, 1vh) * 100); // 🔹 hauteur visible réelle sur mobile
-  width: 100vw;
+  flex-direction: column; // toolbar en haut, content en dessous
 }
 
 body.light-theme {
@@ -103,12 +102,11 @@ body.dark-theme {
 main.content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
+  align-items: center; // centre horizontalement
+  justify-content: center; // centre verticalement dans l'espace restant
+  flex: 1; // prend tout l’espace disponible sous la toolbar
   width: 100%;
   box-sizing: border-box;
   padding: 16px;
-  min-height: calc(var(--real-vh, 1vh) * 100); // 🔹 utilise hauteur visible réelle
 }
 
