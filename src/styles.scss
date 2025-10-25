@@ -60,8 +60,8 @@ body {
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  padding-bottom: env(safe-area-inset-bottom); /* sécurité pour barre système */
-  padding-top: env(safe-area-inset-top);
+  min-height: calc(var(--real-vh, 1vh) * 100); // 🔹 hauteur visible réelle sur mobile
+  width: 100vw;
 }
 
 body.light-theme {
@@ -109,6 +109,6 @@ main.content {
   width: 100%;
   box-sizing: border-box;
   padding: 16px;
-  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: calc(var(--real-vh, 1vh) * 100); // 🔹 utilise hauteur visible réelle
 }
 
