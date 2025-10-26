@@ -1,5 +1,17 @@
 <mat-toolbar color="primary">
   <span [routerLink]="'/home'">Ecnelis FLY</span>
+  <!-- Bouton plein écran -->
+  <button
+    class="fullscreen-btn"
+    mat-icon-button
+    (click)="toggleFullscreen()"
+    [matTooltip]="
+      (isFullscreen() ? 'toolbar.fullscreen.exit' : 'toolbar.fullscreen.enter')
+        | translate
+    "
+  >
+    <mat-icon>{{ isFullscreen() ? "fullscreen_exit" : "fullscreen" }}</mat-icon>
+  </button>
   <span class="spacer"></span>
 
   <!-- Admin settings wheel -->

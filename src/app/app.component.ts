@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   inject,
@@ -28,6 +29,7 @@ import { AmplifyI18nService } from './core/services/amplify-i18n.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from './core/services/auth.service';
+import { DOCUMENT } from '@angular/common'; // required for fullscreen
 
 @Component({
   selector: 'app-root',
@@ -60,11 +62,61 @@ export class AppComponent implements OnInit {
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
   private readonly authService = inject(AuthService);
+  private readonly document = inject(DOCUMENT);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
   public isDark = signal(false);
   public isAdmin = signal(false);
+
+  // ==================== FULLSCREEN ====================
+
+  // Detect mobile environment (Android / iOS)
+  public readonly isMobile = /Android|iPhone|iPad|iPod/i.test(
+    navigator.userAgent,
+  );
+
+  // Reference to the main document element
+  private elem = this.document.documentElement;
+
+  // Fullscreen state signal
+  public isFullscreen = signal(false);
+
+  // Open fullscreen mode (desktop + Android)
+  openFullscreen(): void {
+    // Skip for iOS (no fullscreen API available)
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) return;
+
+    if (this.elem.requestFullscreen) {
+      this.elem.requestFullscreen();
+    } else if ((this.elem as any).webkitRequestFullscreen) {
+      (this.elem as any).webkitRequestFullscreen();
+    } else if ((this.elem as any).msRequestFullscreen) {
+      (this.elem as any).msRequestFullscreen();
+    }
+    this.isFullscreen.set(true);
+  }
+
+  // Exit fullscreen mode
+  closeFullscreen(): void {
+    if (this.document.exitFullscreen) {
+      this.document.exitFullscreen();
+    } else if ((this.document as any).webkitExitFullscreen) {
+      (this.document as any).webkitExitFullscreen();
+    } else if ((this.document as any).msExitFullscreen) {
+      (this.document as any).msExitFullscreen();
+    }
+    this.isFullscreen.set(false);
+  }
+
+  // Toggle fullscreen
+  toggleFullscreen(): void {
+    if (this.isFullscreen()) {
+      this.closeFullscreen();
+    } else {
+      this.openFullscreen();
+    }
+  }
 
   public languages: Language[] = ['en', 'fr', 'es'];
   public selectedLang = signal<Language>('fr');
@@ -148,6 +200,22 @@ export class AppComponent implements OnInit {
           this.router.navigate(['/home'], { replaceUrl: true });
           break;
       }
+    });
+
+    // ==================== FULLSCREEN DETECTION ====================
+
+    // ✅ Detect native fullscreen changes (F11, Esc, or programmatic)
+    this.document.addEventListener('fullscreenchange', () => {
+      const fsActive = !!this.document.fullscreenElement;
+      this.isFullscreen.set(fsActive);
+    });
+
+    // ✅ Fallback: detect fullscreen by window size (for browsers or mobile)
+    window.addEventListener('resize', () => {
+      const isLikelyFullscreen =
+        Math.abs(window.innerHeight - screen.height) < 10 &&
+        Math.abs(window.innerWidth - screen.width) < 10;
+      this.isFullscreen.set(isLikelyFullscreen);
     });
   }
 

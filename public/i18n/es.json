@@ -16,6 +16,10 @@
     "admin": {
       "dashboard": "Panel de administración",
       "manage-database": "Administrar base de datos"
+    },
+    "fullscreen": {
+      "enter": "Entrar pantalla completa",
+      "exit": "Salir pantalla completa"
     }
   },
   "account": {
@@ -34,6 +38,7 @@
       "importSounds": "Importar sonidos"
     }
   },
+
   "mapfly": {
     "loading": "Cargando...",
     "record-info": "Grabado en {{city}} por {{username}}",

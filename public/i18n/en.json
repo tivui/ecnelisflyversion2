@@ -16,6 +16,10 @@
     "admin": {
       "dashboard": "Admin dashboard",
       "manage-database": "Manage database"
+    },
+    "fullscreen": {
+      "enter": "Enter fullscreen",
+      "exit": "Exit fullscreen"
     }
   },
   "account": {
