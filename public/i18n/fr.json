@@ -16,6 +16,10 @@
     "admin": {
       "dashboard": "Tableau de bord",
       "manage-database": "Gérer la bdd"
+    },
+    "fullscreen": {
+      "enter": "Mode plein écran",
+      "exit": "Sortir du plein écran"
     }
   },
   "account": {
