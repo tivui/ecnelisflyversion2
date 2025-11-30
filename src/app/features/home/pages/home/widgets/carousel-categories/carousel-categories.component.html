@@ -1,0 +1,7 @@
+<swiper-container loop="true" navigation="true" [slidesPerView]="3">
+  @for (s of slides; track s) {
+    <swiper-slide>
+      <app-card-category [title]="s.title" [icon]="s.icon"></app-card-category>
+    </swiper-slide>
+  }
+</swiper-container>
