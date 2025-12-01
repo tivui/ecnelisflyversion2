@@ -1,17 +1,31 @@
 @if (appUser()) {
-  <div class="home-container">
-    <h2>
-      {{ "home.welcome" | translate: { name: appUser()!.username } }}
-      <img
-        [src]="'/img/flags/' + appUser()?.country + '.png'"
-        alt="{{ appUser()?.country }}"
-        width="24"
-        height="16"
-      />
-    </h2>
-    <div class="audio-controls">
-      <button [routerLink]="'/mapfly'">🌍Map</button>
+
+  <!-- GRID : header + map -->
+  <div class="header-container">
+
+    <div class="zone-header">
+      <h2>
+        {{ "home.welcome" | translate: { name: appUser()!.username } }}
+        <img
+          [src]="'/img/flags/' + appUser()?.country + '.png'"
+          alt="{{ appUser()?.country }}"
+          width="24"
+          height="16"
+        />
+      </h2>
     </div>
+
+    <div class="zone-map">
+      <div class="audio-controls">
+        <button [routerLink]="'/mapfly'">🌍 Map</button>
+      </div>
+    </div>
+
   </div>
-  <app-carousel-categories></app-carousel-categories>
+
+  <!-- HORS GRID : CAROUSEL pour éviter les conflits -->
+  <div class="carousel-wrapper">
+    <app-carousel-categories></app-carousel-categories>
+  </div>
+
 }

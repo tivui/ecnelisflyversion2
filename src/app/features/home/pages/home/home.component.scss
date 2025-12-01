@@ -1,16 +1,28 @@
-.home-container {
+/* GRID pour header + map - comportement défaut : GRAND ÉCRAN */
+.header-container {
   display: grid;
-  place-items: center;
-  height: calc(100vh - 64px);
+  grid-template-rows: 40% 25%;
+  height: 60vh;                  /* Desktop */
   text-align: center;
   padding: 0 16px;
 }
 
-.home-container h1 {
-  margin: 0;
+/* PETIT ÉCRAN (< 768px) → hauteur plein écran */
+@media (max-width: 768px) {
+  .header-container {
+    height: calc(100vh - 64px);  /* Mobile */
+    grid-template-rows: 50% 50%; /* optionnel : adapte la répartition */
+  }
+}
+
+/* Zones */
+.zone-header,
+.zone-map {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+}
+
+.carousel-wrapper {
+  padding: 5px;
 }

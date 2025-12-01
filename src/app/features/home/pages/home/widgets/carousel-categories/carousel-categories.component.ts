@@ -14,4 +14,12 @@ export class CarouselCategoriesComponent {
     title: `Catégorie ${i + 1}`,
     icon: 'home',
   }));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSwiperInit(swiper: any) {
+  // Force Swiper à relire la largeur du parent et recalculer les breakpoints
+  setTimeout(() => {
+    swiper.update();
+  }, 50);
+}
 }
