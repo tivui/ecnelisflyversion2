@@ -1,5 +1,16 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CardCategoryComponent } from "../card-category/card-category.component";
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
+  inject,
+} from '@angular/core';
+import { CardCategoryComponent } from '../card-category/card-category.component';
+import {
+  CategoriesService,
+  CategorySlide,
+} from '../../../../../../core/services/categories.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-carousel-categories',
@@ -7,19 +18,33 @@ import { CardCategoryComponent } from "../card-category/card-category.component"
   imports: [CardCategoryComponent],
   templateUrl: './carousel-categories.component.html',
   styleUrl: './carousel-categories.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CarouselCategoriesComponent {
-  slides = Array.from({ length: 9 }).map((_, i) => ({
-    title: `Catégorie ${i + 1}`,
-    icon: 'home',
-  }));
+  private readonly categoriesService = inject(CategoriesService);
+  private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSwiperInit(swiper: any) {
-  // Force Swiper à relire la largeur du parent et recalculer les breakpoints
-  setTimeout(() => {
-    swiper.update();
-  }, 50);
-}
+  public slides: CategorySlide[] = [];
+
+  constructor() {
+    // Load initial slides
+    this.loadSlides();
+
+    // Listen to language changes
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadSlides();
+      });
+  }
+
+  private loadSlides() {
+    this.categoriesService
+      .getSlides()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((slides) => {
+        this.slides = slides;
+      });
+  }
 }

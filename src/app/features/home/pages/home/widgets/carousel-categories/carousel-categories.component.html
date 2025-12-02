@@ -4,7 +4,7 @@
     "768":   { "slidesPerView": 3 },
     "1151":  { "slidesPerView": 4 },
     "1751":  { "slidesPerView": 5 }
-  }' (afterinit)="onSwiperInit($event)">
+  }'>
   @for (s of slides; track s) {
     <swiper-slide>
       <app-card-category [title]="s.title" [icon]="s.icon"></app-card-category>
