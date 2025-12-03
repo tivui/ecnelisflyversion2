@@ -110,3 +110,17 @@ main.content {
   padding: 16px;
 }
 
+
+/* Example targeting mat-card-title & icon to be explicit (only if needed) */
+mat-card-title.dark-theme
+{
+  color: #f5f5f5 !important;
+}
+
+body.dark-theme {
+  mat-card {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+  }
+}
+

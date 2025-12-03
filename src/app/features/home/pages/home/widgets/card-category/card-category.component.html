@@ -1,7 +1,7 @@
 <mat-card class="category-card">
   <mat-card-header>
     <mat-icon>{{ icon() }}</mat-icon>
-    <mat-card-title>{{ title() }}</mat-card-title>
+    <mat-card-title (click)="goToMapflyCategory()">{{ title() }}</mat-card-title>
   </mat-card-header>
 
   <mat-card-content>

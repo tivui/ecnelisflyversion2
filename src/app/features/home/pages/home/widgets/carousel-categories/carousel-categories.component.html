@@ -4,10 +4,10 @@
     "768":   { "slidesPerView": 3 },
     "1151":  { "slidesPerView": 4 },
     "1751":  { "slidesPerView": 5 }
-  }'>
+  }' [spaceBetween]="5">
   @for (s of slides; track s) {
     <swiper-slide>
-      <app-card-category [title]="s.title" [icon]="s.icon"></app-card-category>
+      <app-card-category [title]="s.title" [icon]="s.icon" [category]="s.key"></app-card-category>
     </swiper-slide>
   }
 </swiper-container>
