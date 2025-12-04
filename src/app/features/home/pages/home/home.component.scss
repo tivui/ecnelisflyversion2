@@ -7,11 +7,11 @@
   padding: 0 16px;
 }
 
-/* PETIT ÉCRAN (< 768px) → hauteur plein écran */
-@media (max-width: 768px) {
+/* PETIT ÉCRAN OU ÉCRAN PEU HAUT → hauteurs spéciales */
+@media (max-width: 768px), (max-height: 850px) {
   .header-container {
-    height: calc(100vh - 64px);  /* Mobile */
-    grid-template-rows: 50% 50%; /* optionnel : adapte la répartition */
+    height: calc(100vh - 64px);
+    grid-template-rows: 50% 50%;
   }
 }
 
