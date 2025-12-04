@@ -15,6 +15,8 @@ export class CardCategoryComponent {
   title = input.required<string>();
   category = input.required<string>();
   icon = input<string>('');
+  background = input.required<string>();
+  color = input.required<string>();
 
   private readonly router = inject(Router);
 

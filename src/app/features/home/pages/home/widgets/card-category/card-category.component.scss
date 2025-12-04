@@ -1,3 +1,41 @@
 .category-card {
-  height: 200px;
+  height: 150px;
+  clip-path: polygon(
+    0 0,           /* top left */
+    100% 0,        /* top right */
+    100% calc(100% - 20px), /* point avant le biseau */
+    calc(100% - 20px) 100%, /* coin oblique */
+    0 100%         /* bottom left */
+  );
+  border-radius: 0px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .category-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: contain; /* garde les proportions */
+    }
+
+    mat-card-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+  }
+
+  mat-card-content p {
+    margin: 0;
+    opacity: 0.85;
+  }
 }

@@ -2,7 +2,7 @@
 .header-container {
   display: grid;
   grid-template-rows: 40% 25%;
-  height: 60vh;                  /* Desktop */
+  height: calc(100vh - 64px - 180px);
   text-align: center;
   padding: 0 16px;
 }
