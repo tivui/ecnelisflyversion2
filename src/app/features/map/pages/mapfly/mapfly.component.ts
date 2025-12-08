@@ -114,6 +114,8 @@ export class MapflyComponent implements OnInit {
     const category = params.get(MAP_QUERY_KEYS.category) as
       | CategoryKey
       | undefined;
+    const secondaryCategory =
+      params.get(MAP_QUERY_KEYS.secondaryCategory) ?? undefined;
 
     // --- Paramètres initiaux de la carte ---
     const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
@@ -297,7 +299,11 @@ export class MapflyComponent implements OnInit {
 
       const result = (await this.amplifyService.client.graphql({
         query: ListSoundsForMapWithAppUser,
-        variables: { category, userId },
+        variables: {
+          ...(category ? { category } : {}),
+          ...(secondaryCategory ? { secondaryCategory } : {}),
+          ...(userId ? { userId } : {}),
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       })) as GraphQLResult<{ listSoundsForMap: any[] }>;
 

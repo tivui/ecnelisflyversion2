@@ -1,6 +1,6 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { categories, CategoryKey, getSubCategoryKeys } from './categories';
-import { importSounds,  } from '../functions/import-sounds/resource';
+import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 
 // Generate an array containing all valid category and subcategory keys
@@ -45,7 +45,7 @@ const schema = a
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
-        allow.authenticated().to(['read'])
+        allow.authenticated().to(['read']),
       ]),
 
     Sound: a
@@ -93,6 +93,9 @@ const schema = a
         index('category')
           .sortKeys(['status'])
           .queryField('listSoundsByCategoryAndStatus'),
+        index('secondaryCategory')
+          .sortKeys(['status'])
+          .queryField('listSoundsBySecondaryCategoryAndStatus'),
         index('status').queryField('listSoundsByStatus'),
       ])
       .authorization((allow) => [
@@ -114,6 +117,7 @@ const schema = a
       .arguments({
         userId: a.id(), // optional
         category: a.string(), // optional
+        secondaryCategory: a.string() // optional
       })
       .returns(a.ref('Sound').array())
       .authorization((allow) => [
