@@ -25,6 +25,7 @@ export class AuthService {
   private _groups = signal<string[]>([]);
   readonly groups = this._groups.asReadonly();
 
+
   /**
    * Load the currently authenticated user.
    * Returns null if no valid session exists.

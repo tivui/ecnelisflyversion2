@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   ViewEncapsulation,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -28,6 +29,8 @@ import {
   MAP_QUERY_KEYS,
 } from '../../../../core/models/map.model';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-mapfly',
@@ -45,9 +48,17 @@ export class MapflyComponent implements OnInit {
   private readonly storageService = inject(StorageService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
   private map!: L.Map;
   private currentUserLanguage = 'fr';
+
+  // Convertit ton currentUser$ en signal Angular
+  currentUser = toSignal(this.appUserService.currentUser$, {
+    initialValue: null,
+  });
+
+  isAuthenticated = computed(() => !!this.auth.user());
 
   public isLoading = signal(false);
 
@@ -98,14 +109,13 @@ export class MapflyComponent implements OnInit {
   private fg8!: L.FeatureGroup;
   private fg9!: L.FeatureGroup;
 
-  // ✅ ajoute cette ligne ici :
-  private overlaysInitialized = false;
-
   async ngOnInit() {
     // Listen to user language changes
     this.appUserService.currentUser$.subscribe((user) => {
       if (user?.language) this.currentUserLanguage = user.language;
     });
+
+    console.log('signal isAuthenticated', this.isAuthenticated());
 
     // Get query params (user + map)
     const params = this.route.snapshot.queryParamMap;
@@ -304,9 +314,12 @@ export class MapflyComponent implements OnInit {
           ...(secondaryCategory ? { secondaryCategory } : {}),
           ...(userId ? { userId } : {}),
         },
+
+        authMode: this.isAuthenticated() ? 'userPool' : 'apiKey',
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       })) as GraphQLResult<{ listSoundsForMap: any[] }>;
-
+      console.log('result', result);
       const soundsData = result?.data?.listSoundsForMap ?? [];
       const sounds: Sound[] = soundsData.map((raw) =>
         this.soundsService.map(raw),

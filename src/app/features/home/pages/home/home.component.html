@@ -1,9 +1,7 @@
-@if (appUser()) {
-
-  <!-- GRID : header + map -->
-  <div class="header-container">
-
-    <div class="zone-header">
+<!-- GRID : header + map -->
+<div class="header-container">
+  <div class="zone-header">
+    @if (appUser()) {
       <h2>
         {{ "home.welcome" | translate: { name: appUser()!.username } }}
         <img
@@ -13,19 +11,17 @@
           height="16"
         />
       </h2>
-    </div>
-
-    <div class="zone-map">
-      <div class="audio-controls">
-        <button [routerLink]="'/mapfly'">🌍 Map</button>
-      </div>
-    </div>
-
+    }
   </div>
 
-  <!-- HORS GRID : CAROUSEL pour éviter les conflits -->
-  <div class="carousel-wrapper">
-    <app-carousel-categories></app-carousel-categories>
+  <div class="zone-map">
+    <div class="audio-controls">
+      <button [routerLink]="'/mapfly'">🌍 Map</button>
+    </div>
   </div>
+</div>
 
-}
+<!-- HORS GRID : CAROUSEL pour éviter les conflits -->
+<div class="carousel-wrapper">
+  <app-carousel-categories></app-carousel-categories>
+</div>

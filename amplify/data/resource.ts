@@ -46,6 +46,7 @@ const schema = a
         allow.owner(),
         allow.publicApiKey().to(['read']),
         allow.authenticated().to(['read']),
+        allow.guest().to(["read"]),
       ]),
 
     Sound: a
@@ -103,6 +104,7 @@ const schema = a
         allow.publicApiKey().to(['read']),
         allow.authenticated().to(['read']),
         allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['read'])
       ]),
 
     importSounds: a
@@ -124,6 +126,7 @@ const schema = a
         allow.publicApiKey(),
         allow.authenticated(),
         allow.groups(['ADMIN']),
+        allow.guest()
       ])
       .handler(a.handler.function(listSoundsForMap)),
   })

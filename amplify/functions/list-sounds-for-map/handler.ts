@@ -6,10 +6,12 @@ import type { Schema } from '../../data/resource';
 import { CategoryKey } from '../../data/categories';
 
 export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
-  event,
-  context,
+  event
 ) => {
-  console.log('Lambda invoked with arguments:', JSON.stringify(event.arguments));
+  console.log(
+    'Lambda invoked with arguments:',
+    JSON.stringify(event.arguments),
+  );
 
   // --- Configure Amplify Data Client ---
   const { resourceConfig, libraryOptions } =
@@ -20,32 +22,41 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   const { userId, category, secondaryCategory } = event.arguments;
 
   // --- Identity info ---
-  const identity = context.identity as any;
+  const identity = event.identity as any;
+
   const claims = identity?.claims ?? {};
-  const groups: string[] = claims['cognito:groups'] || [];
+  const groups: string[] = claims['cognito:groups'] ?? identity?.groups ?? [];
+
   const isAdmin = groups.includes('ADMIN');
   const currentUserId = identity?.sub ?? null;
 
-  console.log('Identity info:', { isAdmin, currentUserId, groups });
+  console.log('Identity info:', {
+    isAdmin,
+    currentUserId,
+    groups,
+  });
 
-  // --- Determine which status values to fetch ---
-  const statuses: ('public' | 'private')[] = isAdmin || currentUserId
-    ? ['public', 'private']
-    : ['public'];
+  // --------------------------------------------------------------------
+  // 🧠 Sécurité : définir ce que l'utilisateur peut voir
+  // --------------------------------------------------------------------
+  const fetchPublic = true; // Toujours visible
+  const fetchAllPrivate = isAdmin; // Admin = tout voir
+  const fetchPrivateForUser = !!currentUserId && !isAdmin; // User normal = seulement ses privés
 
   const allItems: any[] = [];
 
-  // Helper pour paginer avec try/catch pour logging
-  const fetchAllPages = async <
-    T extends keyof typeof client.models.Sound
-  >(
+  // Pagination utilitaire
+  const fetchAllPages = async <T extends keyof typeof client.models.Sound>(
     query: T,
     variables: Parameters<(typeof client.models.Sound)[T]>[0],
   ) => {
     let nextToken: string | null | undefined = undefined;
     do {
       try {
-        console.log(`Fetching ${query} with variables:`, JSON.stringify({ ...variables, nextToken }));
+        console.log(
+          `Fetching ${query} with variables:`,
+          JSON.stringify({ ...variables, nextToken }),
+        );
 
         const pageResult = await (client.models.Sound[query] as any)({
           ...variables,
@@ -54,8 +65,10 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
         });
 
         if (pageResult.errors?.length) {
-          console.error(`Errors in ${query}:`, JSON.stringify(pageResult.errors, null, 2));
-          // Ne pas throw pour continuer le reste
+          console.error(
+            `Errors in ${query}:`,
+            JSON.stringify(pageResult.errors, null, 2),
+          );
           break;
         }
 
@@ -63,52 +76,92 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
         allItems.push(...(data ?? []));
         nextToken = pageResult.nextToken as string | null | undefined;
 
-        console.log(`${query} fetched ${data?.length ?? 0} items, nextToken:`, nextToken);
-
+        console.log(
+          `${query} fetched ${data?.length ?? 0} items, nextToken:`,
+          nextToken,
+        );
       } catch (err: any) {
-        console.error(`Exception in ${query} with variables ${JSON.stringify(variables)}:`, err);
-        // On continue malgré l'erreur
+        console.error(`Exception in ${query}:`, err);
         break;
       }
     } while (nextToken);
   };
 
-  // --- Choose correct index based on filters ---
+  // --------------------------------------------------------------------
+  // 🔍 Sélection de l’index selon les paramètres envoyés par le client
+  // --------------------------------------------------------------------
+  const fetchWithStatuses = async (
+    query: keyof typeof client.models.Sound,
+    base: any,
+  ) => {
+    if (fetchPublic) {
+      await fetchAllPages(query, { ...base, status: { eq: 'public' } });
+    }
+    if (fetchAllPrivate) {
+      await fetchAllPages(query, { ...base, status: { eq: 'private' } });
+    }
+  };
+
   if (userId) {
     console.log('Fetching by userId');
-    for (const status of statuses) {
-      await fetchAllPages('listSoundsByUserAndStatus', { userId, status: { eq: status } });
-    }
 
-  } else if (secondaryCategory && !userId) {
+    // PUBLIC always
+    await fetchAllPages('listSoundsByUserAndStatus', {
+      userId,
+      status: { eq: 'public' },
+    });
+
+    // PRIVATE only if user is owner OR admin
+    if (fetchAllPrivate || (fetchPrivateForUser && currentUserId === userId)) {
+      await fetchAllPages('listSoundsByUserAndStatus', {
+        userId,
+        status: { eq: 'private' },
+      });
+    }
+  } else if (secondaryCategory) {
     console.log('Fetching by secondaryCategory');
-    for (const status of statuses) {
-      await fetchAllPages('listSoundsBySecondaryCategoryAndStatus', {
-        secondaryCategory,
-        status: { eq: status },
-      });
-    }
 
-  } else if (category && !userId) {
+    await fetchWithStatuses('listSoundsBySecondaryCategoryAndStatus', {
+      secondaryCategory,
+    });
+  } else if (category) {
     console.log('Fetching by category');
-    for (const status of statuses) {
-      await fetchAllPages('listSoundsByCategoryAndStatus', {
-        category: category as CategoryKey,
-        status: { eq: status },
-      });
-    }
 
+    await fetchWithStatuses('listSoundsByCategoryAndStatus', {
+      category: category as CategoryKey,
+    });
   } else {
     console.log('Fetching all by status only');
-    for (const status of statuses) {
-      await fetchAllPages('listSoundsByStatus', { status });
+
+    if (fetchPublic) {
+      await fetchAllPages('listSoundsByStatus', { status: 'public' });
+    }
+    if (fetchAllPrivate) {
+      await fetchAllPages('listSoundsByStatus', { status: 'private' });
     }
   }
 
-  console.log('Total sounds fetched:', allItems.length);
+  console.log('Fetched before filtering:', allItems.length);
 
-  // --- Ensure proper GraphQL shape for AppSync resolvers ---
-  return allItems.map((sound) => ({
+  // --------------------------------------------------------------------
+  // 🧹 Filtre final de sécurité : un user normal doit voir seulement
+  //     - public
+  //     - ses propres private
+  //     - admin voit tout
+  // --------------------------------------------------------------------
+  const filtered = allItems.filter((sound) => {
+    if (sound.status === 'public') return true;
+    if (fetchAllPrivate) return true;
+    if (fetchPrivateForUser && sound.userId === currentUserId) return true;
+    return false;
+  });
+
+  console.log('Returned sounds after filtering:', filtered.length);
+
+  // --------------------------------------------------------------------
+  // Return in GraphQL shape
+  // --------------------------------------------------------------------
+  return filtered.map((sound) => ({
     ...sound,
     __typename: 'Sound',
     userId: sound.userId,
