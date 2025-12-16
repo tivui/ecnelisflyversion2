@@ -26,6 +26,8 @@ const schema = a
         id: a.id().required(),
         username: a.string().required(),
         email: a.string().required(),
+        owner: a.string(),
+        cognitoSub: a.string(),
         country: a.string(),
         firstName: a.string(),
         lastName: a.string(),
@@ -42,11 +44,15 @@ const schema = a
         newNotificationCount: a.integer().default(0),
         flashNew: a.boolean().default(false),
       })
+      .secondaryIndexes((index) => [
+        index('cognitoSub').queryField('getUserByCognitoSub'),
+        index('email').queryField('getUserByEmail'),
+      ])
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
-        allow.authenticated().to(['read']),
-        allow.guest().to(["read"]),
+        allow.authenticated().to(['read','update']),
+        allow.guest().to(['read']),
       ]),
 
     Sound: a
@@ -104,7 +110,7 @@ const schema = a
         allow.publicApiKey().to(['read']),
         allow.authenticated().to(['read']),
         allow.guest().to(['read']),
-        allow.groups(['ADMIN']).to(['read'])
+        allow.groups(['ADMIN']).to(['read']),
       ]),
 
     importSounds: a
@@ -119,14 +125,14 @@ const schema = a
       .arguments({
         userId: a.id(), // optional
         category: a.string(), // optional
-        secondaryCategory: a.string() // optional
+        secondaryCategory: a.string(), // optional
       })
       .returns(a.ref('Sound').array())
       .authorization((allow) => [
         allow.publicApiKey(),
         allow.authenticated(),
         allow.groups(['ADMIN']),
-        allow.guest()
+        allow.guest(),
       ])
       .handler(a.handler.function(listSoundsForMap)),
   })

@@ -6,7 +6,7 @@ import type { Schema } from '../../data/resource';
 import { CategoryKey } from '../../data/categories';
 
 export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
-  event
+  event,
 ) => {
   console.log(
     'Lambda invoked with arguments:',
@@ -17,35 +17,44 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   const { resourceConfig, libraryOptions } =
     await getAmplifyDataClientConfig(env);
   Amplify.configure(resourceConfig, libraryOptions);
-
   const client = generateClient<Schema>();
-  const { userId, category, secondaryCategory } = event.arguments;
+
+  const { userId: queryUserId, category, secondaryCategory } = event.arguments;
 
   // --- Identity info ---
   const identity = event.identity as any;
-
   const claims = identity?.claims ?? {};
   const groups: string[] = claims['cognito:groups'] ?? identity?.groups ?? [];
-
   const isAdmin = groups.includes('ADMIN');
-  const currentUserId = identity?.sub ?? null;
+  const currentUserCognitoSub = identity?.sub ?? null;
 
-  console.log('Identity info:', {
-    isAdmin,
-    currentUserId,
-    groups,
-  });
+  console.log('Identity info:', { isAdmin, currentUserCognitoSub, groups });
 
   // --------------------------------------------------------------------
-  // 🧠 Sécurité : définir ce que l'utilisateur peut voir
+  // ✅ Récupérer l'ID de la table User correspondant au currentUser
+  // --------------------------------------------------------------------
+  let currentUserTableId: string | null = null;
+  if (currentUserCognitoSub) {
+    const result = await client.models.User.getUserByCognitoSub({
+      cognitoSub: currentUserCognitoSub,
+    });
+
+    if (result.data.length > 0) {
+      currentUserTableId = result.data[0].id;
+    }
+  }
+
+  console.log('currentUserTableId:', currentUserTableId);
+
+  // --------------------------------------------------------------------
+  // 🧠 Définir ce que l'utilisateur peut voir
   // --------------------------------------------------------------------
   const fetchPublic = true; // Toujours visible
   const fetchAllPrivate = isAdmin; // Admin = tout voir
-  const fetchPrivateForUser = !!currentUserId && !isAdmin; // User normal = seulement ses privés
-
+  const fetchPrivateForUser = !!currentUserTableId; // Normal user = seulement ses privés
   const allItems: any[] = [];
 
-  // Pagination utilitaire
+  // --- Pagination utilitaire ---
   const fetchAllPages = async <T extends keyof typeof client.models.Sound>(
     query: T,
     variables: Parameters<(typeof client.models.Sound)[T]>[0],
@@ -57,13 +66,11 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
           `Fetching ${query} with variables:`,
           JSON.stringify({ ...variables, nextToken }),
         );
-
         const pageResult = await (client.models.Sound[query] as any)({
           ...variables,
           limit: 100,
           nextToken,
         });
-
         if (pageResult.errors?.length) {
           console.error(
             `Errors in ${query}:`,
@@ -71,11 +78,9 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
           );
           break;
         }
-
         const data = pageResult.data as typeof allItems;
         allItems.push(...(data ?? []));
         nextToken = pageResult.nextToken as string | null | undefined;
-
         console.log(
           `${query} fetched ${data?.length ?? 0} items, nextToken:`,
           nextToken,
@@ -87,55 +92,66 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
     } while (nextToken);
   };
 
-  // --------------------------------------------------------------------
-  // 🔍 Sélection de l’index selon les paramètres envoyés par le client
-  // --------------------------------------------------------------------
+  // --- Sélection de l’index selon les paramètres envoyés ---
   const fetchWithStatuses = async (
     query: keyof typeof client.models.Sound,
     base: any,
   ) => {
-    if (fetchPublic) {
+    if (fetchPublic)
       await fetchAllPages(query, { ...base, status: { eq: 'public' } });
-    }
-    if (fetchAllPrivate) {
+    if (fetchAllPrivate)
       await fetchAllPages(query, { ...base, status: { eq: 'private' } });
-    }
   };
 
-  if (userId) {
-    console.log('Fetching by userId');
+  // --------------------------------------------------------------------
+  // 🔍 Logique principale
+  // --------------------------------------------------------------------
+  if (queryUserId) {
+    console.log('Fetching by queryUserId');
 
     // PUBLIC always
     await fetchAllPages('listSoundsByUserAndStatus', {
-      userId,
+      userId: queryUserId,
       status: { eq: 'public' },
     });
 
-    // PRIVATE only if user is owner OR admin
-    if (fetchAllPrivate || (fetchPrivateForUser && currentUserId === userId)) {
+    // PRIVATE only if owner (currentUser) or admin
+    if (
+      fetchAllPrivate ||
+      (fetchPrivateForUser &&
+        currentUserTableId &&
+        queryUserId === currentUserTableId)
+    ) {
       await fetchAllPages('listSoundsByUserAndStatus', {
-        userId,
+        userId: queryUserId,
         status: { eq: 'private' },
       });
     }
   } else if (secondaryCategory) {
     console.log('Fetching by secondaryCategory');
-
     await fetchWithStatuses('listSoundsBySecondaryCategoryAndStatus', {
       secondaryCategory,
     });
   } else if (category) {
     console.log('Fetching by category');
-
     await fetchWithStatuses('listSoundsByCategoryAndStatus', {
       category: category as CategoryKey,
     });
   } else {
-    console.log('Fetching all by status only');
+    console.log('Fetching all sounds (public + my private)');
 
-    if (fetchPublic) {
-      await fetchAllPages('listSoundsByStatus', { status: 'public' });
+    // Tous les sons publics
+    await fetchAllPages('listSoundsByStatus', { status: 'public' });
+
+    // Privés de l'utilisateur courant
+    if (fetchPrivateForUser && !isAdmin && currentUserTableId) {
+      await fetchAllPages('listSoundsByUserAndStatus', {
+        userId: currentUserTableId,
+        status: { eq: 'private' },
+      });
     }
+
+    // Admin = tout voir
     if (fetchAllPrivate) {
       await fetchAllPages('listSoundsByStatus', { status: 'private' });
     }
@@ -144,15 +160,12 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   console.log('Fetched before filtering:', allItems.length);
 
   // --------------------------------------------------------------------
-  // 🧹 Filtre final de sécurité : un user normal doit voir seulement
-  //     - public
-  //     - ses propres private
-  //     - admin voit tout
+  // 🧹 Filtre final de sécurité
   // --------------------------------------------------------------------
   const filtered = allItems.filter((sound) => {
     if (sound.status === 'public') return true;
     if (fetchAllPrivate) return true;
-    if (fetchPrivateForUser && sound.userId === currentUserId) return true;
+    if (fetchPrivateForUser && sound.userId === currentUserTableId) return true;
     return false;
   });
 
