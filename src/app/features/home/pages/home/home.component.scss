@@ -7,14 +7,6 @@
   padding: 0 16px;
 }
 
-/* PETIT ÉCRAN OU ÉCRAN PEU HAUT → hauteurs spéciales */
-@media (max-width: 768px), (max-height: 850px) {
-  .header-container {
-    height: calc(100vh - 64px);
-    grid-template-rows: 50% 50%;
-  }
-}
-
 /* Zones */
 .zone-header,
 .zone-map {
