@@ -72,6 +72,10 @@
         <mat-icon>manage_accounts</mat-icon>
         {{ "toolbar.account" | translate }}
       </button>
+      <button mat-menu-item (click)="goToAccount()">
+        <mat-icon> add_location</mat-icon>
+        {{ "toolbar.new-sound" | translate }}
+      </button>
       <button mat-menu-item (click)="authenticator.signOut()">
         <mat-icon>logout</mat-icon>
         {{ "toolbar.logout" | translate }}

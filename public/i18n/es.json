@@ -9,6 +9,7 @@
   },
   "toolbar": {
     "account": "Gestionar mi cuenta",
+    "new-sound": "Nuevo sonido",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "dark": "Oscuro",
