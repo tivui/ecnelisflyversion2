@@ -1,6 +1,7 @@
 export interface MapQueryParams {
   userId?: string;
   category?: string;
+  secondaryCategory? : string;
   lat?: number;
   lng?: number;
   zoom?: number;
@@ -10,6 +11,7 @@ export interface MapQueryParams {
 export const MAP_QUERY_KEYS = {
   userId: 'userId',
   category: 'category',
+  secondaryCategory: 'secondaryCategory',
   lat: 'lat',
   lng: 'lng',
   zoom: 'zoom',

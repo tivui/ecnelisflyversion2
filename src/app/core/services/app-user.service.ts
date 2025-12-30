@@ -6,6 +6,7 @@ import { LogService } from './log.service';
 import { BehaviorSubject } from 'rxjs';
 import { AmplifyService } from './amplify.service';
 import { BrowserService } from './browser.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -25,95 +26,109 @@ export class AppUserService {
    */
   async loadCurrentUser(): Promise<AppUser | null> {
     try {
-      // 1️⃣ Get the current Cognito user
       const currentAuthUser = await this.authService.loadCurrentUser();
       if (!currentAuthUser) {
         this._currentUser.next(null);
         return null;
       }
 
-      // 2️⃣ Try to load from DynamoDB
-      const existing = await this.amplifyService.client.models.User.get({
-        id: currentAuthUser.sub,
-      });
+      const cognitoSub = currentAuthUser.sub;
+      const email =
+        currentAuthUser.email ?? currentAuthUser.username ?? 'unknown@user';
 
-      let appUser: AppUser | null = null;
+      let userRecord = null;
 
-      if (existing.data) {
-        // ✅ Existing user
-        const d = existing.data;
-        this.logService.info(`Existing user found: ${d.username} (${d.id})`);
-        appUser = {
-          id: d.id,
-          username: d.username,
-          email: d.email ?? undefined,
-          language: (d.language ?? 'fr') as Language,
-          theme: (d.theme ?? 'light') as Theme,
-          newNotificationCount: d.newNotificationCount ?? 0,
-          flashNew: d.flashNew ?? false,
-          country: d.country,
-          firstName: d.firstName,
-          lastName: d.lastName
-        };
-      } else {
-        // 🚀 No user → create minimal user
-        this.logService.info(
-          `No user found, creating minimal user for ${currentAuthUser.username}`,
-        );
-
-        // Get browser locale for language and country
-        const { language, country } = this.browserService.getLocale();
-
-        // Derive username from email or fallback to Cognito username
-        const email = currentAuthUser.email ?? currentAuthUser.username ?? '';
-        const usernameFromEmail = email.split('@')[0]; // e.g., "john.doe@example.com" → "john.doe"
-
-        // Derive firstName and lastName from username
-        const nameParts = usernameFromEmail.split('.');
-        const firstNameFallback = nameParts[0] ?? usernameFromEmail;
-        const lastNameFallback = nameParts[1] ?? '';
-
-        // Create minimal user in DynamoDB with pre-filled fields
-        const newUser = await this.amplifyService.client.models.User.create({
-          id: currentAuthUser.sub,
-          username: usernameFromEmail,
-          email: email,
-          firstName: firstNameFallback,
-          lastName: lastNameFallback,
-          language: language,
-          theme: 'light',
-          newNotificationCount: 0,
-          flashNew: false,
-          country: country,
+      // --------------------------------------------------
+      // 1️⃣ Recherche par cognitoSub (cas normal)
+      // --------------------------------------------------
+      const bySub =
+        await this.amplifyService.client.models.User.getUserByCognitoSub({
+          cognitoSub,
         });
 
-        if (!newUser.data) {
-          // Creation failed
-          this.logService.error(
-            `Failed to create user for ${currentAuthUser.username}`,
+      if (bySub.data.length > 0) {
+        userRecord = bySub.data[0];
+        this.logService.info(`User found by cognitoSub (${userRecord.id})`);
+      }
+
+      // --------------------------------------------------
+      // 2️⃣ Sinon, recherche par email (cas legacy)
+      // --------------------------------------------------
+      if (!userRecord) {
+        const byEmail =
+          await this.amplifyService.client.models.User.getUserByEmail({
+            email,
+          });
+
+        if (byEmail.data.length > 0) {
+          userRecord = byEmail.data[0];
+
+          this.logService.info(
+            `User found by email (${userRecord.id}), linking cognitoSub`
           );
-          console.error("error", newUser.errors)
-          appUser = null;
-        } else {
-          // Creation succeeded
-          const d = newUser.data;
-          this.logService.info(`User created: ${d.username} (${d.id})`);
-          appUser = {
-            id: d.id,
-            username: d.username,
-            email: d.email ?? '',
-            firstName: d.firstName,
-            lastName: d.lastName,
-            language: (d.language ?? 'fr') as Language,
-            theme: (d.theme ?? 'light') as Theme,
-            newNotificationCount: d.newNotificationCount ?? 0,
-            flashNew: d.flashNew ?? false,
-            country: d.country,
-          };
+
+          // 🔗 Mise à jour du cognitoSub
+          const updated = await this.amplifyService.client.models.User.update({
+            id: userRecord.id,
+            cognitoSub,
+          });
+
+          console.log("updated", updated)
+
+          if (updated.data) {
+            userRecord = updated.data;
+          }
         }
       }
 
-      // 3️⃣ Update BehaviorSubject
+      // --------------------------------------------------
+      // 3️⃣ Sinon, création
+      // --------------------------------------------------
+      if (!userRecord) {
+        this.logService.info(`No user found, creating new AppUser`);
+
+        const { language, country } = this.browserService.getLocale();
+        const usernameFromEmail = email.split('@')[0];
+        const [firstName, lastName] = usernameFromEmail.split('.');
+
+        const created = await this.amplifyService.client.models.User.create({
+          id: uuidv4(),
+          cognitoSub,
+          email,
+          username: usernameFromEmail,
+          firstName: firstName ?? usernameFromEmail,
+          lastName: lastName ?? '',
+          language,
+          theme: 'light',
+          newNotificationCount: 0,
+          flashNew: false,
+          country,
+        });
+
+        if (!created.data) {
+          this.logService.error('User creation failed');
+          return null;
+        }
+
+        userRecord = created.data;
+      }
+
+      // --------------------------------------------------
+      // 4️⃣ Mapping vers AppUser
+      // --------------------------------------------------
+      const appUser: AppUser = {
+        id: userRecord.id,
+        username: userRecord.username,
+        email: userRecord.email ?? undefined,
+        language: (userRecord.language ?? 'fr') as Language,
+        theme: (userRecord.theme ?? 'light') as Theme,
+        newNotificationCount: userRecord.newNotificationCount ?? 0,
+        flashNew: userRecord.flashNew ?? false,
+        country: userRecord.country,
+        firstName: userRecord.firstName,
+        lastName: userRecord.lastName,
+      };
+
       this._currentUser.next(appUser);
       return appUser;
     } catch (error) {
@@ -182,7 +197,7 @@ export class AppUserService {
     email?: string;
     country?: string | null;
     firstName?: string | null;
-    lastName?: string | null
+    lastName?: string | null;
   }): Promise<AppUser | null> {
     const current = this._currentUser.value;
     if (!current) return null;
@@ -209,7 +224,7 @@ export class AppUserService {
         language: d.language as Language,
         theme: d.theme as Theme,
         firstName: d.firstName,
-        lastName: d.lastName
+        lastName: d.lastName,
       };
 
       this._currentUser.next(appUser);

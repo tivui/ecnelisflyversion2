@@ -51,7 +51,7 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
     MatMenuModule,
     MatTooltipModule,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);

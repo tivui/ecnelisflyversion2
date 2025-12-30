@@ -1,6 +1,6 @@
 export const ListSoundsForMapWithAppUser = /* GraphQL */ `
-  query ListSoundsForMapWithAppUser($category: String, $userId: ID) {
-    listSoundsForMap(category: $category, userId: $userId) {
+  query ListSoundsForMapWithAppUser($category: String, $userId: ID, $secondaryCategory: String) {
+    listSoundsForMap(category: $category, userId: $userId, secondaryCategory: $secondaryCategory) {
       userId
       user {
         username
@@ -8,6 +8,7 @@ export const ListSoundsForMapWithAppUser = /* GraphQL */ `
       }
       title
       category
+      secondaryCategory
       city
       dateTime
       equipment

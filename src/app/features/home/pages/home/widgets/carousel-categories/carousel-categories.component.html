@@ -1,0 +1,17 @@
+<swiper-container loop="true" navigation="true"
+  breakpoints='{
+    "10":   { "slidesPerView": 2 },
+    "768":   { "slidesPerView": 3 },
+    "930":  { "slidesPerView": 4 },
+    "1200":  { "slidesPerView": 5 },
+    "1420":  { "slidesPerView": 6 },
+    "1751":  { "slidesPerView": 7 },
+    "2000":  { "slidesPerView": 8 }
+  }' [spaceBetween]="30" class="swipper-container">
+  @for (s of slides; track s) {
+    <swiper-slide>
+      <app-card-category [title]="s.title" [icon]="s.icon" [category]="s.key" [background]="s.background"
+        [color]="s.color"></app-card-category>
+    </swiper-slide>
+  }
+</swiper-container>
