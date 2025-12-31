@@ -2,13 +2,13 @@ import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {
-  MatSnackBar,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 
 import { StorageService } from '../../../../../../core/services/storage.service';
 import { UploadProgressSnackbarComponent } from '../../../../../../shared/components/upload-progress-snackbar/upload-progress-snackbar.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-sound-upload-step',
@@ -16,7 +16,11 @@ import { UploadProgressSnackbarComponent } from '../../../../../../shared/compon
   imports: [
     CommonModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   templateUrl: './sound-upload-step.component.html',
 })
@@ -62,11 +66,12 @@ export class SoundUploadStepComponent {
         verticalPosition: 'top',
         horizontalPosition: 'center',
         panelClass: ['upload-snackbar'],
-      }
+      },
     );
 
-    const { progress$, result } =
-      this.storageService.uploadSound(this.selectedFile);
+    const { progress$, result } = this.storageService.uploadSound(
+      this.selectedFile,
+    );
 
     progress$.subscribe((value) => {
       this.progress = value;

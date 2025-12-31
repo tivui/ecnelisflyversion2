@@ -1,8 +1,35 @@
-<input
-  type="file"
-  accept="audio/*"
-  (change)="onFileSelected($event)"
-/>
+<div class="form-wrapper">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Importer un fichier audio</mat-label>
+
+    <input
+      matInput
+      [value]="selectedFile?.name || ''"
+      placeholder="Aucun fichier sélectionné"
+      readonly
+    />
+
+    <button
+      mat-raised-button
+      color="primary"
+      matSuffix
+      class="input-file-button"
+      (click)="fileInput.click()"
+      [disabled]="uploading"
+    >
+      <mat-icon>upload_file</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <!-- Input file réel (caché) -->
+  <input
+    type="file"
+    #fileInput
+    hidden
+    accept="audio/*"
+    (change)="onFileSelected($event)"
+  />
+</div>
 
 <button
   mat-raised-button
@@ -13,10 +40,13 @@
   Uploader
 </button>
 
-<mat-progress-bar
-  *ngIf="uploading"
-  mode="determinate"
-  [value]="progress"
-></mat-progress-bar>
+@if (uploading) {
+  <mat-progress-bar
+    mode="determinate"
+    [value]="progress"
+  ></mat-progress-bar>
+}
 
-<p *ngIf="error" class="error">{{ error }}</p>
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
