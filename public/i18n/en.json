@@ -34,6 +34,14 @@
     "theme": "Theme",
     "save": "Save Changes"
   },
+  "new-sound": {
+    "stepper": {
+      "sound-title": "Sound",
+      "place-title": "Place",
+      "data-title": "Data",
+      "confirmation-title": "Confirmation"
+    }
+  },
   "admin": {
     "database": {
       "importSounds": "Import sounds"

@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AsyncPipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-new-sound',
@@ -28,6 +29,7 @@ import { AsyncPipe } from '@angular/common';
     MatInputModule,
     MatButtonModule,
     AsyncPipe,
+    TranslateModule
   ],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
