@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AsyncPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { SoundUploadStepComponent } from './widgets/sound-upload-step/sound-upload-step.component';
 
 @Component({
   selector: 'app-new-sound',
@@ -29,13 +30,17 @@ import { TranslateModule } from '@ngx-translate/core';
     MatInputModule,
     MatButtonModule,
     AsyncPipe,
-    TranslateModule
+    TranslateModule,
+    SoundUploadStepComponent,
   ],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
 })
 export class NewSoundComponent {
   private _formBuilder = inject(FormBuilder);
+
+  readonly soundUploaded = signal(false);
+  readonly soundPath = signal<string | null>(null);
 
   firstFormGroup = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
@@ -54,5 +59,10 @@ export class NewSoundComponent {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
+  }
+
+  onSoundUploaded(path: string) {
+    this.soundPath.set(path);
+    this.soundUploaded.set(true);
   }
 }

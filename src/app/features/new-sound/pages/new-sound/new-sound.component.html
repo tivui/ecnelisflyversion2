@@ -3,25 +3,23 @@
   [orientation]="(stepperOrientation | async)!"
 >
   <!-- Step 1 : upload sound-->
-  <mat-step [stepControl]="firstFormGroup">
-    <form [formGroup]="firstFormGroup">
-      <ng-template matStepLabel>{{
-        "new-sound.stepper.sound-title" | translate
-      }}</ng-template>
-      <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input
-          matInput
-          placeholder="Last name, First name"
-          formControlName="firstCtrl"
-          required
-        />
-      </mat-form-field>
-      <div>
-        <button mat-button matStepperNext>Next</button>
-      </div>
-    </form>
+  <!-- Step 1 : upload sound -->
+  <mat-step [completed]="soundUploaded()">
+    <ng-template matStepLabel>
+      {{ "new-sound.stepper.sound-title" | translate }}
+    </ng-template>
+
+    <app-sound-upload-step
+      (uploaded)="onSoundUploaded($event)"
+    ></app-sound-upload-step>
+
+    <div>
+      <button mat-button matStepperNext [disabled]="!soundUploaded()">
+        Next
+      </button>
+    </div>
   </mat-step>
+
   <!-- Step 2 : locate sound -->
   <mat-step [stepControl]="secondFormGroup" label="Fill out your address">
     <form [formGroup]="secondFormGroup">

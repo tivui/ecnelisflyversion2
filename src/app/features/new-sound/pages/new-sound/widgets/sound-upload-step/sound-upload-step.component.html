@@ -1,0 +1,22 @@
+<input
+  type="file"
+  accept="audio/*"
+  (change)="onFileSelected($event)"
+/>
+
+<button
+  mat-raised-button
+  color="primary"
+  (click)="upload()"
+  [disabled]="!selectedFile || uploading"
+>
+  Uploader
+</button>
+
+<mat-progress-bar
+  *ngIf="uploading"
+  mode="determinate"
+  [value]="progress"
+></mat-progress-bar>
+
+<p *ngIf="error" class="error">{{ error }}</p>
