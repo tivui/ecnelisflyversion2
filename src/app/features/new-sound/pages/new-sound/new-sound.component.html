@@ -21,26 +21,21 @@
   </mat-step>
 
   <!-- Step 2 : locate sound -->
-  <mat-step [stepControl]="secondFormGroup" label="Fill out your address">
-    <form [formGroup]="secondFormGroup">
-      <ng-template matStepLabel>{{
-        "new-sound.stepper.place-title" | translate
-      }}</ng-template>
-      <mat-form-field>
-        <mat-label>Address</mat-label>
-        <input
-          matInput
-          formControlName="secondCtrl"
-          placeholder="Ex. 1 Main St, New York, NY"
-          required
-        />
-      </mat-form-field>
-      <div>
-        <button mat-button matStepperPrevious>Back</button>
-        <button mat-button matStepperNext>Next</button>
-      </div>
-    </form>
+  <mat-step [completed]="!!selectedPlace()">
+    <ng-template matStepLabel>
+      {{ "new-sound.stepper.place-title" | translate }}
+    </ng-template>
+
+    <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
+
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext [disabled]="!selectedPlace()">
+        Next
+      </button>
+    </div>
   </mat-step>
+
   <!-- Step 3 : locate sound -->
   <mat-step [stepControl]="thirdFormGroup" label="Fill out your phone number">
     <form [formGroup]="thirdFormGroup">

@@ -58,7 +58,7 @@ export class SoundUploadStepComponent {
     this.uploading = true;
     this.progress = 0;
 
-    // 🔔 SnackBar d’upload
+    // upload SnackBar
     this.snackbarRef = this.snackBar.openFromComponent(
       UploadProgressSnackbarComponent,
       {
@@ -76,7 +76,7 @@ export class SoundUploadStepComponent {
     progress$.subscribe((value) => {
       this.progress = value;
 
-      // 🔄 update dynamique du widget
+      // widget dynamic update
       if (this.snackbarRef) {
         this.snackbarRef.instance.data.progress = value;
       }
@@ -92,7 +92,7 @@ export class SoundUploadStepComponent {
       .finally(() => {
         this.uploading = false;
 
-        // ✅ fermeture élégante
+        // close snackbar after a short delay
         setTimeout(() => this.snackbarRef?.dismiss(), 500);
       });
   }

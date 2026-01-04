@@ -18,6 +18,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { AsyncPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { SoundUploadStepComponent } from './widgets/sound-upload-step/sound-upload-step.component';
+import {
+  PlaceSelection,
+  PlaceStepComponent,
+} from './widgets/place-step/place-step.component';
 
 @Component({
   selector: 'app-new-sound',
@@ -32,6 +36,7 @@ import { SoundUploadStepComponent } from './widgets/sound-upload-step/sound-uplo
     AsyncPipe,
     TranslateModule,
     SoundUploadStepComponent,
+    PlaceStepComponent,
   ],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
@@ -41,6 +46,8 @@ export class NewSoundComponent {
 
   readonly soundUploaded = signal(false);
   readonly soundPath = signal<string | null>(null);
+
+  readonly selectedPlace = signal<PlaceSelection | null>(null);
 
   firstFormGroup = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
@@ -64,5 +71,10 @@ export class NewSoundComponent {
   onSoundUploaded(path: string) {
     this.soundPath.set(path);
     this.soundUploaded.set(true);
+  }
+
+  onPlaceSelected(place: PlaceSelection) {
+    console.log('Place selected:', place);
+    this.selectedPlace.set(place);
   }
 }
