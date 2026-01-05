@@ -79,10 +79,11 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   // GeoSearch
   // --------------------
   private initSearch() {
-
     const provider = new OpenStreetMapProvider();
     const searchControl = GeoSearchControl({
       provider: provider,
+      showMarker: false,
+      showPopup: false
     });
 
     this.map.addControl(searchControl);
