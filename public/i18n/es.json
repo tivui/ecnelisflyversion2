@@ -38,6 +38,7 @@
     "stepper": {
       "sound-title": "Sonido",
       "place-title": "Lugar",
+      "place-placeholder": "Buscar una dirección o un lugar",
       "data-title": "Información",
       "confirmation-title": "Confirmación"
     }
