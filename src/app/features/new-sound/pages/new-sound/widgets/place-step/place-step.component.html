@@ -2,7 +2,17 @@
   <div id="map-newsound"></div>
 </div>
 
-<p class="hint">
-  Déplacez la carte ou utilisez la recherche pour positionner le
-  marqueur.
-</p>
+<p class="hint">{{ "new-sound.stepper.hint-marker" | translate }}</p>
+
+<mat-form-field appearance="outline" class="place-name-field">
+  <mat-label>
+    {{ 'new-sound.stepper.place-name' | translate }}
+  </mat-label>
+
+  <input
+    matInput
+    [value]="nameSelection()"
+    (input)="nameSelection.set($any($event.target).value)"
+    [placeholder]="'new-sound.stepper.place-name-placeholder' | translate"
+  />
+</mat-form-field>

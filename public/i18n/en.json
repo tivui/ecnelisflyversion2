@@ -38,9 +38,11 @@
     "stepper": {
       "sound-title": "Sound",
       "place-title": "Place",
-      "place-placeholder": "Search for an address or place",
+      "place-name": "Place name",
+      "place-name-placeholder": "Give a place name",
       "data-title": "Data",
-      "confirmation-title": "Confirmation"
+      "confirmation-title": "Confirmation",
+      "hint-marker": "Move the map or use the search to position the marker."
     }
   },
   "admin": {

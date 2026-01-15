@@ -6,14 +6,16 @@ import {
   OnDestroy,
   ViewEncapsulation,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import 'leaflet-search';
-import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import { environment } from '../../../../../../../environments/environment';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { GeoSearchService } from '../../../../../../core/services/geo-search.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 export interface PlaceSelection {
   lat: number;
@@ -24,7 +26,7 @@ export interface PlaceSelection {
 @Component({
   selector: 'app-place-step',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
   templateUrl: './place-step.component.html',
   styleUrl: './place-step.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -35,22 +37,21 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   private map!: L.Map;
   private marker!: L.Marker;
 
-  private currentPlaceName?: string;
-
-  private translateService = inject(TranslateService);
   private geoSearchService = inject(GeoSearchService);
 
-  private searchControl!: ReturnType<typeof GeoSearchControl>;
+  nameSelection = signal<string>('');
 
   ngAfterViewInit() {
     this.initMap();
-    this.initSearch();
     this.initCenterTracking();
     // Ajoute GeoSearch avec callback
     this.geoSearchService.addSearchControl(this.map, (lat, lng, label) => {
       this.marker.setLatLng([lat, lng]);
       this.map.setView([lat, lng], 16);
-      console.log('Lieu sélectionné :', lat, lng, label);
+      if (label) {
+        this.nameSelection.set(label); // ✅ valeur par défaut dans l'input
+      }
+      this.emitPlace(lat, lng);
     });
   }
 
@@ -90,38 +91,6 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   }
 
   // --------------------
-  // GeoSearch
-  // --------------------
-  private initSearch() {
-    // const provider = new OpenStreetMapProvider();
-
-    // this.createSearchControl(provider);
-
-    // // Écoute le changement de langue
-    // this.translateService.onLangChange.subscribe(() => {
-    //   this.map.removeControl(this.searchControl);
-
-    //   // Crée un nouveau contrôle avec la nouvelle langue
-    //   this.createSearchControl(provider);
-    // });
-
-    // this.map.addControl(this.searchControl);
-
-    // // Event on search result selection
-    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // this.map.on('geosearch/showlocation', (result: any) => {
-    //   const { x, y, label } = result.location;
-
-    //   this.currentPlaceName = label;
-
-    //   this.map.setView([y, x], 16);
-    //   this.marker.setLatLng([y, x]);
-
-    //   this.emitPlace(y, x, label);
-    // });
-  }
-
-  // --------------------
   // Marker always centered
   // --------------------
   private initCenterTracking() {
@@ -139,26 +108,11 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   // --------------------
   // Emit selection
   // --------------------
-  private emitPlace(lat: number, lng: number, name?: string) {
+  private emitPlace(lat: number, lng: number) {
     this.placeSelected.emit({
       lat,
       lng,
-      name: name ?? this.currentPlaceName,
+      name: this.nameSelection().trim() || undefined,
     });
-  }
-
-  private createSearchControl(provider: OpenStreetMapProvider) {
-    const placeholder = this.translateService.instant(
-      'new-sound.stepper.place-placeholder',
-    );
-
-    this.searchControl = GeoSearchControl({
-      provider,
-      showMarker: false,
-      showPopup: false,
-      searchLabel: placeholder,
-    });
-
-    this.map.addControl(this.searchControl);
   }
 }
