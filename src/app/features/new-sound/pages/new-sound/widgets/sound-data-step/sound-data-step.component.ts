@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
+import { LanguageDetectionService } from '../../../../../../core/services/language-detection.service';
 
 @Component({
   selector: 'app-sound-data-step',
@@ -23,10 +24,13 @@ import { AmplifyService } from '../../../../../../core/services/amplify.service'
 export class SoundDataStepComponent {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private languageDetectionService = inject(LanguageDetectionService);
 
   private readonly amplifyService = inject(AmplifyService);
 
-  @Output() completed = new EventEmitter<{ title_i18n: Record<string,string> }>();
+  @Output() completed = new EventEmitter<{
+    title_i18n: Record<string, string>;
+  }>();
 
   form: FormGroup;
 
@@ -43,24 +47,37 @@ export class SoundDataStepComponent {
     const text = this.form.value.title;
     if (!text) return;
 
+    const sourceLanguage = this.languageDetectionService.detect(text);
+
+    // Stop if language is not supported by Amazon Translate
+    if (!sourceLanguage) {
+      this.snackBar.open('Langue non supportée pour la traduction', 'Fermer', {
+        duration: 3000,
+      });
+      return;
+    }
+
     this.translating = true;
 
     try {
-      const langs = ['fr', 'en', 'es'];
-      for (const lang of langs) {
+      const targets = ['fr', 'en', 'es'];
+
+      for (const lang of targets) {
         const result = await this.amplifyService.client.queries.translate({
-          sourceLanguage: 'fr',
+          sourceLanguage,
           targetLanguage: lang,
           text,
         });
-        console.log("result translate:", result);
+
         this.translated[lang] = result.data ?? '';
       }
 
       this.completed.emit({ title_i18n: this.translated });
     } catch (err) {
       console.error(err);
-      this.snackBar.open('Erreur de traduction', 'Fermer', { duration: 3000 });
+      this.snackBar.open('Erreur de traduction', 'Fermer', {
+        duration: 3000,
+      });
     } finally {
       this.translating = false;
     }
