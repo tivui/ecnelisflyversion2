@@ -22,6 +22,7 @@ import {
   PlaceSelection,
   PlaceStepComponent,
 } from './widgets/place-step/place-step.component';
+import { SoundDataStepComponent } from "./widgets/sound-data-step/sound-data-step.component";
 
 @Component({
   selector: 'app-new-sound',
@@ -37,7 +38,8 @@ import {
     TranslateModule,
     SoundUploadStepComponent,
     PlaceStepComponent,
-  ],
+    SoundDataStepComponent
+],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
 })
@@ -76,5 +78,9 @@ export class NewSoundComponent {
   onPlaceSelected(place: PlaceSelection) {
     console.log('Place selected:', place);
     this.selectedPlace.set(place);
+  }
+
+  onSoundDataCompleted(data: { title_i18n: Record<string,string> }) {
+    console.log('Traductions reçues:', data.title_i18n);
   }
 }

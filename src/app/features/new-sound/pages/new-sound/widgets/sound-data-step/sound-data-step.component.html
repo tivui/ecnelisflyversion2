@@ -1,0 +1,17 @@
+<form [formGroup]="form">
+  <!-- Input éditable -->
+  <mat-form-field class="full-width">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" placeholder="Entrez le titre" />
+  </mat-form-field>
+
+  <!-- Inputs traduits (lecture seule) -->
+  <mat-form-field class="full-width" *ngFor="let lang of ['fr','en','es']">
+    <mat-label>Traduction {{ lang.toUpperCase() }}</mat-label>
+    <input matInput [value]="translated[lang]" readonly />
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="button" (click)="translate()" [disabled]="translating">
+    {{ translating ? 'Traduction...' : 'Traduire' }}
+  </button>
+</form>

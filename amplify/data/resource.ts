@@ -51,7 +51,7 @@ const schema = a
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
-        allow.authenticated().to(['read','update']),
+        allow.authenticated().to(['read', 'update']),
         allow.guest().to(['read']),
       ]),
 
@@ -135,6 +135,25 @@ const schema = a
         allow.guest(),
       ])
       .handler(a.handler.function(listSoundsForMap)),
+
+    translate: a
+      .query()
+      .arguments({
+        sourceLanguage: a.string().required(),
+        targetLanguage: a.string().required(),
+        text: a.string().required(),
+      })
+      .returns(a.string())
+      .authorization((allow) => [
+        allow.authenticated(),
+        allow.publicApiKey(),
+      ])
+      .handler(
+        a.handler.custom({
+          dataSource: 'TranslateDataSource',
+          entry: './translate.js',
+        }),
+      ),
   })
 
   .authorization((allow) => [
