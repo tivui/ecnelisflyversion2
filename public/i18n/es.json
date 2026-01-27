@@ -4,7 +4,17 @@
   },
   "common": {
     "action": {
-      "translate": "Traducir"
+      "translate": "Traducir",
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "noLanguages": "No hay idiomas disponibles",
+    "errors": {
+      "required": "Campo obligatorio",
+      "minLength3": "Mínimo 3 caracteres",
+      "maxLength100": "Máximo 100 caracteres",
+      "minLength10": "Mínimo 10 caracteres",
+      "maxLength500": "Máximo 500 caracteres"
     }
   },
   "toolbar": {
@@ -42,7 +52,12 @@
       "place-name-placeholder": "Nombre del lugar",
       "data-title": "Información",
       "confirmation-title": "Confirmación",
-      "hint-marker": "Mueva el mapa o use la búsqueda para colocar el marcador."
+      "hint-marker": "Mueva el mapa o use la búsqueda para colocar el marcador.",
+      "sound-data-title": "Título del sonido",
+      "sound-data-title-placeholder": "Ingrese el título",
+      "sound-data-shortStory": "Historia corta",
+      "sound-data-shortStory-placeholder": "Ingrese una historia corta",
+      "sound-data-traduction-title": "Traducciones"
     }
   },
   "admin": {

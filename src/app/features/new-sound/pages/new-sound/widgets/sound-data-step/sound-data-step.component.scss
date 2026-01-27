@@ -1,0 +1,19 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .full-width {
+    flex: 1;
+  }
+}

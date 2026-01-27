@@ -1,17 +1,50 @@
-<form [formGroup]="form">
-  <!-- Input éditable -->
-  <mat-form-field class="full-width">
-    <mat-label>Title</mat-label>
-    <input matInput formControlName="title" placeholder="Entrez le titre" />
-  </mat-form-field>
+<form [formGroup]="form" class="grid-container">
 
-  <!-- Inputs traduits (lecture seule) -->
-  <mat-form-field class="full-width" *ngFor="let lang of ['fr','en','es']">
-    <mat-label>Traduction {{ lang.toUpperCase() }}</mat-label>
-    <input matInput [value]="translated[lang]" readonly />
-  </mat-form-field>
+  <!-- Title Field -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ 'new-sound.stepper.sound-data-title' | translate }}</mat-label>
+      <input matInput
+             formControlName="title"
+             placeholder="{{ 'new-sound.stepper.sound-data-title-placeholder' | translate }}"
+             (blur)="onFieldBlur('title')" />
+      @if (form.get('title')?.hasError('required')) {
+        <mat-error>{{ 'common.errors.required' | translate }}</mat-error>
+      }
+      @if (form.get('title')?.hasError('minlength')) {
+        <mat-error>{{ 'common.errors.minLength3' | translate }}</mat-error>
+      }
+      @if (form.get('title')?.hasError('maxlength')) {
+        <mat-error>{{ 'common.errors.maxLength100' | translate }}</mat-error>
+      }
+    </mat-form-field>
 
-  <button mat-raised-button color="primary" type="button" (click)="translate()" [disabled]="translating">
-    {{ translating ? 'Traduction...' : 'Traduire' }}
-  </button>
+    <!-- Translate button -->
+    <button mat-icon-button color="accent" type="button" (click)="openTranslationDialog('title')">
+      <mat-icon>translate</mat-icon>
+    </button>
+  </div>
+
+  <!-- Short Story Field -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ 'new-sound.stepper.sound-data-shortStory' | translate }}</mat-label>
+      <textarea matInput
+                formControlName="shortStory"
+                placeholder="{{ 'new-sound.stepper.sound-data-shortStory-placeholder' | translate }}"
+                (blur)="onFieldBlur('shortStory')"></textarea>
+      @if (form.get('shortStory')?.hasError('minlength')) {
+        <mat-error>{{ 'common.errors.minLength10' | translate }}</mat-error>
+      }
+      @if (form.get('shortStory')?.hasError('maxlength')) {
+        <mat-error>{{ 'common.errors.maxLength500' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Translate button -->
+    <button mat-icon-button color="accent" type="button" (click)="openTranslationDialog('shortStory')">
+      <mat-icon>translate</mat-icon>
+    </button>
+  </div>
+
 </form>

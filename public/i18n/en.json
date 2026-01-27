@@ -4,7 +4,17 @@
   },
   "common": {
     "action": {
-      "translate": "Translate"
+      "translate": "Translate",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "noLanguages": "No languages available",
+    "errors": {
+      "required": "Required field",
+      "minLength3": "Minimum 3 characters",
+      "maxLength100": "Maximum 100 characters",
+      "minLength10": "Minimum 10 characters",
+      "maxLength500": "Maximum 500 characters"
     }
   },
   "toolbar": {
@@ -42,7 +52,12 @@
       "place-name-placeholder": "Give a place name",
       "data-title": "Data",
       "confirmation-title": "Confirmation",
-      "hint-marker": "Move the map or use the search to position the marker."
+      "hint-marker": "Move the map or use the search to position the marker.",
+      "sound-data-title": "Sound Title",
+      "sound-data-title-placeholder": "Enter title",
+      "sound-data-shortStory": "Short Story",
+      "sound-data-shortStory-placeholder": "Enter short story",
+      "sound-data-traduction-title": "Translations"
     }
   },
   "admin": {

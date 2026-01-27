@@ -36,7 +36,10 @@
   </mat-step>
 
   <!-- Step 3 : sound data -->
-  <mat-step [stepControl]="thirdFormGroup" label="Sound Data">
+  <mat-step [stepControl]="thirdFormGroup">
+    <ng-template matStepLabel>
+      {{ "new-sound.stepper.data-title" | translate }}
+    </ng-template>
     <app-sound-data-step
       (completed)="onSoundDataCompleted($event)"
     ></app-sound-data-step>

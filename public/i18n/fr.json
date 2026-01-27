@@ -4,7 +4,17 @@
   },
   "common": {
     "action": {
-      "translate": "Traduire"
+      "translate": "Traduire",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "noLanguages": "Aucune langue disponible",
+    "errors": {
+      "required": "Champ requis",
+      "minLength3": "Minimum 3 caractères",
+      "maxLength100": "Maximum 100 caractères",
+      "minLength10": "Minimum 10 caractères",
+      "maxLength500": "Maximum 500 caractères"
     }
   },
   "toolbar": {
@@ -42,7 +52,12 @@
       "place-name-placeholder": "Donner un nom de lieu",
       "data-title": "Infos",
       "confirmation-title": "Confirmation",
-      "hint-marker": "Déplacez la carte ou utilisez la recherche pour positionner le marqueur."
+      "hint-marker": "Déplacez la carte ou utilisez la recherche pour positionner le marqueur.",
+      "sound-data-title": "Titre du son",
+      "sound-data-title-placeholder": "Entrez le titre",
+      "sound-data-shortStory": "Description courte",
+      "sound-data-shortStory-placeholder": "Entrez une description courte",
+      "sound-data-traduction-title": "Traductions"
     }
   },
   "admin": {
