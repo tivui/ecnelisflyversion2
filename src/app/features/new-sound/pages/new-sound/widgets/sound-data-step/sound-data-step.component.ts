@@ -54,6 +54,11 @@ export class SoundDataStepComponent {
   translatedTitle: Record<string, string> = { fr: '', en: '', es: '' };
   translatedStory: Record<string, string> = { fr: '', en: '', es: '' };
 
+  private lastTranslatedSource: {
+    title?: string;
+    shortStory?: string;
+  } = {};
+
   constructor() {
     this.form = this.fb.group({
       title: [
@@ -75,8 +80,16 @@ export class SoundDataStepComponent {
 
   /** Translate a single field using Amazon Translate */
   async translateField(field: 'title' | 'shortStory') {
-    const text = this.form.value[field];
+    const control = this.form.get(field);
+    if (!control || control.invalid) return;
+
+    const text = control.value?.trim();
     if (!text) return;
+
+    // 🔒 Si le texte n'a pas changé → on ne retraduit PAS
+    if (this.lastTranslatedSource[field] === text) {
+      return;
+    }
 
     const sourceLanguage = this.languageDetectionService.detect(text);
     if (!sourceLanguage) {
@@ -106,10 +119,10 @@ export class SoundDataStepComponent {
         translated[lang] = result.data ?? '';
       }
 
-      this.completed.emit({
-        title_i18n: this.translatedTitle,
-        shortStory_i18n: this.translatedStory,
-      });
+      // Memorize last translated source
+      this.lastTranslatedSource[field] = text;
+
+      this.emitCompleted();
     } catch (err) {
       console.error(err);
       this.snackBar.open('Erreur de traduction', 'Fermer', { duration: 3000 });
@@ -136,15 +149,22 @@ export class SoundDataStepComponent {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        if (field === 'title') this.translatedTitle = result;
-        else this.translatedStory = result;
+      if (!result) return;
 
-        this.completed.emit({
-          title_i18n: this.translatedTitle,
-          shortStory_i18n: this.translatedStory,
-        });
+      if (field === 'title') {
+        this.translatedTitle = result;
+      } else {
+        this.translatedStory = result;
       }
+
+      this.emitCompleted();
+    });
+  }
+
+  private emitCompleted() {
+    this.completed.emit({
+      title_i18n: this.translatedTitle,
+      shortStory_i18n: this.translatedStory,
     });
   }
 }
