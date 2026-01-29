@@ -6,7 +6,9 @@
     "action": {
       "translate": "Traduire",
       "save": "Enregistrer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "next": "Suivant",
+      "back": "Retour"
     },
     "noLanguages": "Aucune langue disponible",
     "errors": {
