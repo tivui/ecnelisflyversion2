@@ -184,6 +184,11 @@ export class SoundDataStepComponent implements OnInit {
       label: this.translate.instant(`categories.${option.key}.${sub}`),
     }));
 
+    this.reselectCategory(
+      this.secondaryCategoryControl,
+      this.secondaryCategories,
+    );
+
     this.filteredSecondaryCategories = this.secondaryCategories;
     this.secondaryCategoryControl.enable();
   }
@@ -282,5 +287,21 @@ export class SoundDataStepComponent implements OnInit {
     }));
 
     this.filteredCategories = this.categories;
+
+    // 🔁 Update selected label if needed
+    this.reselectCategory(this.categoryControl, this.categories);
+  }
+
+  private reselectCategory(
+    control: FormControl,
+    options: { key: string; label: string }[],
+  ) {
+    const current = control.value;
+    if (!current) return;
+
+    const updated = options.find((o) => o.key === current.key);
+    if (updated) {
+      control.setValue(updated, { emitEvent: false });
+    }
   }
 }
