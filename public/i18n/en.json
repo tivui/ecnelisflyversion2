@@ -80,6 +80,8 @@
     }
   },
   "categories": {
+    "category": "Category",
+    "secondaryCategory": "Sub-category",
     "ambiancefly": "Ambient sounds",
     "ambiancefly.agriculturefly": "Farm work ambiance",
     "ambiancefly.airportfly": "Airport ambiance",

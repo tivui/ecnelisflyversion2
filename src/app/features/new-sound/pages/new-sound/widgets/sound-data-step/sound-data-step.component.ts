@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
   Validators,
+  FormControl,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,11 +13,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { LanguageDetectionService } from '../../../../../../core/services/language-detection.service';
 import { SoundDataStepDialogComponent } from '../sound-data-step-dialog/sound-data-step-dialog.component';
-import { TranslateModule } from '@ngx-translate/core';
+
+import {
+  CategoryKey,
+  getSubCategoryKeys,
+} from '../../../../../../../../amplify/data/categories';
+
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+
+interface Option {
+  key: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-sound-data-step',
@@ -29,25 +43,58 @@ import { TranslateModule } from '@ngx-translate/core';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
+    MatAutocompleteModule,
     AsyncPipe,
     TranslateModule,
   ],
   templateUrl: './sound-data-step.component.html',
   styleUrls: ['./sound-data-step.component.scss'],
 })
-export class SoundDataStepComponent {
+export class SoundDataStepComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private languageDetectionService = inject(LanguageDetectionService);
   private dialog = inject(MatDialog);
   private amplifyService = inject(AmplifyService);
+  private translate = inject(TranslateService);
+
+  /* ================= OUTPUT ================= */
 
   @Output() completed = new EventEmitter<{
     title_i18n: Record<string, string>;
     shortStory_i18n: Record<string, string>;
+    category?: CategoryKey;
+    secondaryCategory?: string;
   }>();
 
-  form: FormGroup;
+  /* ================= FORM ================= */
+
+  categoryControl = new FormControl<Option | null>(null, Validators.required);
+  secondaryCategoryControl = new FormControl<Option | null>(
+    { value: null, disabled: true },
+    Validators.required,
+  );
+
+  form: FormGroup = this.fb.group({
+    title: [
+      '',
+      [Validators.required, Validators.minLength(3), Validators.maxLength(100)],
+    ],
+    shortStory: ['', [Validators.minLength(10), Validators.maxLength(500)]],
+    category: this.categoryControl,
+    secondaryCategory: this.secondaryCategoryControl,
+  });
+
+  /* ================= AUTOCOMPLETE DATA ================= */
+
+  categories: Option[] = [];
+  filteredCategories: Option[] = [];
+
+  secondaryCategories: Option[] = [];
+  filteredSecondaryCategories: Option[] = [];
+
+  /* ================= TRANSLATION ================= */
+
   translatingTitle = false;
   translatingStory = false;
 
@@ -59,26 +106,94 @@ export class SoundDataStepComponent {
     shortStory?: string;
   } = {};
 
-  constructor() {
-    this.form = this.fb.group({
-      title: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(100),
-        ],
-      ],
-      shortStory: ['', [Validators.minLength(10), Validators.maxLength(500)]],
+  /* ================= INIT ================= */
+
+  ngOnInit() {
+    // Initial build
+    this.buildCategories();
+
+    // 🔁 Rebuild on language change
+    this.translate.onLangChange.subscribe(() => {
+      this.buildCategories();
+
+      // Si une catégorie est déjà sélectionnée → reconstruire les sous-catégories
+      const selected = this.categoryControl.value;
+      if (selected) {
+        this.onCategorySelected(selected);
+      }
+    });
+
+    // Category filter
+    this.categoryControl.valueChanges
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        map((v) => this.filterOptions(v, this.categories)),
+      )
+      .subscribe((r) => (this.filteredCategories = r));
+
+    // Category selection
+    this.categoryControl.valueChanges.subscribe((v) => {
+      this.onCategorySelected(v);
+      this.emitCompleted();
+    });
+
+    // SecondaryCategory filter
+    this.secondaryCategoryControl.valueChanges
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        map((v) => this.filterOptions(v, this.secondaryCategories)),
+      )
+      .subscribe((r) => (this.filteredSecondaryCategories = r));
+
+    this.secondaryCategoryControl.valueChanges.subscribe(() => {
+      this.emitCompleted();
     });
   }
 
-  /** Trigger translation when the user leaves the input */
+  /* ================= AUTOCOMPLETE HELPERS ================= */
+
+  displayFn(option: Option | null): string {
+    return option ? option.label : '';
+  }
+
+  filterOptions(value: Option | string | null, list: Option[]): Option[] {
+    const search =
+      typeof value === 'string'
+        ? value.toLowerCase()
+        : (value?.label.toLowerCase() ?? '');
+
+    return list.filter((opt) => opt.label.toLowerCase().includes(search));
+  }
+
+  onCategorySelected(option: Option | null) {
+    this.secondaryCategoryControl.reset();
+    this.secondaryCategoryControl.disable();
+
+    if (!option) {
+      this.secondaryCategories = [];
+      this.filteredSecondaryCategories = [];
+      return;
+    }
+
+    this.secondaryCategories = getSubCategoryKeys(
+      option.key as CategoryKey,
+    ).map((sub) => ({
+      key: sub,
+      label: this.translate.instant(`categories.${option.key}.${sub}`),
+    }));
+
+    this.filteredSecondaryCategories = this.secondaryCategories;
+    this.secondaryCategoryControl.enable();
+  }
+
+  /* ================= TRANSLATION ================= */
+
   async onFieldBlur(field: 'title' | 'shortStory') {
     await this.translateField(field);
   }
 
-  /** Translate a single field using Amazon Translate */
   async translateField(field: 'title' | 'shortStory') {
     const control = this.form.get(field);
     if (!control || control.invalid) return;
@@ -86,16 +201,11 @@ export class SoundDataStepComponent {
     const text = control.value?.trim();
     if (!text) return;
 
-    // 🔒 Si le texte n'a pas changé → on ne retraduit PAS
-    if (this.lastTranslatedSource[field] === text) {
-      return;
-    }
+    if (this.lastTranslatedSource[field] === text) return;
 
     const sourceLanguage = this.languageDetectionService.detect(text);
     if (!sourceLanguage) {
-      this.snackBar.open('Langue non supportée pour la traduction', 'Fermer', {
-        duration: 3000,
-      });
+      this.snackBar.open('Langue non supportée', 'Fermer', { duration: 3000 });
       return;
     }
 
@@ -119,13 +229,8 @@ export class SoundDataStepComponent {
         translated[lang] = result.data ?? '';
       }
 
-      // Memorize last translated source
       this.lastTranslatedSource[field] = text;
-
       this.emitCompleted();
-    } catch (err) {
-      console.error(err);
-      this.snackBar.open('Erreur de traduction', 'Fermer', { duration: 3000 });
     } finally {
       if (field === 'title') {
         this.translatingTitle = false;
@@ -135,9 +240,7 @@ export class SoundDataStepComponent {
     }
   }
 
-  /** Open dialog to edit translations */
   async openTranslationDialog(field: 'title' | 'shortStory') {
-    // Ensure the field is translated first
     await this.translateField(field);
 
     const translated =
@@ -161,10 +264,23 @@ export class SoundDataStepComponent {
     });
   }
 
+  /* ================= EMIT ================= */
+
   private emitCompleted() {
     this.completed.emit({
       title_i18n: this.translatedTitle,
       shortStory_i18n: this.translatedStory,
+      category: this.categoryControl.value?.key as CategoryKey | undefined,
+      secondaryCategory: this.secondaryCategoryControl.value?.key,
     });
+  }
+
+  private buildCategories() {
+    this.categories = Object.values(CategoryKey).map((cat) => ({
+      key: cat,
+      label: this.translate.instant(`categories.${cat}`),
+    }));
+
+    this.filteredCategories = this.categories;
   }
 }

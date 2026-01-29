@@ -81,6 +81,8 @@
     }
   },
   "categories": {
+    "category": "Categoría",
+    "secondaryCategory": "Subcategoría",
     "ambiancefly": "Sonidos ambientales",
     "ambiancefly.agriculturefly": "Ambiente de trabajo agrícola",
     "ambiancefly.airportfly": "Ambiente de aeropuerto",

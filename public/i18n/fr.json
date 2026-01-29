@@ -80,6 +80,8 @@
     }
   },
   "categories": {
+    "category": "Catégorie",
+    "secondaryCategory": "Sous-catégorie",
     "ambiancefly": "Sons d'ambiances",
     "ambiancefly.agriculturefly": "Ambiance de travaux agricoles",
     "ambiancefly.airportfly": "Ambiance d'aéroport",

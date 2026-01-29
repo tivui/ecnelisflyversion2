@@ -1,30 +1,19 @@
 <form [formGroup]="form" class="grid-container">
-  <!-- Title Field -->
+
+  <!-- TITLE -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{
-        "new-sound.stepper.sound-data-title" | translate
-      }}</mat-label>
+      <mat-label>{{ 'new-sound.stepper.sound-data-title' | translate }}</mat-label>
       <input
         matInput
         formControlName="title"
-        placeholder="{{
-          'new-sound.stepper.sound-data-title-placeholder' | translate
-        }}"
         (blur)="onFieldBlur('title')"
       />
-      @if (form.get("title")?.hasError("required")) {
-        <mat-error>{{ "common.errors.required" | translate }}</mat-error>
-      }
-      @if (form.get("title")?.hasError("minlength")) {
-        <mat-error>{{ "common.errors.minLength3" | translate }}</mat-error>
-      }
-      @if (form.get("title")?.hasError("maxlength")) {
-        <mat-error>{{ "common.errors.maxLength100" | translate }}</mat-error>
+      @if (form.get('title')?.hasError('required')) {
+        <mat-error>{{ 'common.errors.required' | translate }}</mat-error>
       }
     </mat-form-field>
 
-    <!-- Translate button -->
     <button
       mat-icon-button
       color="accent"
@@ -36,39 +25,62 @@
     </button>
   </div>
 
-  <!-- Short Story Field -->
+  <!-- SHORT STORY -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{
-        "new-sound.stepper.sound-data-shortStory" | translate
-      }}</mat-label>
+      <mat-label>{{ 'new-sound.stepper.sound-data-shortStory' | translate }}</mat-label>
       <textarea
         matInput
         formControlName="shortStory"
-        placeholder="{{
-          'new-sound.stepper.sound-data-shortStory-placeholder' | translate
-        }}"
         (blur)="onFieldBlur('shortStory')"
       ></textarea>
-      @if (form.get("shortStory")?.hasError("minlength")) {
-        <mat-error>{{ "common.errors.minLength10" | translate }}</mat-error>
-      }
-      @if (form.get("shortStory")?.hasError("maxlength")) {
-        <mat-error>{{ "common.errors.maxLength500" | translate }}</mat-error>
-      }
     </mat-form-field>
 
-    <!-- Translate button -->
     <button
       mat-icon-button
       color="accent"
       type="button"
-      [disabled]="
-        !form.get('shortStory')?.value || form.get('shortStory')?.invalid
-      "
+      [disabled]="form.get('shortStory')?.invalid"
       (click)="openTranslationDialog('shortStory')"
     >
       <mat-icon>translate</mat-icon>
     </button>
   </div>
+
+  <!-- CATEGORY -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ 'categories.category' | translate }}</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="categoryControl"
+        [matAutocomplete]="catAuto"
+      />
+      <mat-autocomplete #catAuto="matAutocomplete" [displayWith]="displayFn">
+        @for (opt of filteredCategories; track opt.key) {
+          <mat-option [value]="opt">{{ opt.label }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+
+  <!-- SECONDARY CATEGORY -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ 'categories.secondaryCategory' | translate }}</mat-label>
+      <input
+        type="text"
+        matInput
+        [formControl]="secondaryCategoryControl"
+        [matAutocomplete]="subAuto"
+      />
+      <mat-autocomplete #subAuto="matAutocomplete" [displayWith]="displayFn">
+        @for (opt of filteredSecondaryCategories; track opt.key) {
+          <mat-option [value]="opt">{{ opt.label }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+
 </form>
