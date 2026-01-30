@@ -1,5 +1,8 @@
 import { CategoryKey } from "../../../../amplify/data/categories";
 
+export type SoundStatus = 'private' | 'public_to_be_approved' | 'public';
+export type LicenseType = 'READ_ONLY' | 'PUBLIC_DOMAIN' | 'CC_BY' | 'CC_BY_NC';
+
 export class Sound {
   userId!: string;
 
@@ -16,7 +19,7 @@ export class Sound {
   shortStory_i18n?: Record<string, string>;
 
   filename!: string;
-  status?: 'public' | 'private';
+  status?: SoundStatus;
 
   latitude?: number;
   longitude?: number;
@@ -29,7 +32,7 @@ export class Sound {
   recordDateTime?: Date;
 
   equipment?: string;
-  license?: string;
+  license?: LicenseType;
 
   url?: string;
   urlTitle?: string;

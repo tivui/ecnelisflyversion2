@@ -46,20 +46,37 @@
     "theme": "Thème",
     "save": "Enregistrer"
   },
-  "new-sound": {
-    "stepper": {
-      "sound-title": "Son",
-      "place-title": "Lieu",
-      "place-name": "Nom du lieu",
-      "place-name-placeholder": "Donner un nom de lieu",
-      "data-title": "Infos",
-      "confirmation-title": "Confirmation",
-      "hint-marker": "Déplacez la carte ou utilisez la recherche pour positionner le marqueur.",
-      "sound-data-title": "Titre du son",
-      "sound-data-title-placeholder": "Entrez le titre",
-      "sound-data-shortStory": "Description courte",
-      "sound-data-shortStory-placeholder": "Entrez une description courte",
-      "sound-data-traduction-title": "Traductions"
+  "sound": {
+    "sound-title": "Son",
+    "place-title": "Lieu",
+    "place-name": "Nom du lieu",
+    "place-name-placeholder": "Donner un nom de lieu",
+    "data-title": "Infos",
+    "confirmation-title": "Confirmation",
+    "hint-marker": "Déplacez la carte ou utilisez la recherche pour positionner le marqueur.",
+    "sound-data-title": "Titre du son",
+    "sound-data-title-placeholder": "Entrez le titre",
+    "sound-data-shortStory": "Description courte",
+    "sound-data-shortStory-placeholder": "Entrez une description courte",
+    "sound-data-traduction-title": "Traductions",
+    "status": "Statut",
+    "statusPrivate": "Privé",
+    "statusPrivate_tooltip": "Seulement vous et les utilisateurs autorisés peuvent voir ce son.",
+    "statusPublic": "Public",
+    "statusPublic_tooltip": "Tout le monde peut voir et écouter ce son. Il sera modéré avant publication finale.",
+
+    "licenses": {
+      "READ_ONLY": "Lecture seule",
+      "READ_ONLY_tooltip": "Cette licence permet uniquement la lecture du contenu. Aucune modification ni redistribution n’est autorisée.",
+
+      "PUBLIC_DOMAIN": "Domaine public",
+      "PUBLIC_DOMAIN_tooltip": "Cette licence indique que le contenu est libre de droits et peut être utilisé, partagé et modifié sans restriction.",
+
+      "CC_BY": "CC BY",
+      "CC_BY_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer correctement l’auteur.",
+
+      "CC_BY_NC": "CC BY-NC",
+      "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur."
     }
   },
   "admin": {

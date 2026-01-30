@@ -26,6 +26,12 @@ import {
 } from '../../../../../../../../amplify/data/categories';
 
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import {
+  LicenseType,
+  SoundStatus,
+} from '../../../../../../core/models/sound.model';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Option {
   key: string;
@@ -46,6 +52,8 @@ interface Option {
     MatAutocompleteModule,
     AsyncPipe,
     TranslateModule,
+    MatSelectModule,
+    MatTooltipModule
   ],
   templateUrl: './sound-data-step.component.html',
   styleUrls: ['./sound-data-step.component.scss'],
@@ -65,6 +73,8 @@ export class SoundDataStepComponent implements OnInit {
     shortStory_i18n: Record<string, string>;
     category?: CategoryKey;
     secondaryCategory?: string;
+    license: LicenseType;
+    status: SoundStatus;
   }>();
 
   /* ================= FORM ================= */
@@ -72,6 +82,11 @@ export class SoundDataStepComponent implements OnInit {
   categoryControl = new FormControl<Option | null>(null, Validators.required);
   secondaryCategoryControl = new FormControl<Option | null>(
     { value: null, disabled: true },
+    Validators.required,
+  );
+  statusControl = new FormControl<SoundStatus>('public', Validators.required);
+  licenseControl = new FormControl<LicenseType | null>(
+    'CC_BY',
     Validators.required,
   );
 
@@ -83,6 +98,8 @@ export class SoundDataStepComponent implements OnInit {
     shortStory: ['', [Validators.minLength(10), Validators.maxLength(500)]],
     category: this.categoryControl,
     secondaryCategory: this.secondaryCategoryControl,
+    status: this.statusControl,
+    license: this.licenseControl,
   });
 
   /* ================= AUTOCOMPLETE DATA ================= */
@@ -277,6 +294,8 @@ export class SoundDataStepComponent implements OnInit {
       shortStory_i18n: this.translatedStory,
       category: this.categoryControl.value?.key as CategoryKey | undefined,
       secondaryCategory: this.secondaryCategoryControl.value?.key,
+      license: this.licenseControl.value || 'CC_BY',
+      status: this.statusControl.value || 'public',
     });
   }
 
@@ -304,4 +323,43 @@ export class SoundDataStepComponent implements OnInit {
       control.setValue(updated, { emitEvent: false });
     }
   }
+
+  onStatusChange() {
+    const value = this.statusControl.value;
+    // If user selects "public", change to "public_to_be_approved" and show a snackbar
+    if (value === 'public') {
+      this.statusControl.setValue('public_to_be_approved', {
+        emitEvent: false,
+      });
+      this.snackBar.open(
+        this.translate.instant('categories.statusPending'),
+        'OK',
+        { duration: 3000 },
+      );
+    }
+    this.emitCompleted();
+  }
+
+  licenseOptions = [
+    {
+      value: 'READ_ONLY' as LicenseType,
+      label: 'sound.licenses.READ_ONLY',
+      tooltip: 'sound.licenses.READ_ONLY_tooltip',
+    },
+    {
+      value: 'PUBLIC_DOMAIN' as LicenseType,
+      label: 'sound.licenses.PUBLIC_DOMAIN',
+      tooltip: 'sound.licenses.PUBLIC_DOMAIN_tooltip',
+    },
+    {
+      value: 'CC_BY' as LicenseType,
+      label: 'sound.licenses.CC_BY',
+      tooltip: 'sound.licenses.CC_BY_tooltip',
+    },
+    {
+      value: 'CC_BY_NC' as LicenseType,
+      label: 'sound.licenses.CC_BY_NC',
+      tooltip: 'sound.licenses.CC_BY_NC_tooltip',
+    },
+  ];
 }

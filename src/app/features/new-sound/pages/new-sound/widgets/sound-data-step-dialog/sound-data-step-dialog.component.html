@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ 'new-sound.stepper.sound-data-traduction-title' | translate }}</h2>
+<h2 mat-dialog-title>{{ 'sound.sound-data-traduction-title' | translate }}</h2>
 
 <form [formGroup]="form" mat-dialog-content class="translation-grid">
 
@@ -6,9 +6,9 @@
     <mat-form-field class="full-width" appearance="outline">
       <mat-label>
         @if (isShortStory) {
-          {{ 'new-sound.stepper.sound-data-shortStory' | translate }} {{ lang.toUpperCase() }}
+          {{ 'sound.sound-data-shortStory' | translate }} {{ lang.toUpperCase() }}
         } @else {
-          {{ 'new-sound.stepper.sound-data-title' | translate }} {{ lang.toUpperCase() }}
+          {{ 'sound.sound-data-title' | translate }} {{ lang.toUpperCase() }}
         }
       </mat-label>
 

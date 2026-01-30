@@ -1,16 +1,11 @@
 <form [formGroup]="form" class="grid-container">
-
   <!-- TITLE -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{ 'new-sound.stepper.sound-data-title' | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="title"
-        (blur)="onFieldBlur('title')"
-      />
-      @if (form.get('title')?.hasError('required')) {
-        <mat-error>{{ 'common.errors.required' | translate }}</mat-error>
+      <mat-label>{{ "sound.sound-data-title" | translate }}</mat-label>
+      <input matInput formControlName="title" (blur)="onFieldBlur('title')" />
+      @if (form.get("title")?.hasError("required")) {
+        <mat-error>{{ "common.errors.required" | translate }}</mat-error>
       }
     </mat-form-field>
 
@@ -28,7 +23,7 @@
   <!-- SHORT STORY -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{ 'new-sound.stepper.sound-data-shortStory' | translate }}</mat-label>
+      <mat-label>{{ "sound.sound-data-shortStory" | translate }}</mat-label>
       <textarea
         matInput
         formControlName="shortStory"
@@ -50,7 +45,7 @@
   <!-- CATEGORY -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{ 'categories.category' | translate }}</mat-label>
+      <mat-label>{{ "categories.category" | translate }}</mat-label>
       <input
         type="text"
         matInput
@@ -68,7 +63,7 @@
   <!-- SECONDARY CATEGORY -->
   <div class="grid-item">
     <mat-form-field class="full-width">
-      <mat-label>{{ 'categories.secondaryCategory' | translate }}</mat-label>
+      <mat-label>{{ "categories.secondaryCategory" | translate }}</mat-label>
       <input
         type="text"
         matInput
@@ -83,4 +78,46 @@
     </mat-form-field>
   </div>
 
+  <!-- LICENSE -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ "categories.license" | translate }}</mat-label>
+      <mat-select [formControl]="licenseControl">
+        <mat-option
+          *ngFor="let opt of licenseOptions"
+          [value]="opt.value"
+          matTooltip="{{ opt.tooltip | translate }}"
+          matTooltipPosition="above"
+        >
+          {{ opt.label | translate }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- STATUS -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ "sound.status" | translate }}</mat-label>
+      <mat-select
+        [formControl]="statusControl"
+        (selectionChange)="onStatusChange()"
+      >
+        <mat-option
+          value="private"
+          matTooltip="{{ 'sound.statusPrivate_tooltip' | translate }}"
+          matTooltipPosition="above"
+        >
+          {{ "sound.statusPrivate" | translate }}
+        </mat-option>
+        <mat-option
+          value="public"
+          matTooltip="{{ 'sound.statusPublic_tooltip' | translate }}"
+          matTooltipPosition="above"
+        >
+          {{ "sound.statusPublic" | translate }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 </form>

@@ -67,7 +67,7 @@ const schema = a
         shortStory_i18n: a.json(),
 
         filename: a.string().required(),
-        status: a.enum(['public', 'private']),
+        status: a.enum(['private', 'public_to_be_approved', 'public']),
 
         latitude: a.float(),
         longitude: a.float(),

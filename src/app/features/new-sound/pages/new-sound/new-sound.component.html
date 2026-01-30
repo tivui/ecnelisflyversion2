@@ -5,7 +5,7 @@
   <!-- Step 1 : upload sound-->
   <mat-step [completed]="soundUploaded()">
     <ng-template matStepLabel>
-      {{ "new-sound.stepper.sound-title" | translate }}
+      {{ "sound.sound-title" | translate }}
     </ng-template>
 
     <app-sound-upload-step
@@ -22,7 +22,7 @@
   <!-- Step 2 : locate sound -->
   <mat-step [completed]="!!selectedPlace()">
     <ng-template matStepLabel>
-      {{ "new-sound.stepper.place-title" | translate }}
+      {{ "sound.place-title" | translate }}
     </ng-template>
 
     <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
@@ -38,7 +38,7 @@
   <!-- Step 3 : sound data -->
   <mat-step [stepControl]="thirdFormGroup">
     <ng-template matStepLabel>
-      {{ "new-sound.stepper.data-title" | translate }}
+      {{ "sound.data-title" | translate }}
     </ng-template>
     <app-sound-data-step
       (completed)="onSoundDataCompleted($event)"
@@ -52,7 +52,7 @@
   <!-- Step 4 : confirmation -->
   <mat-step>
     <ng-template matStepLabel>{{
-      "new-sound.stepper.confirmation-title" | translate
+      "sound.confirmation-title" | translate
     }}</ng-template>
     <p>You are now done.</p>
     <div>

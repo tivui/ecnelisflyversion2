@@ -16,7 +16,7 @@ export class GeoSearchService {
     const provider = new OpenStreetMapProvider();
 
     const createControl = () => {
-      const placeholder = this.translate.instant('new-sound.stepper.place-placeholder');
+      const placeholder = this.translate.instant('sound.place-placeholder');
 
       const control = GeoSearchControl({
         provider,
