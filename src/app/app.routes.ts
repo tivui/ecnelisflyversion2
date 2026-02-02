@@ -12,7 +12,6 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'new-sound', component: NewSoundComponent, canActivate: [authGuard] },
-  // Nouvelle section database avec lazy loading
   {
     path: 'admin/database',
     loadChildren: () =>
