@@ -78,6 +78,36 @@
     </mat-form-field>
   </div>
 
+  <!-- RECORD DATE -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ "sound.record-date" | translate }}</mat-label>
+
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="recordDateTime"
+      />
+
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <!-- EQUIPMENT -->
+  <div class="grid-item">
+    <mat-form-field class="full-width">
+      <mat-label>{{ "sound.equipment" | translate }}</mat-label>
+      <input
+        matInput
+        formControlName="equipment"
+        placeholder="{{ 'sound.equipment-placeholder' | translate }}"
+      />
+    </mat-form-field>
+  </div>
+
+
   <!-- LICENSE -->
   <div class="grid-item">
     <mat-form-field class="full-width">

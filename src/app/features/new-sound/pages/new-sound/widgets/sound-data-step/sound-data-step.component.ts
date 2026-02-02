@@ -15,6 +15,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  DateAdapter,
+  MAT_DATE_LOCALE,
+  MatNativeDateModule,
+} from '@angular/material/core';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { LanguageDetectionService } from '../../../../../../core/services/language-detection.service';
@@ -53,7 +59,16 @@ interface Option {
     AsyncPipe,
     TranslateModule,
     MatSelectModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+  ],
+  providers: [
+    {
+      provide: MAT_DATE_LOCALE,
+      useFactory: (translate: TranslateService) => translate.getCurrentLang(),
+      deps: [TranslateService],
+    },
   ],
   templateUrl: './sound-data-step.component.html',
   styleUrls: ['./sound-data-step.component.scss'],
@@ -65,6 +80,7 @@ export class SoundDataStepComponent implements OnInit {
   private dialog = inject(MatDialog);
   private amplifyService = inject(AmplifyService);
   private translate = inject(TranslateService);
+  private dateAdapter = inject(DateAdapter<Date>);
 
   /* ================= OUTPUT ================= */
 
@@ -73,6 +89,8 @@ export class SoundDataStepComponent implements OnInit {
     shortStory_i18n: Record<string, string>;
     category?: CategoryKey;
     secondaryCategory?: string;
+    recordDateTime?: Date;
+    equipment?: string;
     license: LicenseType;
     status: SoundStatus;
   }>();
@@ -98,6 +116,8 @@ export class SoundDataStepComponent implements OnInit {
     shortStory: ['', [Validators.minLength(10), Validators.maxLength(500)]],
     category: this.categoryControl,
     secondaryCategory: this.secondaryCategoryControl,
+    recordDateTime: [null],
+    equipment: ['', [Validators.maxLength(100)]],
     status: this.statusControl,
     license: this.licenseControl,
   });
@@ -126,13 +146,17 @@ export class SoundDataStepComponent implements OnInit {
   /* ================= INIT ================= */
 
   ngOnInit() {
+    // Initialize date locale
+    this.setDateLocale(this.translate.currentLang);
+
     // Initial build
     this.buildCategories();
 
     // 🔁 Rebuild on language change
-    this.translate.onLangChange.subscribe(() => {
-      this.buildCategories();
+    this.translate.onLangChange.subscribe((event) => {
+      this.setDateLocale(event.lang);
 
+      this.buildCategories();
       // Si une catégorie est déjà sélectionnée → reconstruire les sous-catégories
       const selected = this.categoryControl.value;
       if (selected) {
@@ -294,6 +318,8 @@ export class SoundDataStepComponent implements OnInit {
       shortStory_i18n: this.translatedStory,
       category: this.categoryControl.value?.key as CategoryKey | undefined,
       secondaryCategory: this.secondaryCategoryControl.value?.key,
+      recordDateTime: this.form.value.recordDateTime ?? undefined,
+      equipment: this.form.value.equipment?.trim() || undefined,
       license: this.licenseControl.value || 'CC_BY',
       status: this.statusControl.value || 'public',
     });
@@ -362,4 +388,15 @@ export class SoundDataStepComponent implements OnInit {
       tooltip: 'sound.licenses.CC_BY_NC_tooltip',
     },
   ];
+
+  private setDateLocale(lang: string) {
+    // Mapping si besoin
+    const localeMap: Record<string, string> = {
+      fr: 'fr-FR',
+      en: 'en-GB',
+      es: 'es-ES',
+    };
+
+    this.dateAdapter.setLocale(localeMap[lang] ?? lang);
+  }
 }
