@@ -1,9 +1,9 @@
 <mat-stepper
-  class="new-sound-stepper"
+  class="new-sound-stepper mat-elevation-z8"
   [orientation]="(stepperOrientation | async)!"
 >
   <!-- Step 1 : upload sound-->
-  <mat-step [completed]="soundUploaded()">
+  <mat-step class="mat-step-content"  [completed]="soundUploaded()">
     <ng-template matStepLabel>
       {{ "sound.sound-title" | translate }}
     </ng-template>
@@ -20,7 +20,7 @@
   </mat-step>
 
   <!-- Step 2 : locate sound -->
-  <mat-step [completed]="!!selectedPlace()">
+  <mat-step class="mat-step-content"  [completed]="!!selectedPlace()">
     <ng-template matStepLabel>
       {{ "sound.place-title" | translate }}
     </ng-template>
@@ -36,7 +36,7 @@
   </mat-step>
 
   <!-- Step 3 : sound data -->
-  <mat-step [stepControl]="thirdFormGroup">
+  <mat-step class="mat-step-content"  [stepControl]="thirdFormGroup">
     <ng-template matStepLabel>
       {{ "sound.data-title" | translate }}
     </ng-template>
@@ -50,7 +50,7 @@
   </mat-step>
 
   <!-- Step 4 : confirmation -->
-  <mat-step>
+  <mat-step class="mat-step-content" >
     <ng-template matStepLabel>{{
       "sound.confirmation-title" | translate
     }}</ng-template>

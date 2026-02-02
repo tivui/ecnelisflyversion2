@@ -1,11 +1,13 @@
 :host {
   display: block;
-  height: calc(100vh - 64px);
   width: 100%;
+  max-width: 900px;
+  margin: 10px auto;
 }
 
 .new-sound-stepper {
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-radius: 12px;
 }
