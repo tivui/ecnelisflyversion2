@@ -55,6 +55,8 @@
     "confirmation-title": "Confirmación",
     "hint-marker": "Mueva el mapa o use la búsqueda para colocar el marcador.",
     "sound-data-title": "Título del sonido",
+    "data-info-title": "Detalles del sonido",
+    "data-meta-title": "Enlaces y metadatos",
     "sound-data-title-placeholder": "Ingrese el título",
     "sound-data-shortStory": "Historia corta",
     "sound-data-shortStory-placeholder": "Ingrese una historia corta",
@@ -80,7 +82,18 @@
 
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "Puede compartir y adaptar el contenido solo para fines no comerciales, atribuyendo al autor."
-    }
+    },
+    "link1-url": "Enlace 1 URL",
+    "link1-url-placeholder": "Ingrese una URL (https://...)",
+    "link1-title": "Enlace 1 Título",
+    "link1-title-placeholder": "Ingrese un título para el enlace 1",
+    "link2-url": "Enlace 2 URL",
+    "link2-url-placeholder": "Ingrese una URL (https://...)",
+    "link2-title": "Enlace 2 Título",
+    "link2-title-placeholder": "Ingrese un título para el enlace 2",
+    "hashtags": "Hashtags",
+    "hashtags-placeholder": "Ingrese hashtags separados por espacios (ejemplo: #naturaleza #ciudad)",
+    "hashtags-hint": "Utilice hashtags para mejorar la búsqueda de su sonido. Separe los hashtags con espacios."
   },
   "admin": {
     "database": {

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
-import { CommonModule, AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -32,10 +32,7 @@ import {
 } from '../../../../../../../../amplify/data/categories';
 
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
-import {
-  LicenseType,
-  SoundStatus,
-} from '../../../../../../core/models/sound.model';
+
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -44,8 +41,9 @@ interface Option {
   label: string;
 }
 
+
 @Component({
-  selector: 'app-sound-data-step',
+  selector: 'app-sound-data-info-step',
   standalone: true,
   imports: [
     CommonModule,
@@ -56,7 +54,6 @@ interface Option {
     MatIconModule,
     MatDialogModule,
     MatAutocompleteModule,
-    AsyncPipe,
     TranslateModule,
     MatSelectModule,
     MatTooltipModule,
@@ -70,10 +67,10 @@ interface Option {
       deps: [TranslateService],
     },
   ],
-  templateUrl: './sound-data-step.component.html',
-  styleUrls: ['./sound-data-step.component.scss'],
+  templateUrl: './sound-data-info-step.component.html',
+  styleUrl: './sound-data-info-step.component.scss'
 })
-export class SoundDataStepComponent implements OnInit {
+export class SoundDataInfoStepComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private languageDetectionService = inject(LanguageDetectionService);
@@ -91,13 +88,6 @@ export class SoundDataStepComponent implements OnInit {
     secondaryCategory?: string;
     recordDateTime?: Date;
     equipment?: string;
-    url?: string;
-    urlTitle?: string;
-    secondaryUrl?: string;
-    secondaryUrlTitle?: string;
-    license: LicenseType;
-    status: SoundStatus;
-    hashtags?: string;
   }>();
 
   /* ================= FORM ================= */
@@ -107,11 +97,7 @@ export class SoundDataStepComponent implements OnInit {
     { value: null, disabled: true },
     Validators.required,
   );
-  statusControl = new FormControl<SoundStatus>('public', Validators.required);
-  licenseControl = new FormControl<LicenseType | null>(
-    'CC_BY',
-    Validators.required,
-  );
+
 
   form: FormGroup = this.fb.group({
     title: [
@@ -122,14 +108,7 @@ export class SoundDataStepComponent implements OnInit {
     category: this.categoryControl,
     secondaryCategory: this.secondaryCategoryControl,
     recordDateTime: [null],
-    equipment: ['', [Validators.maxLength(100)]],
-    url: ['', [Validators.pattern('https?://.+')]],
-    urlTitle: ['', [Validators.maxLength(100)]],
-    secondaryUrl: ['', [Validators.pattern('https?://.+')]],
-    secondaryUrlTitle: ['', [Validators.maxLength(100)]],
-    status: this.statusControl,
-    license: this.licenseControl,
-    hashtags: ['', [Validators.maxLength(200)]],
+    equipment: ['', [Validators.maxLength(100)]]
   });
 
   /* ================= AUTOCOMPLETE DATA ================= */
@@ -329,13 +308,7 @@ export class SoundDataStepComponent implements OnInit {
       category: this.categoryControl.value?.key as CategoryKey | undefined,
       secondaryCategory: this.secondaryCategoryControl.value?.key,
       recordDateTime: this.form.value.recordDateTime ?? undefined,
-      equipment: this.form.value.equipment?.trim() || undefined,
-      url: this.form.value.url?.trim() || undefined,
-      urlTitle: this.form.value.urlTitle?.trim() || undefined,
-      secondaryUrl: this.form.value.secondaryUrl?.trim() || undefined,
-      secondaryUrlTitle: this.form.value.secondaryUrlTitle?.trim() || undefined,
-      license: this.licenseControl.value || 'CC_BY',
-      status: this.statusControl.value || 'public',
+      equipment: this.form.value.equipment?.trim() || undefined
     });
   }
 
@@ -364,45 +337,6 @@ export class SoundDataStepComponent implements OnInit {
     }
   }
 
-  onStatusChange() {
-    const value = this.statusControl.value;
-    // If user selects "public", change to "public_to_be_approved" and show a snackbar
-    if (value === 'public') {
-      this.statusControl.setValue('public_to_be_approved', {
-        emitEvent: false,
-      });
-      this.snackBar.open(
-        this.translate.instant('categories.statusPending'),
-        'OK',
-        { duration: 3000 },
-      );
-    }
-    this.emitCompleted();
-  }
-
-  licenseOptions = [
-    {
-      value: 'READ_ONLY' as LicenseType,
-      label: 'sound.licenses.READ_ONLY',
-      tooltip: 'sound.licenses.READ_ONLY_tooltip',
-    },
-    {
-      value: 'PUBLIC_DOMAIN' as LicenseType,
-      label: 'sound.licenses.PUBLIC_DOMAIN',
-      tooltip: 'sound.licenses.PUBLIC_DOMAIN_tooltip',
-    },
-    {
-      value: 'CC_BY' as LicenseType,
-      label: 'sound.licenses.CC_BY',
-      tooltip: 'sound.licenses.CC_BY_tooltip',
-    },
-    {
-      value: 'CC_BY_NC' as LicenseType,
-      label: 'sound.licenses.CC_BY_NC',
-      tooltip: 'sound.licenses.CC_BY_NC_tooltip',
-    },
-  ];
-
   private setDateLocale(lang: string) {
     // Mapping si besoin
     const localeMap: Record<string, string> = {
@@ -414,22 +348,4 @@ export class SoundDataStepComponent implements OnInit {
     this.dateAdapter.setLocale(localeMap[lang] ?? lang);
   }
 
-  onHashtagInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let value = input.value;
-
-    // If user has typed a space, add # at the beginning of each word except the last one
-    const words = value.split(' ');
-
-    for (let i = 0; i < words.length - 1; i++) {
-      if (!words[i].startsWith('#') && words[i].trim() !== '') {
-        words[i] = `#${words[i]}`;
-      }
-    }
-
-    // Reconstruct the value with the last word intact (in progress of typing)
-    value = words.join(' ');
-
-    this.form.get('hashtags')?.setValue(value, { emitEvent: false });
-  }
 }

@@ -3,7 +3,7 @@
   [orientation]="(stepperOrientation | async)!"
 >
   <!-- Step 1 : upload sound-->
-  <mat-step class="mat-step-content"  [completed]="soundUploaded()">
+  <mat-step class="mat-step-content" [completed]="soundUploaded()">
     <ng-template matStepLabel>
       {{ "sound.sound-title" | translate }}
     </ng-template>
@@ -14,13 +14,13 @@
 
     <div>
       <button mat-button matStepperNext [disabled]="!soundUploaded()">
-         {{ "common.action.next" | translate }}
+        {{ "common.action.next" | translate }}
       </button>
     </div>
   </mat-step>
 
   <!-- Step 2 : locate sound -->
-  <mat-step class="mat-step-content"  [completed]="!!selectedPlace()">
+  <mat-step class="mat-step-content" [completed]="!!selectedPlace()">
     <ng-template matStepLabel>
       {{ "sound.place-title" | translate }}
     </ng-template>
@@ -28,29 +28,57 @@
     <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
 
     <div>
-      <button mat-button matStepperPrevious>{{ "common.action.back" | translate }}</button>
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
       <button mat-button matStepperNext [disabled]="!selectedPlace()">
         {{ "common.action.next" | translate }}
       </button>
     </div>
   </mat-step>
 
-  <!-- Step 3 : sound data -->
-  <mat-step class="mat-step-content"  [stepControl]="thirdFormGroup">
-    <ng-template matStepLabel>
-      {{ "sound.data-title" | translate }}
-    </ng-template>
-    <app-sound-data-step
-      (completed)="onSoundDataCompleted($event)"
-    ></app-sound-data-step>
+  <!-- Step 3A : Sound Info -->
+  <mat-step class="mat-step-content" [stepControl]="thirdFormGroup">
+    <ng-template matStepLabel>{{
+      "sound.data-info-title" | translate
+    }}</ng-template>
+
+    <app-sound-data-info-step
+      (completed)="onSoundDataInfoCompleted($event)"
+    ></app-sound-data-info-step>
+
     <div>
-      <button mat-button matStepperPrevious>{{ "common.action.back" | translate }}</button>
-      <button mat-button matStepperNext>{{ "common.action.next" | translate }}</button>
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
+      <button mat-button matStepperNext [disabled]="!thirdFormGroup.valid">
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Step 3B : Links & Metadata -->
+  <mat-step class="mat-step-content" [stepControl]="fourthFormGroup">
+    <ng-template matStepLabel>{{
+      "sound.data-meta-title" | translate
+    }}</ng-template>
+
+    <app-sound-data-meta-step
+      (completed)="onSoundDataMetaCompleted($event)"
+    ></app-sound-data-meta-step>
+
+    <div>
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
+      <button mat-button matStepperNext>
+        {{ "common.action.next" | translate }}
+      </button>
     </div>
   </mat-step>
 
   <!-- Step 4 : confirmation -->
-  <mat-step class="mat-step-content" >
+  <mat-step class="mat-step-content">
     <ng-template matStepLabel>{{
       "sound.confirmation-title" | translate
     }}</ng-template>

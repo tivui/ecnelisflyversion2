@@ -51,10 +51,13 @@
     "place-title": "Lieu",
     "place-name": "Nom du lieu",
     "place-name-placeholder": "Donner un nom de lieu",
+    "place-placeholder": "Rechercher un lieu",
     "data-title": "Infos",
     "confirmation-title": "Confirmation",
     "hint-marker": "Déplacez la carte ou utilisez la recherche pour positionner le marqueur.",
     "sound-data-title": "Titre du son",
+    "data-info-title": "Détails du son",
+    "data-meta-title": "Liens & Métadonnées",
     "sound-data-title-placeholder": "Entrez le titre",
     "sound-data-shortStory": "Description courte",
     "sound-data-shortStory-placeholder": "Entrez une description courte",
@@ -81,7 +84,18 @@
 
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur."
-    }
+    },
+    "link1-url": "Lien 1 URL",
+    "link1-url-placeholder": "Entrez une URL (https://...)",
+    "link1-title": "Lien 1 Titre",
+    "link1-title-placeholder": "Entrez un titre pour le lien 1",
+    "link2-url": "Lien 2 URL",
+    "link2-url-placeholder": "Entrez une URL (https://...)",
+    "link2-title": "Lien 2 Titre",
+    "link2-title-placeholder": "Entrez un titre pour le lien 2",
+    "hashtags": "Hashtags",
+    "hashtags-placeholder": "Entrez des hashtags séparés par des espaces (ex: #nature #ville)",
+    "hashtags-hint": "Utilisez des hashtags pour améliorer la recherche de votre son. Séparez-les par des espaces."
   },
   "admin": {
     "database": {

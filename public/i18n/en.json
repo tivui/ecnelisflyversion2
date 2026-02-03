@@ -51,10 +51,13 @@
     "place-title": "Place",
     "place-name": "Place name",
     "place-name-placeholder": "Give a place name",
+    "place-placeholder": "Search for a place",
     "data-title": "Data",
     "confirmation-title": "Confirmation",
     "hint-marker": "Move the map or use the search to position the marker.",
     "sound-data-title": "Sound Title",
+    "data-info-title": "Sound Details",
+    "data-meta-title": "Links & Metadata",
     "sound-data-title-placeholder": "Enter title",
     "sound-data-shortStory": "Short Story",
     "sound-data-shortStory-placeholder": "Enter short story",
@@ -80,7 +83,18 @@
 
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "You may share and adapt the content for non-commercial purposes only, with attribution to the author."
-    }
+    },
+    "link1-url": "Link 1 URL",
+    "link1-url-placeholder": "Enter a URL (https://...)",
+    "link1-title": "Link 1 Title",
+    "link1-title-placeholder": "Enter a title for link 1",
+    "link2-url": "Link 2 URL",
+    "link2-url-placeholder": "Enter a URL (https://...)",
+    "link2-title": "Link 2 Title",
+    "link2-title-placeholder": "Enter a title for link 2",
+    "hashtags": "Hashtags",
+    "hashtags-placeholder": "Enter hashtags separated by spaces (e.g. nature soundrecording)",
+    "hashtags-hint": "Use spaces to separate multiple hashtags. Example: nature soundrecording"
   },
   "admin": {
     "database": {

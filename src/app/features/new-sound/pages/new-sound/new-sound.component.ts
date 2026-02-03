@@ -23,6 +23,8 @@ import {
   PlaceStepComponent,
 } from './widgets/place-step/place-step.component';
 import { SoundDataStepComponent } from "./widgets/sound-data-step/sound-data-step.component";
+import { SoundDataMetaStepComponent } from "./widgets/sound-data-meta-step/sound-data-meta-step.component";
+import { SoundDataInfoStepComponent } from "./widgets/sound-data-info-step/sound-data-info-step.component";
 
 @Component({
   selector: 'app-new-sound',
@@ -38,7 +40,9 @@ import { SoundDataStepComponent } from "./widgets/sound-data-step/sound-data-ste
     TranslateModule,
     SoundUploadStepComponent,
     PlaceStepComponent,
-    SoundDataStepComponent
+    SoundDataStepComponent,
+    SoundDataMetaStepComponent,
+    SoundDataInfoStepComponent
 ],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
@@ -60,7 +64,15 @@ export class NewSoundComponent {
   thirdFormGroup = this._formBuilder.group({
     thirdCtrl: ['', Validators.required],
   });
+  fourthFormGroup = this._formBuilder.group({
+    fourthCtrl: ['', Validators.required],
+  });
   stepperOrientation: Observable<StepperOrientation>;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  soundInfoData: any = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  soundMetaData: any = {};
 
   constructor() {
     const breakpointObserver = inject(BreakpointObserver);
@@ -80,7 +92,31 @@ export class NewSoundComponent {
     this.selectedPlace.set(place);
   }
 
-  onSoundDataCompleted(data: { title_i18n: Record<string,string> }) {
-    console.log('Traductions reçues:', data.title_i18n);
+  
+  // Step 3A : Sound Info
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSoundDataInfoCompleted(data: any) {
+    console.log('Sound Info:', data);
+    this.soundInfoData = data;
+    // Marquer stepGroup valide si nécessaire
+    this.thirdFormGroup.setValue({ thirdCtrl: '' });
+  }
+
+  // Step 3B : Links & Meta
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSoundDataMetaCompleted(data: any) {
+    console.log('Sound Meta:', data);
+    this.soundMetaData = data;
+    this.fourthFormGroup.setValue({ fourthCtrl: '' });
+  }
+
+  // Optionnel : récupérer toutes les données avant confirmation
+  getAllSoundData() {
+    return {
+      soundPath: this.soundPath(),
+      place: this.selectedPlace(),
+      ...this.soundInfoData,
+      ...this.soundMetaData,
+    };
   }
 }
