@@ -25,6 +25,7 @@ import {
 import { SoundDataStepComponent } from "./widgets/sound-data-step/sound-data-step.component";
 import { SoundDataMetaStepComponent } from "./widgets/sound-data-meta-step/sound-data-meta-step.component";
 import { SoundDataInfoStepComponent } from "./widgets/sound-data-info-step/sound-data-info-step.component";
+import { ConfirmationStepComponent } from "./widgets/confirmation-step/confirmation-step.component";
 
 @Component({
   selector: 'app-new-sound',
@@ -42,7 +43,8 @@ import { SoundDataInfoStepComponent } from "./widgets/sound-data-info-step/sound
     PlaceStepComponent,
     SoundDataStepComponent,
     SoundDataMetaStepComponent,
-    SoundDataInfoStepComponent
+    SoundDataInfoStepComponent,
+    ConfirmationStepComponent
 ],
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
@@ -118,5 +120,18 @@ export class NewSoundComponent {
       ...this.soundInfoData,
       ...this.soundMetaData,
     };
+  }
+
+  // Confirmation callbacks
+  onConfirmed() {
+    console.log('Sound confirmed and saved!');
+    // Optionnel : réinitialiser le formulaire ou rediriger
+    // this.router.navigate(['/']);
+  }
+
+  onCancelled() {
+    console.log('Sound creation cancelled');
+    // Optionnel : réinitialiser le formulaire ou rediriger
+    // this.router.navigate(['/']);
   }
 }

@@ -12,7 +12,7 @@
       (uploaded)="onSoundUploaded($event)"
     ></app-sound-upload-step>
 
-    <div>
+    <div class="stepper-actions">
       <button mat-button matStepperNext [disabled]="!soundUploaded()">
         {{ "common.action.next" | translate }}
       </button>
@@ -27,7 +27,7 @@
 
     <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
 
-    <div>
+    <div class="stepper-actions">
       <button mat-button matStepperPrevious>
         {{ "common.action.back" | translate }}
       </button>
@@ -47,7 +47,7 @@
       (completed)="onSoundDataInfoCompleted($event)"
     ></app-sound-data-info-step>
 
-    <div>
+    <div class="stepper-actions">
       <button mat-button matStepperPrevious>
         {{ "common.action.back" | translate }}
       </button>
@@ -67,7 +67,7 @@
       (completed)="onSoundDataMetaCompleted($event)"
     ></app-sound-data-meta-step>
 
-    <div>
+    <div class="stepper-actions">
       <button mat-button matStepperPrevious>
         {{ "common.action.back" | translate }}
       </button>
@@ -82,9 +82,11 @@
     <ng-template matStepLabel>{{
       "sound.confirmation-title" | translate
     }}</ng-template>
-    <p>You are now done.</p>
-    <div>
-      <button mat-button matStepperPrevious>Back</button>
-    </div>
+
+    <app-confirmation-step
+      [soundData]="getAllSoundData()"
+      (confirmed)="onConfirmed()"
+      (cancelled)="onCancelled()"
+    ></app-confirmation-step>
   </mat-step>
 </mat-stepper>

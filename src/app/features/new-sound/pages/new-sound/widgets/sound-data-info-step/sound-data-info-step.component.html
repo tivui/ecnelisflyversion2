@@ -1,110 +1,161 @@
-<form [formGroup]="form" class="grid-container">
-  <!-- TITLE -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.sound-data-title" | translate }}</mat-label>
-      <input matInput formControlName="title" (blur)="onFieldBlur('title')" />
-      @if (form.get("title")?.hasError("required")) {
-        <mat-error>{{ "common.errors.required" | translate }}</mat-error>
-      }
-    </mat-form-field>
-
-    <button
-      mat-icon-button
-      color="accent"
-      type="button"
-      [disabled]="form.get('title')?.invalid"
-      (click)="openTranslationDialog('title')"
-    >
-      <mat-icon>translate</mat-icon>
-    </button>
+<div class="data-step-container">
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-content">
+      <mat-icon class="header-icon">info</mat-icon>
+      <div class="header-text">
+        <h3>{{ "sound.data-info-title" | translate }}</h3>
+        <p>{{ "sound.data-info-description" | translate }}</p>
+      </div>
+    </div>
   </div>
 
-  <!-- SHORT STORY -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.sound-data-shortStory" | translate }}</mat-label>
-      <textarea
-        matInput
-        formControlName="shortStory"
-        (blur)="onFieldBlur('shortStory')"
-      ></textarea>
-    </mat-form-field>
+  <form [formGroup]="form" class="form-container">
+    <!-- Basic Information Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>title</mat-icon>
+        <h4>{{ "sound.basic-info" | translate }}</h4>
+      </div>
 
-    <button
-      mat-icon-button
-      color="accent"
-      type="button"
-      [disabled]="form.get('shortStory')?.invalid"
-      (click)="openTranslationDialog('shortStory')"
-    >
-      <mat-icon>translate</mat-icon>
-    </button>
-  </div>
+      <div class="form-grid">
+        <!-- TITLE -->
+        <div class="form-field-group full-width">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>{{ "sound.sound-data-title" | translate }}</mat-label>
+            <input matInput formControlName="title" (blur)="onFieldBlur('title')" />
+            @if (form.get("title")?.hasError("required")) {
+              <mat-error>{{ "common.errors.required" | translate }}</mat-error>
+            }
+            @if (form.get("title")?.hasError("minlength")) {
+              <mat-error>{{ "common.errors.minLength3" | translate }}</mat-error>
+            }
+          </mat-form-field>
 
-  <!-- CATEGORY -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "categories.category" | translate }}</mat-label>
-      <input
-        type="text"
-        matInput
-        [formControl]="categoryControl"
-        [matAutocomplete]="catAuto"
-      />
-      <mat-autocomplete #catAuto="matAutocomplete" [displayWith]="displayFn">
-        @for (opt of filteredCategories; track opt.key) {
-          <mat-option [value]="opt">{{ opt.label }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </div>
+          <button
+            mat-mini-fab
+            color="accent"
+            type="button"
+            class="translate-button"
+            [disabled]="form.get('title')?.invalid || translatingTitle"
+            (click)="openTranslationDialog('title')"
+            [matTooltip]="'common.action.translate' | translate">
+            @if (translatingTitle) {
+              <mat-icon class="spinning">sync</mat-icon>
+            } @else {
+              <mat-icon>translate</mat-icon>
+            }
+          </button>
+        </div>
 
-  <!-- SECONDARY CATEGORY -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "categories.secondaryCategory" | translate }}</mat-label>
-      <input
-        type="text"
-        matInput
-        [formControl]="secondaryCategoryControl"
-        [matAutocomplete]="subAuto"
-      />
-      <mat-autocomplete #subAuto="matAutocomplete" [displayWith]="displayFn">
-        @for (opt of filteredSecondaryCategories; track opt.key) {
-          <mat-option [value]="opt">{{ opt.label }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </div>
+        <!-- SHORT STORY -->
+        <div class="form-field-group full-width">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>{{ "sound.sound-data-shortStory" | translate }}</mat-label>
+            <textarea
+              matInput
+              formControlName="shortStory"
+              (blur)="onFieldBlur('shortStory')"
+              rows="4"
+            ></textarea>
+            @if (form.get("shortStory")?.hasError("minlength")) {
+              <mat-error>{{ "common.errors.minLength10" | translate }}</mat-error>
+            }
+          </mat-form-field>
 
-  <!-- RECORD DATE -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.record-date" | translate }}</mat-label>
+          <button
+            mat-mini-fab
+            color="accent"
+            type="button"
+            class="translate-button"
+            [disabled]="form.get('shortStory')?.invalid || translatingStory"
+            (click)="openTranslationDialog('shortStory')"
+            [matTooltip]="'common.action.translate' | translate">
+            @if (translatingStory) {
+              <mat-icon class="spinning">sync</mat-icon>
+            } @else {
+              <mat-icon>translate</mat-icon>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
 
-      <input
-        matInput
-        [matDatepicker]="picker"
-        formControlName="recordDateTime"
-      />
+    <!-- Categorization Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>category</mat-icon>
+        <h4>{{ "sound.categorization" | translate }}</h4>
+      </div>
 
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <div class="form-grid">
+        <!-- CATEGORY -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "categories.category" | translate }}</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="categoryControl"
+            [matAutocomplete]="catAuto"
+          />
+          <mat-icon matSuffix>arrow_drop_down</mat-icon>
+          <mat-autocomplete #catAuto="matAutocomplete" [displayWith]="displayFn">
+            @for (opt of filteredCategories; track opt.key) {
+              <mat-option [value]="opt">{{ opt.label }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
 
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-  </div>
+        <!-- SECONDARY CATEGORY -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "categories.secondaryCategory" | translate }}</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="secondaryCategoryControl"
+            [matAutocomplete]="subAuto"
+          />
+          <mat-icon matSuffix>arrow_drop_down</mat-icon>
+          <mat-autocomplete #subAuto="matAutocomplete" [displayWith]="displayFn">
+            @for (opt of filteredSecondaryCategories; track opt.key) {
+              <mat-option [value]="opt">{{ opt.label }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+    </div>
 
-  <!-- EQUIPMENT -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.equipment" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="equipment"
-        placeholder="{{ 'sound.equipment-placeholder' | translate }}"
-      />
-    </mat-form-field>
-  </div>
+    <!-- Additional Details Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>more_horiz</mat-icon>
+        <h4>{{ "sound.additional-details" | translate }}</h4>
+      </div>
 
-</form>
+      <div class="form-grid">
+        <!-- RECORD DATE -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.record-date" | translate }}</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="recordDateTime"
+          />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- EQUIPMENT -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.equipment" | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="equipment"
+            placeholder="{{ 'sound.equipment-placeholder' | translate }}"
+          />
+          <mat-icon matSuffix>settings_input_antenna</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</div>

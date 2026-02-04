@@ -1,109 +1,137 @@
-<form [formGroup]="form" class="grid-container">
-
-  <!-- LINK 1 URL -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.link1-url" | translate }}</mat-label>
-      <input matInput formControlName="url" placeholder="https://example.com" />
-      <mat-error *ngIf="form.get('url')?.hasError('pattern')">
-        {{ "common.errors.invalidUrl" | translate }}
-      </mat-error>
-    </mat-form-field>
+<div class="data-step-container">
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-content">
+      <mat-icon class="header-icon">link</mat-icon>
+      <div class="header-text">
+        <h3>{{ "sound.data-meta-title" | translate }}</h3>
+        <p>{{ "sound.data-meta-description" | translate }}</p>
+      </div>
+    </div>
   </div>
 
-  <!-- LINK 1 TITLE -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.link1-title" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="urlTitle"
-        placeholder="{{ 'sound.link1-title-placeholder' | translate }}"
-      />
-    </mat-form-field>
-  </div>
+  <form [formGroup]="form" class="form-container">
+    <!-- Links Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>public</mat-icon>
+        <h4>{{ "sound.links-section" | translate }}</h4>
+      </div>
 
-  <!-- LINK 2 URL -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.link2-url" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="secondaryUrl"
-        placeholder="https://example.com"
-      />
-      <mat-error *ngIf="form.get('secondaryUrl')?.hasError('pattern')">
-        {{ "common.errors.invalidUrl" | translate }}
-      </mat-error>
-    </mat-form-field>
-  </div>
+      <div class="form-grid">
+        <!-- LINK 1 URL -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.link1-url" | translate }}</mat-label>
+          <input matInput formControlName="url" placeholder="https://example.com" />
+          <mat-icon matSuffix>link</mat-icon>
+          @if (form.get('url')?.hasError('pattern')) {
+            <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
+          }
+        </mat-form-field>
 
-  <!-- LINK 2 TITLE -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.link2-title" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="secondaryUrlTitle"
-        placeholder="{{ 'sound.link2-title-placeholder' | translate }}"
-      />
-    </mat-form-field>
-  </div>
+        <!-- LINK 1 TITLE -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.link1-title" | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="urlTitle"
+            placeholder="{{ 'sound.link1-title-placeholder' | translate }}"
+          />
+          <mat-icon matSuffix>title</mat-icon>
+        </mat-form-field>
 
-  <!-- LICENSE -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "categories.license" | translate }}</mat-label>
-      <mat-select [formControl]="licenseControl">
-        <mat-option
-          *ngFor="let opt of licenseOptions"
-          [value]="opt.value"
-          matTooltip="{{ opt.tooltip | translate }}"
-          matTooltipPosition="above"
-        >
-          {{ opt.label | translate }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
+        <!-- LINK 2 URL -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.link2-url" | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="secondaryUrl"
+            placeholder="https://example.com"
+          />
+          <mat-icon matSuffix>link</mat-icon>
+          @if (form.get('secondaryUrl')?.hasError('pattern')) {
+            <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
+          }
+        </mat-form-field>
 
-  <!-- STATUS -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.status" | translate }}</mat-label>
-      <mat-select
-        [formControl]="statusControl"
-        (selectionChange)="onStatusChange()"
-      >
-        <mat-option
-          value="private"
-          matTooltip="{{ 'sound.statusPrivate_tooltip' | translate }}"
-          matTooltipPosition="above"
-        >
-          {{ "sound.statusPrivate" | translate }}
-        </mat-option>
-        <mat-option
-          value="public"
-          matTooltip="{{ 'sound.statusPublic_tooltip' | translate }}"
-          matTooltipPosition="above"
-        >
-          {{ "sound.statusPublic" | translate }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
+        <!-- LINK 2 TITLE -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.link2-title" | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="secondaryUrlTitle"
+            placeholder="{{ 'sound.link2-title-placeholder' | translate }}"
+          />
+          <mat-icon matSuffix>title</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
 
-  <!-- HASHTAGS -->
-  <div class="grid-item">
-    <mat-form-field class="full-width">
-      <mat-label>{{ "sound.hashtags" | translate }}</mat-label>
-      <input
-        matInput
-        formControlName="hashtags"
-        placeholder="#tag1 #tag2"
-        (input)="onHashtagInput($event)"
-      />
-      <mat-hint>{{ "sound.hashtags-hint" | translate }}</mat-hint>
-    </mat-form-field>
-  </div>
-</form>
+    <!-- Metadata Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <mat-icon>settings</mat-icon>
+        <h4>{{ "sound.metadata-section" | translate }}</h4>
+      </div>
+
+      <div class="form-grid">
+        <!-- LICENSE -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "categories.license" | translate }}</mat-label>
+          <mat-select [formControl]="licenseControl">
+            @for (opt of licenseOptions; track opt.value) {
+              <mat-option
+                [value]="opt.value"
+                [matTooltip]="opt.tooltip | translate"
+                matTooltipPosition="right"
+              >
+                {{ opt.label | translate }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>gavel</mat-icon>
+        </mat-form-field>
+
+        <!-- STATUS -->
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>{{ "sound.status" | translate }}</mat-label>
+          <mat-select
+            [formControl]="statusControl"
+            (selectionChange)="onStatusChange()"
+          >
+            <mat-option
+              value="private"
+              [matTooltip]="'sound.statusPrivate_tooltip' | translate"
+              matTooltipPosition="right"
+            >
+              <mat-icon>lock</mat-icon>
+              {{ "sound.statusPrivate" | translate }}
+            </mat-option>
+            <mat-option
+              value="public"
+              [matTooltip]="'sound.statusPublic_tooltip' | translate"
+              matTooltipPosition="right"
+            >
+              <mat-icon>public</mat-icon>
+              {{ "sound.statusPublic" | translate }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>visibility</mat-icon>
+        </mat-form-field>
+
+        <!-- HASHTAGS -->
+        <mat-form-field class="full-width hashtags-field" appearance="outline">
+          <mat-label>{{ "sound.hashtags" | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="hashtags"
+            placeholder="#tag1 #tag2"
+            (input)="onHashtagInput($event)"
+          />
+          <mat-icon matSuffix>tag</mat-icon>
+          <mat-hint>{{ "sound.hashtags-hint" | translate }}</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</div>

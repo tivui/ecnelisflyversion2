@@ -1,28 +1,195 @@
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-top: 10px;
+.data-step-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-  @media (min-width: 600px) {
-    grid-template-columns: 1fr 1fr;
+// Header card
+.header-card {
+  background: linear-gradient(135deg, var(--mat-primary-100, #e3f2fd) 0%, var(--mat-primary-50, #f1f5f9) 100%);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  font-size: 42px;
+  width: 42px;
+  height: 42px;
+  color: var(--mat-primary-600, #1976d2);
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--mat-primary-700, #1565c0);
   }
 
-  .grid-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+// Form container
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Section cards
+.section-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--mat-primary-200, #bbdefb);
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--mat-primary-600, #1976d2);
+  }
+
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--mat-primary-800, #1565c0);
+  }
+}
+
+// Form grid
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+// Form field group (for fields with translate button)
+.form-field-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  &.full-width {
+    grid-column: 1 / -1;
   }
 
   .full-width {
     flex: 1;
   }
+
+  .translate-button {
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
 }
 
-::ng-deep .mat-horizontal-stepper-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+// Spinning animation for translate button
+.spinning {
+  animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
+// Dark mode support
+body.dark-theme {
+  .header-card {
+    background: linear-gradient(135deg, var(--mat-primary-900, #1a237e) 0%, var(--mat-primary-800, #283593) 100%);
+
+    .header-text {
+      h3 {
+        color: var(--mat-primary-200, #90caf9);
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  .section-card {
+    background: rgba(44, 44, 62, 0.6);
+  }
+
+  .section-header {
+    border-bottom-color: var(--mat-primary-800, #283593);
+
+    h4 {
+      color: var(--mat-primary-200, #90caf9);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .data-step-container {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .header-card,
+  .section-card {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-field-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    .translate-button {
+      margin-top: 0;
+      align-self: flex-end;
+    }
+  }
+}

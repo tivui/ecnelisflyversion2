@@ -1,27 +1,77 @@
-<div class="form-wrapper">
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Importer un fichier audio</mat-label>
+<div class="upload-container">
+  <!-- Drag & Drop Zone -->
+  <mat-card
+    class="upload-zone"
+    [class.dragging]="isDragging"
+    [class.has-file]="selectedFile"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
 
-    <input
-      matInput
-      [value]="selectedFile?.name || ''"
-      placeholder="Aucun fichier sélectionné"
-      readonly
-    />
+    <div class="upload-content">
+      @if (!selectedFile) {
+        <!-- Empty state - No file selected -->
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <h3 class="upload-title">{{ 'sound.upload.drag-drop' | translate }}</h3>
+        <p class="upload-subtitle">{{ 'sound.upload.or' | translate }}</p>
+        <button
+          mat-raised-button
+          color="primary"
+          class="select-button"
+          (click)="fileInput.click()"
+          [disabled]="uploading">
+          <mat-icon>folder_open</mat-icon>
+          {{ 'sound.upload.button' | translate }}
+        </button>
+      }
 
-    <button
-      mat-raised-button
-      color="primary"
-      matSuffix
-      class="input-file-button"
-      (click)="fileInput.click()"
-      [disabled]="uploading"
-    >
-      <mat-icon>upload_file</mat-icon>
-    </button>
-  </mat-form-field>
+      @if (selectedFile && !uploading) {
+        <!-- File selected state -->
+        <mat-icon class="file-icon" color="primary">audio_file</mat-icon>
+        <h3 class="file-name">{{ selectedFile.name }}</h3>
+        <p class="file-size">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
 
-  <!-- Input file réel (caché) -->
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="upload()">
+            <mat-icon>upload</mat-icon>
+            {{ 'sound.upload.upload-button' | translate }}
+          </button>
+
+          <button
+            mat-stroked-button
+            (click)="selectedFile = undefined; error = undefined; fileInput.value = ''">
+            <mat-icon>close</mat-icon>
+            {{ 'common.action.cancel' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (uploading) {
+        <!-- Uploading state -->
+        <mat-icon class="upload-icon spinning">sync</mat-icon>
+        <h3 class="upload-title">{{ 'sound.upload.upload-button' | translate }}...</h3>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress"
+          class="progress-bar">
+        </mat-progress-bar>
+        <p class="progress-text">{{ progress }}%</p>
+      }
+    </div>
+  </mat-card>
+
+  <!-- Error message -->
+  @if (error) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <!-- Hidden file input -->
   <input
     type="file"
     #fileInput
@@ -30,23 +80,3 @@
     (change)="onFileSelected($event)"
   />
 </div>
-
-<button
-  mat-raised-button
-  color="primary"
-  (click)="upload()"
-  [disabled]="!selectedFile || uploading"
->
-  Uploader
-</button>
-
-@if (uploading) {
-  <mat-progress-bar
-    mode="determinate"
-    [value]="progress"
-  ></mat-progress-bar>
-}
-
-@if (error) {
-  <p class="error">{{ error }}</p>
-}

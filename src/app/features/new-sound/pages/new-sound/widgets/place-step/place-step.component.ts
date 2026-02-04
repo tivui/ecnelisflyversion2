@@ -16,6 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { GeoSearchService } from '../../../../../../core/services/geo-search.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface PlaceSelection {
   lat: number;
@@ -26,7 +27,7 @@ export interface PlaceSelection {
 @Component({
   selector: 'app-place-step',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
+  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatIconModule, TranslatePipe],
   templateUrl: './place-step.component.html',
   styleUrl: './place-step.component.scss',
   encapsulation: ViewEncapsulation.None,

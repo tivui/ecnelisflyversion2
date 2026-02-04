@@ -11,3 +11,11 @@
   flex-direction: column;
   border-radius: 12px;
 }
+
+// Style for stepper navigation buttons
+.stepper-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+}

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -60,7 +60,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   templateUrl: './sound-data-meta-step.component.html',
   styleUrl: './sound-data-meta-step.component.scss',
 })
-export class SoundDataMetaStepComponent  {
+export class SoundDataMetaStepComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private languageDetectionService = inject(LanguageDetectionService);
@@ -99,6 +99,22 @@ export class SoundDataMetaStepComponent  {
     hashtags: ['', [Validators.maxLength(200)]],
   });
 
+  /* ================= INIT ================= */
+
+  ngOnInit() {
+    // Subscribe to form value changes to emit completed data
+    this.form.valueChanges.subscribe(() => {
+      this.emitCompleted();
+    });
+
+    // Subscribe to license control changes
+    this.licenseControl.valueChanges.subscribe(() => {
+      this.emitCompleted();
+    });
+
+    // Emit initial values
+    this.emitCompleted();
+  }
 
   /* ================= EMIT ================= */
 
@@ -110,6 +126,7 @@ export class SoundDataMetaStepComponent  {
       secondaryUrlTitle: this.form.value.secondaryUrlTitle?.trim() || undefined,
       license: this.licenseControl.value || 'CC_BY',
       status: this.statusControl.value || 'public',
+      hashtags: this.form.value.hashtags?.trim() || undefined,
     });
   }
 

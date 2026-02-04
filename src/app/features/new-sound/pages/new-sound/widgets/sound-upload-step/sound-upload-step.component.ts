@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { StorageService } from '../../../../../../core/services/storage.service';
 import { UploadProgressSnackbarComponent } from '../../../../../../shared/components/upload-progress-snackbar/upload-progress-snackbar.component';
@@ -20,13 +22,16 @@ import { MatInputModule } from '@angular/material/input';
     MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
+    MatCardModule,
+    TranslateModule,
   ],
   templateUrl: './sound-upload-step.component.html',
+  styleUrl: './sound-upload-step.component.scss',
 })
 export class SoundUploadStepComponent {
   private readonly storageService = inject(StorageService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   @Output() uploaded = new EventEmitter<string>();
 
@@ -34,6 +39,7 @@ export class SoundUploadStepComponent {
   progress = 0;
   uploading = false;
   error?: string;
+  isDragging = false;
 
   private snackbarRef?: MatSnackBarRef<UploadProgressSnackbarComponent>;
 
@@ -42,9 +48,35 @@ export class SoundUploadStepComponent {
     if (!input.files?.length) return;
 
     const file = input.files[0];
+    this.processFile(file);
+  }
 
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processFile(files[0]);
+    }
+  }
+
+  private processFile(file: File) {
     if (!file.type.startsWith('audio/')) {
-      this.error = 'Fichier audio requis';
+      this.error = this.translate.instant('sound.upload.error-type');
       return;
     }
 
@@ -87,7 +119,7 @@ export class SoundUploadStepComponent {
         this.uploaded.emit(res.path);
       })
       .catch(() => {
-        this.error = "Erreur lors de l'upload";
+        this.error = this.translate.instant('sound.upload.error-upload');
       })
       .finally(() => {
         this.uploading = false;
