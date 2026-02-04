@@ -1,5 +1,8 @@
 <mat-stepper
   class="new-sound-stepper mat-elevation-z8"
+  [class.highlight-step-0]="isStepHighlighted(0)"
+  [class.highlight-step-1]="isStepHighlighted(1)"
+  [class.highlight-step-2]="isStepHighlighted(2)"
   [orientation]="(stepperOrientation | async)!"
 >
   <!-- Step 1 : upload sound-->
@@ -87,6 +90,7 @@
       [soundData]="getAllSoundData()"
       (confirmed)="onConfirmed()"
       (cancelled)="onCancelled()"
+      (highlightSteps)="onHighlightSteps($event)"
     ></app-confirmation-step>
   </mat-step>
 </mat-stepper>

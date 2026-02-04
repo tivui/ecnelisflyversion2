@@ -57,6 +57,8 @@ export class NewSoundComponent {
 
   readonly selectedPlace = signal<PlaceSelection | null>(null);
 
+  readonly highlightedSteps = signal<number[]>([]);
+
   firstFormGroup = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
   });
@@ -133,5 +135,13 @@ export class NewSoundComponent {
     console.log('Sound creation cancelled');
     // Optionnel : réinitialiser le formulaire ou rediriger
     // this.router.navigate(['/']);
+  }
+
+  onHighlightSteps(stepIndices: number[]) {
+    this.highlightedSteps.set(stepIndices);
+  }
+
+  isStepHighlighted(index: number): boolean {
+    return this.highlightedSteps().includes(index);
   }
 }

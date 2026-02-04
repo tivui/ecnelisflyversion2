@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getUrl, list, uploadData } from 'aws-amplify/storage';
 import { Observable } from 'rxjs/internal/Observable';
+import { generateUniqueFilename } from './filename.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,12 +32,13 @@ export class StorageService {
 
 /**
    * Upload a sound file with progress tracking
+   * @returns Object with progress$ observable and result promise containing the sanitized filename
    */
   uploadSound(
     file: File
   ): {
     progress$: Observable<number>;
-    result: Promise<{ path: string }>;
+    result: Promise<{ filename: string }>;
   } {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let progressObserver: any;
@@ -45,8 +47,12 @@ export class StorageService {
       progressObserver = observer;
     });
 
+    // Generate a unique sanitized filename
+    const sanitizedFilename = generateUniqueFilename(file.name);
+    const fullPath = `${this.basePath}${sanitizedFilename}`;
+
     const uploadTask = uploadData({
-      path: `${this.basePath}${file.name}`,
+      path: fullPath,
       data: file,
       options: {
         contentType: file.type,
@@ -61,9 +67,11 @@ export class StorageService {
       },
     });
 
-    const result = uploadTask.result.finally(() => {
-      progressObserver?.complete();
-    });
+    const result = uploadTask.result
+      .then(() => ({ filename: sanitizedFilename }))
+      .finally(() => {
+        progressObserver?.complete();
+      });
 
     return { progress$, result };
   }

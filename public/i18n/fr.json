@@ -57,7 +57,11 @@
       "or": "ou",
       "error-type": "Veuillez sélectionner un fichier audio valide",
       "error-upload": "Erreur lors du téléversement",
-      "success": "Fichier téléversé avec succès"
+      "success": "Fichier téléversé avec succès",
+      "loading": "Téléversement en cours...",
+      "supported-formats": "Formats supportés : MP3, WAV, OGG, FLAC",
+      "max-size": "Taille maximale : 100 MB",
+      "description": "Importez un fichier audio depuis votre appareil pour commencer."
     },
     "place-title": "Lieu",
     "place-name": "Nom du lieu",

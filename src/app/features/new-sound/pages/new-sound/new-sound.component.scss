@@ -1,21 +1,130 @@
 :host {
   display: block;
   width: 100%;
-  max-width: 900px;
-  margin: 10px auto;
+  max-width: 960px;
+  margin: 16px auto;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .new-sound-stepper {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+
+  // Styles de surbrillance pour les steps incomplets
+  &.highlight-step-0,
+  &.highlight-step-1,
+  &.highlight-step-2 {
+    ::ng-deep .mat-step-header {
+      transition: all 0.3s ease;
+    }
+  }
+
+  &.highlight-step-0 ::ng-deep .mat-step-header:nth-of-type(1) {
+    background-color: rgba(244, 67, 54, 0.15);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
+    border-radius: 8px;
+  }
+
+  &.highlight-step-1 ::ng-deep .mat-step-header:nth-of-type(2) {
+    background-color: rgba(244, 67, 54, 0.15);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
+    border-radius: 8px;
+  }
+
+  &.highlight-step-2 ::ng-deep .mat-step-header:nth-of-type(3) {
+    background-color: rgba(244, 67, 54, 0.15);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
+    border-radius: 8px;
+  }
 }
 
 // Style for stepper navigation buttons
 .stepper-actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  align-items: center;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+  button {
+    min-width: 120px;
+    height: 42px;
+    border-radius: 24px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+
+    &[matStepperPrevious] {
+      margin-right: auto;
+    }
+  }
+}
+
+// Dark mode - force stepper background to dark
+:host-context(.dark-theme) {
+  .new-sound-stepper {
+    ::ng-deep {
+      .mat-stepper-horizontal,
+      .mat-stepper-vertical,
+      .mat-horizontal-stepper-wrapper,
+      .mat-vertical-stepper-wrapper,
+      .mat-horizontal-content-container,
+      .mat-vertical-content-container,
+      .mat-vertical-content,
+      .mat-horizontal-stepper-content,
+      .mat-step-header {
+        background-color: transparent !important;
+      }
+    }
+
+    // Surbrillance en dark mode
+    &.highlight-step-0 ::ng-deep .mat-step-header:nth-of-type(1),
+    &.highlight-step-1 ::ng-deep .mat-step-header:nth-of-type(2),
+    &.highlight-step-2 ::ng-deep .mat-step-header:nth-of-type(3) {
+      background-color: rgba(244, 67, 54, 0.25) !important;
+      box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.6);
+    }
+  }
+
+  .stepper-actions {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  :host {
+    margin: 8px auto;
+    padding: 0 8px;
+  }
+
+  .stepper-actions {
+    margin-top: 24px;
+    padding-top: 16px;
+    gap: 8px;
+
+    button {
+      min-width: 100px;
+      height: 40px;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .stepper-actions {
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      min-width: 0;
+    }
+  }
 }

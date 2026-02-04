@@ -1,17 +1,29 @@
-<div class="upload-container">
+<div class="step-container">
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-content">
+      <mat-icon class="header-icon">cloud_upload</mat-icon>
+      <div class="header-text">
+        <h3>{{ 'sound.sound-title' | translate }}</h3>
+        <p>{{ 'sound.upload.description' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Drag & Drop Zone -->
   <mat-card
     class="upload-zone"
     [class.dragging]="isDragging"
     [class.has-file]="selectedFile"
+    [class.uploaded]="isUploaded"
     (dragover)="onDragOver($event)"
     (dragleave)="onDragLeave($event)"
     (drop)="onDrop($event)">
 
     <div class="upload-content">
-      @if (!selectedFile) {
+      @if (!selectedFile && !isUploaded) {
         <!-- Empty state - No file selected -->
-        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <mat-icon class="upload-icon">audio_file</mat-icon>
         <h3 class="upload-title">{{ 'sound.upload.drag-drop' | translate }}</h3>
         <p class="upload-subtitle">{{ 'sound.upload.or' | translate }}</p>
         <button
@@ -25,7 +37,7 @@
         </button>
       }
 
-      @if (selectedFile && !uploading) {
+      @if (selectedFile && !uploading && !isUploaded) {
         <!-- File selected state -->
         <mat-icon class="file-icon" color="primary">audio_file</mat-icon>
         <h3 class="file-name">{{ selectedFile.name }}</h3>
@@ -59,6 +71,13 @@
           class="progress-bar">
         </mat-progress-bar>
         <p class="progress-text">{{ progress }}%</p>
+      }
+
+      @if (isUploaded) {
+        <!-- Uploaded state -->
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <h3 class="upload-title success">{{ 'sound.upload.success' | translate }}</h3>
+        <p class="file-name uploaded">{{ uploadedFilename }}</p>
       }
     </div>
   </mat-card>

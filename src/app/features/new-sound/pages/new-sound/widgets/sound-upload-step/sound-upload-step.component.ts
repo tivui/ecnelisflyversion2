@@ -38,6 +38,8 @@ export class SoundUploadStepComponent {
   selectedFile?: File;
   progress = 0;
   uploading = false;
+  isUploaded = false;
+  uploadedFilename?: string;
   error?: string;
   isDragging = false;
 
@@ -116,7 +118,9 @@ export class SoundUploadStepComponent {
 
     result
       .then((res) => {
-        this.uploaded.emit(res.path);
+        this.isUploaded = true;
+        this.uploadedFilename = res.filename;
+        this.uploaded.emit(res.filename);
       })
       .catch(() => {
         this.error = this.translate.instant('sound.upload.error-upload');

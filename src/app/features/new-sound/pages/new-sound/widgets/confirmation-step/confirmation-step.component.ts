@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, inject, signal, OnChanges, SimpleChanges } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +16,7 @@ import { Router } from '@angular/router';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { AuthService } from '../../../../../../core/services/auth.service';
+import { AppUserService } from '../../../../../../core/services/app-user.service';
 import { CancelConfirmDialogComponent } from './cancel-confirm-dialog/cancel-confirm-dialog.component';
 import { CategoryKey } from '../../../../../../../../amplify/data/categories';
 
@@ -62,6 +64,7 @@ export interface SoundData {
 export class ConfirmationStepComponent implements OnChanges {
   private amplifyService = inject(AmplifyService);
   private authService = inject(AuthService);
+  private appUserService = inject(AppUserService);
   private translate = inject(TranslateService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -70,6 +73,7 @@ export class ConfirmationStepComponent implements OnChanges {
   @Input() soundData!: SoundData;
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
+  @Output() highlightSteps = new EventEmitter<number[]>();
 
   loading = signal(false);
 
@@ -170,15 +174,15 @@ export class ConfirmationStepComponent implements OnChanges {
     this.loading.set(true);
 
     try {
-      // Récupérer l'utilisateur courant
-      const currentUser = await this.authService.loadCurrentUser();
-      if (!currentUser?.sub) {
-        throw new Error('User not authenticated');
+      // Récupérer l'utilisateur courant de la table User (pas le cognitoSub)
+      const appUser = await firstValueFrom(this.appUserService.currentUser$);
+      if (!appUser?.id) {
+        throw new Error('User not authenticated or not found in database');
       }
 
       // Préparer les données pour DynamoDB
       const soundToCreate = {
-        userId: currentUser.sub,
+        userId: appUser.id,
         title: this.soundData.title_i18n?.[this.currentLang] || '',
         title_i18n: this.soundData.title_i18n
           ? JSON.stringify(this.soundData.title_i18n)
@@ -244,5 +248,37 @@ export class ConfirmationStepComponent implements OnChanges {
         this.router.navigate(['/']);
       }
     });
+  }
+
+  // Méthode pour obtenir les indices des steps incomplets
+  get incompleteStepIndices(): number[] {
+    const indices: number[] = [];
+
+    // Step 0: Son (soundPath)
+    if (!this.soundData?.soundPath) {
+      indices.push(0);
+    }
+
+    // Step 1: Lieu (place)
+    if (!this.soundData?.place) {
+      indices.push(1);
+    }
+
+    // Step 2: Infos son (title, category)
+    if (!this.soundData?.title_i18n || !this.soundData.title_i18n[this.currentLang] || !this.soundData?.category) {
+      indices.push(2);
+    }
+
+    return indices;
+  }
+
+  onConfirmButtonMouseEnter() {
+    if (!this.isDataValid) {
+      this.highlightSteps.emit(this.incompleteStepIndices);
+    }
+  }
+
+  onConfirmButtonMouseLeave() {
+    this.highlightSteps.emit([]);
   }
 }

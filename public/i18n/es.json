@@ -57,7 +57,11 @@
       "or": "o",
       "error-type": "Por favor seleccione un archivo de audio válido",
       "error-upload": "Error al subir",
-      "success": "Archivo subido exitosamente"
+      "success": "Archivo subido exitosamente",
+      "loading": "Subiendo...",
+      "supported-formats": "Formatos soportados: MP3, WAV, OGG, FLAC",
+      "max-size": "Tamaño máximo: 100 MB",
+      "description": "Importa un archivo de audio desde tu dispositivo para comenzar."
     },
     "place-title": "Lugar",
     "place-placeholder": "Dar un nombre de lugar",

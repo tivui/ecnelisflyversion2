@@ -309,8 +309,42 @@ body.dark-theme .leaflet-popup-tip {
   font-family: monospace;
   text-align: center;
   border: 1px solid #eeeeeeff;
-  box-sizing: border-box; /* pour que border n’affecte pas la taille */
+  box-sizing: border-box; /* pour que border n'affecte pas la taille */
   transition: transform 0.2s ease; /* animations Leaflet */
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove outline on marker-cluster elements */
+.marker-cluster,
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  div {
+    outline: none !important;
+
+    &:focus,
+    &:focus-visible,
+    &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
 }
 
 /* Cercle blanc derrière le cluster */
@@ -869,9 +903,26 @@ body.dark-theme .leaflet-popup-tip {
   background: #f5f5f5;
 }
 
-.leaflet-marker-pane img.leaflet-marker-icon {
+/* Remove focus outline on all Leaflet markers and interactive elements */
+.leaflet-marker-pane img.leaflet-marker-icon,
+.leaflet-marker-pane .leaflet-marker-icon,
+.leaflet-marker-pane div.leaflet-marker-icon,
+.leaflet-interactive {
   pointer-events: auto !important;
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.leaflet-marker-pane img.leaflet-marker-icon {
   z-index: 500 !important;
+  border: none !important;
 }
 
 .leaflet-marker-pane .marker-cluster {

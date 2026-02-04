@@ -195,7 +195,9 @@
       [matTooltipDisabled]="isDataValid"
       matTooltipPosition="above"
       matTooltipClass="validation-tooltip"
-      class="button-wrapper">
+      class="button-wrapper"
+      (mouseenter)="onConfirmButtonMouseEnter()"
+      (mouseleave)="onConfirmButtonMouseLeave()">
       <button
         mat-raised-button
         color="primary"

@@ -45,3 +45,18 @@
     }
   }
 }
+
+// Dark mode
+:host-context(.dark-theme) {
+  .dialog-container {
+    h2[mat-dialog-title] {
+      color: #d8dce4;
+    }
+
+    mat-dialog-content {
+      p {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+}

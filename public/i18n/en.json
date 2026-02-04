@@ -57,7 +57,11 @@
       "or": "or",
       "error-type": "Please select a valid audio file",
       "error-upload": "Upload error",
-      "success": "File uploaded successfully"
+      "success": "File uploaded successfully",
+      "loading": "Uploading...",
+      "supported-formats": "Supported formats: MP3, WAV, OGG, FLAC",
+      "max-size": "Maximum size: 100 MB",
+      "description": "Import an audio file from your device to get started."
     },
     "place-title": "Place",
     "place-name": "Place name",

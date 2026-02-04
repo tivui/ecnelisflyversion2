@@ -4,23 +4,22 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-// Instructions card
+// Header card (harmonised)
 .instructions-card {
   background: linear-gradient(135deg, var(--mat-primary-100, #e3f2fd) 0%, var(--mat-primary-50, #f1f5f9) 100%);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -31,23 +30,11 @@
 }
 
 .instructions-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
+  font-size: 42px;
+  width: 42px;
+  height: 42px;
   color: var(--mat-primary-600, #1976d2);
   flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
 }
 
 .instructions-text {
@@ -55,8 +42,8 @@
 
   h3 {
     font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 8px 0;
+    font-weight: 500;
+    margin: 0 0 4px 0;
     color: var(--mat-primary-700, #1565c0);
   }
 
@@ -64,28 +51,28 @@
     font-size: 0.875rem;
     line-height: 1.4;
     margin: 0;
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.6);
   }
 }
 
 // Map card
 .map-card {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
   position: relative;
 
   &:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
   }
 }
 
 .map-wrapper {
   width: 100%;
-  height: 450px;
+  height: 420px;
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -96,7 +83,7 @@
 
 .map-overlay-hint {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.95);
@@ -106,17 +93,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.6);
   pointer-events: none;
   z-index: 500;
   transition: opacity 0.3s ease;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
     color: var(--mat-primary-600, #1976d2);
   }
 
@@ -125,18 +112,18 @@
   }
 }
 
-// Place name card
+// Place name card (harmonised as section-card)
 .place-name-card {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
 
   &:focus-within {
-    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.2);
-    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+    background: rgba(255, 255, 255, 0.9);
   }
 }
 
@@ -172,78 +159,82 @@
   }
 }
 
-// Dark mode support
+// Dark mode (ViewEncapsulation.None => use body.dark-theme instead of :host-context)
 body.dark-theme {
   .instructions-card {
-    background: linear-gradient(135deg, var(--mat-primary-900, #1a237e) 0%, var(--mat-primary-800, #283593) 100%);
+    background: linear-gradient(135deg, #2a2a3c 0%, #1f1f2f 100%);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+
+    .instructions-icon {
+      color: #b0b0c8;
+    }
 
     .instructions-text {
       h3 {
-        color: var(--mat-primary-200, #90caf9);
+        color: #e0e0ea;
       }
 
       .hint {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.55);
       }
     }
   }
 
   .map-overlay-hint {
-    background: rgba(44, 44, 62, 0.95);
-    color: rgba(255, 255, 255, 0.8);
+    background: #1f1f2f;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .place-name-card {
-    background: rgba(44, 44, 62, 0.6);
+    background: #1f1f2f !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    backdrop-filter: none;
 
     &:focus-within {
-      background: rgba(44, 44, 62, 0.8);
-      box-shadow: 0 4px 16px rgba(144, 202, 249, 0.2);
+      background: #252538 !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
   }
 }
 
-// Responsive design
+// Responsive
 @media (max-width: 768px) {
   .place-step-container {
-    padding: 12px;
+    padding: 16px 8px;
     gap: 16px;
   }
 
   .instructions-card {
-    padding: 16px;
+    padding: 12px 16px;
   }
 
   .instructions-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
   }
 
   .instructions-text {
     h3 {
-      font-size: 1.125rem;
+      font-size: 1.0625rem;
+      margin: 0;
     }
 
     .hint {
-      font-size: 0.8125rem;
+      display: none;
     }
   }
 
   .map-wrapper {
-    height: 350px;
+    height: 340px;
   }
 
   .map-overlay-hint {
     bottom: 12px;
     font-size: 0.6875rem;
     padding: 6px 12px;
-
-    mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
   }
 
   .place-name-card {
@@ -252,13 +243,13 @@ body.dark-theme {
 }
 
 @media (max-width: 480px) {
-  .instructions-content {
-    flex-direction: column;
-    text-align: center;
+  .map-wrapper {
+    height: 280px;
   }
 
-  .map-wrapper {
-    height: 300px;
+  .map-card,
+  .place-name-card {
+    box-shadow: none;
   }
 
   .map-overlay-hint {
