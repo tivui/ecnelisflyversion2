@@ -212,6 +212,46 @@
   margin: 0;
 }
 
+// File constraints info
+.upload-constraints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.constraint-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  cursor: help;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--mat-primary-500, #1976d2);
+    opacity: 0.8;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+  }
+}
+
 .error-message {
   display: flex;
   align-items: center;
@@ -311,6 +351,26 @@
 
   .file-size {
     color: rgba(255, 255, 255, 0.5);
+  }
+
+  .upload-constraints {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .constraint-item {
+    background-color: rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    mat-icon {
+      color: #90caf9;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.6);
+    }
   }
 
   .error-message {

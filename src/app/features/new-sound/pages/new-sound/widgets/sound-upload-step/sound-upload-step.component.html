@@ -35,6 +35,22 @@
           <mat-icon>folder_open</mat-icon>
           {{ 'sound.upload.button' | translate }}
         </button>
+
+        <!-- File constraints info -->
+        <div class="upload-constraints">
+          <div
+            class="constraint-item"
+            [matTooltip]="'sound.upload.formats-tooltip' | translate">
+            <mat-icon>music_note</mat-icon>
+            <span>{{ allowedExtensions }}</span>
+          </div>
+          <div
+            class="constraint-item"
+            [matTooltip]="'sound.upload.size-tooltip' | translate">
+            <mat-icon>storage</mat-icon>
+            <span>{{ 'sound.upload.max-size-value' | translate: { size: maxSizeMB } }}</span>
+          </div>
+        </div>
       }
 
       @if (selectedFile && !uploading && !isUploaded) {
@@ -95,7 +111,7 @@
     type="file"
     #fileInput
     hidden
-    accept="audio/*"
+    accept=".mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.opus,audio/mpeg,audio/wav,audio/ogg,audio/flac,audio/aac,audio/mp4,audio/webm,audio/opus"
     (change)="onFileSelected($event)"
   />
 </div>
