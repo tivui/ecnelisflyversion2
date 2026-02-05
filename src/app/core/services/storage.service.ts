@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { getUrl, list, uploadData } from 'aws-amplify/storage';
 import { Observable } from 'rxjs/internal/Observable';
 import { generateUniqueFilename } from './filename.service';
+import { AmplifyService } from './amplify.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
   private readonly basePath = 'sounds/';
+  private readonly amplifyService = inject(AmplifyService);
 
   /**
    * Get a presigned URL for a sound file
@@ -74,5 +76,36 @@ export class StorageService {
       });
 
     return { progress$, result };
+  }
+
+  /**
+   * Delete a sound file from S3 via Lambda
+   * (authenticated users don't have direct S3 delete permissions)
+   * @param filename File name only (e.g., "my-sound-1704067200000.mp3")
+   * @returns true if deletion succeeded
+   */
+  async deleteSound(filename: string): Promise<boolean> {
+    try {
+      const result = await this.amplifyService.client.mutations.deleteSoundFile({
+        filename,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed: any =
+        typeof result.data === 'string'
+          ? JSON.parse(result.data)
+          : result.data;
+
+      if (parsed?.success) {
+        console.log(`[StorageService] Deleted: ${filename}`);
+        return true;
+      }
+
+      console.warn(`[StorageService] Delete failed for ${filename}:`, parsed?.error);
+      return false;
+    } catch (error) {
+      console.error(`[StorageService] Error deleting ${filename}:`, error);
+      return false;
+    }
   }
 }

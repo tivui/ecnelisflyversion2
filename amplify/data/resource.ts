@@ -2,6 +2,7 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { categories, CategoryKey, getSubCategoryKeys } from './categories';
 import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
+import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 
 // Generate an array containing all valid category and subcategory keys
 const allCategoryKeys = Object.values(categories).flatMap((cat) => [
@@ -120,6 +121,13 @@ const schema = a
       .authorization((allow) => [allow.groups(['ADMIN'])])
       .handler(a.handler.function(importSounds)),
 
+    deleteSoundFile: a
+      .mutation()
+      .arguments({ filename: a.string().required() })
+      .returns(a.json())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(deleteSoundFile)),
+
     listSoundsForMap: a
       .query()
       .arguments({
@@ -159,6 +167,7 @@ const schema = a
   .authorization((allow) => [
     allow.resource(importSounds),
     allow.resource(listSoundsForMap),
+    allow.resource(deleteSoundFile),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
