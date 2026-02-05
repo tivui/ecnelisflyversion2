@@ -25,7 +25,7 @@ export interface SoundData {
   place: {
     lat: number;
     lng: number;
-    name?: string;
+    name: string;
   } | null;
   title_i18n?: Record<string, string>;
   shortStory_i18n?: Record<string, string>;
@@ -144,7 +144,7 @@ export class ConfirmationStepComponent implements OnChanges {
     if (!this.soundData?.soundPath) {
       missing.push(this.translate.instant('sound.validation.sound-file'));
     }
-    if (!this.soundData?.place) {
+    if (!this.soundData?.place || !this.soundData.place.lat || !this.soundData.place.lng || !this.soundData.place.name) {
       missing.push(this.translate.instant('sound.validation.location'));
     }
     if (!this.soundData?.title_i18n || !this.soundData.title_i18n[this.currentLang]) {
@@ -169,7 +169,7 @@ export class ConfirmationStepComponent implements OnChanges {
   }
 
   async onConfirm() {
-    if (!this.soundData || this.loading()) return;
+    if (!this.soundData || this.loading() || !this.isDataValid) return;
 
     this.loading.set(true);
 
@@ -259,8 +259,8 @@ export class ConfirmationStepComponent implements OnChanges {
       indices.push(0);
     }
 
-    // Step 1: Lieu (place)
-    if (!this.soundData?.place) {
+    // Step 1: Lieu (place) - lat, lng et name sont obligatoires
+    if (!this.soundData?.place || !this.soundData.place.lat || !this.soundData.place.lng || !this.soundData.place.name) {
       indices.push(1);
     }
 

@@ -107,6 +107,15 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   }
 
   // --------------------
+  // Name input change
+  // --------------------
+  onNameInput(value: string) {
+    this.nameSelection.set(value);
+    const center = this.map.getCenter();
+    this.emitPlace(center.lat, center.lng);
+  }
+
+  // --------------------
   // Emit selection
   // --------------------
   private emitPlace(lat: number, lng: number) {

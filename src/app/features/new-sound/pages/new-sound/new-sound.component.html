@@ -23,7 +23,7 @@
   </mat-step>
 
   <!-- Step 2 : locate sound -->
-  <mat-step class="mat-step-content" [completed]="!!selectedPlace()">
+  <mat-step class="mat-step-content" [completed]="!!selectedPlace()?.name">
     <ng-template matStepLabel>
       {{ "sound.place-title" | translate }}
     </ng-template>
@@ -34,7 +34,7 @@
       <button mat-button matStepperPrevious>
         {{ "common.action.back" | translate }}
       </button>
-      <button mat-button matStepperNext [disabled]="!selectedPlace()">
+      <button mat-button matStepperNext [disabled]="!selectedPlace()?.name">
         {{ "common.action.next" | translate }}
       </button>
     </div>

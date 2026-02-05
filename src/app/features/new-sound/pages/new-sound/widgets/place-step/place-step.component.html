@@ -32,8 +32,9 @@
       <input
         matInput
         [value]="nameSelection()"
-        (input)="nameSelection.set($any($event.target).value)"
+        (input)="onNameInput($any($event.target).value)"
         [placeholder]="'sound.place-name-placeholder' | translate"
+        required
       />
 
       <mat-icon matSuffix>edit_location</mat-icon>
