@@ -19,6 +19,7 @@ import { AuthService } from '../../../../../../core/services/auth.service';
 import { AppUserService } from '../../../../../../core/services/app-user.service';
 import { CancelConfirmDialogComponent } from './cancel-confirm-dialog/cancel-confirm-dialog.component';
 import { CategoryKey } from '../../../../../../../../amplify/data/categories';
+import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
 
 export interface SoundData {
   soundPath: string | null;
@@ -76,6 +77,7 @@ export class ConfirmationStepComponent implements OnChanges {
   @Output() highlightSteps = new EventEmitter<number[]>();
 
   loading = signal(false);
+  success = signal(false);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['soundData']) {
@@ -213,18 +215,29 @@ export class ConfirmationStepComponent implements OnChanges {
       // Créer le son dans DynamoDB
       await this.amplifyService.client.models.Sound.create(soundToCreate);
 
-      // Afficher un message de succès
-      this.snackBar.open(
-        this.translate.instant('sound.confirmation-success'),
-        'OK',
-        { duration: 3000 },
-      );
+      // Afficher l'overlay de succès
+      this.loading.set(false);
+      this.success.set(true);
 
       // Émettre l'événement de confirmation
       this.confirmed.emit();
 
-      // Optionnel : rediriger vers une autre page
-      // this.router.navigate(['/']);
+      // Rediriger vers mapfly centrée sur le son après l'animation
+      setTimeout(() => {
+        this.router.navigate(['/mapfly'], {
+          queryParams: {
+            [MAP_QUERY_KEYS.lat]: this.soundData.place?.lat?.toFixed(4),
+            [MAP_QUERY_KEYS.lng]: this.soundData.place?.lng?.toFixed(4),
+            [MAP_QUERY_KEYS.zoom]: 16,
+            [MAP_QUERY_KEYS.basemap]: 'mapbox',
+          },
+        });
+        this.snackBar.open(
+          this.translate.instant('sound.confirmation-success'),
+          'OK',
+          { duration: 4000 },
+        );
+      }, 2500);
     } catch (error) {
       console.error('Error creating sound:', error);
       this.snackBar.open(
@@ -232,7 +245,6 @@ export class ConfirmationStepComponent implements OnChanges {
         'OK',
         { duration: 5000 },
       );
-    } finally {
       this.loading.set(false);
     }
   }

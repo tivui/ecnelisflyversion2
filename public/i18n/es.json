@@ -16,7 +16,8 @@
       "minLength3": "Mínimo 3 caracteres",
       "maxLength100": "Máximo 100 caracteres",
       "minLength10": "Mínimo 10 caracteres",
-      "maxLength500": "Máximo 500 caracteres"
+      "maxLength500": "Máximo 500 caracteres",
+      "invalidUrl": "URL inválida"
     }
   },
   "toolbar": {
@@ -81,6 +82,7 @@
     "confirmation-cancel-title": "Cancelar carga de sonido",
     "confirmation-cancel-message": "¿Está seguro de que desea cancelar? Toda la información ingresada se perderá.",
     "confirmation-success": "¡Sonido agregado con éxito!",
+    "redirect-to-map": "Redirigiendo al mapa...",
     "confirmation-error": "Error al agregar el sonido. Por favor, inténtelo de nuevo.",
     "confirmation-validation-error": "Por favor complete todos los campos requeridos",
     "confirmation-missing-fields": "Campos faltantes: {{fields}}",
