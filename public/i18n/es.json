@@ -4,11 +4,25 @@
   },
   "common": {
     "action": {
-      "translate": "Traducir"
+      "translate": "Traducir",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "next": "Siguiente",
+      "back": "Atrás"
+    },
+    "noLanguages": "No hay idiomas disponibles",
+    "errors": {
+      "required": "Campo obligatorio",
+      "minLength3": "Mínimo 3 caracteres",
+      "maxLength100": "Máximo 100 caracteres",
+      "minLength10": "Mínimo 10 caracteres",
+      "maxLength500": "Máximo 500 caracteres",
+      "invalidUrl": "URL inválida"
     }
   },
   "toolbar": {
     "account": "Gestionar mi cuenta",
+    "new-sound": "Nuevo sonido",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "dark": "Oscuro",
@@ -33,6 +47,104 @@
     "theme": "Tema",
     "save": "Guardar cambios"
   },
+  "sound": {
+    "sound-title": "Sonido",
+    "upload": {
+      "title": "Importar archivo de audio",
+      "placeholder": "Ningún archivo seleccionado",
+      "button": "Elegir archivo",
+      "upload-button": "Subir",
+      "drag-drop": "Arrastra y suelta tu archivo de audio aquí",
+      "or": "o",
+      "error-type": "Por favor seleccione un archivo de audio válido",
+      "error-format": "Formato no soportado. Use: MP3, WAV, OGG, FLAC, AAC, M4A, WEBM u OPUS",
+      "error-size": "El archivo supera el límite de {{max}} MB",
+      "error-upload": "Error al subir",
+      "success": "Archivo subido exitosamente",
+      "loading": "Subiendo...",
+      "supported-formats": "Formatos soportados: MP3, WAV, OGG, FLAC",
+      "max-size": "Tamaño máximo: 100 MB",
+      "max-size-value": "Máx {{size}} MB",
+      "formats-tooltip": "Formatos de audio compatibles con todos los navegadores",
+      "size-tooltip": "Tamaño máximo permitido para el archivo de audio",
+      "description": "Importa un archivo de audio desde tu dispositivo para comenzar."
+    },
+    "place-title": "Lugar",
+    "place-placeholder": "Dar un nombre de lugar",
+    "place-name-placeholder": "Nombre del lugar",
+    "data-title": "Información",
+    "data-info-description": "Describa su grabación de sonido",
+    "data-meta-description": "Agregue enlaces y metadatos adicionales",
+    "basic-info": "Información Básica",
+    "categorization": "Categorización",
+    "additional-details": "Detalles Adicionales",
+    "links-section": "Enlaces Externos",
+    "metadata-section": "Metadatos",
+    "confirmation-title": "Confirmación",
+    "confirmation-description": "Revise la información antes de confirmar la carga de su sonido.",
+    "confirmation-summary": "Resumen",
+    "confirmation-submit": "Confirmar y agregar sonido",
+    "confirmation-cancel-title": "Cancelar carga de sonido",
+    "confirmation-cancel-message": "¿Está seguro de que desea cancelar? Toda la información ingresada se perderá.",
+    "confirmation-success": "¡Sonido agregado con éxito!",
+    "redirect-to-map": "Redirigiendo al mapa...",
+    "confirmation-error": "Error al agregar el sonido. Por favor, inténtelo de nuevo.",
+    "confirmation-validation-error": "Por favor complete todos los campos requeridos",
+    "confirmation-missing-fields": "Campos faltantes: {{fields}}",
+    "validation": {
+      "sound-file": "Archivo de audio",
+      "location": "Ubicación",
+      "title": "Título",
+      "category": "Categoría"
+    },
+    "hint-marker": "Mueva el mapa o use la búsqueda para colocar el marcador.",
+    "sound-data-title": "Título del sonido",
+    "data-info-title": "Detalles del sonido",
+    "data-meta-title": "Enlaces y metadatos",
+    "sound-data-title-placeholder": "Ingrese el título",
+    "sound-data-shortStory": "Historia corta",
+    "sound-data-shortStory-placeholder": "Ingrese una historia corta",
+    "sound-data-traduction-title": "Traducciones",
+    "record-date": "Fecha de grabación",
+    "record-date-placeholder": "Seleccione la fecha",
+    "equipment": "Equipo utilizado",
+    "equipment-placeholder": "Describa el equipo utilizado",
+    "status": "Estado",
+    "statusPrivate": "Privado",
+    "statusPrivate_tooltip": "Solo tú y los usuarios autorizados pueden ver este sonido.",
+    "statusPublic": "Público",
+    "statusPublic_tooltip": "Todos pueden ver y escuchar este sonido. Será moderado antes de su publicación final.",
+    "licenses": {
+      "READ_ONLY": "Solo lectura",
+      "READ_ONLY_tooltip": "Esta licencia permite solo la lectura del contenido. No se permite modificar ni redistribuir.",
+
+      "PUBLIC_DOMAIN": "Dominio público",
+      "PUBLIC_DOMAIN_tooltip": "Esta licencia indica que el contenido está libre de derechos de autor y puede usarse, compartirse y modificarse sin restricciones.",
+
+      "CC_BY": "CC BY",
+      "CC_BY_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente al autor.",
+
+      "CC_BY_NC": "CC BY-NC",
+      "CC_BY_NC_tooltip": "Puede compartir y adaptar el contenido solo para fines no comerciales, atribuyendo al autor."
+    },
+    "link-url": "URL",
+    "link-title": "Título del enlace",
+    "link-title-placeholder": "Descripción del enlace",
+    "link-optional": "Opcional",
+    "link-preview": "Abrir enlace en nueva pestaña",
+    "link-uncommon-tld": "Extensión de dominio inusual - verifique la URL",
+    "link-uncommon-tld-short": "Verificar URL",
+    "link-title-requires-url": "Ingrese primero una URL válida",
+    "hashtags": "Hashtags",
+    "hashtags-placeholder": "Ingrese hashtags separados por espacios (ejemplo: #naturaleza #ciudad)",
+    "hashtags-hint": "Utilice hashtags para mejorar la búsqueda de su sonido. Separe los hashtags con espacios.",
+    "admin": {
+      "user-section": "Usuario a vincular",
+      "linked-user": "Usuario",
+      "search-user": "Buscar un usuario",
+      "linked-user-hint": "Seleccione el usuario al que se asignará este sonido"
+    }
+  },
   "admin": {
     "database": {
       "importSounds": "Importar sonidos"
@@ -52,6 +164,8 @@
     }
   },
   "categories": {
+    "category": "Categoría",
+    "secondaryCategory": "Subcategoría",
     "ambiancefly": "Sonidos ambientales",
     "ambiancefly.agriculturefly": "Ambiente de trabajo agrícola",
     "ambiancefly.airportfly": "Ambiente de aeropuerto",

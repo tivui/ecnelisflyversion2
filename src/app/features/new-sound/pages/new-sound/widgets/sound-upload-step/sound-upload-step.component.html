@@ -1,0 +1,117 @@
+<div class="step-container">
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-content">
+      <mat-icon class="header-icon">cloud_upload</mat-icon>
+      <div class="header-text">
+        <h3>{{ 'sound.sound-title' | translate }}</h3>
+        <p>{{ 'sound.upload.description' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drag & Drop Zone -->
+  <mat-card
+    class="upload-zone"
+    [class.dragging]="isDragging"
+    [class.has-file]="selectedFile"
+    [class.uploaded]="isUploaded"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)">
+
+    <div class="upload-content">
+      @if (!selectedFile && !isUploaded) {
+        <!-- Empty state - No file selected -->
+        <mat-icon class="upload-icon">audio_file</mat-icon>
+        <h3 class="upload-title">{{ 'sound.upload.drag-drop' | translate }}</h3>
+        <p class="upload-subtitle">{{ 'sound.upload.or' | translate }}</p>
+        <button
+          mat-raised-button
+          color="primary"
+          class="select-button"
+          (click)="fileInput.click()"
+          [disabled]="uploading">
+          <mat-icon>folder_open</mat-icon>
+          {{ 'sound.upload.button' | translate }}
+        </button>
+
+        <!-- File constraints info -->
+        <div class="upload-constraints">
+          <div
+            class="constraint-item"
+            [matTooltip]="'sound.upload.formats-tooltip' | translate">
+            <mat-icon>music_note</mat-icon>
+            <span>{{ allowedExtensions }}</span>
+          </div>
+          <div
+            class="constraint-item"
+            [matTooltip]="'sound.upload.size-tooltip' | translate">
+            <mat-icon>storage</mat-icon>
+            <span>{{ 'sound.upload.max-size-value' | translate: { size: maxSizeMB } }}</span>
+          </div>
+        </div>
+      }
+
+      @if (selectedFile && !uploading && !isUploaded) {
+        <!-- File selected state -->
+        <mat-icon class="file-icon" color="primary">audio_file</mat-icon>
+        <h3 class="file-name">{{ selectedFile.name }}</h3>
+        <p class="file-size">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</p>
+
+        <div class="action-buttons">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="upload()">
+            <mat-icon>upload</mat-icon>
+            {{ 'sound.upload.upload-button' | translate }}
+          </button>
+
+          <button
+            mat-stroked-button
+            (click)="selectedFile = undefined; error = undefined; fileInput.value = ''">
+            <mat-icon>close</mat-icon>
+            {{ 'common.action.cancel' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (uploading) {
+        <!-- Uploading state -->
+        <mat-icon class="upload-icon spinning">sync</mat-icon>
+        <h3 class="upload-title">{{ 'sound.upload.upload-button' | translate }}...</h3>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress"
+          class="progress-bar">
+        </mat-progress-bar>
+        <p class="progress-text">{{ progress }}%</p>
+      }
+
+      @if (isUploaded) {
+        <!-- Uploaded state -->
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <h3 class="upload-title success">{{ 'sound.upload.success' | translate }}</h3>
+        <p class="file-name uploaded">{{ uploadedFilename }}</p>
+      }
+    </div>
+  </mat-card>
+
+  <!-- Error message -->
+  @if (error) {
+    <div class="error-message">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <!-- Hidden file input -->
+  <input
+    type="file"
+    #fileInput
+    hidden
+    accept=".mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.opus,audio/mpeg,audio/wav,audio/ogg,audio/flac,audio/aac,audio/mp4,audio/webm,audio/opus"
+    (change)="onFileSelected($event)"
+  />
+</div>

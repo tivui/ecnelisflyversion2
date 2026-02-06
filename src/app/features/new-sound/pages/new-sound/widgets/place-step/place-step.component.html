@@ -1,0 +1,43 @@
+<div class="place-step-container">
+  <!-- Instructions card -->
+  <div class="instructions-card">
+    <div class="instructions-content">
+      <mat-icon class="instructions-icon">location_searching</mat-icon>
+      <div class="instructions-text">
+        <h3>{{ "sound.place-title" | translate }}</h3>
+        <p class="hint">{{ "sound.hint-marker" | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map container -->
+  <div class="map-card">
+    <div class="map-wrapper">
+      <div id="map-newsound"></div>
+      <div class="map-overlay-hint">
+        <mat-icon>pin_drop</mat-icon>
+        <span>{{ "sound.hint-marker" | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Place name input -->
+  <div class="place-name-card">
+    <mat-form-field appearance="outline" class="place-name-field">
+      <mat-label>
+        <mat-icon class="label-icon">label</mat-icon>
+        {{ 'sound.place-name' | translate }}
+      </mat-label>
+
+      <input
+        matInput
+        [value]="nameSelection()"
+        (input)="onNameInput($any($event.target).value)"
+        [placeholder]="'sound.place-name-placeholder' | translate"
+        required
+      />
+
+      <mat-icon matSuffix>edit_location</mat-icon>
+    </mat-form-field>
+  </div>
+</div>

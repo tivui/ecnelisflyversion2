@@ -1,0 +1,235 @@
+<!-- Success overlay -->
+@if (success()) {
+  <div class="success-overlay">
+    <div class="success-content">
+      <div class="success-checkmark">
+        <svg viewBox="0 0 52 52" class="checkmark-svg">
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+          <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+        </svg>
+      </div>
+      <h2 class="success-title">{{ 'sound.confirmation-success' | translate }}</h2>
+      <p class="success-subtitle">{{ 'sound.redirect-to-map' | translate }}</p>
+      <div class="success-loader">
+        <div class="success-loader-bar"></div>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="confirmation-container" [class.hidden-by-success]="success()">
+  <!-- Header card -->
+  <div class="header-card">
+    <div class="header-content">
+      <mat-icon class="header-icon">fact_check</mat-icon>
+      <div class="header-text">
+        <h3>{{ 'sound.confirmation-title' | translate }}</h3>
+        <p>{{ 'sound.confirmation-description' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Section -->
+  <div class="summary-section">
+    <!-- Section 1: Audio File -->
+    @if (soundData.soundPath) {
+      <div class="section-card">
+        <div class="section-header">
+          <mat-icon>audiotrack</mat-icon>
+          <h4>{{ 'sound.sound-title' | translate }}</h4>
+        </div>
+        <div class="section-content">
+          <div class="file-name">
+            <mat-icon>description</mat-icon>
+            <span>{{ soundData.soundPath }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Section 2: Location -->
+    @if (soundData.place) {
+      <div class="section-card">
+        <div class="section-header">
+          <mat-icon>location_on</mat-icon>
+          <h4>{{ 'sound.place-title' | translate }}</h4>
+        </div>
+        <div class="section-content">
+          @if (soundData.place.name) {
+            <div class="place-name">
+              <mat-icon>place</mat-icon>
+              <span>{{ soundData.place.name }}</span>
+            </div>
+          }
+          <div class="coordinates">
+            <mat-icon>my_location</mat-icon>
+            <span>
+              {{ soundData.place.lat | number: '1.6-6' }},
+              {{ soundData.place.lng | number: '1.6-6' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Section 3: Sound Information -->
+    <div class="section-card wide">
+      <div class="section-header">
+        <mat-icon>info</mat-icon>
+        <h4>{{ 'sound.data-info-title' | translate }}</h4>
+      </div>
+      <div class="section-content">
+        <div class="info-grid">
+          <!-- Title -->
+          @if (displayTitle) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.sound-data-title' | translate }}</span>
+              <span class="value">{{ displayTitle }}</span>
+            </div>
+          }
+
+          <!-- Short Story -->
+          @if (displayShortStory) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.sound-data-shortStory' | translate }}</span>
+              <span class="value">{{ displayShortStory }}</span>
+            </div>
+          }
+
+          <!-- Category -->
+          @if (soundData.category) {
+            <div class="info-row">
+              <span class="label">{{ 'categories.category' | translate }}</span>
+              <span class="value">{{ displayCategory }}</span>
+            </div>
+          }
+
+          <!-- Secondary Category -->
+          @if (soundData.secondaryCategory) {
+            <div class="info-row">
+              <span class="label">{{ 'categories.secondaryCategory' | translate }}</span>
+              <span class="value">{{ displaySecondaryCategory }}</span>
+            </div>
+          }
+
+          <!-- Record Date -->
+          @if (soundData.recordDateTime) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.record-date' | translate }}</span>
+              <span class="value">{{ soundData.recordDateTime | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          }
+
+          <!-- Equipment -->
+          @if (soundData.equipment) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.equipment' | translate }}</span>
+              <span class="value">{{ soundData.equipment }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Metadata & Links -->
+    <div class="section-card wide">
+      <div class="section-header">
+        <mat-icon>settings</mat-icon>
+        <h4>{{ 'sound.data-meta-title' | translate }}</h4>
+      </div>
+      <div class="section-content">
+        <div class="info-grid">
+          <!-- Status -->
+          @if (soundData.status) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.status' | translate }}</span>
+              <span class="value status">
+                <mat-icon>{{ soundData.status === 'private' ? 'lock' : 'public' }}</mat-icon>
+                {{ displayStatus }}
+              </span>
+            </div>
+          }
+
+          <!-- License -->
+          @if (soundData.license) {
+            <div class="info-row">
+              <span class="label">{{ 'categories.license' | translate }}</span>
+              <span class="value">{{ displayLicense }}</span>
+            </div>
+          }
+
+          <!-- Link 1 -->
+          @if (soundData.url) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.link1-url' | translate }}</span>
+              <a [href]="soundData.url" target="_blank" class="value link">
+                <mat-icon>link</mat-icon>
+                {{ soundData.urlTitle || soundData.url }}
+              </a>
+            </div>
+          }
+
+          <!-- Link 2 -->
+          @if (soundData.secondaryUrl) {
+            <div class="info-row">
+              <span class="label">{{ 'sound.link2-url' | translate }}</span>
+              <a [href]="soundData.secondaryUrl" target="_blank" class="value link">
+                <mat-icon>link</mat-icon>
+                {{ soundData.secondaryUrlTitle || soundData.secondaryUrl }}
+              </a>
+            </div>
+          }
+
+          <!-- Hashtags -->
+          @if (hashtagsArray.length > 0) {
+            <div class="info-row hashtags-row">
+              <span class="label">{{ 'sound.hashtags' | translate }}</span>
+              <div class="hashtags-container">
+                <mat-chip-set>
+                  @for (tag of hashtagsArray; track $index) {
+                    <mat-chip>{{ tag }}</mat-chip>
+                  }
+                </mat-chip-set>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions">
+    <button
+      mat-stroked-button
+      color="warn"
+      (click)="onCancel()"
+      [disabled]="loading()">
+      <mat-icon>cancel</mat-icon>
+      {{ 'common.action.cancel' | translate }}
+    </button>
+
+    <span
+      [matTooltip]="validationTooltip"
+      [matTooltipDisabled]="isDataValid"
+      matTooltipPosition="above"
+      matTooltipClass="validation-tooltip"
+      class="button-wrapper"
+      (mouseenter)="onConfirmButtonMouseEnter()"
+      (mouseleave)="onConfirmButtonMouseLeave()">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onConfirm()"
+        [disabled]="loading() || !isDataValid">
+        @if (loading()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        @if (!loading()) {
+          <mat-icon>check_circle</mat-icon>
+        }
+        {{ 'sound.confirmation-submit' | translate }}
+      </button>
+    </span>
+  </div>
+</div>

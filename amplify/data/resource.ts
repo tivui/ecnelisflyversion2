@@ -1,16 +1,8 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
-import { categories, CategoryKey, getSubCategoryKeys } from './categories';
+import { CategoryKey } from './categories';
 import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
-
-// Generate an array containing all valid category and subcategory keys
-const allCategoryKeys = Object.values(categories).flatMap((cat) => [
-  cat.key,
-  ...cat.subcategories.map((sub) => sub.key),
-]);
-
-// Define an Amplify enum with all valid keys
-const CategoryEnum = a.enum(allCategoryKeys);
+import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -51,7 +43,7 @@ const schema = a
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
-        allow.authenticated().to(['read','update']),
+        allow.authenticated().to(['read', 'update']),
         allow.guest().to(['read']),
       ]),
 
@@ -67,7 +59,7 @@ const schema = a
         shortStory_i18n: a.json(),
 
         filename: a.string().required(),
-        status: a.enum(['public', 'private']),
+        status: a.enum(['private', 'public_to_be_approved', 'public']),
 
         latitude: a.float(),
         longitude: a.float(),
@@ -120,6 +112,13 @@ const schema = a
       .authorization((allow) => [allow.groups(['ADMIN'])])
       .handler(a.handler.function(importSounds)),
 
+    deleteSoundFile: a
+      .mutation()
+      .arguments({ filename: a.string().required() })
+      .returns(a.json())
+      .authorization((allow) => [allow.authenticated()])
+      .handler(a.handler.function(deleteSoundFile)),
+
     listSoundsForMap: a
       .query()
       .arguments({
@@ -135,11 +134,31 @@ const schema = a
         allow.guest(),
       ])
       .handler(a.handler.function(listSoundsForMap)),
+
+    translate: a
+      .query()
+      .arguments({
+        sourceLanguage: a.string().required(),
+        targetLanguage: a.string().required(),
+        text: a.string().required(),
+      })
+      .returns(a.string())
+      .authorization((allow) => [
+        allow.authenticated(),
+        allow.publicApiKey(),
+      ])
+      .handler(
+        a.handler.custom({
+          dataSource: 'TranslateDataSource',
+          entry: './translate.js',
+        }),
+      ),
   })
 
   .authorization((allow) => [
     allow.resource(importSounds),
     allow.resource(listSoundsForMap),
+    allow.resource(deleteSoundFile),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

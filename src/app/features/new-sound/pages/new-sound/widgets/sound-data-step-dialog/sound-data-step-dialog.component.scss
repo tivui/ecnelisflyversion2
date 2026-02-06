@@ -1,0 +1,24 @@
+.translation-grid {
+  display: grid;
+  grid-template-columns: 1fr; // 1 input per line
+  gap: 16px;
+
+  // Ensure full spacing inside dialog
+  margin-top: 8px; // optional container spacing
+}
+
+// Push down the first form field so label is not cut
+.translation-grid mat-form-field:first-child {
+  margin-top: 12px; // adjust to taste
+}
+
+.full-width {
+  width: 100%;
+}
+
+::ng-deep .mat-horizontal-stepper-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+

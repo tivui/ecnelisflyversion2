@@ -1,0 +1,62 @@
+.dialog-container {
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 16px 24px;
+    font-size: 20px;
+    font-weight: 500;
+
+    mat-icon {
+      color: #f44336;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 0 24px 16px;
+    min-width: 300px;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.87);
+      line-height: 1.5;
+    }
+  }
+
+  mat-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 16px 16px;
+    margin: 0;
+
+    button {
+      mat-icon {
+        margin-right: 4px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .dialog-container {
+    h2[mat-dialog-title] {
+      color: #d8dce4;
+    }
+
+    mat-dialog-content {
+      p {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+}

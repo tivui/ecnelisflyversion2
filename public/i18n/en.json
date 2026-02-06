@@ -4,11 +4,25 @@
   },
   "common": {
     "action": {
-      "translate": "Translate"
+      "translate": "Translate",
+      "save": "Save",
+      "cancel": "Cancel",
+      "next": "Next",
+      "back": "Back"
+    },
+    "noLanguages": "No languages available",
+    "errors": {
+      "required": "Required field",
+      "minLength3": "Minimum 3 characters",
+      "maxLength100": "Maximum 100 characters",
+      "minLength10": "Minimum 10 characters",
+      "maxLength500": "Maximum 500 characters",
+      "invalidUrl": "Invalid URL"
     }
   },
   "toolbar": {
     "account": "Manage my account",
+    "new-sound": "New sound",
     "login": "Login",
     "logout": "Logout",
     "dark": "Dark Mode",
@@ -33,6 +47,105 @@
     "theme": "Theme",
     "save": "Save Changes"
   },
+  "sound": {
+    "sound-title": "Sound",
+    "upload": {
+      "title": "Import audio file",
+      "placeholder": "No file selected",
+      "button": "Choose file",
+      "upload-button": "Upload",
+      "drag-drop": "Drag and drop your audio file here",
+      "or": "or",
+      "error-type": "Please select a valid audio file",
+      "error-format": "Unsupported format. Use: MP3, WAV, OGG, FLAC, AAC, M4A, WEBM or OPUS",
+      "error-size": "File exceeds the {{max}} MB limit",
+      "error-upload": "Upload error",
+      "success": "File uploaded successfully",
+      "loading": "Uploading...",
+      "supported-formats": "Supported formats: MP3, WAV, OGG, FLAC",
+      "max-size": "Maximum size: 100 MB",
+      "max-size-value": "Max {{size}} MB",
+      "formats-tooltip": "Audio formats compatible with all browsers",
+      "size-tooltip": "Maximum allowed file size for the audio file",
+      "description": "Import an audio file from your device to get started."
+    },
+    "place-title": "Place",
+    "place-name": "Place name",
+    "place-name-placeholder": "Give a place name",
+    "place-placeholder": "Search for a place",
+    "data-title": "Data",
+    "data-info-description": "Describe your sound recording",
+    "data-meta-description": "Add additional links and metadata",
+    "basic-info": "Basic Information",
+    "categorization": "Categorization",
+    "additional-details": "Additional Details",
+    "links-section": "External Links",
+    "metadata-section": "Metadata",
+    "confirmation-title": "Confirmation",
+    "confirmation-description": "Review the information before confirming your sound upload.",
+    "confirmation-summary": "Summary",
+    "confirmation-submit": "Confirm and add sound",
+    "confirmation-cancel-title": "Cancel sound upload",
+    "confirmation-cancel-message": "Are you sure you want to cancel? All entered information will be lost.",
+    "confirmation-success": "Sound added successfully!",
+    "redirect-to-map": "Redirecting to map...",
+    "confirmation-error": "Error adding sound. Please try again.",
+    "confirmation-validation-error": "Please complete all required fields",
+    "confirmation-missing-fields": "Missing fields: {{fields}}",
+    "validation": {
+      "sound-file": "Sound file",
+      "location": "Location",
+      "title": "Title",
+      "category": "Category"
+    },
+    "hint-marker": "Move the map or use the search to position the marker.",
+    "sound-data-title": "Sound Title",
+    "data-info-title": "Sound Details",
+    "data-meta-title": "Links & Metadata",
+    "sound-data-title-placeholder": "Enter title",
+    "sound-data-shortStory": "Short Story",
+    "sound-data-shortStory-placeholder": "Enter short story",
+    "sound-data-traduction-title": "Translations",
+    "record-date": "Record Date",
+    "record-date-placeholder": "Select date",
+    "equipment": "Equipment Used",
+    "equipment-placeholder": "Describe the equipment used",
+    "status": "Status",
+    "statusPrivate": "Private",
+    "statusPrivate_tooltip": "Only you and authorized users can see this sound.",
+    "statusPublic": "Public",
+    "statusPublic_tooltip": "Everyone can see and listen to this sound. It will be moderated before final publication.",
+    "licenses": {
+      "READ_ONLY": "Read Only",
+      "READ_ONLY_tooltip": "This license allows only reading the content. Modification or redistribution is not allowed.",
+
+      "PUBLIC_DOMAIN": "Public Domain",
+      "PUBLIC_DOMAIN_tooltip": "This license indicates the content is free of copyright and can be used, shared, and modified without restrictions.",
+
+      "CC_BY": "CC BY",
+      "CC_BY_tooltip": "You may share and adapt the content as long as you give proper attribution to the author.",
+
+      "CC_BY_NC": "CC BY-NC",
+      "CC_BY_NC_tooltip": "You may share and adapt the content for non-commercial purposes only, with attribution to the author."
+    },
+    "link-url": "URL",
+    "link-title": "Link title",
+    "link-title-placeholder": "Link description",
+    "link-optional": "Optional",
+    "link-preview": "Open link in new tab",
+    "link-uncommon-tld": "Unusual domain extension - please verify the URL",
+    "link-uncommon-tld-short": "Verify URL",
+    "link-title-requires-url": "Enter a valid URL first",
+    "hashtags": "Hashtags",
+    "hashtags-placeholder": "Enter hashtags separated by spaces (e.g. nature soundrecording)",
+    "hashtags-hint": "Use spaces to separate multiple hashtags. Example: nature soundrecording",
+    "admin": {
+      "user-section": "User Assignment",
+      "linked-user": "User",
+      "search-user": "Search for a user",
+      "linked-user-hint": "Select the user to whom this sound will be assigned"
+    }
+  },
   "admin": {
     "database": {
       "importSounds": "Import sounds"
@@ -51,6 +164,10 @@
     }
   },
   "categories": {
+    "category": "Category",
+    "secondaryCategory": "Sub-category",
+    "status": "Status",
+    "license": "License",
     "ambiancefly": "Ambient sounds",
     "ambiancefly.agriculturefly": "Farm work ambiance",
     "ambiancefly.airportfly": "Airport ambiance",

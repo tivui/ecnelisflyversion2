@@ -1,0 +1,947 @@
+/* mapfly.component.scss */
+.map-container {
+  position: relative;
+}
+
+/* Overlay over the map */
+.spinner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 700;
+  backdrop-filter: blur(3px);
+  transition: background-color 0.3s ease;
+
+  /* Light mode */
+  body.light-theme & {
+    background-color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Dark mode */
+  body.dark-theme & {
+    background-color: rgba(20, 20, 30, 0.65);
+  }
+}
+
+/* Conteneur loader */
+.spinner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  animation: fadeIn 0.4s ease-out;
+
+  img.spinner-img {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+  }
+
+  .spinner-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: "Inter", system-ui, sans-serif;
+
+    body.light-theme & {
+      color: #333;
+    }
+
+    body.dark-theme & {
+      color: #ddd;
+    }
+  }
+}
+
+/* Apparition douce */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.map-container,
+#map-newsound, #mapfly {
+  flex: 1;
+  height: calc(100vh - 64px);
+  width: 100%;
+  margin: 0;
+  border-radius: 5px;
+}
+
+.leaflet-container {
+  transition: background-color 0.3s ease;
+
+  body.light-theme & {
+    background-color: #ffffff;
+  }
+
+  body.dark-theme & {
+    background-color: #2c2c3e;
+  }
+}
+
+.leaflet-popup-content-wrapper {
+  width: 350px;
+  max-width: 100%;
+  padding: 3px 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  b.popup-title {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  p.popup-shortstory {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: justify;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  audio {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* light theme */
+  body.light-theme & {
+    background-color: #f1f5fa;
+    color: #1a1a1a;
+  }
+
+  /* dark theme */
+  body.dark-theme & {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+  }
+
+  .popup-links {
+    text-align: center;
+    margin: 8px 0;
+
+    a {
+      color: #1e88e5;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .popup-record-info {
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    margin: 6px 0;
+    opacity: 0.9;
+
+    .router-link-style {
+      cursor: pointer;
+      color: #1e88e5;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  [id^="btn-container-title-"],
+  [id^="btn-container-shortStory-"] {
+    display: flex;
+    justify-content: center;
+    margin-top: 6px; // espace au-dessus du bouton
+  }
+
+  .translate-btn {
+    padding: 4px 8px !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 12px;
+
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease;
+
+    .material-icons {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    // --- Light theme ---
+    body.light-theme & {
+      background-color: #e3f2fd;
+      color: #1e88e5;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+
+      &:hover {
+        background-color: #bbdefb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+      }
+
+      &:active {
+        background-color: #90caf9;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+      }
+    }
+
+    // --- Dark theme ---
+    body.dark-theme & {
+      background-color: #424b5c;
+      color: #90caf9;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        background-color: #5c667a;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      }
+
+      &:active {
+        background-color: #748099;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) inset;
+      }
+    }
+  }
+
+  .popup-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+
+    .zoom-btn,
+    .download-btn {
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+
+      font-size: 18px;
+      line-height: 1;
+
+      // --- Light theme ---
+      body.light-theme & {
+        background-color: #e3f2fd;
+        color: #1e88e5;
+
+        &:hover {
+          background-color: #bbdefb;
+        }
+        &:active {
+          background-color: #90caf9;
+        }
+      }
+
+      // --- Dark theme ---
+      body.dark-theme & {
+        background-color: #424b5c;
+        color: #90caf9;
+
+        &:hover {
+          background-color: #5c667a;
+        }
+        &:active {
+          background-color: #748099;
+        }
+      }
+    }
+  }
+}
+
+/* Pointe de la popup */
+.leaflet-popup-tip {
+  background: #f1f5fa; /* light theme par défaut */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Light theme */
+body.light-theme .leaflet-popup-tip {
+  background: #f1f5fa; // identique au wrapper
+}
+
+/* Dark theme */
+body.dark-theme .leaflet-popup-tip {
+  background: #2c2c3e; // identique au wrapper
+}
+
+/* Cluster wrapper */
+.cluster {
+  position: relative; /* nécessaire pour le pseudo-élément */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #020097;
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
+  font-family: monospace;
+  text-align: center;
+  border: 1px solid #eeeeeeff;
+  box-sizing: border-box; /* pour que border n'affecte pas la taille */
+  transition: transform 0.2s ease; /* animations Leaflet */
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Remove outline on marker-cluster elements */
+.marker-cluster,
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  div {
+    outline: none !important;
+
+    &:focus,
+    &:focus-visible,
+    &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
+}
+
+/* Cercle blanc derrière le cluster */
+.cluster:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* prend toute la taille du parent */
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid white;
+  z-index: -1;
+  box-sizing: border-box;
+}
+
+/* Tailles des clusters */
+.digits-1 {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  font-size: 14px;
+}
+
+.digits-2 {
+  width: 34px;
+  height: 34px;
+  line-height: 35px;
+  font-size: 16px;
+  border-width: 2px;
+}
+
+.digits-3 {
+  width: 48px;
+  height: 48px;
+  line-height: 47px;
+  font-size: 18px;
+  border-width: 3px;
+}
+
+.digits-4 {
+  width: 58px;
+  height: 58px;
+  line-height: 57px;
+  font-size: 18px;
+  border-width: 4px;
+}
+
+.leaflet-container .leaflet-control-search {
+  position: relative;
+  float: left;
+  background: #fdffe6;
+  color: #1978cf;
+  border: 0px solid rgba(0, 0, 0, 0.2);
+  background-clip: padding-box;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+.leaflet-control-search.search-exp {
+  /*expanded*/
+  background: #fdffe6;
+  border: 0px solid rgba(0, 0, 0, 0.2);
+  background-clip: padding-box;
+}
+.leaflet-control-search .search-input {
+  display: block;
+  float: left;
+  background: #fdffe6;
+  border: 0px solid #666;
+  border-radius: 2px;
+  height: 22px;
+  padding: 0 20px 0 2px;
+  margin: 4px 0 4px 4px;
+}
+.leaflet-control-search.search-load .search-input {
+  background: url("/img/logos/loader.gif") no-repeat center right #fdffe6;
+}
+.leaflet-control-search.search-load .search-cancel {
+  visibility: hidden;
+}
+.leaflet-control-search .search-cancel {
+  display: block;
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  right: 28px;
+  margin: 6px 0;
+  background: url("/img/logos/search-icon.png") no-repeat 0 -46px;
+  text-decoration: none;
+  filter: alpha(opacity=80);
+  opacity: 0.8;
+}
+.leaflet-control-search .search-cancel:hover {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.leaflet-control-search .search-cancel span {
+  display: none; /* comment for cancel button imageless */
+  font-size: 18px;
+  line-height: 20px;
+  color: #ccc;
+  font-weight: bold;
+}
+.leaflet-control-search .search-cancel:hover span {
+  color: #aaa;
+}
+.leaflet-control-search .search-button {
+  display: block;
+  float: left;
+  width: 30px;
+  height: 30px;
+  left: 30px;
+  background: url("/img/logos/keyword.png") no-repeat #fdffe6;
+  border-radius: 4px;
+}
+.leaflet-control-search .search-button:hover {
+  background: url("/img/logos/search-icon.png") no-repeat 4px -20px #fafafa;
+}
+.leaflet-control-search .search-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  float: left;
+  list-style: none;
+  padding-left: 0;
+  min-width: 120px;
+  max-height: 122px;
+  box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 1010;
+  overflow-y: auto;
+  overflow-x: hidden;
+  cursor: pointer;
+}
+.leaflet-control-search .search-tip {
+  margin: 2px;
+  padding: 2px 4px;
+  display: block;
+  color: black;
+  background: #eee;
+  border-radius: 0.25em;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: center;
+}
+.leaflet-control-search .search-button:hover {
+  background-color: #f4f4f4;
+}
+.leaflet-control-search .search-tip-select,
+.leaflet-control-search .search-tip:hover {
+  background-color: #fdffe6;
+}
+.leaflet-control-search .search-alert {
+  cursor: pointer;
+  clear: both;
+  font-size: 0.75em;
+  margin-bottom: 5px;
+  padding: 0 0.25em;
+  color: #e00;
+  font-weight: bold;
+  border-radius: 0.25em;
+}
+
+/* Overlays group control (Leaflet) */
+
+.leaflet-control-layers-expanded {
+  /* light theme */
+  body.light-theme & {
+    background-color: #e7eaee;
+    color: #1a1a1a;
+  }
+
+  /* dark theme */
+  body.dark-theme & {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+  }
+}
+
+/* Grouped overlays – alignement image + texte */
+.leaflet-control-layers-overlays label {
+  display: flex !important; /* forcé, car Leaflet met display: block */
+  align-items: center !important;
+  gap: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-family: "Arial", sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+
+  /* hover */
+  &:hover {
+    background-color: rgba(30, 136, 229, 0.1);
+  }
+
+  /* icône + texte */
+  span {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px;
+  }
+
+  img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  input[type='checkbox'] {
+    margin-right: 6px;
+    flex-shrink: 0;
+    transform: translateY(-1px); /* petit ajustement vertical */
+  }
+
+  /* light / dark theme */
+  body.light-theme & {
+    color: #1a1a1a;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  body.dark-theme & {
+    color: #f5f5f5;
+    background-color: rgba(40, 40, 50, 0.8);
+  }
+}
+
+/* Optional: checkbox + label alignment */
+.leaflet-control-layers-overlays input[type="checkbox"] {
+  margin: 0; /* supprime marges par défaut */
+  margin-right: 4px; /* espace entre checkbox et image */
+  flex-shrink: 0; /* ne rétrécit pas */
+  cursor: pointer;
+}
+
+/* global styling */
+.leaflet-control-geosearch *,
+.leaflet-control-geosearch *:before,
+.leaflet-control-geosearch *:after {
+  box-sizing: border-box;
+}
+
+/* leaflet button styling */
+.leaflet-control-geosearch .leaflet-bar-part {
+  border-radius: 4px;
+  border-bottom: none;
+}
+
+.leaflet-control-geosearch a.leaflet-bar-part:before,
+.leaflet-control-geosearch a.leaflet-bar-part:after {
+  position: absolute;
+  display: block;
+  content: '';
+}
+
+/* magnifying glass */
+.leaflet-control-geosearch a.leaflet-bar-part:before {
+  top: 17px;
+  left: 15px;
+  width: 6px;
+  border-top: 2px solid #555;
+  transform: rotateZ(45deg);
+}
+
+.leaflet-control-geosearch a.leaflet-bar-part:after {
+  top: 10px;
+  left: 10px;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  border: 2px solid #555;
+}
+
+/* resets for pending and error icons */
+.leaflet-control-geosearch.error a.leaflet-bar-part:before,
+.leaflet-control-geosearch.pending a.leaflet-bar-part:before {
+  display: none;
+}
+
+.leaflet-control-geosearch.pending a.leaflet-bar-part:after,
+.leaflet-control-geosearch.error a.leaflet-bar-part:after {
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+}
+
+/* pending icon */
+.leaflet-control-geosearch.pending a.leaflet-bar-part:after {
+  content: '';
+  border: 2px solid #555;
+  border-top: 2px solid #f3f3f3;
+  animation: spin 1s linear infinite;
+}
+
+/* error icon */
+.leaflet-control-geosearch.error a.leaflet-bar-part:after {
+  content: '!';
+  line-height: initial;
+  font-weight: 600;
+  font-size: 18px;
+  border: none;
+}
+
+/* search form styling */
+.leaflet-control-geosearch form {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 30px;
+  border-radius: 0 4px 4px 0;
+  background-clip: padding-box;
+  z-index: -1;
+  height: auto;
+  margin: 0;
+  padding: 0 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  transition: background-color 0.3s ease;
+
+  /* Light theme */
+  body.light-theme & {
+    background-color: #fff;
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    background-color: #2c2c3e;
+  }
+}
+
+.leaflet-geosearch-button form.open {
+  border-radius: 0 4px 4px 4px;
+}
+.leaflet-control-geosearch.active form {
+  display: block;
+}
+
+.leaflet-geosearch-button.active .leaflet-bar-part {
+  border-radius: 4px 0 0 4px;
+  width: 30px;
+}
+
+.leaflet-geosearch-button form {
+  max-width: 350px;
+}
+
+.leaflet-control-geosearch form input {
+  min-width: 200px;
+  width: 100%;
+  outline: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  height: 30px;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  text-indent: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  /* Light theme */
+  body.light-theme & {
+    background-color: #fff;
+    color: #1a1a1a;
+
+    &::placeholder {
+      color: rgba(0, 0, 0, 0.54);
+    }
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.54);
+    }
+  }
+}
+
+.leaflet-touch .leaflet-geosearch-bar form {
+  border: 2px solid rgba(0,0,0,0.2);
+  box-shadow: none;
+}
+
+.leaflet-touch .leaflet-geosearch-bar form input {
+  height: 30px;
+}
+
+.leaflet-control-geosearch .results {
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  /* Light theme */
+  body.light-theme & {
+    background: #fff;
+    color: #1a1a1a;
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    background: #2c2c3e;
+    color: #f5f5f5;
+  }
+}
+
+.leaflet-control-geosearch .results > * {
+  line-height: 24px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* Light theme */
+  body.light-theme & {
+    color: #1a1a1a;
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    color: #f5f5f5;
+  }
+}
+
+.leaflet-control-geosearch .results.active {
+  padding: 8px 0;
+
+  /* Light theme */
+  body.light-theme & {
+    border-top: 1px solid #c6c6c6;
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    border-top: 1px solid #4a4a5e;
+  }
+}
+
+.leaflet-control-geosearch .results > .active,
+.leaflet-control-geosearch .results > :hover {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  /* Light theme */
+  body.light-theme & {
+    background-color: #f8f8f8;
+    border-color: #c6c6c6;
+    color: #1a1a1a;
+  }
+
+  /* Dark theme */
+  body.dark-theme & {
+    background-color: #3a3a4e;
+    border-color: #5a5a6e;
+    color: #ffffff;
+  }
+}
+
+/* add missing border to form */
+.leaflet-control-geosearch .results.active:after {
+  content: '';
+  display: block;
+  width: 0;
+  position: absolute;
+  left: -2px;
+  bottom: -2px;
+  top: 30px;
+}
+
+.leaflet-touch .leaflet-control-geosearch .results.active:after {
+  border-left: 2px solid rgba(0, 0, 0, .2);
+}
+
+/* animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.leaflet-top .leaflet-geosearch-bar,
+.leaflet-bottom .leaflet-geosearch-bar {
+  display: none;
+}
+
+.leaflet-geosearch-bar {
+  position: relative;
+  display: block;
+  height: auto;
+  width: 400px;
+  max-width: calc(100% - 120px);
+  margin: 10px auto 0;
+  cursor: auto;
+  z-index: 1000;
+}
+
+.leaflet-geosearch-bar form {
+  position: relative;
+  top: 0;
+  left: 0;
+  display: block;
+  border-radius: 4px;
+}
+
+.leaflet-geosearch-bar form input {
+  min-width: 100%;
+  width: 100%;
+}
+
+.leaflet-geosearch-bar .results.active:after {
+  opacity: .2;
+}
+
+.leaflet-right .leaflet-control-geosearch form {
+  right: 28px;
+  left: initial;
+  border-radius: 4px 0 0 4px;
+  border-left: inherit;
+  border-right: none;
+}
+
+.leaflet-bar-notfound {
+  font-style: italic;
+}
+
+.leaflet-control-geosearch button.reset {
+  color: black;
+  font-weight: bold;
+  position: absolute;
+  line-height: 26px;
+  padding: 0 8px;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  background-color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+
+.leaflet-touch .leaflet-control-geosearch button.reset {
+  line-height: 30px;
+}
+
+.leaflet-control-geosearch button.reset:hover {
+  background: #f5f5f5;
+}
+
+/* Remove focus outline on all Leaflet markers and interactive elements */
+.leaflet-marker-pane img.leaflet-marker-icon,
+.leaflet-marker-pane .leaflet-marker-icon,
+.leaflet-marker-pane div.leaflet-marker-icon,
+.leaflet-interactive {
+  pointer-events: auto !important;
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.leaflet-marker-pane img.leaflet-marker-icon {
+  z-index: 500 !important;
+  border: none !important;
+}
+
+.leaflet-marker-pane .marker-cluster {
+  z-index: 600 !important;
+}
+
+/* ✅ Clics uniquement sur les markers visibles */
+.leaflet-marker-pane img.leaflet-marker-icon[style*="opacity: 1"],
+.leaflet-marker-pane img.leaflet-marker-icon:not([style*="opacity"]) {
+  pointer-events: auto !important;
+  z-index: 500 !important;
+}
+
+/* 👻 Empêche les markers cachés d'intercepter le clic */
+.leaflet-marker-pane img.leaflet-marker-icon[style*="opacity: 0"] {
+  pointer-events: none !important;
+}
+
+/* 🔝 Les clusters doivent rester au-dessus */
+.leaflet-marker-pane .marker-cluster {
+  z-index: 600 !important;
+}

@@ -1,0 +1,96 @@
+<mat-stepper
+  class="new-sound-stepper mat-elevation-z8"
+  [class.highlight-step-0]="isStepHighlighted(0)"
+  [class.highlight-step-1]="isStepHighlighted(1)"
+  [class.highlight-step-2]="isStepHighlighted(2)"
+  [orientation]="(stepperOrientation | async)!"
+>
+  <!-- Step 1 : upload sound-->
+  <mat-step class="mat-step-content step-0" [completed]="soundUploaded()">
+    <ng-template matStepLabel>
+      {{ "sound.sound-title" | translate }}
+    </ng-template>
+
+    <app-sound-upload-step
+      (uploaded)="onSoundUploaded($event)"
+    ></app-sound-upload-step>
+
+    <div class="stepper-actions">
+      <button mat-button matStepperNext [disabled]="!soundUploaded()">
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Step 2 : locate sound -->
+  <mat-step class="mat-step-content step-1" [completed]="!!selectedPlace()?.name">
+    <ng-template matStepLabel>
+      {{ "sound.place-title" | translate }}
+    </ng-template>
+
+    <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
+
+    <div class="stepper-actions">
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
+      <button mat-button matStepperNext [disabled]="!selectedPlace()?.name">
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Step 3A : Sound Info -->
+  <mat-step class="mat-step-content step-2" [stepControl]="thirdFormGroup">
+    <ng-template matStepLabel>{{
+      "sound.data-info-title" | translate
+    }}</ng-template>
+
+    <app-sound-data-info-step
+      (completed)="onSoundDataInfoCompleted($event)"
+    ></app-sound-data-info-step>
+
+    <div class="stepper-actions">
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
+      <button mat-button matStepperNext [disabled]="!thirdFormGroup.valid">
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Step 3B : Links & Metadata -->
+  <mat-step class="mat-step-content" [stepControl]="fourthFormGroup">
+    <ng-template matStepLabel>{{
+      "sound.data-meta-title" | translate
+    }}</ng-template>
+
+    <app-sound-data-meta-step
+      (completed)="onSoundDataMetaCompleted($event)"
+    ></app-sound-data-meta-step>
+
+    <div class="stepper-actions">
+      <button mat-button matStepperPrevious>
+        {{ "common.action.back" | translate }}
+      </button>
+      <button mat-button matStepperNext>
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- Step 4 : confirmation -->
+  <mat-step class="mat-step-content">
+    <ng-template matStepLabel>{{
+      "sound.confirmation-title" | translate
+    }}</ng-template>
+
+    <app-confirmation-step
+      [soundData]="getAllSoundData()"
+      (confirmed)="onConfirmed()"
+      (cancelled)="onCancelled()"
+      (highlightSteps)="onHighlightSteps($event)"
+    ></app-confirmation-step>
+  </mat-step>
+</mat-stepper>

@@ -51,7 +51,7 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
     MatMenuModule,
     MatTooltipModule,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);
@@ -250,5 +250,9 @@ export class AppComponent implements OnInit {
 
   goToAccount() {
     this.router.navigate(['/account']);
+  }
+
+  goToNewSound() {
+    this.router.navigate(['/new-sound']);
   }
 }

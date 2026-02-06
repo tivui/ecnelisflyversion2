@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ 'sound.sound-data-traduction-title' | translate }}</h2>
+
+<form [formGroup]="form" mat-dialog-content class="translation-grid">
+
+  @for (lang of langs; track lang) {
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>
+        @if (isShortStory) {
+          {{ 'sound.sound-data-shortStory' | translate }} {{ lang.toUpperCase() }}
+        } @else {
+          {{ 'sound.sound-data-title' | translate }} {{ lang.toUpperCase() }}
+        }
+      </mat-label>
+
+      @if (isShortStory) {
+        <textarea matInput [formControlName]="lang" rows="4"></textarea>
+      } @else {
+        <input matInput [formControlName]="lang" />
+      }
+    </mat-form-field>
+  } @empty {
+    <p>{{ 'common.noLanguages' | translate }}</p>
+  }
+</form>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">{{ 'common.action.cancel' | translate }}</button>
+  <button mat-button color="primary" (click)="save()">{{ 'common.action.save' | translate }}</button>
+</mat-dialog-actions>

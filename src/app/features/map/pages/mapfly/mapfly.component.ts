@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
+  OnDestroy,
   OnInit,
   ViewEncapsulation,
   computed,
@@ -28,9 +29,9 @@ import {
   ALL_GROUP_KEYS,
   MAP_QUERY_KEYS,
 } from '../../../../core/models/map.model';
-import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../core/services/auth.service';
+import { GeoSearchService } from '../../../../core/services/geo-search.service';
 
 @Component({
   selector: 'app-mapfly',
@@ -40,7 +41,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   styleUrls: ['./mapfly.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class MapflyComponent implements OnInit {
+export class MapflyComponent implements OnInit, OnDestroy {
   private readonly appUserService = inject(AppUserService);
   private readonly route = inject(ActivatedRoute);
   private readonly amplifyService = inject(AmplifyService);
@@ -49,6 +50,7 @@ export class MapflyComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private geoSearchService = inject(GeoSearchService);
 
   private map!: L.Map;
   private currentUserLanguage = 'fr';
@@ -135,7 +137,7 @@ export class MapflyComponent implements OnInit {
 
     let isSearchActive = false;
 
-    this.map = L.map('map', {
+    this.map = L.map('mapfly', {
       center: L.latLng(lat, lng),
       zoom,
       attributionControl: false,
@@ -743,16 +745,26 @@ export class MapflyComponent implements OnInit {
 
       this.map.addControl(controlSearch);
 
-      const provider = new OpenStreetMapProvider();
+      // Utilisation du service GeoSearchService
+      this.geoSearchService.addSearchControl(this.map, (lat, lng) => {
+        isSearchActive = true; // bloque temporairement le baselayer automatique
 
-      const searchControl = GeoSearchControl({
-        provider: provider,
-      });
+        // Centrer la carte sur le résultat
+        this.map.setView([lat, lng], 17);
 
-      this.map.addControl(searchControl);
+        // Trouver le marker correspondant si tu veux l'ouvrir
+        // Ici on suppose que fgAll contient tous les markers
+        this.fgAll.eachLayer((marker: any) => {
+          const mLatLng = marker.getLatLng();
+          if (
+            Math.abs(mLatLng.lat - lat) < 0.0001 &&
+            Math.abs(mLatLng.lng - lng) < 0.0001
+          ) {
+            marker.openPopup();
+          }
+        });
 
-      this.map.on('geosearch/showlocation', () => {
-        isSearchActive = true;
+        // Après un petit délai, réactive le changement de base layer automatique
         setTimeout(() => (isSearchActive = false), 1500);
       });
     } finally {
@@ -801,5 +813,9 @@ export class MapflyComponent implements OnInit {
     });
 
     return { [allGroupName]: Object.fromEntries(overlayEntries) };
+  }
+
+  ngOnDestroy() {
+    this.map?.remove();
   }
 }

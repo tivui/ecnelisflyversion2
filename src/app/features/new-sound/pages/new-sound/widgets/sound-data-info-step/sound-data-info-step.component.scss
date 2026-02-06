@@ -1,0 +1,349 @@
+.data-step-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Header card (harmonised)
+.header-card {
+  background: linear-gradient(135deg, var(--mat-primary-100, #e3f2fd) 0%, var(--mat-primary-50, #f1f5f9) 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  font-size: 42px;
+  width: 42px;
+  height: 42px;
+  color: var(--mat-primary-600, #1976d2);
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    color: var(--mat-primary-700, #1565c0);
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+// Form container
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Section cards (harmonised)
+.section-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--mat-primary-100, #bbdefb);
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: var(--mat-primary-600, #1976d2);
+  }
+
+  h4 {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--mat-primary-800, #1565c0);
+  }
+}
+
+// Form grid
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+// Form field group (for fields with translate button)
+.form-field-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .full-width {
+    flex: 1;
+  }
+
+  .translate-button {
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+}
+
+// Spinning animation
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes markerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Categorization layout - CSS Grid for alignment
+.categorization-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.category-field,
+.subcategory-field {
+  width: 100%;
+}
+
+// Marker preview
+.marker-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  min-width: 90px;
+  min-height: 80px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(33, 150, 243, 0.03) 100%);
+  border: 1px dashed rgba(33, 150, 243, 0.25);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &.visible {
+    border-style: solid;
+    border-color: rgba(33, 150, 243, 0.3);
+    animation: markerFadeIn 0.3s ease-out;
+
+    &:hover {
+      border-color: rgba(33, 150, 243, 0.5);
+      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+    }
+  }
+}
+
+.marker-image {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.marker-label {
+  font-size: 0.7rem;
+  color: var(--mat-primary-700, #1565c0);
+  text-align: center;
+  font-weight: 500;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .header-card {
+    background: linear-gradient(135deg, #2a2a3c 0%, #1f1f2f 100%);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+
+    .header-icon {
+      color: #b0b0c8;
+    }
+
+    .header-text {
+      h3 {
+        color: #e0e0ea;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.55);
+      }
+    }
+  }
+
+  .section-card {
+    background: #1f1f2f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    backdrop-filter: none;
+  }
+
+  .section-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+
+    mat-icon {
+      color: #b0b0c8;
+    }
+
+    h4 {
+      color: #d0d0dc;
+    }
+  }
+
+  .marker-preview {
+    background: linear-gradient(135deg, rgba(144, 202, 249, 0.1) 0%, rgba(144, 202, 249, 0.03) 100%);
+    border-color: rgba(144, 202, 249, 0.2);
+
+    &.visible {
+      border-color: rgba(144, 202, 249, 0.3);
+
+      &:hover {
+        border-color: rgba(144, 202, 249, 0.5);
+        box-shadow: 0 4px 12px rgba(144, 202, 249, 0.2);
+      }
+    }
+  }
+
+  .marker-image {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  }
+
+  .marker-label {
+    color: #90caf9;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .data-step-container {
+    padding: 16px 8px;
+    gap: 16px;
+  }
+
+  .header-card {
+    padding: 12px 16px;
+  }
+
+  .header-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .header-text {
+    h3 {
+      font-size: 1.0625rem;
+      margin: 0;
+    }
+
+    p {
+      display: none;
+    }
+  }
+
+  .section-card {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-field-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    .translate-button {
+      margin-top: 0;
+      align-self: flex-end;
+    }
+  }
+
+  .categorization-content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .marker-preview {
+    flex-direction: row;
+    justify-content: center;
+    min-height: unset;
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .marker-image {
+    width: 32px;
+    height: 32px;
+  }
+
+  .marker-label {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-card {
+    box-shadow: none;
+    padding: 12px;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+}
