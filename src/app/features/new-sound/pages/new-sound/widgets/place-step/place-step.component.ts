@@ -67,12 +67,12 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
     this.map = L.map('map-newsound', {
       center: [48.8566, 2.3522], // default Paris
       zoom: 2,
+      attributionControl: false,
     });
 
     L.tileLayer(
       `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${environment.mapboxToken}`,
       {
-        attribution: '© Mapbox © OpenStreetMap © Esri — Satellite & Streets',
         maxZoom: 21,
         maxNativeZoom: 19,
       },

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, signal, OnDestroy, HostListener, ViewChild, AfterViewInit, Renderer2, effect } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -9,6 +9,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   StepperOrientation,
   MatStepperModule,
+  MatStepper,
 } from '@angular/material/stepper';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -50,9 +51,12 @@ import { StorageService } from '../../../../core/services/storage.service';
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
 })
-export class NewSoundComponent implements OnDestroy {
+export class NewSoundComponent implements OnDestroy, AfterViewInit {
   private _formBuilder = inject(FormBuilder);
   private storageService = inject(StorageService);
+  private renderer = inject(Renderer2);
+
+  @ViewChild(MatStepper) stepper!: MatStepper;
 
   readonly soundUploaded = signal(false);
   readonly soundPath = signal<string | null>(null);
@@ -61,6 +65,8 @@ export class NewSoundComponent implements OnDestroy {
   readonly selectedPlace = signal<PlaceSelection | null>(null);
 
   readonly highlightedSteps = signal<number[]>([]);
+
+  private stepperReady = false;
 
   firstFormGroup = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
@@ -87,6 +93,47 @@ export class NewSoundComponent implements OnDestroy {
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
+
+    // Effect pour mettre à jour les styles des step headers
+    effect(() => {
+      const highlighted = this.highlightedSteps();
+      if (this.stepperReady) {
+        this.updateStepHeaderStyles(highlighted);
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.stepperReady = true;
+    // Appliquer les styles initiaux après que le stepper soit prêt
+    setTimeout(() => this.updateStepHeaderStyles(this.highlightedSteps()), 0);
+  }
+
+  /**
+   * Met à jour les styles des step headers en mode programmatique
+   * Cela fonctionne indépendamment de la structure DOM
+   */
+  private updateStepHeaderStyles(highlightedIndices: number[]): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stepperAny = this.stepper as any;
+    if (!stepperAny?._stepHeader) return;
+
+    try {
+      const headers = stepperAny._stepHeader.toArray();
+      headers.forEach((header: { _elementRef: { nativeElement: HTMLElement } }, index: number) => {
+        const el = header._elementRef?.nativeElement;
+        if (!el) return;
+
+        if (highlightedIndices.includes(index)) {
+          this.renderer.addClass(el, 'step-highlighted');
+        } else {
+          this.renderer.removeClass(el, 'step-highlighted');
+        }
+      });
+    } catch {
+      // Fallback: les sélecteurs CSS prendront le relais
+      console.warn('[NewSound] Could not access step headers programmatically');
+    }
   }
 
   @HostListener('window:beforeunload', ['$event'])
