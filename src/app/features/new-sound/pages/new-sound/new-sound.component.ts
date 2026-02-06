@@ -161,15 +161,13 @@ export class NewSoundComponent implements OnDestroy, AfterViewInit {
   }
 
   onPlaceSelected(place: PlaceSelection) {
-    console.log('Place selected:', place);
     this.selectedPlace.set(place);
   }
 
-  
+
   // Step 3A : Sound Info
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSoundDataInfoCompleted(data: any) {
-    console.log('Sound Info:', data);
     this.soundInfoData = data;
     // Marquer stepGroup valide si nécessaire
     this.thirdFormGroup.setValue({ thirdCtrl: '' });
@@ -178,7 +176,6 @@ export class NewSoundComponent implements OnDestroy, AfterViewInit {
   // Step 3B : Links & Meta
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSoundDataMetaCompleted(data: any) {
-    console.log('Sound Meta:', data);
     this.soundMetaData = data;
     this.fourthFormGroup.setValue({ fourthCtrl: '' });
   }
