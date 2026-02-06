@@ -72,8 +72,12 @@
         <mat-icon>manage_accounts</mat-icon>
         {{ "toolbar.account" | translate }}
       </button>
+      <button mat-menu-item [routerLink]="'/dashboard'">
+        <mat-icon>library_music</mat-icon>
+        {{ "toolbar.dashboard" | translate }}
+      </button>
       <button mat-menu-item (click)="goToNewSound()">
-        <mat-icon> add_location</mat-icon>
+        <mat-icon>add_location</mat-icon>
         {{ "toolbar.new-sound" | translate }}
       </button>
       <button mat-menu-item (click)="authenticator.signOut()">

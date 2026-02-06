@@ -1,0 +1,163 @@
+.dashboard-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 64px);
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .header-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mat-primary-600, #1976d2);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--mat-primary-900, #0d47a1);
+
+    @media (max-width: 480px) {
+      font-size: 20px;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  @media (max-width: 600px) {
+    justify-content: space-between;
+  }
+}
+
+.admin-toggle {
+  font-size: 14px;
+}
+
+.add-sound-btn {
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.dashboard-content {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  min-height: 400px;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  gap: 16px;
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  gap: 16px;
+  text-align: center;
+
+  .error-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--mat-error-500, #f44336);
+  }
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 16px;
+  }
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .header-left {
+    .header-icon {
+      color: #90caf9;
+    }
+
+    h1 {
+      color: #e3f2fd;
+    }
+  }
+
+  .dashboard-content {
+    background: rgba(30, 30, 46, 0.9);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .loading-container p {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .error-container {
+    .error-icon {
+      color: #ef5350;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}

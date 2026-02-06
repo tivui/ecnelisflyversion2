@@ -1,0 +1,181 @@
+.sound-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, outline 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &.is-playing {
+    outline: 2px solid var(--mat-primary-500, #1976d2);
+    outline-offset: 2px;
+  }
+}
+
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 12px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+
+  .play-btn {
+    flex-shrink: 0;
+
+    mat-icon {
+      color: var(--mat-primary-500, #1976d2);
+    }
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Status chips
+.status-chip {
+  font-size: 11px;
+  min-height: 22px;
+  padding: 0 10px;
+  flex-shrink: 0;
+
+  &.status-public {
+    --mat-chip-label-text-color: #1b5e20;
+    background-color: #e8f5e9;
+    border: 1px solid #a5d6a7;
+  }
+
+  &.status-public_to_be_approved {
+    --mat-chip-label-text-color: #e65100;
+    background-color: #fff3e0;
+    border: 1px solid #ffcc80;
+  }
+
+  &.status-private {
+    --mat-chip-label-text-color: #424242;
+    background-color: #f5f5f5;
+    border: 1px solid #bdbdbd;
+  }
+}
+
+mat-card-content {
+  flex: 1;
+  padding-top: 8px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+mat-card-actions {
+  padding: 8px 16px;
+  margin: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  button {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .delete-btn mat-icon {
+    color: var(--mat-error-500, #f44336);
+  }
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .sound-card {
+    background: #252538;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    &.is-playing {
+      outline-color: #90caf9;
+    }
+  }
+
+  .title-row {
+    .play-btn mat-icon {
+      color: #90caf9;
+    }
+
+    .card-title {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .status-chip {
+    &.status-public {
+      --mat-chip-label-text-color: #81c784;
+      background-color: rgba(76, 175, 80, 0.15);
+      border-color: rgba(129, 199, 132, 0.4);
+    }
+
+    &.status-public_to_be_approved {
+      --mat-chip-label-text-color: #ffb74d;
+      background-color: rgba(255, 152, 0, 0.15);
+      border-color: rgba(255, 183, 77, 0.4);
+    }
+
+    &.status-private {
+      --mat-chip-label-text-color: #bdbdbd;
+      background-color: rgba(189, 189, 189, 0.15);
+      border-color: rgba(189, 189, 189, 0.4);
+    }
+  }
+
+  .info-row {
+    color: rgba(255, 255, 255, 0.7);
+
+    mat-icon {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  mat-card-actions {
+    border-top-color: rgba(255, 255, 255, 0.08);
+
+    .delete-btn mat-icon {
+      color: #ef5350;
+    }
+  }
+}

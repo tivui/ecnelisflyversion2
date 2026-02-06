@@ -1,0 +1,238 @@
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  padding: 40px 20px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.3);
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 24px 0;
+    max-width: 300px;
+  }
+
+  button mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+  }
+}
+
+// Table container
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.sound-table {
+  width: 100%;
+  min-width: 700px;
+
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.87);
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .mat-mdc-cell {
+    padding: 12px 16px;
+  }
+}
+
+// Title cell with play button
+.title-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .play-btn {
+    flex-shrink: 0;
+
+    mat-icon {
+      color: var(--mat-primary-500, #1976d2);
+    }
+
+    &:hover mat-icon {
+      color: var(--mat-primary-700, #1565c0);
+    }
+  }
+
+  .title-text {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+  }
+}
+
+// Location cell
+.location-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .location-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+// Status chips
+.status-chip {
+  font-size: 12px;
+  min-height: 24px;
+  padding: 0 12px;
+
+  &.status-public {
+    --mat-chip-label-text-color: #1b5e20;
+    background-color: #e8f5e9;
+    border: 1px solid #a5d6a7;
+  }
+
+  &.status-public_to_be_approved {
+    --mat-chip-label-text-color: #e65100;
+    background-color: #fff3e0;
+    border: 1px solid #ffcc80;
+  }
+
+  &.status-private {
+    --mat-chip-label-text-color: #424242;
+    background-color: #f5f5f5;
+    border: 1px solid #bdbdbd;
+  }
+}
+
+// Action buttons
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+
+  button {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .delete-btn {
+    mat-icon {
+      color: var(--mat-error-500, #f44336);
+    }
+
+    &:hover mat-icon {
+      color: var(--mat-error-700, #d32f2f);
+    }
+  }
+}
+
+.no-data {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+// Cards layout (mobile)
+.sound-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+// Paginator
+mat-paginator {
+  background: transparent;
+  margin-top: 16px;
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .empty-state {
+    mat-icon {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .sound-table {
+    .mat-mdc-header-cell {
+      color: rgba(255, 255, 255, 0.87);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .mat-mdc-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  .title-cell {
+    .play-btn mat-icon {
+      color: #90caf9;
+    }
+
+    .play-btn:hover mat-icon {
+      color: #bbdefb;
+    }
+  }
+
+  .location-cell .location-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .status-chip {
+    &.status-public {
+      --mat-chip-label-text-color: #81c784;
+      background-color: rgba(76, 175, 80, 0.15);
+      border-color: rgba(129, 199, 132, 0.4);
+    }
+
+    &.status-public_to_be_approved {
+      --mat-chip-label-text-color: #ffb74d;
+      background-color: rgba(255, 152, 0, 0.15);
+      border-color: rgba(255, 183, 77, 0.4);
+    }
+
+    &.status-private {
+      --mat-chip-label-text-color: #bdbdbd;
+      background-color: rgba(189, 189, 189, 0.15);
+      border-color: rgba(189, 189, 189, 0.4);
+    }
+  }
+
+  .action-buttons {
+    .delete-btn mat-icon {
+      color: #ef5350;
+    }
+
+    .delete-btn:hover mat-icon {
+      color: #e57373;
+    }
+  }
+
+  .no-data {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
