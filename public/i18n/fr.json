@@ -139,7 +139,13 @@
     "link-title-requires-url": "Entrez d'abord une URL valide",
     "hashtags": "Hashtags",
     "hashtags-placeholder": "Entrez des hashtags séparés par des espaces (ex: #nature #ville)",
-    "hashtags-hint": "Utilisez des hashtags pour améliorer la recherche de votre son. Séparez-les par des espaces."
+    "hashtags-hint": "Utilisez des hashtags pour améliorer la recherche de votre son. Séparez-les par des espaces.",
+    "admin": {
+      "user-section": "Utilisateur à lier",
+      "linked-user": "Utilisateur",
+      "search-user": "Rechercher un utilisateur",
+      "linked-user-hint": "Sélectionnez l'utilisateur auquel ce son sera attribué"
+    }
   },
   "admin": {
     "database": {

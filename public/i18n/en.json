@@ -138,7 +138,13 @@
     "link-title-requires-url": "Enter a valid URL first",
     "hashtags": "Hashtags",
     "hashtags-placeholder": "Enter hashtags separated by spaces (e.g. nature soundrecording)",
-    "hashtags-hint": "Use spaces to separate multiple hashtags. Example: nature soundrecording"
+    "hashtags-hint": "Use spaces to separate multiple hashtags. Example: nature soundrecording",
+    "admin": {
+      "user-section": "User Assignment",
+      "linked-user": "User",
+      "search-user": "Search for a user",
+      "linked-user-hint": "Select the user to whom this sound will be assigned"
+    }
   },
   "admin": {
     "database": {

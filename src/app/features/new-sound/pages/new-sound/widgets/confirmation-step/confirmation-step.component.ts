@@ -41,6 +41,7 @@ export interface SoundData {
   license?: string;
   status?: string;
   hashtags?: string;
+  linkedUserId?: string;
 }
 
 @Component({
@@ -183,8 +184,9 @@ export class ConfirmationStepComponent implements OnChanges {
       }
 
       // Préparer les données pour DynamoDB
+      // Si un admin a sélectionné un autre utilisateur, utiliser son ID
       const soundToCreate = {
-        userId: appUser.id,
+        userId: this.soundData.linkedUserId || appUser.id,
         title: this.soundData.title_i18n?.[this.currentLang] || '',
         title_i18n: this.soundData.title_i18n
           ? JSON.stringify(this.soundData.title_i18n)

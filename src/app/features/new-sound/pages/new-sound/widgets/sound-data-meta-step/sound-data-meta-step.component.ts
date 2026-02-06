@@ -12,23 +12,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  DateAdapter,
-  MAT_DATE_LOCALE,
-  MatNativeDateModule,
-} from '@angular/material/core';
 
+import { firstValueFrom } from 'rxjs';
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
-import { LanguageDetectionService } from '../../../../../../core/services/language-detection.service';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { AppUserService } from '../../../../../../core/services/app-user.service';
 
 import {
   LicenseType,
   SoundStatus,
 } from '../../../../../../core/models/sound.model';
+
+interface UserOption {
+  id: string;
+  username: string;
+  email?: string;
+}
 
 /**
  * Common TLDs that are widely used on the web.
@@ -69,20 +70,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule,
     MatAutocompleteModule,
     TranslateModule,
     MatSelectModule,
     MatTooltipModule,
-    MatDatepickerModule,
-    MatNativeDateModule
-  ],
-  providers: [
-    {
-      provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.getCurrentLang(),
-      deps: [TranslateService],
-    },
   ],
   templateUrl: './sound-data-meta-step.component.html',
   styleUrl: './sound-data-meta-step.component.scss',
@@ -90,11 +81,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class SoundDataMetaStepComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
-  private languageDetectionService = inject(LanguageDetectionService);
-  private dialog = inject(MatDialog);
   private amplifyService = inject(AmplifyService);
   private translate = inject(TranslateService);
-  private dateAdapter = inject(DateAdapter<Date>);
+  private authService = inject(AuthService);
+  private appUserService = inject(AppUserService);
 
   /* ================= OUTPUT ================= */
 
@@ -106,7 +96,16 @@ export class SoundDataMetaStepComponent implements OnInit {
     license: LicenseType;
     status: SoundStatus;
     hashtags?: string;
+    linkedUserId?: string;
   }>();
+
+  /* ================= ADMIN USER SELECTION ================= */
+
+  isAdmin = false;
+  allUsers: UserOption[] = [];
+  filteredUsers: UserOption[] = [];
+  userControl = new FormControl<UserOption | null>(null);
+  currentUser: UserOption | null = null;
 
   /* ================= FORM ================= */
 
@@ -293,13 +292,92 @@ export class SoundDataMetaStepComponent implements OnInit {
       this.emitCompleted();
     });
 
+    // Subscribe to user control changes
+    this.userControl.valueChanges.subscribe(() => {
+      this.emitCompleted();
+    });
+
+    // Check if user is admin and load users
+    this.initAdminSection();
+
     // Emit initial values
     this.emitCompleted();
+  }
+
+  /**
+   * Initialize admin section: check admin status, load users
+   */
+  private async initAdminSection() {
+    this.isAdmin = this.authService.isInGroup('ADMIN');
+
+    if (this.isAdmin) {
+      // Get current user
+      const appUser = await firstValueFrom(this.appUserService.currentUser$);
+      if (appUser) {
+        this.currentUser = {
+          id: appUser.id,
+          username: appUser.username,
+          email: appUser.email,
+        };
+        // Set current user as default
+        this.userControl.setValue(this.currentUser);
+      }
+
+      // Load all users
+      await this.loadAllUsers();
+
+      // Setup autocomplete filtering
+      this.userControl.valueChanges.subscribe((value) => {
+        this.filteredUsers = this.filterUsers(value);
+      });
+    }
+  }
+
+  /**
+   * Load all users from the database (admin only)
+   */
+  private async loadAllUsers() {
+    try {
+      const result = await this.amplifyService.client.models.User.list();
+      if (result.data) {
+        this.allUsers = result.data.map((u) => ({
+          id: u.id,
+          username: u.username,
+          email: u.email ?? undefined,
+        }));
+        this.filteredUsers = [...this.allUsers];
+      }
+    } catch (error) {
+      console.error('[SoundDataMetaStep] Failed to load users:', error);
+    }
+  }
+
+  /**
+   * Filter users for autocomplete
+   */
+  private filterUsers(value: string | UserOption | null): UserOption[] {
+    if (!value) return [...this.allUsers];
+    if (typeof value !== 'string') return [...this.allUsers];
+
+    const filterValue = value.toLowerCase();
+    return this.allUsers.filter(
+      (user) =>
+        user.username.toLowerCase().includes(filterValue) ||
+        (user.email?.toLowerCase().includes(filterValue) ?? false)
+    );
+  }
+
+  /**
+   * Display function for user autocomplete
+   */
+  displayUserFn(user: UserOption | null): string {
+    return user ? user.username : '';
   }
 
   /* ================= EMIT ================= */
 
   private emitCompleted() {
+    const selectedUser = this.userControl.value;
     this.completed.emit({
       url: this.form.value.url?.trim() || undefined,
       urlTitle: this.form.value.urlTitle?.trim() || undefined,
@@ -308,6 +386,7 @@ export class SoundDataMetaStepComponent implements OnInit {
       license: this.licenseControl.value || 'CC_BY',
       status: this.statusControl.value || 'public',
       hashtags: this.form.value.hashtags?.trim() || undefined,
+      linkedUserId: selectedUser?.id,
     });
   }
 

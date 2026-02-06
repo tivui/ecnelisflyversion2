@@ -282,6 +282,42 @@
   grid-column: 1 / -1;
 }
 
+// Admin section
+.admin-section {
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(255, 255, 255, 0.8) 100%);
+
+  .section-header {
+    border-bottom-color: rgba(156, 39, 176, 0.3);
+
+    mat-icon {
+      color: #9c27b0;
+    }
+
+    h4 {
+      color: #7b1fa2;
+    }
+  }
+}
+
+// User option in autocomplete
+.user-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+
+  .user-name {
+    font-weight: 500;
+    color: inherit;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
 // Dark mode
 :host-context(.dark-theme) {
   .header-card {
@@ -385,6 +421,29 @@
 
   .url-icon {
     color: rgba(255, 255, 255, 0.4);
+  }
+
+  .admin-section {
+    border-color: rgba(206, 147, 216, 0.4);
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, #1f1f2f 100%);
+
+    .section-header {
+      border-bottom-color: rgba(206, 147, 216, 0.3);
+
+      mat-icon {
+        color: #ce93d8;
+      }
+
+      h4 {
+        color: #e1bee7;
+      }
+    }
+  }
+
+  .user-option {
+    .user-email {
+      color: rgba(255, 255, 255, 0.5);
+    }
   }
 }
 

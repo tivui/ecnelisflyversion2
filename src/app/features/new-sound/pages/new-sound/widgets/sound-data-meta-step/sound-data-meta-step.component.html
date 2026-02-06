@@ -205,5 +205,45 @@
         </mat-form-field>
       </div>
     </div>
+
+    <!-- Admin Section: User Assignment -->
+    @if (isAdmin) {
+      <div class="section-card admin-section">
+        <div class="section-header">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <h4>{{ "sound.admin.user-section" | translate }}</h4>
+        </div>
+
+        <div class="form-grid">
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>{{ "sound.admin.linked-user" | translate }}</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="userControl"
+              [matAutocomplete]="userAuto"
+              placeholder="{{ 'sound.admin.search-user' | translate }}"
+            />
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-autocomplete
+              #userAuto="matAutocomplete"
+              [displayWith]="displayUserFn"
+            >
+              @for (user of filteredUsers; track user.id) {
+                <mat-option [value]="user">
+                  <div class="user-option">
+                    <span class="user-name">{{ user.username }}</span>
+                    @if (user.email) {
+                      <span class="user-email">{{ user.email }}</span>
+                    }
+                  </div>
+                </mat-option>
+              }
+            </mat-autocomplete>
+            <mat-hint>{{ "sound.admin.linked-user-hint" | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+    }
   </form>
 </div>
