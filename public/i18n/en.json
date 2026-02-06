@@ -3,6 +3,8 @@
     "welcome": "Welcome {{name}} 🎉"
   },
   "common": {
+    "save": "Save",
+    "cancel": "Cancel",
     "action": {
       "translate": "Translate",
       "save": "Save",
@@ -23,6 +25,7 @@
   "toolbar": {
     "account": "Manage my account",
     "new-sound": "New sound",
+    "dashboard": "My Sounds",
     "login": "Login",
     "logout": "Logout",
     "dark": "Dark Mode",
@@ -34,6 +37,59 @@
     "fullscreen": {
       "enter": "Enter fullscreen",
       "exit": "Exit fullscreen"
+    }
+  },
+  "dashboard": {
+    "title": "My Sounds",
+    "loading": "Loading...",
+    "noSounds": "You haven't added any sounds yet.",
+    "addFirstSound": "Add your first sound",
+    "addSound": "Add sound",
+    "loadError": "Failed to load sounds.",
+    "refresh": "Refresh",
+    "audioError": "Audio playback error",
+    "table": {
+      "title": "Title",
+      "category": "Category",
+      "status": "Status",
+      "location": "Location",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "play": "Play",
+      "stop": "Stop",
+      "viewOnMap": "View on map"
+    },
+    "edit": {
+      "title": "Edit Sound",
+      "tabInfo": "Information",
+      "tabLocation": "Location",
+      "tabMeta": "Metadata",
+      "saving": "Saving...",
+      "saveSuccess": "Sound updated successfully",
+      "saveError": "Failed to update sound",
+      "mapHint": "Click on the map or drag the marker to change the position",
+      "coordinates": "Coordinates"
+    },
+    "delete": {
+      "title": "Delete Sound",
+      "message": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "Sound deleted successfully",
+      "error": "Failed to delete sound"
+    },
+    "status": {
+      "private": "Private",
+      "public_to_be_approved": "Pending",
+      "public": "Public"
+    },
+    "admin": {
+      "showAll": "Show all sounds",
+      "userColumn": "User"
     }
   },
   "account": {
@@ -49,6 +105,10 @@
   },
   "sound": {
     "sound-title": "Sound",
+    "sound-title-placeholder": "Enter sound title",
+    "category": "Category",
+    "category-placeholder": "Select a category",
+    "secondary-category": "Sub-category",
     "upload": {
       "title": "Import audio file",
       "placeholder": "No file selected",
@@ -136,6 +196,10 @@
     "link-uncommon-tld": "Unusual domain extension - please verify the URL",
     "link-uncommon-tld-short": "Verify URL",
     "link-title-requires-url": "Enter a valid URL first",
+    "link-title-1": "Link 1",
+    "link-title-2": "Link 2",
+    "link-url-1": "URL for link 1",
+    "link-url-2": "URL for link 2",
     "hashtags": "Hashtags",
     "hashtags-placeholder": "Enter hashtags separated by spaces (e.g. nature soundrecording)",
     "hashtags-hint": "Use spaces to separate multiple hashtags. Example: nature soundrecording",

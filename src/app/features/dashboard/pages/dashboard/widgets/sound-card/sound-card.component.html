@@ -1,0 +1,84 @@
+<mat-card class="sound-card" [class.is-playing]="isPlaying">
+  <mat-card-header>
+    <div class="card-header-content">
+      <div class="title-row">
+        <button
+          mat-icon-button
+          class="play-btn"
+          (click)="onPlayClick()"
+          [matTooltip]="
+            isPlaying
+              ? ('dashboard.actions.stop' | translate)
+              : ('dashboard.actions.play' | translate)
+          "
+        >
+          <mat-icon>{{ isPlaying ? "stop" : "play_arrow" }}</mat-icon>
+        </button>
+        <h3 class="card-title">{{ displayTitle }}</h3>
+      </div>
+      <mat-chip [class]="'status-chip ' + statusClass">
+        {{ statusText }}
+      </mat-chip>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- User (admin mode) -->
+    @if (showUser && sound.user?.username) {
+      <div class="info-row">
+        <mat-icon>person</mat-icon>
+        <span>{{ sound.user?.username }}</span>
+      </div>
+    }
+
+    <!-- Category -->
+    @if (displayCategory) {
+      <div class="info-row">
+        <mat-icon>category</mat-icon>
+        <span>{{ displayCategory }}</span>
+      </div>
+    }
+
+    <!-- Location -->
+    @if (sound.city) {
+      <div class="info-row">
+        <mat-icon>place</mat-icon>
+        <span>{{ sound.city }}</span>
+      </div>
+    }
+
+    <!-- Date -->
+    @if (sound.recordDateTime) {
+      <div class="info-row">
+        <mat-icon>event</mat-icon>
+        <span>{{ formatDate(sound.recordDateTime) }}</span>
+      </div>
+    }
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button
+      mat-icon-button
+      [matTooltip]="'dashboard.actions.edit' | translate"
+      (click)="onEditClick()"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      [matTooltip]="'dashboard.actions.viewOnMap' | translate"
+      (click)="onViewOnMapClick()"
+      [disabled]="!sound.latitude || !sound.longitude"
+    >
+      <mat-icon>map</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      [matTooltip]="'dashboard.actions.delete' | translate"
+      (click)="onDeleteClick()"
+      class="delete-btn"
+    >
+      <mat-icon>delete</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>

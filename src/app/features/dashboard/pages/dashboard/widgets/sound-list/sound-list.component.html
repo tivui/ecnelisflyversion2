@@ -1,0 +1,174 @@
+<!-- Empty state -->
+@if (sounds.length === 0) {
+  <div class="empty-state">
+    <mat-icon>library_music</mat-icon>
+    <p>{{ "dashboard.noSounds" | translate }}</p>
+    <button mat-raised-button color="primary" routerLink="/new-sound">
+      <mat-icon>add</mat-icon>
+      {{ "dashboard.addFirstSound" | translate }}
+    </button>
+  </div>
+} @else {
+  <!-- Mobile: Cards layout -->
+  @if (isMobile()) {
+    <div class="sound-cards">
+      @for (sound of paginatedSounds; track trackBySound($index, sound)) {
+        <app-sound-card
+          [sound]="sound"
+          [isPlaying]="isPlaying(sound)"
+          [showUser]="showUserColumn"
+          (edit)="openEditDialog(sound)"
+          (delete)="confirmDelete(sound)"
+          (play)="playAudio(sound)"
+          (stop)="stopAudio()"
+          (viewOnMap)="viewOnMap(sound)"
+        />
+      }
+    </div>
+  } @else {
+    <!-- Desktop: Table layout -->
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="paginatedSounds"
+        matSort
+        (matSortChange)="sortData($event)"
+        class="sound-table"
+      >
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.table.title" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            <div class="title-cell">
+              <button
+                mat-icon-button
+                class="play-btn"
+                (click)="playAudio(sound)"
+                [matTooltip]="
+                  isPlaying(sound)
+                    ? ('dashboard.actions.stop' | translate)
+                    : ('dashboard.actions.play' | translate)
+                "
+              >
+                <mat-icon>{{
+                  isPlaying(sound) ? "stop" : "play_arrow"
+                }}</mat-icon>
+              </button>
+              <span class="title-text">{{ getDisplayTitle(sound) }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- User Column (admin only) -->
+        <ng-container matColumnDef="user">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.admin.userColumn" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            {{ sound.user?.username || "-" }}
+          </td>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.table.category" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            {{ getDisplayCategory(sound) }}
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.table.status" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            <mat-chip
+              [class]="'status-chip status-' + (sound.status || 'unknown')"
+            >
+              {{ getStatusText(sound.status) }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- City Column -->
+        <ng-container matColumnDef="city">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.table.location" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            @if (sound.city) {
+              <div class="location-cell">
+                <mat-icon class="location-icon">place</mat-icon>
+                <span>{{ sound.city }}</span>
+              </div>
+            } @else {
+              <span class="no-data">-</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ "dashboard.table.date" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            {{ formatDate(sound.recordDateTime) }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ "dashboard.table.actions" | translate }}
+          </th>
+          <td mat-cell *matCellDef="let sound">
+            <div class="action-buttons">
+              <button
+                mat-icon-button
+                [matTooltip]="'dashboard.actions.edit' | translate"
+                (click)="openEditDialog(sound)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                [matTooltip]="'dashboard.actions.viewOnMap' | translate"
+                (click)="viewOnMap(sound)"
+                [disabled]="!sound.latitude || !sound.longitude"
+              >
+                <mat-icon>map</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                [matTooltip]="'dashboard.actions.delete' | translate"
+                (click)="confirmDelete(sound)"
+                class="delete-btn"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  }
+
+  <!-- Paginator -->
+  <mat-paginator
+    [length]="sounds.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    [pageIndex]="pageIndex"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  />
+}

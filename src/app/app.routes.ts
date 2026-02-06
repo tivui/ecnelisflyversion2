@@ -13,6 +13,14 @@ export const routes: Routes = [
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'new-sound', component: NewSoundComponent, canActivate: [authGuard] },
   {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.routes').then(
+        (m) => m.DASHBOARD_ROUTES,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'admin/database',
     loadChildren: () =>
       import('./features/admin/database/database.routes').then(

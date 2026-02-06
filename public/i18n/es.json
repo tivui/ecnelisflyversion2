@@ -3,6 +3,8 @@
     "welcome": "Bienvenido {{name}} 🎉"
   },
   "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
     "action": {
       "translate": "Traducir",
       "save": "Guardar",
@@ -23,6 +25,7 @@
   "toolbar": {
     "account": "Gestionar mi cuenta",
     "new-sound": "Nuevo sonido",
+    "dashboard": "Mis Sonidos",
     "login": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "dark": "Oscuro",
@@ -34,6 +37,59 @@
     "fullscreen": {
       "enter": "Entrar pantalla completa",
       "exit": "Salir pantalla completa"
+    }
+  },
+  "dashboard": {
+    "title": "Mis Sonidos",
+    "loading": "Cargando...",
+    "noSounds": "Aún no has añadido ningún sonido.",
+    "addFirstSound": "Añadir tu primer sonido",
+    "addSound": "Añadir sonido",
+    "loadError": "Error al cargar los sonidos.",
+    "refresh": "Actualizar",
+    "audioError": "Error de reproducción de audio",
+    "table": {
+      "title": "Título",
+      "category": "Categoría",
+      "status": "Estado",
+      "location": "Ubicación",
+      "date": "Fecha",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "play": "Reproducir",
+      "stop": "Detener",
+      "viewOnMap": "Ver en el mapa"
+    },
+    "edit": {
+      "title": "Editar Sonido",
+      "tabInfo": "Información",
+      "tabLocation": "Ubicación",
+      "tabMeta": "Metadatos",
+      "saving": "Guardando...",
+      "saveSuccess": "Sonido actualizado con éxito",
+      "saveError": "Error al actualizar el sonido",
+      "mapHint": "Haga clic en el mapa o arrastre el marcador para cambiar la posición",
+      "coordinates": "Coordenadas"
+    },
+    "delete": {
+      "title": "Eliminar Sonido",
+      "message": "¿Estás seguro de que deseas eliminar \"{{title}}\"? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar",
+      "success": "Sonido eliminado con éxito",
+      "error": "Error al eliminar el sonido"
+    },
+    "status": {
+      "private": "Privado",
+      "public_to_be_approved": "Pendiente",
+      "public": "Público"
+    },
+    "admin": {
+      "showAll": "Ver todos los sonidos",
+      "userColumn": "Usuario"
     }
   },
   "account": {
@@ -49,6 +105,10 @@
   },
   "sound": {
     "sound-title": "Sonido",
+    "sound-title-placeholder": "Ingrese el título del sonido",
+    "category": "Categoría",
+    "category-placeholder": "Seleccione una categoría",
+    "secondary-category": "Subcategoría",
     "upload": {
       "title": "Importar archivo de audio",
       "placeholder": "Ningún archivo seleccionado",
@@ -135,6 +195,10 @@
     "link-uncommon-tld": "Extensión de dominio inusual - verifique la URL",
     "link-uncommon-tld-short": "Verificar URL",
     "link-title-requires-url": "Ingrese primero una URL válida",
+    "link-title-1": "Enlace 1",
+    "link-title-2": "Enlace 2",
+    "link-url-1": "URL del enlace 1",
+    "link-url-2": "URL del enlace 2",
     "hashtags": "Hashtags",
     "hashtags-placeholder": "Ingrese hashtags separados por espacios (ejemplo: #naturaleza #ciudad)",
     "hashtags-hint": "Utilice hashtags para mejorar la búsqueda de su sonido. Separe los hashtags con espacios.",

@@ -4,6 +4,7 @@ export type SoundStatus = 'private' | 'public_to_be_approved' | 'public';
 export type LicenseType = 'READ_ONLY' | 'PUBLIC_DOMAIN' | 'CC_BY' | 'CC_BY_NC';
 
 export class Sound {
+  id?: string;
   userId!: string;
 
   // User info à exposer

@@ -12,6 +12,7 @@ export class SoundsService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map(raw: any): Sound {
     return new Sound({
+      id: raw.id,
       userId: raw.userId,
       user: raw.user
         ? {

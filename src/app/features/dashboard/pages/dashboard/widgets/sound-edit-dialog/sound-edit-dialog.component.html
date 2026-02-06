@@ -1,0 +1,248 @@
+<div class="edit-dialog">
+  <div class="dialog-header">
+    <h2>{{ "dashboard.edit.title" | translate }}</h2>
+    <button mat-icon-button (click)="cancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <mat-tab-group
+      [selectedIndex]="activeTab()"
+      (selectedIndexChange)="onTabChange($event)"
+      animationDuration="200ms"
+    >
+      <!-- Tab 1: Informations -->
+      <mat-tab [label]="'dashboard.edit.tabInfo' | translate">
+        <div class="tab-content">
+          <form [formGroup]="infoForm" class="form-grid">
+            <!-- Title -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ "sound.title" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="title"
+                [placeholder]="'sound.title-placeholder' | translate"
+                (blur)="translateField('title')"
+              />
+              <mat-icon matSuffix>title</mat-icon>
+              @if (translatingTitle()) {
+                <mat-spinner matSuffix diameter="20"></mat-spinner>
+              }
+              @if (infoForm.get('title')?.hasError('required')) {
+                <mat-error>{{ "sound.validation.title" | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Short Story -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ "sound.short-story" | translate }}</mat-label>
+              <textarea
+                matInput
+                formControlName="shortStory"
+                rows="3"
+                [placeholder]="'sound.short-story-placeholder' | translate"
+                (blur)="translateField('shortStory')"
+              ></textarea>
+              @if (translatingStory()) {
+                <mat-spinner matSuffix diameter="20"></mat-spinner>
+              }
+            </mat-form-field>
+
+            <!-- Category -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.category" | translate }}</mat-label>
+              <input
+                type="text"
+                matInput
+                [formControl]="categoryControl"
+                [matAutocomplete]="categoryAuto"
+              />
+              <mat-autocomplete
+                #categoryAuto="matAutocomplete"
+                [displayWith]="displayFn"
+              >
+                @for (option of filteredCategories; track option.key) {
+                  <mat-option [value]="option">{{ option.label }}</mat-option>
+                }
+              </mat-autocomplete>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+
+            <!-- Secondary Category -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.secondary-category" | translate }}</mat-label>
+              <input
+                type="text"
+                matInput
+                [formControl]="secondaryCategoryControl"
+                [matAutocomplete]="subCategoryAuto"
+              />
+              <mat-autocomplete
+                #subCategoryAuto="matAutocomplete"
+                [displayWith]="displayFn"
+              >
+                @for (option of filteredSecondaryCategories; track option.key) {
+                  <mat-option [value]="option">{{ option.label }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Record Date -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.record-date" | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="picker"
+                formControlName="recordDateTime"
+              />
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Equipment -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.equipment" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="equipment"
+                [placeholder]="'sound.equipment-placeholder' | translate"
+              />
+              <mat-icon matSuffix>mic</mat-icon>
+            </mat-form-field>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Location -->
+      <mat-tab [label]="'dashboard.edit.tabLocation' | translate">
+        <div class="tab-content">
+          <form [formGroup]="locationForm" class="form-grid">
+            <!-- Map -->
+            <div class="map-container full-width">
+              <div id="edit-map"></div>
+              <p class="map-hint">{{ "dashboard.edit.mapHint" | translate }}</p>
+            </div>
+
+            <!-- City -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ "sound.place-name" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="city"
+                [placeholder]="'sound.place-name-placeholder' | translate"
+              />
+              <mat-icon matSuffix>place</mat-icon>
+            </mat-form-field>
+
+            <!-- Coordinates (read-only display) -->
+            <div class="coordinates-display">
+              <span class="coord-label">{{ "dashboard.edit.coordinates" | translate }}:</span>
+              @if (locationForm.get('latitude')?.value && locationForm.get('longitude')?.value) {
+                <span class="coord-value">
+                  {{ locationForm.get('latitude')?.value | number:'1.4-4' }},
+                  {{ locationForm.get('longitude')?.value | number:'1.4-4' }}
+                </span>
+              } @else {
+                <span class="coord-empty">-</span>
+              }
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Metadata -->
+      <mat-tab [label]="'dashboard.edit.tabMeta' | translate">
+        <div class="tab-content">
+          <form [formGroup]="metaForm" class="form-grid">
+            <!-- Status -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.status" | translate }}</mat-label>
+              <mat-select [formControl]="statusControl">
+                @for (option of statusOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    {{ option.label | translate }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- License -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.license" | translate }}</mat-label>
+              <mat-select [formControl]="licenseControl">
+                @for (option of licenseOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    {{ option.label | translate }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!-- URL 1 -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.link-url" | translate }}</mat-label>
+              <input matInput formControlName="url" type="url" />
+              <mat-icon matSuffix>link</mat-icon>
+            </mat-form-field>
+
+            <!-- URL Title 1 -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.link-title" | translate }}</mat-label>
+              <input matInput formControlName="urlTitle" />
+            </mat-form-field>
+
+            <!-- URL 2 -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.link-url-2" | translate }}</mat-label>
+              <input matInput formControlName="secondaryUrl" type="url" />
+              <mat-icon matSuffix>link</mat-icon>
+            </mat-form-field>
+
+            <!-- URL Title 2 -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ "sound.link-title-2" | translate }}</mat-label>
+              <input matInput formControlName="secondaryUrlTitle" />
+            </mat-form-field>
+
+            <!-- Hashtags -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ "sound.hashtags" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="hashtags"
+                [placeholder]="'sound.hashtags-placeholder' | translate"
+              />
+              <mat-icon matSuffix>tag</mat-icon>
+            </mat-form-field>
+          </form>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="cancel()" [disabled]="saving()">
+      {{ "common.cancel" | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="saving() || infoForm.invalid"
+    >
+      @if (saving()) {
+        <mat-spinner diameter="20"></mat-spinner>
+        {{ "dashboard.edit.saving" | translate }}
+      } @else {
+        <ng-container>
+          <mat-icon>save</mat-icon>
+          {{ "common.save" | translate }}
+        </ng-container>
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

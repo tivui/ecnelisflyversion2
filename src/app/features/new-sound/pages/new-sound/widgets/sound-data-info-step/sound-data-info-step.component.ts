@@ -19,7 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
   DateAdapter,
   MAT_DATE_LOCALE,
-  MatNativeDateModule,
+  provideNativeDateAdapter,
 } from '@angular/material/core';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
@@ -58,12 +58,12 @@ interface Option {
     MatSelectModule,
     MatTooltipModule,
     MatDatepickerModule,
-    MatNativeDateModule,
   ],
   providers: [
+    provideNativeDateAdapter(),
     {
       provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.getCurrentLang(),
+      useFactory: (translate: TranslateService) => translate.currentLang,
       deps: [TranslateService],
     },
   ],
