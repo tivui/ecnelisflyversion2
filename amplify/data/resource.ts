@@ -1,17 +1,8 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
-import { categories, CategoryKey, getSubCategoryKeys } from './categories';
+import { CategoryKey } from './categories';
 import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 import { deleteSoundFile } from '../functions/delete-sound-file/resource';
-
-// Generate an array containing all valid category and subcategory keys
-const allCategoryKeys = Object.values(categories).flatMap((cat) => [
-  cat.key,
-  ...cat.subcategories.map((sub) => sub.key),
-]);
-
-// Define an Amplify enum with all valid keys
-const CategoryEnum = a.enum(allCategoryKeys);
 
 /**
  * Single-table schema definition (DynamoDB)

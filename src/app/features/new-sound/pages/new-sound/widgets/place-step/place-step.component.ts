@@ -66,7 +66,7 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   private initMap() {
     this.map = L.map('map-newsound', {
       center: [48.8566, 2.3522], // default Paris
-      zoom: 13,
+      zoom: 2,
     });
 
     L.tileLayer(

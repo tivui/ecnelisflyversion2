@@ -103,6 +103,180 @@
   gap: 20px;
 }
 
+// Links container
+.links-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+// Link card
+.link-card {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+
+  &.has-content {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.01);
+  }
+
+  &.valid {
+    border-color: rgba(76, 175, 80, 0.4);
+    background: rgba(76, 175, 80, 0.03);
+  }
+
+  &.warning {
+    border-color: rgba(255, 152, 0, 0.4);
+    background: rgba(255, 152, 0, 0.03);
+  }
+}
+
+.link-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.link-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mat-primary-100, #bbdefb);
+  color: var(--mat-primary-700, #1565c0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.link-label {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.link-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  margin-left: auto;
+  animation: fadeIn 0.2s ease-out;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  span {
+    font-size: 0.7rem;
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.valid {
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+
+    mat-icon {
+      color: #4caf50;
+    }
+
+    span {
+      color: #2e7d32;
+    }
+  }
+
+  &.warning {
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+
+    mat-icon {
+      color: #f57c00;
+    }
+
+    span {
+      color: #e65100;
+    }
+  }
+}
+
+.open-link-btn {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  padding: 0 !important;
+  line-height: 20px !important;
+  margin-left: 4px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  .mat-mdc-button-touch-target {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  mat-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    line-height: 14px !important;
+    color: var(--mat-primary-500, #1976d2);
+  }
+
+  &:hover mat-icon {
+    color: var(--mat-primary-700, #1565c0);
+  }
+}
+
+.link-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .url-field,
+  .title-field {
+    width: 100%;
+  }
+
+  .title-field {
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// URL icon (default state)
+.url-icon {
+  color: rgba(0, 0, 0, 0.4);
+}
+
 // Hashtags field takes full width
 .hashtags-field {
   grid-column: 1 / -1;
@@ -146,6 +320,71 @@
     h4 {
       color: #d0d0dc;
     }
+  }
+
+  .link-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+
+    &.has-content {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.valid {
+      border-color: rgba(102, 187, 106, 0.4);
+      background: rgba(102, 187, 106, 0.08);
+    }
+
+    &.warning {
+      border-color: rgba(255, 183, 77, 0.4);
+      background: rgba(255, 183, 77, 0.08);
+    }
+  }
+
+  .link-number {
+    background: rgba(144, 202, 249, 0.2);
+    color: #90caf9;
+  }
+
+  .link-label {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .link-status {
+    &.valid {
+      background-color: rgba(102, 187, 106, 0.15);
+      border-color: rgba(102, 187, 106, 0.3);
+
+      mat-icon {
+        color: #81c784;
+      }
+
+      span {
+        color: #a5d6a7;
+      }
+    }
+
+    &.warning {
+      background-color: rgba(255, 183, 77, 0.15);
+      border-color: rgba(255, 183, 77, 0.3);
+
+      mat-icon {
+        color: #ffb74d;
+      }
+
+      span {
+        color: #ffcc80;
+      }
+    }
+  }
+
+  .open-link-btn mat-icon {
+    color: #90caf9;
+  }
+
+  .url-icon {
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 

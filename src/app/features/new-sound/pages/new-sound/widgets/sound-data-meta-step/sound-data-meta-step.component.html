@@ -18,52 +18,124 @@
         <h4>{{ "sound.links-section" | translate }}</h4>
       </div>
 
-      <div class="form-grid">
-        <!-- LINK 1 URL -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ "sound.link1-url" | translate }}</mat-label>
-          <input matInput formControlName="url" placeholder="https://example.com" />
-          <mat-icon matSuffix>link</mat-icon>
-          @if (form.get('url')?.hasError('pattern')) {
-            <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
-          }
-        </mat-form-field>
+      <div class="links-container">
+        <!-- LINK 1 -->
+        <div class="link-card" [class.has-content]="form.get('url')?.value" [class.valid]="url1Valid" [class.warning]="url1UncommonTld">
+          <div class="link-card-header">
+            <div class="link-number">1</div>
+            <span class="link-label">{{ "sound.link-optional" | translate }}</span>
+            @if (url1Valid) {
+              <div class="link-status valid">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ extractDomain(form.get('url')?.value) }}</span>
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="openUrl('url')"
+                  [matTooltip]="'sound.link-preview' | translate"
+                  class="open-link-btn">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </div>
+            }
+            @if (url1UncommonTld) {
+              <div class="link-status warning">
+                <mat-icon>warning</mat-icon>
+                <span>{{ 'sound.link-uncommon-tld-short' | translate }}</span>
+              </div>
+            }
+          </div>
 
-        <!-- LINK 1 TITLE -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ "sound.link1-title" | translate }}</mat-label>
-          <input
-            matInput
-            formControlName="urlTitle"
-            placeholder="{{ 'sound.link1-title-placeholder' | translate }}"
-          />
-          <mat-icon matSuffix>title</mat-icon>
-        </mat-form-field>
+          <div class="link-card-body">
+            <mat-form-field class="url-field" appearance="outline">
+              <mat-label>{{ "sound.link-url" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="url"
+                placeholder="www.example.com"
+                (input)="onUrlInput()"
+                (blur)="onUrlBlur('url')"
+              />
+              <mat-icon matSuffix class="url-icon">link</mat-icon>
+              @if (form.get('url')?.hasError('invalidUrl') && form.get('url')?.touched) {
+                <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
+              }
+            </mat-form-field>
 
-        <!-- LINK 2 URL -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ "sound.link2-url" | translate }}</mat-label>
-          <input
-            matInput
-            formControlName="secondaryUrl"
-            placeholder="https://example.com"
-          />
-          <mat-icon matSuffix>link</mat-icon>
-          @if (form.get('secondaryUrl')?.hasError('pattern')) {
-            <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
-          }
-        </mat-form-field>
+            <mat-form-field class="title-field" appearance="outline">
+              <mat-label>{{ "sound.link-title" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="urlTitle"
+                placeholder="{{ 'sound.link-title-placeholder' | translate }}"
+                [disabled]="!url1Valid && !url1UncommonTld"
+              />
+              <mat-icon matSuffix>label</mat-icon>
+              @if (form.get('urlTitle')?.hasError('titleRequiresUrl')) {
+                <mat-error>{{ "sound.link-title-requires-url" | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
 
-        <!-- LINK 2 TITLE -->
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>{{ "sound.link2-title" | translate }}</mat-label>
-          <input
-            matInput
-            formControlName="secondaryUrlTitle"
-            placeholder="{{ 'sound.link2-title-placeholder' | translate }}"
-          />
-          <mat-icon matSuffix>title</mat-icon>
-        </mat-form-field>
+        <!-- LINK 2 -->
+        <div class="link-card" [class.has-content]="form.get('secondaryUrl')?.value" [class.valid]="url2Valid" [class.warning]="url2UncommonTld">
+          <div class="link-card-header">
+            <div class="link-number">2</div>
+            <span class="link-label">{{ "sound.link-optional" | translate }}</span>
+            @if (url2Valid) {
+              <div class="link-status valid">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ extractDomain(form.get('secondaryUrl')?.value) }}</span>
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="openUrl('secondaryUrl')"
+                  [matTooltip]="'sound.link-preview' | translate"
+                  class="open-link-btn">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </div>
+            }
+            @if (url2UncommonTld) {
+              <div class="link-status warning">
+                <mat-icon>warning</mat-icon>
+                <span>{{ 'sound.link-uncommon-tld-short' | translate }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="link-card-body">
+            <mat-form-field class="url-field" appearance="outline">
+              <mat-label>{{ "sound.link-url" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="secondaryUrl"
+                placeholder="www.example.com"
+                (input)="onUrlInput()"
+                (blur)="onUrlBlur('secondaryUrl')"
+              />
+              <mat-icon matSuffix class="url-icon">link</mat-icon>
+              @if (form.get('secondaryUrl')?.hasError('invalidUrl') && form.get('secondaryUrl')?.touched) {
+                <mat-error>{{ "common.errors.invalidUrl" | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="title-field" appearance="outline">
+              <mat-label>{{ "sound.link-title" | translate }}</mat-label>
+              <input
+                matInput
+                formControlName="secondaryUrlTitle"
+                placeholder="{{ 'sound.link-title-placeholder' | translate }}"
+                [disabled]="!url2Valid && !url2UncommonTld"
+              />
+              <mat-icon matSuffix>label</mat-icon>
+              @if (form.get('secondaryUrlTitle')?.hasError('titleRequiresUrl')) {
+                <mat-error>{{ "sound.link-title-requires-url" | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
       </div>
     </div>
 
