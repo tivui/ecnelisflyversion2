@@ -119,6 +119,9 @@ export class SoundDataInfoStepComponent implements OnInit {
   secondaryCategories: Option[] = [];
   filteredSecondaryCategories: Option[] = [];
 
+  /** Path to the marker image for the selected subcategory */
+  markerImagePath: string | null = null;
+
   /* ================= TRANSLATION ================= */
 
   translatingTitle = false;
@@ -177,7 +180,8 @@ export class SoundDataInfoStepComponent implements OnInit {
       )
       .subscribe((r) => (this.filteredSecondaryCategories = r));
 
-    this.secondaryCategoryControl.valueChanges.subscribe(() => {
+    this.secondaryCategoryControl.valueChanges.subscribe((option) => {
+      this.updateMarkerImage(option);
       this.emitCompleted();
     });
   }
@@ -346,6 +350,22 @@ export class SoundDataInfoStepComponent implements OnInit {
     };
 
     this.dateAdapter.setLocale(localeMap[lang] ?? lang);
+  }
+
+  /**
+   * Update marker image path based on selected subcategory
+   * Subcategory keys end with "fly" (e.g., accordionfly)
+   * Marker files are named marker_{base}.png (e.g., marker_accordion.png)
+   */
+  private updateMarkerImage(option: Option | null) {
+    if (!option?.key) {
+      this.markerImagePath = null;
+      return;
+    }
+
+    // Remove "fly" suffix from subcategory key
+    const baseKey = option.key.replace(/fly$/, '');
+    this.markerImagePath = `img/markers/marker_${baseKey}.png`;
   }
 
 }

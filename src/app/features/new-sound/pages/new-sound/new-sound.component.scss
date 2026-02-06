@@ -14,31 +14,83 @@
   border-radius: 16px;
   overflow: hidden;
 
-  // Styles de surbrillance pour les steps incomplets
-  &.highlight-step-0,
-  &.highlight-step-1,
-  &.highlight-step-2 {
-    ::ng-deep .mat-step-header {
-      transition: all 0.3s ease;
-    }
+  // Transition pour tous les step headers
+  ::ng-deep .mat-step-header {
+    transition: all 0.3s ease;
   }
 
-  &.highlight-step-0 ::ng-deep .mat-step-header:nth-of-type(1) {
-    background-color: rgba(244, 67, 54, 0.15);
-    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
-    border-radius: 8px;
+  // Style de surbrillance appliqué programmatiquement via la classe .step-highlighted
+  ::ng-deep .mat-step-header.step-highlighted {
+    background-color: rgba(244, 67, 54, 0.15) !important;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5) !important;
+    border-radius: 8px !important;
   }
 
-  &.highlight-step-1 ::ng-deep .mat-step-header:nth-of-type(2) {
-    background-color: rgba(244, 67, 54, 0.15);
-    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
-    border-radius: 8px;
+  // Mixin pour le style de surbrillance (CSS selectors fallback)
+  @mixin highlight-style {
+    background-color: rgba(244, 67, 54, 0.15) !important;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5) !important;
+    border-radius: 8px !important;
   }
 
-  &.highlight-step-2 ::ng-deep .mat-step-header:nth-of-type(3) {
-    background-color: rgba(244, 67, 54, 0.15);
-    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
-    border-radius: 8px;
+  // === HORIZONTAL MODE ===
+  // Structure: .mat-horizontal-stepper-header-container > [header, line, header, line, ...]
+  // Step 0 = nth-child(1), Step 1 = nth-child(3), Step 2 = nth-child(5)
+  &.highlight-step-0 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(1) {
+    @include highlight-style;
+  }
+  &.highlight-step-1 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(3) {
+    @include highlight-style;
+  }
+  &.highlight-step-2 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(5) {
+    @include highlight-style;
+  }
+
+  // === VERTICAL MODE ===
+  // Angular Material 18 MDC - plusieurs approches pour couvrir la structure
+
+  // Option 1: Via les classes step-N sur mat-step
+  &.highlight-step-0 ::ng-deep mat-step.step-0 .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-1 ::ng-deep mat-step.step-1 .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-2 ::ng-deep mat-step.step-2 .mat-step-header {
+    @include highlight-style;
+  }
+
+  // Option 2: Via mat-stepper[orientation="vertical"] - structure MDC
+  &.highlight-step-0 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(1) .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-1 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(2) .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-2 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(3) .mat-step-header {
+    @include highlight-style;
+  }
+
+  // Option 3: Via .mat-stepper-vertical
+  &.highlight-step-0 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(1) .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-1 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(2) .mat-step-header {
+    @include highlight-style;
+  }
+  &.highlight-step-2 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(3) .mat-step-header {
+    @include highlight-style;
+  }
+
+  // Option 4: Sélecteur simple via wrapper vertical
+  &.highlight-step-0 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="1"] {
+    @include highlight-style;
+  }
+  &.highlight-step-1 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="2"] {
+    @include highlight-style;
+  }
+  &.highlight-step-2 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="3"] {
+    @include highlight-style;
   }
 }
 
@@ -84,12 +136,73 @@
       }
     }
 
-    // Surbrillance en dark mode
-    &.highlight-step-0 ::ng-deep .mat-step-header:nth-of-type(1),
-    &.highlight-step-1 ::ng-deep .mat-step-header:nth-of-type(2),
-    &.highlight-step-2 ::ng-deep .mat-step-header:nth-of-type(3) {
+    // Style de surbrillance appliqué programmatiquement (dark mode)
+    ::ng-deep .mat-step-header.step-highlighted {
+      background-color: rgba(244, 67, 54, 0.25) !important;
+      box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.6) !important;
+      border-radius: 8px !important;
+    }
+
+    // Mixin pour le style de surbrillance en dark mode (CSS selectors fallback)
+    @mixin highlight-style-dark {
       background-color: rgba(244, 67, 54, 0.25) !important;
       box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.6);
+    }
+
+    // === HORIZONTAL MODE (Dark) ===
+    &.highlight-step-0 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(1) {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-1 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(3) {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-2 ::ng-deep .mat-horizontal-stepper-header-container > .mat-step-header:nth-child(5) {
+      @include highlight-style-dark;
+    }
+
+    // === VERTICAL MODE (Dark) ===
+    // Option 1: Via les classes step-N sur mat-step
+    &.highlight-step-0 ::ng-deep mat-step.step-0 .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-1 ::ng-deep mat-step.step-1 .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-2 ::ng-deep mat-step.step-2 .mat-step-header {
+      @include highlight-style-dark;
+    }
+
+    // Option 2: Via mat-stepper[orientation="vertical"] - structure MDC
+    &.highlight-step-0 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(1) .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-1 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(2) .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-2 ::ng-deep mat-stepper[orientation="vertical"] mat-step:nth-of-type(3) .mat-step-header {
+      @include highlight-style-dark;
+    }
+
+    // Option 3: Via .mat-stepper-vertical
+    &.highlight-step-0 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(1) .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-1 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(2) .mat-step-header {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-2 ::ng-deep .mat-stepper-vertical mat-step:nth-of-type(3) .mat-step-header {
+      @include highlight-style-dark;
+    }
+
+    // Option 4: Sélecteur simple via wrapper vertical
+    &.highlight-step-0 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="1"] {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-1 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="2"] {
+      @include highlight-style-dark;
+    }
+    &.highlight-step-2 ::ng-deep .mat-vertical-stepper-wrapper .mat-step-header[aria-posinset="3"] {
+      @include highlight-style-dark;
     }
   }
 

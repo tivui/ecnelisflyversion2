@@ -88,9 +88,9 @@
         <h4>{{ "sound.categorization" | translate }}</h4>
       </div>
 
-      <div class="form-grid">
+      <div class="categorization-content">
         <!-- CATEGORY -->
-        <mat-form-field class="full-width" appearance="outline">
+        <mat-form-field class="category-field" appearance="outline">
           <mat-label>{{ "categories.category" | translate }}</mat-label>
           <input
             type="text"
@@ -107,7 +107,7 @@
         </mat-form-field>
 
         <!-- SECONDARY CATEGORY -->
-        <mat-form-field class="full-width" appearance="outline">
+        <mat-form-field class="subcategory-field" appearance="outline">
           <mat-label>{{ "categories.secondaryCategory" | translate }}</mat-label>
           <input
             type="text"
@@ -122,6 +122,18 @@
             }
           </mat-autocomplete>
         </mat-form-field>
+
+        <!-- Marker Preview -->
+        <div class="marker-preview" [class.visible]="markerImagePath">
+          @if (markerImagePath) {
+            <img
+              [src]="markerImagePath"
+              [alt]="secondaryCategoryControl.value?.label || 'Marker'"
+              class="marker-image"
+            />
+            <span class="marker-label">{{ secondaryCategoryControl.value?.label }}</span>
+          }
+        </div>
       </div>
     </div>
 
