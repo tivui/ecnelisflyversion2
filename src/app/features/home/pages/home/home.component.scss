@@ -2,10 +2,10 @@
 // Variables
 // =====================
 $primary-blue: #1976d2;
-$primary-orange: #ff6b35;
+$primary-teal: #00897b;
 $primary-purple: #7c4dff;
 $gradient-blue: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
-$gradient-orange: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+$gradient-teal: linear-gradient(135deg, #00695c 0%, #26a69a 100%);
 $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
 
 // =====================
@@ -17,13 +17,29 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
   min-height: calc(100vh - 64px);
   padding: 0;
   overflow-x: hidden;
+  position: relative;
+
+  // Subtle radial gradient mesh background — light mode
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba($primary-blue, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgba($primary-teal, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba($primary-purple, 0.025) 0%, transparent 50%),
+    linear-gradient(180deg, #fafbfd 0%, #f5f7fa 50%, #f0f2f5 100%);
+
+  :host-context(body.dark-theme) & {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba($primary-teal, 0.03) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba($primary-purple, 0.02) 0%, transparent 50%),
+      linear-gradient(180deg, #121220 0%, #16162a 50%, #1a1a2e 100%);
+  }
 }
 
 // =====================
 // Hero Section
 // =====================
 .hero-section {
-  padding: 40px 24px 48px;
+  padding: 32px 24px 40px;
   text-align: center;
   flex: 1;
   display: flex;
@@ -31,15 +47,15 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
   justify-content: center;
 
   @media (max-width: 600px) {
-    padding: 24px 16px 32px;
+    padding: 20px 16px 28px;
   }
 }
 
 .hero-content {
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 
   @media (max-width: 600px) {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
 }
 
@@ -131,22 +147,26 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  background: #fff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 
   :host-context(body.dark-theme) & {
-    background: #1e1e2e;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    background: rgba(30, 30, 46, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
   &:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
 
     :host-context(body.dark-theme) & {
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
     .hero-card-cta mat-icon {
@@ -172,7 +192,7 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
 
 .hero-card-zones {
   .hero-card-visual {
-    background: $gradient-orange;
+    background: $gradient-teal;
   }
 }
 
@@ -335,10 +355,10 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
 }
 
 .hero-card-zones .hero-card-cta {
-  color: $primary-orange;
+  color: $primary-teal;
 
   :host-context(body.dark-theme) & {
-    color: #ffab91;
+    color: #80cbc4;
   }
 }
 
@@ -346,14 +366,17 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
 // Carousel Section
 // =====================
 .carousel-section {
-  padding: 16px 8px 24px;
-  background: rgba(0, 0, 0, 0.02);
+  position: relative;
+  padding: 24px 8px 32px;
+  background: rgba(0, 0, 0, 0.025);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 
   :host-context(body.dark-theme) & {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.025);
+    border-top-color: rgba(255, 255, 255, 0.06);
   }
 
   @media (max-width: 600px) {
-    padding: 12px 4px 16px;
+    padding: 16px 4px 24px;
   }
 }
