@@ -31,6 +31,26 @@
     </div>
   </div>
 
+  <!-- Filters -->
+  @if (!loading() && !error() && sounds().length > 0) {
+    <app-sound-filters
+      (filtersChanged)="onFiltersChanged($event)"
+    />
+
+    <!-- Results count -->
+    @if (filtersActive()) {
+      <div class="results-info">
+        <span class="results-count">
+          {{ "dashboard.filters.resultsCount" | translate: { count: resultsCount(), total: totalCount() } }}
+        </span>
+        <button mat-button color="primary" (click)="resetFilters()" class="reset-all-btn">
+          <mat-icon>clear_all</mat-icon>
+          {{ "dashboard.filters.resetAll" | translate }}
+        </button>
+      </div>
+    }
+  }
+
   <!-- Content -->
   <div class="dashboard-content">
     <!-- Loading state -->
@@ -53,8 +73,20 @@
       </div>
     }
 
+    <!-- Empty state after filtering -->
+    @if (!loading() && !error() && sounds().length > 0 && displayedSounds().length === 0) {
+      <div class="empty-results">
+        <mat-icon>search_off</mat-icon>
+        <p>{{ "dashboard.filters.noResults" | translate }}</p>
+        <button mat-stroked-button color="primary" (click)="resetFilters()">
+          <mat-icon>clear_all</mat-icon>
+          {{ "dashboard.filters.resetAll" | translate }}
+        </button>
+      </div>
+    }
+
     <!-- Sound list -->
-    @if (!loading() && !error()) {
+    @if (!loading() && !error() && displayedSounds().length > 0) {
       <app-sound-list
         [sounds]="displayedSounds()"
         [isAdmin]="isAdmin()"
@@ -62,6 +94,18 @@
         (soundUpdated)="onSoundUpdated($event)"
         (soundDeleted)="onSoundDeleted($event)"
       />
+    }
+
+    <!-- No sounds at all -->
+    @if (!loading() && !error() && sounds().length === 0) {
+      <div class="empty-state">
+        <mat-icon>library_music</mat-icon>
+        <p>{{ "dashboard.noSounds" | translate }}</p>
+        <button mat-raised-button color="primary" (click)="goToNewSound()">
+          <mat-icon>add</mat-icon>
+          {{ "dashboard.addSound" | translate }}
+        </button>
+      </div>
     }
   </div>
 </div>

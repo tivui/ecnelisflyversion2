@@ -7,6 +7,8 @@ import {
   signal,
   OnDestroy,
   OnInit,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -51,7 +53,7 @@ import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
   templateUrl: './sound-list.component.html',
   styleUrl: './sound-list.component.scss',
 })
-export class SoundListComponent implements OnInit, OnDestroy {
+export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly dashboardService = inject(DashboardService);
   private readonly dialog = inject(MatDialog);
@@ -101,6 +103,15 @@ export class SoundListComponent implements OnInit, OnDestroy {
     this.sortedData = [...this.sounds];
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    // Update sortedData when sounds input changes
+    if (changes['sounds'] && !changes['sounds'].firstChange) {
+      this.sortedData = [...this.sounds];
+      // Reset to first page when data changes
+      this.pageIndex = 0;
+    }
+  }
+
   ngOnDestroy() {
     this.stopAudio();
     this.destroy$.next();
@@ -125,6 +136,13 @@ export class SoundListComponent implements OnInit, OnDestroy {
       : `categories.${sound.category}`;
     const translated = this.translate.instant(key);
     return translated !== key ? translated : sound.category;
+  }
+
+  // Get category image URL based on secondary category
+  getCategoryImageUrl(sound: Sound): string | null {
+    const categoryKey = sound.secondaryCategory || sound.category;
+    if (!categoryKey) return null;
+    return `img/backgrounds/categories/fond_${categoryKey}.jpg`;
   }
 
   // Get status chip color
@@ -228,12 +246,12 @@ export class SoundListComponent implements OnInit, OnDestroy {
       const url = await this.dashboardService.getAudioUrl(sound);
       const audio = new Audio(url);
 
-      audio.addEventListener('ended', () => {
+      audio.onended = () => {
         this.playingSound.set(null);
         this.currentAudio.set(null);
-      });
+      };
 
-      audio.addEventListener('error', () => {
+      audio.onerror = () => {
         this.snackBar.open(
           this.translate.instant('dashboard.audioError'),
           'OK',
@@ -241,7 +259,7 @@ export class SoundListComponent implements OnInit, OnDestroy {
         );
         this.playingSound.set(null);
         this.currentAudio.set(null);
-      });
+      };
 
       this.currentAudio.set(audio);
       this.playingSound.set(sound.id || null);
@@ -260,7 +278,11 @@ export class SoundListComponent implements OnInit, OnDestroy {
     const audio = this.currentAudio();
     if (audio) {
       audio.pause();
+      // Remove event listeners before clearing src to avoid triggering error event
+      audio.onended = null;
+      audio.onerror = null;
       audio.src = '';
+      audio.load(); // Reset the audio element
     }
     this.playingSound.set(null);
     this.currentAudio.set(null);

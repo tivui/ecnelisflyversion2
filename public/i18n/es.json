@@ -46,6 +46,7 @@
     "addFirstSound": "Añadir tu primer sonido",
     "addSound": "Añadir sonido",
     "loadError": "Error al cargar los sonidos.",
+    "userNotFound": "Usuario no encontrado",
     "refresh": "Actualizar",
     "audioError": "Error de reproducción de audio",
     "table": {
@@ -90,6 +91,19 @@
     "admin": {
       "showAll": "Ver todos los sonidos",
       "userColumn": "Usuario"
+    },
+    "filters": {
+      "filters": "Filtros",
+      "searchPlaceholder": "Buscar por título, ubicación, hashtags...",
+      "reset": "Restablecer filtros",
+      "resetAll": "Restablecer todo",
+      "allStatuses": "Todos los estados",
+      "allCategories": "Todas las categorías",
+      "dateRange": "Período de grabación",
+      "dateFrom": "Inicio",
+      "dateTo": "Fin",
+      "noResults": "Ningún resultado coincide con sus criterios",
+      "resultsCount": "{{count}} resultado(s) de {{total}}"
     }
   },
   "account": {
@@ -130,6 +144,7 @@
       "description": "Importa un archivo de audio desde tu dispositivo para comenzar."
     },
     "place-title": "Lugar",
+    "place-name": "Nombre del lugar",
     "place-placeholder": "Dar un nombre de lugar",
     "place-name-placeholder": "Nombre del lugar",
     "data-title": "Información",

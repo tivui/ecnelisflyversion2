@@ -1,4 +1,12 @@
-<mat-card class="sound-card" [class.is-playing]="isPlaying">
+<mat-card class="sound-card" [class.is-playing]="isPlaying" [class.has-background]="categoryBackgroundUrl">
+  <!-- Category background image -->
+  @if (categoryBackgroundUrl) {
+    <div
+      class="card-background"
+      [style.background-image]="categoryBackgroundUrl"
+    ></div>
+  }
+
   <mat-card-header>
     <div class="card-header-content">
       <div class="title-row">

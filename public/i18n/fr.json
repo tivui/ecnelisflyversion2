@@ -46,6 +46,7 @@
     "addFirstSound": "Ajouter votre premier son",
     "addSound": "Ajouter un son",
     "loadError": "Erreur lors du chargement des sons.",
+    "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
     "audioError": "Erreur lors de la lecture audio",
     "table": {
@@ -90,6 +91,19 @@
     "admin": {
       "showAll": "Voir tous les sons",
       "userColumn": "Utilisateur"
+    },
+    "filters": {
+      "filters": "Filtres",
+      "searchPlaceholder": "Rechercher par titre, lieu, hashtags...",
+      "reset": "Réinitialiser les filtres",
+      "resetAll": "Réinitialiser tout",
+      "allStatuses": "Tous les statuts",
+      "allCategories": "Toutes les catégories",
+      "dateRange": "Période d'enregistrement",
+      "dateFrom": "Début",
+      "dateTo": "Fin",
+      "noResults": "Aucun résultat ne correspond à vos critères",
+      "resultsCount": "{{count}} résultat(s) sur {{total}}"
     }
   },
   "account": {

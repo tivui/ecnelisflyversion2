@@ -46,6 +46,7 @@
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
     "loadError": "Failed to load sounds.",
+    "userNotFound": "User not found",
     "refresh": "Refresh",
     "audioError": "Audio playback error",
     "table": {
@@ -90,6 +91,19 @@
     "admin": {
       "showAll": "Show all sounds",
       "userColumn": "User"
+    },
+    "filters": {
+      "filters": "Filters",
+      "searchPlaceholder": "Search by title, location, hashtags...",
+      "reset": "Reset filters",
+      "resetAll": "Reset all",
+      "allStatuses": "All statuses",
+      "allCategories": "All categories",
+      "dateRange": "Recording period",
+      "dateFrom": "Start",
+      "dateTo": "End",
+      "noResults": "No results match your criteria",
+      "resultsCount": "{{count}} result(s) of {{total}}"
     }
   },
   "account": {

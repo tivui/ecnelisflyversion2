@@ -79,6 +79,31 @@
   }
 }
 
+// Category image
+.category-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 // Location cell
 .location-cell {
   display: flex;
@@ -150,10 +175,12 @@
 // Cards layout (mobile)
 .sound-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
+  width: 100%;
+  overflow: hidden;
 
-  @media (max-width: 400px) {
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
     gap: 12px;
   }

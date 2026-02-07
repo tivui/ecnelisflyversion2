@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { CategoryKey } from '../../../../amplify/data/categories';
+import { CategoryKey, categories, SubCategory } from '../../../../amplify/data/categories';
 import { map } from 'rxjs';
 
 export interface CategorySlide {
@@ -45,5 +45,22 @@ private readonly categorySlideTitlesColors: Record<CategoryKey, { background: st
         }))
       )
     );
+  }
+
+  /**
+   * Get all main categories
+   */
+  getAllCategories(): { key: CategoryKey; label: string }[] {
+    return Object.values(CategoryKey).map(key => ({
+      key,
+      label: key,
+    }));
+  }
+
+  /**
+   * Get subcategories for a given main category
+   */
+  getSubCategories(categoryKey: CategoryKey): SubCategory[] {
+    return categories[categoryKey]?.subcategories ?? [];
   }
 }

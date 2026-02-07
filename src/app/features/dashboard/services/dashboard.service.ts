@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { AmplifyService } from '../../../core/services/amplify.service';
 import { SoundsService } from '../../../core/services/sounds.service';
 import { StorageService } from '../../../core/services/storage.service';
-import { Sound, SoundStatus } from '../../../core/models/sound.model';
+import { Sound } from '../../../core/models/sound.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,18 +15,32 @@ export class DashboardService {
   /**
    * Load sounds for a specific user
    * Uses the existing secondary index: listSoundsByUserAndStatus
+   * Handles pagination with nextToken to load all sounds
    */
   async loadUserSounds(userId: string): Promise<Sound[]> {
     try {
-      const result = await this.amplifyService.client.models.Sound.listSoundsByUserAndStatus({
-        userId,
-      });
+      const allSounds: Sound[] = [];
+      let nextToken: string | null | undefined = undefined;
 
-      if (!result.data) {
-        return [];
-      }
+      do {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const result: { data: any[]; nextToken?: string | null } = await (
+          this.amplifyService.client.models.Sound.listSoundsByUserAndStatus as any
+        )({
+          userId,
+          limit: 100,
+          nextToken,
+        });
+        /* eslint-enable @typescript-eslint/no-explicit-any */
 
-      return result.data.map((raw) => this.soundsService.map(raw));
+        if (result.data) {
+          allSounds.push(...result.data.map((raw) => this.soundsService.map(raw)));
+        }
+
+        nextToken = result.nextToken;
+      } while (nextToken);
+
+      return allSounds;
     } catch (error) {
       console.error('[DashboardService] Failed to load user sounds:', error);
       throw error;
@@ -35,45 +49,61 @@ export class DashboardService {
 
   /**
    * Load all sounds (admin only)
+   * Handles pagination with nextToken to load all sounds
    */
   async loadAllSounds(): Promise<Sound[]> {
+    const selectionSet = [
+      'id',
+      'userId',
+      'user.username',
+      'user.country',
+      'title',
+      'title_i18n',
+      'shortStory',
+      'shortStory_i18n',
+      'filename',
+      'status',
+      'latitude',
+      'longitude',
+      'city',
+      'category',
+      'secondaryCategory',
+      'dateTime',
+      'recordDateTime',
+      'equipment',
+      'license',
+      'url',
+      'urlTitle',
+      'secondaryUrl',
+      'secondaryUrlTitle',
+      'hashtags',
+      'createdAt',
+      'updatedAt',
+    ] as const;
+
     try {
-      const result = await this.amplifyService.client.models.Sound.list({
-        selectionSet: [
-          'id',
-          'userId',
-          'user.username',
-          'user.country',
-          'title',
-          'title_i18n',
-          'shortStory',
-          'shortStory_i18n',
-          'filename',
-          'status',
-          'latitude',
-          'longitude',
-          'city',
-          'category',
-          'secondaryCategory',
-          'dateTime',
-          'recordDateTime',
-          'equipment',
-          'license',
-          'url',
-          'urlTitle',
-          'secondaryUrl',
-          'secondaryUrlTitle',
-          'hashtags',
-          'createdAt',
-          'updatedAt',
-        ],
-      });
+      const allSounds: Sound[] = [];
+      let nextToken: string | null | undefined = undefined;
 
-      if (!result.data) {
-        return [];
-      }
+      do {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const result: { data: any[]; nextToken?: string | null } = await (
+          this.amplifyService.client.models.Sound.list as any
+        )({
+          selectionSet,
+          limit: 100,
+          nextToken,
+        });
+        /* eslint-enable @typescript-eslint/no-explicit-any */
 
-      return result.data.map((raw) => this.soundsService.map(raw));
+        if (result.data) {
+          allSounds.push(...result.data.map((raw) => this.soundsService.map(raw)));
+        }
+
+        nextToken = result.nextToken;
+      } while (nextToken);
+
+      return allSounds;
     } catch (error) {
       console.error('[DashboardService] Failed to load all sounds:', error);
       throw error;
