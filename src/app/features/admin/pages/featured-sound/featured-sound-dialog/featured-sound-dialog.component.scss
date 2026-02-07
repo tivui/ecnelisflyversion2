@@ -1,0 +1,84 @@
+.tab-content {
+  padding: 20px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 0 0 100px;
+  }
+}
+
+h4 {
+  margin: 16px 0 8px;
+  font-weight: 500;
+  color: #666;
+}
+
+.selected-sound {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  :host-context(body.dark-theme) & {
+    background-color: #2c2c3e;
+  }
+
+  mat-icon:first-child {
+    color: #7c4dff;
+  }
+}
+
+.selected-sound-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  .sound-city {
+    font-size: 13px;
+    color: #888;
+  }
+}
+
+.sound-option {
+  display: flex;
+  flex-direction: column;
+
+  .sound-title {
+    font-weight: 500;
+  }
+
+  .sound-city {
+    font-size: 12px;
+    color: #888;
+  }
+}
+
+mat-dialog-content {
+  min-height: 300px;
+  max-height: 70vh;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+
+  button {
+    min-width: 100px;
+  }
+
+  mat-spinner {
+    display: inline-block;
+  }
+}

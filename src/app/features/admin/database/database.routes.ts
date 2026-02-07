@@ -20,6 +20,13 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.ZonesComponent,
           ),
       },
+      {
+        path: 'featured-sound',
+        loadComponent: () =>
+          import('../pages/featured-sound/featured-sound.component').then(
+            (m) => m.FeaturedSoundComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
     ],
   },

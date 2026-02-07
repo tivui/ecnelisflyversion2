@@ -25,7 +25,9 @@
       </button>
 
       <a class="logo-link" routerLink="/home">
-        <img src="img/logos/logo_blue_orange_left.png" alt="Ecnelis Fly" class="toolbar-logo" />
+        @if (!isHomePage()) {
+          <img src="img/logos/logo_blue_orange_left.png" alt="Ecnelis Fly" class="toolbar-logo" />
+        }
         <span class="app-title">Ecnelis FLY</span>
       </a>
 
@@ -125,3 +127,14 @@
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<!-- Welcome overlay on login -->
+@if (welcomeVisible()) {
+  <div class="welcome-overlay" [class.fade-out]="welcomeFadingOut()">
+    <div class="welcome-card">
+      <h1 class="welcome-text">
+        {{ 'home.welcome' | translate: { name: welcomeUsername() } }}
+      </h1>
+    </div>
+  </div>
+}

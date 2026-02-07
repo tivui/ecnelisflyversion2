@@ -6,7 +6,7 @@ import {
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { RouterOutlet, RouterLink, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -73,6 +73,25 @@ export class AppComponent implements OnInit {
   public isDark = signal(false);
   public isAdmin = signal(false);
   public sidenavOpened = signal(false);
+  public isHomePage = signal(false);
+
+  // ==================== WELCOME OVERLAY ====================
+  public welcomeVisible = signal(false);
+  public welcomeFadingOut = signal(false);
+  public welcomeUsername = signal('');
+  public welcomeFlag = signal('');
+
+  private showWelcomeOverlay(username: string, country?: string) {
+    this.welcomeUsername.set(username);
+    this.welcomeFlag.set(country ?? '');
+    this.welcomeVisible.set(true);
+    this.welcomeFadingOut.set(false);
+
+    // Start fade out after 2.5s
+    setTimeout(() => this.welcomeFadingOut.set(true), 2500);
+    // Remove from DOM after fade animation
+    setTimeout(() => this.welcomeVisible.set(false), 3500);
+  }
 
   // ==================== FULLSCREEN ====================
 
@@ -128,6 +147,13 @@ export class AppComponent implements OnInit {
 
   constructor() {
     this.translate.addLangs(this.languages);
+
+    // Track current route for conditional UI
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isHomePage.set(event.urlAfterRedirects.startsWith('/home'));
+      }
+    });
 
     // Subscribe to currentUser$ with automatic unsubscription on destroy
     this.appUserService.currentUser$
@@ -195,6 +221,11 @@ export class AppComponent implements OnInit {
           }
 
           this.router.navigate(['/home']);
+
+          // Show welcome overlay
+          if (appUser?.username) {
+            this.showWelcomeOverlay(appUser.username, appUser.country ?? undefined);
+          }
           break;
         }
 

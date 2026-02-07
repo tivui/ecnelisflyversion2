@@ -1,6 +1,6 @@
 {
   "home": {
-    "welcome": "Bienvenue {{name}} 🎉",
+    "welcome": "Bienvenue {{name}}",
     "hero": {
       "title": "Explorez les sons du monde",
       "subtitle": "Découvrez des ambiances sonores captées aux quatre coins de la planète",
@@ -9,7 +9,9 @@
       "exploreZones": "Découvrir les zones",
       "exploreZonesDesc": "Explorez des régions sonores thématiques et uniques",
       "explore": "Explorer",
-      "discover": "Découvrir"
+      "discover": "Découvrir",
+      "soundOfTheDay": "Son du jour",
+      "listen": "Écouter"
     },
     "zones": {
       "title": "Explorer par zones",
@@ -25,7 +27,8 @@
   },
   "sidenav": {
     "worldMap": "Carte mondiale",
-    "discoverZones": "Découvrir les zones"
+    "discoverZones": "Découvrir les zones",
+    "soundOfTheDay": "Son du jour"
   },
   "zones": {
     "title": "Zones géographiques",
@@ -263,7 +266,31 @@
   "admin": {
     "database": {
       "importSounds": "Importer les sons",
-      "zones": "Zones géographiques"
+      "zones": "Zones géographiques",
+      "featuredSound": "Son du jour"
+    },
+    "featuredSound": {
+      "title": "Son du jour",
+      "subtitle": "Configurez la liste des sons éligibles au tirage quotidien",
+      "addCandidate": "Ajouter un son",
+      "currentDaily": "Son du jour actuel",
+      "noCurrent": "Aucun son du jour sélectionné",
+      "candidates": "Sons éligibles",
+      "noCandidates": "Aucun son configuré",
+      "dialog": {
+        "createTitle": "Ajouter un son éligible",
+        "editTitle": "Modifier le son éligible",
+        "selectSound": "Sélectionner un son",
+        "searchSound": "Rechercher un son par titre...",
+        "teasing": "Texte de teasing",
+        "teasingHint": "Phrase accrocheuse pour mettre en valeur ce son",
+        "tabInfo": "Informations",
+        "tabTranslations": "Traductions",
+        "teasingTranslations": "Traductions du teasing"
+      },
+      "deleteConfirm": "Supprimer ce son de la liste ?",
+      "deleteSuccess": "Son retiré de la liste",
+      "saveSuccess": "Son sauvegardé"
     },
     "zones": {
       "title": "Zones géographiques",
@@ -367,6 +394,12 @@
       "close": "Fermer la zone",
       "noDescription": "Aucune description disponible pour cette zone.",
       "exploreZone": "Explorer cette zone"
+    },
+    "featured": {
+      "badge": "Son du jour",
+      "discovering": "Voyage vers le son du jour...",
+      "exploreFullMap": "Explorer la carte",
+      "recordedIn": "Enregistré à {{city}}"
     }
   },
   "categories": {

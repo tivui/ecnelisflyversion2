@@ -1,19 +1,4 @@
 <div class="home-container">
-  <!-- Welcome message -->
-  @if (appUser()) {
-    <div class="welcome-banner">
-      <h2>
-        {{ "home.welcome" | translate: { name: appUser()!.username } }}
-        <img
-          [src]="'/img/flags/' + appUser()?.country + '.png'"
-          alt="{{ appUser()?.country }}"
-          width="24"
-          height="16"
-        />
-      </h2>
-    </div>
-  }
-
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
@@ -40,6 +25,26 @@
           </span>
         </div>
       </a>
+
+      <!-- Sound of the Day Card -->
+      @if (dailyFeatured()) {
+        <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
+          <div class="hero-card-visual">
+            <div class="hero-card-icon">
+              <mat-icon>headphones</mat-icon>
+            </div>
+            <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
+          </div>
+          <div class="hero-card-content">
+            <h3>{{ dailyFeatured()!.soundTitle }}</h3>
+            <p class="hero-card-desc">{{ teasingText() }}</p>
+            <span class="hero-card-cta">
+              {{ 'home.hero.listen' | translate }}
+              <mat-icon>arrow_forward</mat-icon>
+            </span>
+          </div>
+        </a>
+      }
 
       <!-- Zones Card -->
       <a routerLink="/zones" class="hero-card hero-card-zones">

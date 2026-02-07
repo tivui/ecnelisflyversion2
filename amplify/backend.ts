@@ -5,12 +5,14 @@ import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { deleteSoundFile } from './functions/delete-sound-file/resource';
+import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/resource';
 
 const backend = defineBackend({
   auth,
   data,
   storage,
   deleteSoundFile,
+  pickDailyFeaturedSound,
 });
 
 // ➡ Ajouter le data source Amazon Translate
