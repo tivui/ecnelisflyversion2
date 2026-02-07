@@ -1,0 +1,38 @@
+<div class="zones-page">
+  <!-- Header -->
+  <header class="zones-header">
+    <a routerLink="/home" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div class="header-content">
+      <h1>{{ 'zones.title' | translate }}</h1>
+      <p>{{ 'zones.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="zones-content">
+    @if (loading()) {
+      <div class="zones-loading">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>{{ 'zones.loading' | translate }}</p>
+      </div>
+    } @else if (zones().length === 0) {
+      <div class="zones-empty">
+        <mat-icon>location_off</mat-icon>
+        <h2>{{ 'zones.empty.title' | translate }}</h2>
+        <p>{{ 'zones.empty.message' | translate }}</p>
+        <a routerLink="/mapfly" mat-raised-button color="primary">
+          <mat-icon>public</mat-icon>
+          {{ 'zones.empty.exploreMap' | translate }}
+        </a>
+      </div>
+    } @else {
+      <div class="zones-grid">
+        @for (zone of zones(); track zone.id) {
+          <app-zone-card [zone]="zone"></app-zone-card>
+        }
+      </div>
+    }
+  </main>
+</div>

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import L from 'leaflet';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
 import { Sound } from '../../../../core/models/sound.model';
@@ -61,6 +62,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private zoneMaskLayer: L.Polygon | null = null;
   private zoneTitleControl: L.Control | null = null;
   private currentUserLanguage = 'fr';
+  private currentZoneId: string | null = null;
+  private queryParamsSub?: Subscription;
 
   // Convertit ton currentUser$ en signal Angular
   currentUser = toSignal(this.appUserService.currentUser$, {
@@ -107,6 +110,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   private groupedLayersControl: any;
+  private markersCluster!: L.MarkerClusterGroup;
   private fgAll!: L.FeatureGroup;
   private fg1!: L.FeatureGroup;
   private fg2!: L.FeatureGroup;
@@ -176,9 +180,30 @@ export class MapflyComponent implements OnInit, OnDestroy {
     activeBaseLayer.addTo(this.map);
 
     // --- Load zone if zoneId is provided ---
+    this.currentZoneId = zoneId ?? null;
     if (zoneId) {
       this.loadZone(zoneId);
     }
+
+    // --- Subscribe to query params changes for zone switching ---
+    this.queryParamsSub = this.route.queryParamMap.subscribe((params) => {
+      const newZoneId = params.get('zoneId') ?? null;
+
+      // Only react if zoneId actually changed
+      if (newZoneId !== this.currentZoneId) {
+        const previousZoneId = this.currentZoneId;
+        this.currentZoneId = newZoneId;
+
+        if (newZoneId) {
+          // New zone to load
+          this.loadZone(newZoneId);
+        } else if (previousZoneId) {
+          // Zone was cleared (navigated to world map)
+          // Need to reload the page to get all sounds instead of zone-filtered sounds
+          this.forceReload();
+        }
+      }
+    });
 
     // --- ✅ Attendre la traduction avant d'initialiser le contrôle ---
     this.translate
@@ -322,26 +347,33 @@ export class MapflyComponent implements OnInit, OnDestroy {
     try {
       this.isLoading.set(true);
 
-      const result = (await this.amplifyService.client.graphql({
-        query: ListSoundsForMapWithAppUser,
-        variables: {
-          ...(category ? { category } : {}),
-          ...(secondaryCategory ? { secondaryCategory } : {}),
-          ...(userId ? { userId } : {}),
-        },
+      let sounds: Sound[] = [];
 
-        authMode: this.isAuthenticated() ? 'userPool' : 'apiKey',
+      // If zoneId is provided, load only zone sounds
+      if (zoneId) {
+        sounds = await this.zoneService.getSoundsForZone(zoneId);
+        console.log('Zone sounds loaded:', sounds.length);
+      } else {
+        // Load all sounds (normal mode)
+        const result = (await this.amplifyService.client.graphql({
+          query: ListSoundsForMapWithAppUser,
+          variables: {
+            ...(category ? { category } : {}),
+            ...(secondaryCategory ? { secondaryCategory } : {}),
+            ...(userId ? { userId } : {}),
+          },
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      })) as GraphQLResult<{ listSoundsForMap: any[] }>;
-      console.log('result', result);
-      const soundsData = result?.data?.listSoundsForMap ?? [];
-      const sounds: Sound[] = soundsData.map((raw) =>
-        this.soundsService.map(raw),
-      );
+          authMode: this.isAuthenticated() ? 'userPool' : 'apiKey',
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        })) as GraphQLResult<{ listSoundsForMap: any[] }>;
+        console.log('result', result);
+        const soundsData = result?.data?.listSoundsForMap ?? [];
+        sounds = soundsData.map((raw) => this.soundsService.map(raw));
+      }
 
       // --- MarkerCluster ---
-      const markersCluster = L.markerClusterGroup({
+      this.markersCluster = L.markerClusterGroup({
         iconCreateFunction: (cluster) => {
           const count = cluster.getChildCount();
           let digitsClass = '';
@@ -359,34 +391,34 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
       // --- Subgroups pour chaque catégorie ---
       this.fgAll = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // "TOUT"
       this.fg1 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // ANIMALFLY
       this.fg2 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // NATURALFLY
       this.fg3 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // AMBIANCEFLY
       this.fg4 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // MUSICFLY
       this.fg5 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // HUMANFLY
       this.fg6 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // FOODFLY
       this.fg7 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // ITEMFLY
       this.fg8 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // SPORTFLY
       this.fg9 = (L.featureGroup as any)
-        .subGroup(markersCluster)
+        .subGroup(this.markersCluster)
         .addTo(this.map); // TRANSPORTFLY
 
       // --- 4️⃣ Préparation markers ---
@@ -676,7 +708,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }
 
       // --- Add cluster to map ---
-      this.map.addLayer(markersCluster);
+      this.map.addLayer(this.markersCluster);
 
       const categoryOverlays = this.buildCategoryOverlays();
 
@@ -749,7 +781,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         // retrouver le bon marker à partir du texte combiné
         const found = markerLookup[e.layer?.options.filename || e.text];
         if (found) {
-          markersCluster.zoomToShowLayer(found, () => found.openPopup());
+          this.markersCluster.zoomToShowLayer(found, () => found.openPopup());
         }
 
         // 🕒 après un petit délai, on réactive la logique automatique
@@ -831,6 +863,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
   // --- Zone management ---
   private async loadZone(zoneId: string) {
     try {
+      // Clear any existing zone before loading new one (don't reset view)
+      if (this.zonePolygonLayer || this.zoneMaskLayer || this.zoneTitleControl) {
+        this.clearZoneVisuals(false);
+      }
+
       const zone = await this.zoneService.getZoneById(zoneId);
       if (zone) {
         this.currentZone.set(zone);
@@ -899,16 +936,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
         container.innerHTML = `
           <div class="zone-title-content" style="background-color: ${zone.color ?? '#1976d2'}">
             <span class="zone-title-text">${title}</span>
-            <button class="zone-close-btn" title="Fermer la zone">×</button>
+            <button class="zone-info-btn" title="${this.translate.instant('mapfly.zone.showInfo')}">
+              <span class="material-icons">info</span>
+            </button>
           </div>
         `;
 
-        // Handle close button click
-        const closeBtn = container.querySelector('.zone-close-btn') as HTMLElement;
-        if (closeBtn) {
-          L.DomEvent.on(closeBtn, 'click', (e: Event) => {
+        // Handle info button click
+        const infoBtn = container.querySelector('.zone-info-btn') as HTMLElement;
+        if (infoBtn) {
+          L.DomEvent.on(infoBtn, 'click', (e: Event) => {
             L.DomEvent.stopPropagation(e);
-            this.clearZone();
+            this.showZoneInfoModal(zone);
           });
         }
 
@@ -921,8 +960,119 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.zoneTitleControl.addTo(this.map);
   }
 
-  private clearZone() {
-    // Remove zone layers
+  private showZoneInfoModal(zone: Zone) {
+    const lang = this.currentUserLanguage;
+    const title = zone.name_i18n?.[lang] ?? zone.name;
+    const description = zone.description_i18n?.[lang] ?? zone.description ?? '';
+    const color = zone.color ?? '#1976d2';
+
+    // Check if there's a translation in user's language that differs from original
+    const translatedTitle = zone.name_i18n?.[lang];
+    const translatedDesc = zone.description_i18n?.[lang];
+    const hasTranslation =
+      (translatedTitle && translatedTitle !== zone.name) ||
+      (translatedDesc && translatedDesc !== zone.description);
+
+    // Remove existing modal if any
+    const existingModal = document.querySelector('.zone-info-modal-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'zone-info-modal-overlay';
+    overlay.innerHTML = `
+      <div class="zone-info-modal" style="--zone-color: ${color}">
+        <div class="zone-modal-header" style="background-color: ${color}">
+          <h2 class="zone-modal-title" id="zone-modal-title">${title}</h2>
+          <button class="zone-modal-close-btn" aria-label="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="zone-modal-content">
+          ${description ? `<p class="zone-modal-description" id="zone-modal-description">${description}</p>` : `<p class="zone-modal-no-description">${this.translate.instant('mapfly.zone.noDescription')}</p>`}
+          ${hasTranslation ? `
+            <button class="zone-modal-translate-btn" id="zone-translate-btn">
+              <span class="material-icons">translate</span>
+              <span>${this.translate.instant('common.action.translate')}</span>
+            </button>
+          ` : ''}
+        </div>
+        <div class="zone-modal-footer">
+          <button class="zone-modal-explore-btn" style="background-color: ${color}">
+            <span class="material-icons">explore</span>
+            <span>${this.translate.instant('mapfly.zone.exploreZone')}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add('closing');
+        setTimeout(() => overlay.remove(), 200);
+      }
+    });
+
+    // Close button
+    const closeBtn = overlay.querySelector('.zone-modal-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        overlay.classList.add('closing');
+        setTimeout(() => overlay.remove(), 200);
+      });
+    }
+
+    // Explore button - close modal
+    const exploreBtn = overlay.querySelector('.zone-modal-explore-btn');
+    if (exploreBtn) {
+      exploreBtn.addEventListener('click', () => {
+        overlay.classList.add('closing');
+        setTimeout(() => overlay.remove(), 200);
+      });
+    }
+
+    // Translate button - toggles between original and user's language
+    const translateBtn = overlay.querySelector('#zone-translate-btn') as HTMLButtonElement;
+    if (translateBtn && hasTranslation) {
+      let showingUserLang = true;
+      // Content in user's language (currently displayed)
+      const userLangTitle = zone.name_i18n?.[lang] ?? zone.name;
+      const userLangDescription = zone.description_i18n?.[lang] ?? zone.description ?? '';
+      // Original content (without translation)
+      const originalTitle = zone.name;
+      const originalDescription = zone.description ?? '';
+
+      translateBtn.addEventListener('click', () => {
+        const titleEl = document.getElementById('zone-modal-title');
+        const descEl = document.getElementById('zone-modal-description');
+
+        if (showingUserLang) {
+          // Show original content (base language)
+          if (titleEl) titleEl.textContent = originalTitle;
+          if (descEl) descEl.textContent = originalDescription;
+          showingUserLang = false;
+        } else {
+          // Show content in user's language
+          if (titleEl) titleEl.textContent = userLangTitle;
+          if (descEl) descEl.textContent = userLangDescription;
+          showingUserLang = true;
+        }
+      });
+    }
+
+    // Animate in
+    requestAnimationFrame(() => {
+      overlay.classList.add('visible');
+    });
+  }
+
+  private clearZoneVisuals(resetView = true) {
+    // Remove zone layers without navigating (called when URL already changed)
     if (this.zonePolygonLayer) {
       this.map.removeLayer(this.zonePolygonLayer);
       this.zonePolygonLayer = null;
@@ -938,7 +1088,24 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     this.currentZone.set(null);
 
+    // Reset map view to world view (only when going back to world map)
+    if (resetView) {
+      this.map.setView([30, 2.5], 3);
+    }
+  }
+
+  private forceReload() {
+    // Force a full page reload to reinitialize the component with all sounds
+    // This is the simplest and most reliable way to switch from zone view to world view
+    window.location.href = '/mapfly';
+  }
+
+  private clearZone() {
+    // Clear visuals
+    this.clearZoneVisuals();
+
     // Remove zoneId from URL
+    this.currentZoneId = null;
     this.router.navigate([], {
       queryParamsHandling: 'merge',
       queryParams: { zoneId: null },
@@ -947,6 +1114,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.queryParamsSub?.unsubscribe();
     this.map?.remove();
   }
 }

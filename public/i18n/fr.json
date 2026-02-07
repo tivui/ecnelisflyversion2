@@ -1,6 +1,41 @@
 {
   "home": {
-    "welcome": "Bienvenue {{name}} 🎉"
+    "welcome": "Bienvenue {{name}} 🎉",
+    "hero": {
+      "title": "Explorez les sons du monde",
+      "subtitle": "Découvrez des ambiances sonores captées aux quatre coins de la planète",
+      "exploreMap": "Carte mondiale",
+      "exploreMapDesc": "Parcourez tous les sons géolocalisés sur une carte interactive",
+      "exploreZones": "Découvrir les zones",
+      "exploreZonesDesc": "Explorez des régions sonores thématiques et uniques",
+      "explore": "Explorer",
+      "discover": "Découvrir"
+    },
+    "zones": {
+      "title": "Explorer par zones",
+      "subtitle": "Plongez dans des régions sonores uniques",
+      "viewAll": "Voir toutes les zones",
+      "explore": "Explorer",
+      "noZones": "Aucune zone disponible pour le moment"
+    },
+    "navigation": {
+      "worldMap": "Carte mondiale",
+      "zones": "Zones"
+    }
+  },
+  "sidenav": {
+    "worldMap": "Carte mondiale",
+    "discoverZones": "Découvrir les zones"
+  },
+  "zones": {
+    "title": "Zones géographiques",
+    "subtitle": "Explorez des régions sonores thématiques",
+    "loading": "Chargement des zones...",
+    "empty": {
+      "title": "Aucune zone disponible",
+      "message": "Il n'y a pas encore de zones à explorer. Revenez bientôt !",
+      "exploreMap": "Explorer la carte mondiale"
+    }
   },
   "common": {
     "save": "Enregistrer",
@@ -275,9 +310,17 @@
         "nameTranslations": "Traductions du nom",
         "descriptionTranslations": "Traductions de la description",
         "startDrawing": "Dessiner le polygone",
+        "editPolygon": "Modifier les points",
+        "redrawPolygon": "Redessiner",
         "finishDrawing": "Terminer",
+        "finishEditing": "Valider",
         "cancelDrawing": "Annuler",
+        "cancelEditing": "Annuler",
         "clearPolygon": "Supprimer le polygone",
+        "editHint": "Cliquez sur la carte pour dessiner le nouveau polygone. L'ancien est affiché en transparence.",
+        "editDragHint": "Glissez les points pour modifier. Glissez les points blancs pour ajouter des sommets.",
+        "editInstructions": "Glissez les marqueurs colorés pour ajuster. Glissez les petits points blancs pour ajouter de nouveaux sommets.",
+        "polygonUpdated": "Polygone mis à jour avec succès",
         "polygonValid": "Polygone défini",
         "polygonMissing": "Polygone requis",
         "drawHint": "Cliquez sur la carte pour dessiner les points du polygone",
@@ -318,6 +361,12 @@
     },
     "categories": {
       "all": "TOUT"
+    },
+    "zone": {
+      "showInfo": "Voir les informations",
+      "close": "Fermer la zone",
+      "noDescription": "Aucune description disponible pour cette zone.",
+      "exploreZone": "Explorer cette zone"
     }
   },
   "categories": {

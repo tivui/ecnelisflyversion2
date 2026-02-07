@@ -1,6 +1,41 @@
 {
   "home": {
-    "welcome": "Bienvenido {{name}} 🎉"
+    "welcome": "Bienvenido {{name}} 🎉",
+    "hero": {
+      "title": "Explora los sonidos del mundo",
+      "subtitle": "Descubre ambientes sonoros capturados de todo el planeta",
+      "exploreMap": "Mapa mundial",
+      "exploreMapDesc": "Navega por todos los sonidos geolocalizados en un mapa interactivo",
+      "exploreZones": "Descubrir zonas",
+      "exploreZonesDesc": "Explora regiones sonoras temáticas y únicas",
+      "explore": "Explorar",
+      "discover": "Descubrir"
+    },
+    "zones": {
+      "title": "Explorar por zonas",
+      "subtitle": "Sumérgete en regiones sonoras únicas",
+      "viewAll": "Ver todas las zonas",
+      "explore": "Explorar",
+      "noZones": "No hay zonas disponibles por el momento"
+    },
+    "navigation": {
+      "worldMap": "Mapa mundial",
+      "zones": "Zonas"
+    }
+  },
+  "sidenav": {
+    "worldMap": "Mapa mundial",
+    "discoverZones": "Descubrir zonas"
+  },
+  "zones": {
+    "title": "Zonas geográficas",
+    "subtitle": "Explora regiones sonoras temáticas",
+    "loading": "Cargando zonas...",
+    "empty": {
+      "title": "No hay zonas disponibles",
+      "message": "Aún no hay zonas para explorar. ¡Vuelve pronto!",
+      "exploreMap": "Explorar el mapa mundial"
+    }
   },
   "common": {
     "save": "Guardar",
@@ -274,9 +309,17 @@
         "nameTranslations": "Traducciones del nombre",
         "descriptionTranslations": "Traducciones de la descripción",
         "startDrawing": "Dibujar polígono",
+        "editPolygon": "Modificar puntos",
+        "redrawPolygon": "Redibujar",
         "finishDrawing": "Terminar",
+        "finishEditing": "Validar",
         "cancelDrawing": "Cancelar",
+        "cancelEditing": "Cancelar",
         "clearPolygon": "Borrar polígono",
+        "editHint": "Haz clic en el mapa para dibujar el nuevo polígono. El antiguo se muestra en transparencia.",
+        "editDragHint": "Arrastra los puntos para modificar. Arrastra los puntos blancos para añadir vértices.",
+        "editInstructions": "Arrastra los marcadores de color para ajustar. Arrastra los pequeños puntos blancos para añadir nuevos vértices.",
+        "polygonUpdated": "Polígono actualizado con éxito",
         "polygonValid": "Polígono definido",
         "polygonMissing": "Polígono requerido",
         "drawHint": "Haz clic en el mapa para dibujar los puntos del polígono",
@@ -318,6 +361,12 @@
     },
     "categories": {
       "all": "TODO"
+    },
+    "zone": {
+      "showInfo": "Ver información",
+      "close": "Cerrar zona",
+      "noDescription": "No hay descripción disponible para esta zona.",
+      "exploreZone": "Explorar esta zona"
     }
   },
   "categories": {

@@ -1,3 +1,29 @@
+// =====================
+// Sidenav Container
+// =====================
+.sidenav-container {
+  height: 100vh;
+  width: 100vw;
+}
+
+.main-sidenav {
+  width: 320px;
+  max-width: 85vw;
+  border-right: none;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+
+  ::ng-deep .mat-drawer-inner-container {
+    overflow: hidden;
+  }
+}
+
+// =====================
+// Toolbar
+// =====================
+.menu-btn {
+  margin-right: 8px;
+}
+
 .logo-link {
   display: flex;
   align-items: center;
@@ -22,8 +48,8 @@
   font-size: 18px;
   letter-spacing: 0.5px;
 
-  @media (max-width: 480px) {
-    font-size: 15px;
+  @media (max-width: 600px) {
+    display: none;
   }
 }
 
@@ -33,5 +59,17 @@
 
 .fullscreen-btn {
   margin-top: 2px;
+
+  @media (max-width: 480px) {
+    display: none;
+  }
 }
 
+// =====================
+// Dark theme adjustments
+// =====================
+:host-context(body.dark-theme) {
+  .main-sidenav {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+  }
+}

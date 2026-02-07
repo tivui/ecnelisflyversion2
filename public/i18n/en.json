@@ -1,6 +1,41 @@
 {
   "home": {
-    "welcome": "Welcome {{name}} 🎉"
+    "welcome": "Welcome {{name}} 🎉",
+    "hero": {
+      "title": "Explore the sounds of the world",
+      "subtitle": "Discover sound ambiances captured from around the globe",
+      "exploreMap": "World Map",
+      "exploreMapDesc": "Browse all geolocated sounds on an interactive map",
+      "exploreZones": "Discover Zones",
+      "exploreZonesDesc": "Explore unique thematic sound regions",
+      "explore": "Explore",
+      "discover": "Discover"
+    },
+    "zones": {
+      "title": "Explore by zones",
+      "subtitle": "Dive into unique sound regions",
+      "viewAll": "View all zones",
+      "explore": "Explore",
+      "noZones": "No zones available at the moment"
+    },
+    "navigation": {
+      "worldMap": "World Map",
+      "zones": "Zones"
+    }
+  },
+  "sidenav": {
+    "worldMap": "World Map",
+    "discoverZones": "Discover Zones"
+  },
+  "zones": {
+    "title": "Geographic Zones",
+    "subtitle": "Explore thematic sound regions",
+    "loading": "Loading zones...",
+    "empty": {
+      "title": "No zones available",
+      "message": "There are no zones to explore yet. Check back soon!",
+      "exploreMap": "Explore the world map"
+    }
   },
   "common": {
     "save": "Save",
@@ -274,9 +309,17 @@
         "nameTranslations": "Name translations",
         "descriptionTranslations": "Description translations",
         "startDrawing": "Draw polygon",
+        "editPolygon": "Edit points",
+        "redrawPolygon": "Redraw",
         "finishDrawing": "Finish",
+        "finishEditing": "Validate",
         "cancelDrawing": "Cancel",
+        "cancelEditing": "Cancel",
         "clearPolygon": "Clear polygon",
+        "editHint": "Click on the map to draw the new polygon. The old one is shown transparently.",
+        "editDragHint": "Drag points to modify. Drag white points to add new vertices.",
+        "editInstructions": "Drag colored markers to adjust. Drag small white points to add new vertices.",
+        "polygonUpdated": "Polygon updated successfully",
         "polygonValid": "Polygon defined",
         "polygonMissing": "Polygon required",
         "drawHint": "Click on the map to draw polygon points",
@@ -317,6 +360,12 @@
     },
     "categories": {
       "all": "ALL"
+    },
+    "zone": {
+      "showInfo": "Show information",
+      "close": "Close zone",
+      "noDescription": "No description available for this zone.",
+      "exploreZone": "Explore this zone"
     }
   },
   "categories": {

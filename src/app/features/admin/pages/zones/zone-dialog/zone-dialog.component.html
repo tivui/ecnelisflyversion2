@@ -3,7 +3,7 @@
 </h2>
 
 <mat-dialog-content>
-  <mat-tab-group>
+  <mat-tab-group (selectedIndexChange)="onTabChange($event)">
     <!-- Info Tab -->
     <mat-tab [label]="'admin.zones.dialog.tabInfo' | translate">
       <div class="tab-content">
@@ -89,17 +89,35 @@
     <mat-tab [label]="'admin.zones.dialog.tabPolygon' | translate">
       <div class="tab-content map-tab">
         <div class="map-toolbar">
-          @if (!isDrawing()) {
-            <button mat-raised-button color="primary" (click)="startDrawing()">
-              <mat-icon>edit</mat-icon>
-              {{ 'admin.zones.dialog.startDrawing' | translate }}
-            </button>
+          @if (!isDrawing() && !isEditing()) {
             @if (polygon()) {
+              <button mat-raised-button color="primary" (click)="editPolygon()">
+                <mat-icon>edit</mat-icon>
+                {{ 'admin.zones.dialog.editPolygon' | translate }}
+              </button>
+              <button mat-stroked-button color="primary" (click)="redrawPolygon()">
+                <mat-icon>draw</mat-icon>
+                {{ 'admin.zones.dialog.redrawPolygon' | translate }}
+              </button>
               <button mat-button color="warn" (click)="clearPolygon()">
                 <mat-icon>delete</mat-icon>
                 {{ 'admin.zones.dialog.clearPolygon' | translate }}
               </button>
+            } @else {
+              <button mat-raised-button color="primary" (click)="startDrawing()">
+                <mat-icon>draw</mat-icon>
+                {{ 'admin.zones.dialog.startDrawing' | translate }}
+              </button>
             }
+          } @else if (isEditing()) {
+            <button mat-raised-button color="accent" (click)="finishEditing()">
+              <mat-icon>check</mat-icon>
+              {{ 'admin.zones.dialog.finishEditing' | translate }}
+            </button>
+            <button mat-button (click)="cancelEditing()">
+              <mat-icon>close</mat-icon>
+              {{ 'admin.zones.dialog.cancelEditing' | translate }}
+            </button>
           } @else {
             <button mat-raised-button color="accent" (click)="finishDrawing()">
               <mat-icon>check</mat-icon>
@@ -129,6 +147,11 @@
         @if (isDrawing()) {
           <p class="draw-instructions">
             {{ 'admin.zones.dialog.drawInstructions' | translate }}
+          </p>
+        }
+        @if (isEditing()) {
+          <p class="draw-instructions edit-mode">
+            {{ 'admin.zones.dialog.editInstructions' | translate }}
           </p>
         }
       </div>

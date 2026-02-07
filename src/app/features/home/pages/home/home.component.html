@@ -1,7 +1,7 @@
-<!-- GRID : header + map -->
-<div class="header-container">
-  <div class="zone-header">
-    @if (appUser()) {
+<div class="home-container">
+  <!-- Welcome message -->
+  @if (appUser()) {
+    <div class="welcome-banner">
       <h2>
         {{ "home.welcome" | translate: { name: appUser()!.username } }}
         <img
@@ -11,17 +11,64 @@
           height="16"
         />
       </h2>
-    }
-  </div>
-
-  <div class="zone-map">
-    <div class="audio-controls">
-      <button [routerLink]="'/mapfly'">🌍 Map</button>
     </div>
-  </div>
-</div>
+  }
 
-<!-- HORS GRID : CAROUSEL pour éviter les conflits -->
-<div class="carousel-wrapper">
-  <app-carousel-categories></app-carousel-categories>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="hero-main-logo" />
+      <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'home.hero.subtitle' | translate }}</p>
+    </div>
+
+    <!-- Main action cards -->
+    <div class="hero-actions">
+      <!-- World Map Card -->
+      <a routerLink="/mapfly" class="hero-card hero-card-map">
+        <div class="hero-card-visual">
+          <div class="hero-card-icon">
+            <mat-icon>public</mat-icon>
+          </div>
+        </div>
+        <div class="hero-card-content">
+          <h3>{{ 'home.hero.exploreMap' | translate }}</h3>
+          <p class="hero-card-desc">{{ 'home.hero.exploreMapDesc' | translate }}</p>
+          <span class="hero-card-cta">
+            {{ 'home.hero.explore' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </div>
+      </a>
+
+      <!-- Zones Card -->
+      <a routerLink="/zones" class="hero-card hero-card-zones">
+        <div class="hero-card-visual">
+          @if (zones().length > 0) {
+            <div class="zones-preview">
+              @for (zone of zones().slice(0, 4); track zone.id) {
+                <div class="zone-preview-dot" [style.background-color]="zone.color ?? '#ff6b35'"></div>
+              }
+            </div>
+          }
+          <div class="hero-card-icon">
+            <mat-icon>location_on</mat-icon>
+          </div>
+        </div>
+        <div class="hero-card-content">
+          <h3>{{ 'home.hero.exploreZones' | translate }}</h3>
+          <p class="hero-card-desc">{{ 'home.hero.exploreZonesDesc' | translate }}</p>
+          <span class="hero-card-cta">
+            {{ 'home.hero.discover' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Categories Carousel -->
+  <section class="carousel-section">
+    <app-carousel-categories></app-carousel-categories>
+  </section>
 </div>
