@@ -1,0 +1,183 @@
+<div class="sound-filters">
+  <!-- Search bar row -->
+  <div class="search-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [formControl]="filterForm.controls.searchQuery"
+        [placeholder]="'dashboard.filters.searchPlaceholder' | translate"
+      />
+      @if (filterForm.controls.searchQuery.value) {
+        <button
+          matSuffix
+          mat-icon-button
+          (click)="removeSearchFilter()"
+          [matTooltip]="'common.cancel' | translate"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <button
+      mat-stroked-button
+      class="filter-toggle-btn"
+      (click)="toggleExpanded()"
+      [class.active]="expanded() || hasActiveFilters()"
+    >
+      <mat-icon>filter_list</mat-icon>
+      {{ "dashboard.filters.filters" | translate }}
+      @if (activeFilterCount() > 0) {
+        <span class="filter-badge">{{ activeFilterCount() }}</span>
+      }
+    </button>
+
+    @if (hasActiveFilters()) {
+      <button
+        mat-icon-button
+        (click)="resetFilters()"
+        [matTooltip]="'dashboard.filters.reset' | translate"
+        class="reset-btn"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Expandable filters -->
+  @if (expanded()) {
+    <div class="filters-panel" @slideDown>
+      <div class="filters-grid">
+        <!-- Category -->
+        <mat-form-field appearance="outline">
+          <mat-label>{{ "sound.category" | translate }}</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="filterForm.controls.category"
+            [matAutocomplete]="categoryAuto"
+            (input)="filterCategories($any($event.target).value)"
+          />
+          <mat-autocomplete
+            #categoryAuto="matAutocomplete"
+            [displayWith]="displayFn"
+          >
+            @for (option of filteredCategories; track option.key) {
+              <mat-option [value]="option">{{ option.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (filterForm.controls.category.value) {
+            <button matSuffix mat-icon-button (click)="removeCategoryFilter(); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <!-- Secondary Category -->
+        <mat-form-field appearance="outline">
+          <mat-label>{{ "sound.secondary-category" | translate }}</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="filterForm.controls.secondaryCategory"
+            [matAutocomplete]="subCategoryAuto"
+            (input)="filterSecondaryCategories($any($event.target).value)"
+            [disabled]="!filterForm.controls.category.value"
+          />
+          <mat-autocomplete
+            #subCategoryAuto="matAutocomplete"
+            [displayWith]="displayFn"
+          >
+            @for (option of filteredSecondaryCategories; track option.key) {
+              <mat-option [value]="option">{{ option.label }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (filterForm.controls.secondaryCategory.value) {
+            <button matSuffix mat-icon-button (click)="removeSecondaryFilter(); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <!-- Status -->
+        @if (showStatusFilter) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ "sound.status" | translate }}</mat-label>
+            <mat-select [formControl]="filterForm.controls.status">
+              <mat-option [value]="null">{{
+                "dashboard.filters.allStatuses" | translate
+              }}</mat-option>
+              @for (option of statusOptions; track option.value) {
+                <mat-option [value]="option.value">
+                  {{ option.label | translate }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        <!-- Date range -->
+        <mat-form-field appearance="outline" class="date-range-field">
+          <mat-label>{{ "dashboard.filters.dateRange" | translate }}</mat-label>
+          <mat-date-range-input [rangePicker]="rangePicker">
+            <input
+              matStartDate
+              [formControl]="filterForm.controls.dateStart"
+              [placeholder]="'dashboard.filters.dateFrom' | translate"
+            />
+            <input
+              matEndDate
+              [formControl]="filterForm.controls.dateEnd"
+              [placeholder]="'dashboard.filters.dateTo' | translate"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="rangePicker" />
+          <mat-date-range-picker #rangePicker />
+          @if (filterForm.controls.dateStart.value || filterForm.controls.dateEnd.value) {
+            <button matSuffix mat-icon-button (click)="removeDateFilter(); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+  }
+
+  <!-- Active filters chips -->
+  @if (hasActiveFilters() && !expanded()) {
+    <div class="active-filters">
+      @if (filterForm.controls.category.value) {
+        <mat-chip (removed)="removeCategoryFilter()">
+          {{ filterForm.controls.category.value.label }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
+      @if (filterForm.controls.secondaryCategory.value) {
+        <mat-chip (removed)="removeSecondaryFilter()">
+          {{ filterForm.controls.secondaryCategory.value.label }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
+      @if (filterForm.controls.status.value) {
+        <mat-chip (removed)="removeStatusFilter()">
+          {{ "dashboard.status." + filterForm.controls.status.value | translate }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
+      @if (filterForm.controls.dateStart.value || filterForm.controls.dateEnd.value) {
+        <mat-chip (removed)="removeDateFilter()">
+          <mat-icon>date_range</mat-icon>
+          @if (filterForm.controls.dateStart.value) {
+            {{ filterForm.controls.dateStart.value | date:'shortDate' }}
+          }
+          →
+          @if (filterForm.controls.dateEnd.value) {
+            {{ filterForm.controls.dateEnd.value | date:'shortDate' }}
+          }
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
+    </div>
+  }
+</div>

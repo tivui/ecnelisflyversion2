@@ -7,6 +7,8 @@ import {
   signal,
   OnDestroy,
   OnInit,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -51,7 +53,7 @@ import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
   templateUrl: './sound-list.component.html',
   styleUrl: './sound-list.component.scss',
 })
-export class SoundListComponent implements OnInit, OnDestroy {
+export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly dashboardService = inject(DashboardService);
   private readonly dialog = inject(MatDialog);
@@ -99,6 +101,15 @@ export class SoundListComponent implements OnInit, OnDestroy {
       });
 
     this.sortedData = [...this.sounds];
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Update sortedData when sounds input changes
+    if (changes['sounds'] && !changes['sounds'].firstChange) {
+      this.sortedData = [...this.sounds];
+      // Reset to first page when data changes
+      this.pageIndex = 0;
+    }
   }
 
   ngOnDestroy() {

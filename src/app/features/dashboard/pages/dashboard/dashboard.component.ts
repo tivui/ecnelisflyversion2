@@ -15,6 +15,18 @@ import { AppUserService } from '../../../../core/services/app-user.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { Sound } from '../../../../core/models/sound.model';
 import { SoundListComponent } from './widgets/sound-list/sound-list.component';
+import { SoundFiltersComponent } from './widgets/sound-filters/sound-filters.component';
+import {
+  DEFAULT_FILTERS,
+  DEFAULT_SORT,
+  SoundFilters,
+  SoundSort,
+} from '../../models/sound-filters.model';
+import {
+  filterSounds,
+  sortSounds,
+  hasActiveFilters,
+} from '../../utils/sound-filter.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,6 +40,7 @@ import { SoundListComponent } from './widgets/sound-list/sound-list.component';
     MatProgressSpinnerModule,
     TranslateModule,
     SoundListComponent,
+    SoundFiltersComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -48,10 +61,32 @@ export class DashboardComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
-  // Computed
+  // Filters & Sort
+  currentFilters = signal<SoundFilters>(DEFAULT_FILTERS);
+  currentSort = signal<SoundSort>(DEFAULT_SORT);
+
+  // Computed - filtered and sorted sounds
   displayedSounds = computed(() => {
-    return this.sounds();
+    const allSounds = this.sounds();
+    const filters = this.currentFilters();
+    const sort = this.currentSort();
+    const lang = this.translate.currentLang || 'fr';
+
+    // Apply filters
+    let result = filterSounds(allSounds, filters, lang);
+
+    // Apply sort
+    result = sortSounds(result, sort, lang);
+
+    return result;
   });
+
+  // Computed - check if filters are active
+  filtersActive = computed(() => hasActiveFilters(this.currentFilters()));
+
+  // Computed - results count
+  resultsCount = computed(() => this.displayedSounds().length);
+  totalCount = computed(() => this.sounds().length);
 
   async ngOnInit() {
     // Check admin status
@@ -122,5 +157,18 @@ export class DashboardComponent implements OnInit {
 
   goToNewSound() {
     this.router.navigate(['/new-sound']);
+  }
+
+  onFiltersChanged(filters: SoundFilters) {
+    this.currentFilters.set(filters);
+  }
+
+  onSortChanged(sort: SoundSort) {
+    this.currentSort.set(sort);
+  }
+
+  resetFilters() {
+    this.currentFilters.set(DEFAULT_FILTERS);
+    this.currentSort.set(DEFAULT_SORT);
   }
 }

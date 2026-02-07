@@ -1,0 +1,226 @@
+.sound-filters {
+  margin-bottom: 24px;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .search-field {
+    flex: 1;
+    min-width: 250px;
+
+    // Remove bottom margin from mat-form-field to align properly
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    mat-icon[matPrefix] {
+      color: rgba(0, 0, 0, 0.5);
+      margin-right: 8px;
+    }
+  }
+
+  .filter-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 56px;
+    border-radius: 4px;
+
+    &.active {
+      background-color: rgba(63, 81, 181, 0.08);
+      border-color: var(--mat-primary-500, #3f51b5);
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 10px;
+      background-color: var(--mat-primary-500, #3f51b5);
+      color: white;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+
+  .reset-btn {
+    color: rgba(0, 0, 0, 0.6);
+
+    &:hover {
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+}
+
+.filters-panel {
+  margin-top: 16px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .date-range-field {
+    grid-column: span 2;
+
+    @media (max-width: 600px) {
+      grid-column: span 1;
+    }
+  }
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+
+  mat-chip {
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 4px;
+    }
+  }
+}
+
+// Dark mode
+:host-context(.dark-theme) {
+  .search-row {
+    .search-field mat-icon[matPrefix] {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .filter-toggle-btn {
+      &.active {
+        background-color: rgba(144, 202, 249, 0.15);
+        border-color: #90caf9;
+      }
+
+      .filter-badge {
+        background-color: #90caf9;
+        color: #000;
+      }
+    }
+
+    .reset-btn {
+      color: rgba(255, 255, 255, 0.6);
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.87);
+      }
+    }
+  }
+
+  .filters-panel {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+// Mobile - Compact filter experience
+@media (max-width: 600px) {
+  .sound-filters {
+    margin-bottom: 16px;
+  }
+
+  .search-row {
+    gap: 8px;
+
+    .search-field {
+      min-width: 100%;
+      order: 1;
+
+      // Restore subscript for error messages but keep compact
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: block;
+      }
+    }
+
+    .filter-toggle-btn {
+      flex: 1;
+      order: 2;
+      height: 44px;
+      font-size: 14px;
+    }
+
+    .reset-btn {
+      order: 3;
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  .filters-panel {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+
+    mat-form-field {
+      // Compact form fields on mobile
+      ::ng-deep {
+        .mat-mdc-form-field-infix {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          min-height: 44px;
+        }
+
+        .mat-mdc-floating-label {
+          font-size: 13px;
+        }
+
+        .mat-mdc-form-field-subscript-wrapper {
+          display: none;
+        }
+      }
+    }
+
+    .date-range-field {
+      grid-column: span 2;
+    }
+  }
+
+  .active-filters {
+    margin-top: 8px;
+    gap: 6px;
+
+    mat-chip {
+      font-size: 12px;
+      min-height: 28px;
+    }
+  }
+}
+
+// Very small screens
+@media (max-width: 400px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+
+    .date-range-field {
+      grid-column: span 1;
+    }
+  }
+}
