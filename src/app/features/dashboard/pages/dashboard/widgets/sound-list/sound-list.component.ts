@@ -235,12 +235,12 @@ export class SoundListComponent implements OnInit, OnDestroy {
       const url = await this.dashboardService.getAudioUrl(sound);
       const audio = new Audio(url);
 
-      audio.addEventListener('ended', () => {
+      audio.onended = () => {
         this.playingSound.set(null);
         this.currentAudio.set(null);
-      });
+      };
 
-      audio.addEventListener('error', () => {
+      audio.onerror = () => {
         this.snackBar.open(
           this.translate.instant('dashboard.audioError'),
           'OK',
@@ -248,7 +248,7 @@ export class SoundListComponent implements OnInit, OnDestroy {
         );
         this.playingSound.set(null);
         this.currentAudio.set(null);
-      });
+      };
 
       this.currentAudio.set(audio);
       this.playingSound.set(sound.id || null);
@@ -267,7 +267,11 @@ export class SoundListComponent implements OnInit, OnDestroy {
     const audio = this.currentAudio();
     if (audio) {
       audio.pause();
+      // Remove event listeners before clearing src to avoid triggering error event
+      audio.onended = null;
+      audio.onerror = null;
       audio.src = '';
+      audio.load(); // Reset the audio element
     }
     this.playingSound.set(null);
     this.currentAudio.set(null);

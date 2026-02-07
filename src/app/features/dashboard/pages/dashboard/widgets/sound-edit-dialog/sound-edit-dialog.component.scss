@@ -24,7 +24,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 16px;
+  padding: 8px 0 20px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
   flex-shrink: 0;
@@ -37,6 +37,12 @@
 
   .close-btn {
     margin: -8px -8px -8px 0;
+
+    mat-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }
 
@@ -128,11 +134,19 @@ mat-dialog-actions {
 
   button {
     mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
       margin-right: 4px;
+      position: relative;
+      top: -1px;
     }
 
     mat-spinner {
-      margin-right: 8px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
     }
   }
 }
