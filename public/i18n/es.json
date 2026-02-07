@@ -9,7 +9,9 @@
       "exploreZones": "Descubrir zonas",
       "exploreZonesDesc": "Explora regiones sonoras temáticas y únicas",
       "explore": "Explorar",
-      "discover": "Descubrir"
+      "discover": "Descubrir",
+      "soundOfTheDay": "Sonido del día",
+      "listen": "Escuchar"
     },
     "zones": {
       "title": "Explorar por zonas",
@@ -25,7 +27,8 @@
   },
   "sidenav": {
     "worldMap": "Mapa mundial",
-    "discoverZones": "Descubrir zonas"
+    "discoverZones": "Descubrir zonas",
+    "soundOfTheDay": "Sonido del día"
   },
   "zones": {
     "title": "Zonas geográficas",
@@ -262,7 +265,31 @@
   "admin": {
     "database": {
       "importSounds": "Importar sonidos",
-      "zones": "Zonas geográficas"
+      "zones": "Zonas geográficas",
+      "featuredSound": "Sonido del día"
+    },
+    "featuredSound": {
+      "title": "Sonido del día",
+      "subtitle": "Configure la lista de sonidos elegibles para la selección diaria",
+      "addCandidate": "Agregar un sonido",
+      "currentDaily": "Sonido del día actual",
+      "noCurrent": "Ningún sonido del día seleccionado",
+      "candidates": "Sonidos elegibles",
+      "noCandidates": "Ningún sonido configurado",
+      "dialog": {
+        "createTitle": "Agregar un sonido elegible",
+        "editTitle": "Editar sonido elegible",
+        "selectSound": "Seleccionar un sonido",
+        "searchSound": "Buscar un sonido por título...",
+        "teasing": "Texto de presentación",
+        "teasingHint": "Frase llamativa para destacar este sonido",
+        "tabInfo": "Información",
+        "tabTranslations": "Traducciones",
+        "teasingTranslations": "Traducciones del texto de presentación"
+      },
+      "deleteConfirm": "¿Eliminar este sonido de la lista?",
+      "deleteSuccess": "Sonido eliminado de la lista",
+      "saveSuccess": "Sonido guardado"
     },
     "zones": {
       "title": "Zonas Geográficas",
@@ -367,6 +394,12 @@
       "close": "Cerrar zona",
       "noDescription": "No hay descripción disponible para esta zona.",
       "exploreZone": "Explorar esta zona"
+    },
+    "featured": {
+      "badge": "Sonido del día",
+      "discovering": "Viajando al sonido del día...",
+      "exploreFullMap": "Explorar el mapa",
+      "recordedIn": "Grabado en {{city}}"
     }
   },
   "categories": {

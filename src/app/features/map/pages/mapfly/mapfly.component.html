@@ -13,4 +13,25 @@
       </div>
     </div>
   }
+
+  <!-- Featured Sound cinematic overlay -->
+  @if (featuredOverlayVisible()) {
+    <div class="featured-overlay">
+      <div class="featured-overlay-content">
+        <div class="featured-overlay-icon">
+          <span class="material-icons">headphones</span>
+        </div>
+        <span class="featured-overlay-badge">{{ 'mapfly.featured.badge' | translate }}</span>
+        <h2 class="featured-overlay-title">{{ 'mapfly.featured.discovering' | translate }}</h2>
+      </div>
+    </div>
+  }
+
+  <!-- Featured mode: "Explore full map" button -->
+  @if (isFeaturedMode()) {
+    <button class="featured-explore-btn" (click)="goToFullMap()">
+      <span class="material-icons">public</span>
+      <span>{{ 'mapfly.featured.exploreFullMap' | translate }}</span>
+    </button>
+  }
 </div>

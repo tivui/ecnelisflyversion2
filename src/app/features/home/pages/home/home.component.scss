@@ -3,8 +3,10 @@
 // =====================
 $primary-blue: #1976d2;
 $primary-orange: #ff6b35;
+$primary-purple: #7c4dff;
 $gradient-blue: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
 $gradient-orange: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+$gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
 
 // =====================
 // Home Container
@@ -202,6 +204,36 @@ $gradient-orange: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
   .hero-card-visual {
     background: $gradient-orange;
   }
+}
+
+.hero-card-featured {
+  .hero-card-visual {
+    background: $gradient-featured;
+  }
+
+  .hero-card-cta {
+    color: $primary-purple;
+
+    :host-context(body.dark-theme) & {
+      color: #b388ff;
+    }
+  }
+}
+
+.featured-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  z-index: 1;
 }
 
 .hero-card-visual {

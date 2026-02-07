@@ -1,1 +1,206 @@
-@use '../../../../shared/styles/map.scss'
+@use '../../../../shared/styles/map.scss';
+
+// =====================
+// Featured Sound Cinematic Overlay
+// =====================
+.featured-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(10, 5, 30, 0.7) 0%, rgba(10, 5, 30, 0.92) 100%);
+  animation: featured-overlay-in 0.8s ease-out;
+  pointer-events: none;
+}
+
+@keyframes featured-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.featured-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: featured-content-in 1s ease-out 0.3s both;
+}
+
+@keyframes featured-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.featured-overlay-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 40px rgba(124, 77, 255, 0.4),
+    0 0 80px rgba(124, 77, 255, 0.2);
+  animation: featured-icon-pulse 2s ease-in-out infinite;
+
+  .material-icons {
+    font-size: 40px;
+    color: #fff;
+  }
+}
+
+@keyframes featured-icon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 40px rgba(124, 77, 255, 0.4),
+      0 0 80px rgba(124, 77, 255, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 60px rgba(124, 77, 255, 0.6),
+      0 0 120px rgba(124, 77, 255, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+.featured-overlay-badge {
+  padding: 6px 20px;
+  background: rgba(124, 77, 255, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(124, 77, 255, 0.5);
+  border-radius: 24px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #e0d0ff;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.featured-overlay-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 1px;
+  font-family: 'Inter', system-ui, sans-serif;
+  text-align: center;
+  max-width: 300px;
+  animation: featured-title-glow 3s ease-in-out infinite;
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes featured-title-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(124, 77, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(124, 77, 255, 0.6);
+  }
+}
+
+// =====================
+// Featured Pulse Circle on Map
+// =====================
+:host ::ng-deep .featured-pulse-circle {
+  animation: map-pulse 2s ease-out infinite;
+}
+
+@keyframes map-pulse {
+  0% {
+    stroke-opacity: 0.8;
+    fill-opacity: 0.3;
+    r: 15;
+  }
+  100% {
+    stroke-opacity: 0;
+    fill-opacity: 0;
+    r: 40;
+  }
+}
+
+// =====================
+// Featured Mode: Explore Full Map Button
+// =====================
+.featured-explore-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: btn-fade-in 0.5s ease-out 5s both;
+
+  .material-icons {
+    font-size: 20px;
+  }
+
+  body.light-theme & {
+    background: #fff;
+    color: #1976d2;
+
+    &:hover {
+      background: #e3f2fd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  body.dark-theme & {
+    background: #2c2c3e;
+    color: #90caf9;
+
+    &:hover {
+      background: #3a3a4e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+
+    .material-icons {
+      font-size: 18px;
+    }
+  }
+}
+
+@keyframes btn-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

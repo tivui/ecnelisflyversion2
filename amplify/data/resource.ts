@@ -4,6 +4,7 @@ import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
+import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -87,6 +88,8 @@ const schema = a
         shortHashtags: a.string(),
 
         zoneSounds: a.hasMany('ZoneSound', 'soundId'),
+        featuredSoundCandidates: a.hasMany('FeaturedSoundCandidate', 'soundId'),
+        dailyFeaturedSounds: a.hasMany('DailyFeaturedSound', 'soundId'),
       })
       .secondaryIndexes((index) => [
         index('userId')
@@ -151,6 +154,53 @@ const schema = a
           .sortKeys(['sortOrder'])
           .queryField('listZoneSoundsByZone'),
         index('soundId').queryField('listZoneSoundsBySound'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    FeaturedSoundCandidate: a
+      .model({
+        id: a.id().required(),
+        soundId: a.id().required(),
+        sound: a.belongsTo('Sound', 'soundId'),
+        teasing: a.string().required(),
+        teasing_i18n: a.json(),
+        isActive: a.boolean().default(true),
+        sortOrder: a.integer().default(0),
+      })
+      .secondaryIndexes((index) => [
+        index('soundId').queryField('listFeaturedCandidatesBySound'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    DailyFeaturedSound: a
+      .model({
+        id: a.id().required(),
+        date: a.string().required(),
+        featuredCandidateId: a.id().required(),
+        soundId: a.id().required(),
+        sound: a.belongsTo('Sound', 'soundId'),
+        teasing: a.string(),
+        teasing_i18n: a.json(),
+        soundTitle: a.string(),
+        soundCity: a.string(),
+        soundLatitude: a.float(),
+        soundLongitude: a.float(),
+        soundCategory: a.string(),
+        soundSecondaryCategory: a.string(),
+        soundFilename: a.string(),
+      })
+      .secondaryIndexes((index) => [
+        index('date').queryField('getDailyFeaturedByDate'),
       ])
       .authorization((allow) => [
         allow.publicApiKey().to(['read']),
@@ -228,6 +278,7 @@ const schema = a
     allow.resource(listSoundsForMap),
     allow.resource(deleteSoundFile),
     allow.resource(listSoundsByZone),
+    allow.resource(pickDailyFeaturedSound),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

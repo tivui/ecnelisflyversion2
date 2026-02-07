@@ -20,7 +20,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.route === '/mapfly' }"
         matRipple
-        (click)="onItemClick()"
+        (click)="onItemClick(item, $event)"
       >
         <mat-icon>{{ item.icon }}</mat-icon>
         <span class="nav-label">{{ item.labelKey | translate }}</span>
@@ -28,6 +28,20 @@
       </a>
     }
   </nav>
+
+  <!-- Sound of the Day -->
+  @if (dailyFeatured()) {
+    <div class="featured-sound-section" (click)="goToFeaturedSound()" matRipple>
+      <div class="featured-sound-icon">
+        <mat-icon>headphones</mat-icon>
+      </div>
+      <div class="featured-sound-content">
+        <span class="featured-sound-label">{{ 'sidenav.soundOfTheDay' | translate }}</span>
+        <p class="featured-sound-teasing">{{ teasingText() }}</p>
+      </div>
+      <mat-icon class="nav-arrow">chevron_right</mat-icon>
+    </div>
+  }
 
   <!-- Footer -->
   <div class="sidenav-footer">

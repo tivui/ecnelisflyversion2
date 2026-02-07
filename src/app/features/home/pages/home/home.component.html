@@ -41,6 +41,26 @@
         </div>
       </a>
 
+      <!-- Sound of the Day Card -->
+      @if (dailyFeatured()) {
+        <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
+          <div class="hero-card-visual">
+            <div class="hero-card-icon">
+              <mat-icon>headphones</mat-icon>
+            </div>
+            <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
+          </div>
+          <div class="hero-card-content">
+            <h3>{{ dailyFeatured()!.soundTitle }}</h3>
+            <p class="hero-card-desc">{{ teasingText() }}</p>
+            <span class="hero-card-cta">
+              {{ 'home.hero.listen' | translate }}
+              <mat-icon>arrow_forward</mat-icon>
+            </span>
+          </div>
+        </a>
+      }
+
       <!-- Zones Card -->
       <a routerLink="/zones" class="hero-card hero-card-zones">
         <div class="hero-card-visual">

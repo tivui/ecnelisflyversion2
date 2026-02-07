@@ -73,6 +73,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
   isAuthenticated = computed(() => !!this.auth.user());
 
   public isLoading = signal(false);
+  public isFeaturedMode = signal(false);
+  public featuredOverlayVisible = signal(false);
 
   // --- Fonds de carte ---
   osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -140,12 +142,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const secondaryCategory =
       params.get(MAP_QUERY_KEYS.secondaryCategory) ?? undefined;
     const zoneId = params.get('zoneId') ?? undefined;
+    const soundFilename = params.get('soundFilename') ?? undefined;
+    const featuredMode = params.get('featuredMode') === 'true';
 
     // --- Paramètres initiaux de la carte ---
     const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
     const lng = parseFloat(params.get(MAP_QUERY_KEYS.lng) ?? '2.5');
     const zoom = parseInt(params.get(MAP_QUERY_KEYS.zoom) ?? '3', 10);
     const basemapKey = params.get(MAP_QUERY_KEYS.basemap) ?? 'osm';
+
+    // Featured mode: lightweight path with single marker + cinematic animation
+    if (featuredMode && soundFilename) {
+      this.isFeaturedMode.set(true);
+      this.initFeaturedMode(params);
+      return;
+    }
 
     let isSearchActive = false;
 
@@ -1092,6 +1103,260 @@ export class MapflyComponent implements OnInit, OnDestroy {
     if (resetView) {
       this.map.setView([30, 2.5], 3);
     }
+  }
+
+  // =====================================================
+  // Featured Sound Mode — lightweight single-marker path
+  // =====================================================
+  private async initFeaturedMode(params: any) {
+    const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
+    const lng = parseFloat(params.get(MAP_QUERY_KEYS.lng) ?? '2.5');
+    const soundFilename = params.get('soundFilename') ?? '';
+    const soundTitle = params.get('soundTitle') ?? '';
+    const soundCity = params.get('soundCity') ?? '';
+    const soundCategory = params.get('soundCategory') ?? '';
+    const soundSecondaryCategory = params.get('soundSecondaryCategory') ?? '';
+    const soundId = params.get('soundId') ?? '';
+
+    // Start zoomed out for cinematic fly-in
+    this.map = L.map('mapfly', {
+      center: L.latLng(30, 2.5),
+      zoom: 3,
+      attributionControl: false,
+      zoomControl: false,
+    });
+
+    // Use satellite for the cinematic effect
+    this.esri.addTo(this.map);
+
+    // Show cinematic overlay
+    this.featuredOverlayVisible.set(true);
+
+    // Load the full sound record for popup details
+    let s: any = null;
+    if (soundId) {
+      try {
+        const soundResult = await (this.amplifyService.client.models.Sound.get as any)(
+          { id: soundId },
+          { selectionSet: [
+            'id', 'userId', 'title', 'title_i18n', 'shortStory', 'shortStory_i18n',
+            'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
+            'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
+            'user.username', 'user.country',
+          ]},
+        );
+        s = soundResult.data;
+      } catch { /* ignore */ }
+    }
+
+    // Load audio URL
+    const url = await this.storageService.getSoundUrl(soundFilename);
+    const mimeType = this.soundsService.getMimeType(soundFilename);
+
+    // Resolve secondary category for marker icon
+    const secondaryCat = soundSecondaryCategory || s?.secondaryCategory || '';
+    const catTronquee = secondaryCat
+      ? secondaryCat.slice(0, -3)
+      : 'city';
+    const targetLatLng = L.latLng(lat, lng);
+    const marker = L.marker(targetLatLng, {
+      icon: L.icon({
+        ...L.Icon.Default.prototype.options,
+        iconUrl: `img/markers/marker_${catTronquee}.png`,
+        iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
+        shadowUrl: 'img/markers/markers-shadow.png',
+        iconSize: [32, 43],
+        iconAnchor: [15, 40],
+        shadowAnchor: [8, 10],
+        popupAnchor: [0, -35],
+      }),
+    });
+
+    marker.bindPopup(`
+      <div class="popup-container">
+        <b class="popup-title" id="title-${soundFilename}">${soundTitle}</b>
+        <p class="popup-shortstory" id="shortStory-${soundFilename}">${s?.shortStory ?? ''}</p>
+        <div id="btn-container-title-${soundFilename}"></div>
+        <div id="btn-container-shortStory-${soundFilename}"></div>
+        <div id="links-${soundFilename}" class="popup-links"></div>
+        <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
+          <source src="${url}" type="${mimeType}">
+        </audio>
+        <div id="btn-container-${soundFilename}" class="popup-btn-group">
+          <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
+          <button class="download-btn material-icons" id="download-${soundFilename}">download</button>
+          <button class="zoom-btn material-icons" id="zoom-in-${soundFilename}">add</button>
+        </div>
+      </div>
+    `);
+
+    // Popup open logic (same as normal mode)
+    marker.on('popupopen', () => {
+      if (!s) return;
+
+      const titleEl = document.getElementById(`title-${soundFilename}`);
+      const shortStoryEl = document.getElementById(`shortStory-${soundFilename}`);
+      const btnTitleContainer = document.getElementById(`btn-container-title-${soundFilename}`);
+      const btnStoryContainer = document.getElementById(`btn-container-shortStory-${soundFilename}`);
+      const linksContainer = document.getElementById(`links-${soundFilename}`);
+      const recordInfoEl = document.getElementById(`record-info-${soundFilename}`);
+
+      // --- External links ---
+      if (linksContainer) {
+        const links: string[] = [];
+        if (s.url) {
+          const text = s.urlTitle?.trim() || s.url;
+          if (text) {
+            links.push(`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+          }
+        }
+        if (s.secondaryUrl) {
+          const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
+          if (text) {
+            links.push(`<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+          }
+        }
+        linksContainer.innerHTML = links.length ? links.join(' | ') : '';
+      }
+
+      // --- Record info (author + city) ---
+      if (recordInfoEl && s.user?.username) {
+        const flagImg = s.user.country
+          ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+          : '';
+        const clickableId = `record-link-${soundFilename}`;
+        const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
+        recordInfoEl.innerHTML = this.translate.instant(
+          'mapfly.record-info',
+          { city: s.city ?? soundCity ?? '', username: userLinkHtml },
+        );
+
+        const linkEl = document.getElementById(clickableId);
+        if (linkEl) {
+          linkEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tree = this.router.createUrlTree(['/mapfly'], {
+              queryParams: { userId: s.userId },
+            });
+            window.open(window.location.origin + this.router.serializeUrl(tree), '_blank');
+          });
+        }
+      }
+
+      // --- Translate button ---
+      if (titleEl && shortStoryEl && btnTitleContainer) {
+        const title_i18n_obj = this.parseI18n(s.title_i18n);
+        const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
+        const lang = this.currentUserLanguage.toLowerCase().trim();
+        const translatedTitle = title_i18n_obj?.[lang];
+        const translatedStory = story_i18n_obj?.[lang];
+        const shouldShow =
+          (translatedTitle && translatedTitle !== titleEl.textContent?.trim()) ||
+          (translatedStory && translatedStory !== shortStoryEl.textContent?.trim());
+
+        if (shouldShow) {
+          const btn = document.createElement('button');
+          btn.classList.add('translate-btn');
+          btn.style.marginLeft = '8px';
+
+          const iconSpan = document.createElement('span');
+          iconSpan.classList.add('material-icons');
+          iconSpan.textContent = 'translate';
+
+          const textSpan = document.createElement('span');
+          textSpan.classList.add('btn-label');
+          textSpan.textContent = this.translate.instant('common.action.translate');
+
+          btn.appendChild(iconSpan);
+          btn.appendChild(textSpan);
+          btnTitleContainer.appendChild(btn);
+
+          btn.addEventListener('click', () => {
+            if (title_i18n_obj?.[lang]) titleEl.textContent = title_i18n_obj[lang];
+            if (story_i18n_obj?.[lang]) shortStoryEl.textContent = story_i18n_obj[lang];
+            btn.style.display = 'none';
+          });
+        }
+      }
+
+      // --- Zoom & Download buttons ---
+      const zoomInBtn = document.getElementById(`zoom-in-${soundFilename}`);
+      const zoomOutBtn = document.getElementById(`zoom-out-${soundFilename}`);
+      const downloadBtn = document.getElementById(`download-${soundFilename}`);
+
+      if (zoomInBtn)
+        zoomInBtn.addEventListener('click', () =>
+          this.map.setView([lat + 0.0015, lng], 17),
+        );
+      if (zoomOutBtn)
+        zoomOutBtn.addEventListener('click', () =>
+          this.map.setView([lat > 20 ? lat : lat + 30, lng], 2),
+        );
+      if (downloadBtn)
+        downloadBtn.addEventListener('click', () => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = soundFilename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        });
+    });
+
+    marker.addTo(this.map);
+
+    // Add pulsating circle at target location
+    const pulseCircle = L.circleMarker(targetLatLng, {
+      radius: 30,
+      color: '#7c4dff',
+      fillColor: '#7c4dff',
+      fillOpacity: 0.2,
+      weight: 2,
+      className: 'featured-pulse-circle',
+    });
+
+    // --- Cinematic fly-in animation ---
+    // Step 1: Pause for overlay title to be read
+    setTimeout(() => {
+      // Step 2: Fly from world → continent level
+      this.map.flyTo(targetLatLng, 6, {
+        duration: 2.5,
+        easeLinearity: 0.2,
+      });
+
+      this.map.once('moveend', () => {
+        // Step 3: Switch to satellite+streets for detail
+        this.map.removeLayer(this.esri);
+        this.mapbox.addTo(this.map);
+
+        // Step 4: Brief pause, then zoom to street level
+        setTimeout(() => {
+          this.map.flyTo(targetLatLng, 17, {
+            duration: 2,
+            easeLinearity: 0.4,
+          });
+
+          this.map.once('moveend', () => {
+            // Step 5: Hide overlay, add pulse effect, open popup
+            this.featuredOverlayVisible.set(false);
+
+            pulseCircle.addTo(this.map);
+
+            setTimeout(() => {
+              marker.openPopup();
+            }, 400);
+
+            // Add zoom control after animation
+            L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+          });
+        }, 500);
+      });
+    }, 1800);
+  }
+
+  goToFullMap() {
+    window.location.href = '/mapfly';
   }
 
   private forceReload() {

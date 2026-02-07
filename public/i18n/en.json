@@ -9,7 +9,9 @@
       "exploreZones": "Discover Zones",
       "exploreZonesDesc": "Explore unique thematic sound regions",
       "explore": "Explore",
-      "discover": "Discover"
+      "discover": "Discover",
+      "soundOfTheDay": "Sound of the Day",
+      "listen": "Listen"
     },
     "zones": {
       "title": "Explore by zones",
@@ -25,7 +27,8 @@
   },
   "sidenav": {
     "worldMap": "World Map",
-    "discoverZones": "Discover Zones"
+    "discoverZones": "Discover Zones",
+    "soundOfTheDay": "Sound of the Day"
   },
   "zones": {
     "title": "Geographic Zones",
@@ -262,7 +265,31 @@
   "admin": {
     "database": {
       "importSounds": "Import sounds",
-      "zones": "Geographic zones"
+      "zones": "Geographic zones",
+      "featuredSound": "Sound of the Day"
+    },
+    "featuredSound": {
+      "title": "Sound of the Day",
+      "subtitle": "Configure the list of sounds eligible for the daily pick",
+      "addCandidate": "Add a sound",
+      "currentDaily": "Current sound of the day",
+      "noCurrent": "No sound of the day selected",
+      "candidates": "Eligible sounds",
+      "noCandidates": "No sounds configured",
+      "dialog": {
+        "createTitle": "Add an eligible sound",
+        "editTitle": "Edit eligible sound",
+        "selectSound": "Select a sound",
+        "searchSound": "Search for a sound by title...",
+        "teasing": "Teasing text",
+        "teasingHint": "Catchy phrase to highlight this sound",
+        "tabInfo": "Information",
+        "tabTranslations": "Translations",
+        "teasingTranslations": "Teasing translations"
+      },
+      "deleteConfirm": "Remove this sound from the list?",
+      "deleteSuccess": "Sound removed from the list",
+      "saveSuccess": "Sound saved"
     },
     "zones": {
       "title": "Geographic Zones",
@@ -366,6 +393,12 @@
       "close": "Close zone",
       "noDescription": "No description available for this zone.",
       "exploreZone": "Explore this zone"
+    },
+    "featured": {
+      "badge": "Sound of the day",
+      "discovering": "Traveling to the sound of the day...",
+      "exploreFullMap": "Explore the map",
+      "recordedIn": "Recorded in {{city}}"
     }
   },
   "categories": {

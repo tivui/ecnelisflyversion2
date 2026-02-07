@@ -1,0 +1,94 @@
+<div class="featured-sound-container">
+  <!-- Current Daily Featured -->
+  <div class="current-daily">
+    <h3>{{ 'admin.featuredSound.currentDaily' | translate }}</h3>
+    @if (dailyFeatured()) {
+      <div class="daily-card">
+        <mat-icon class="daily-icon">headphones</mat-icon>
+        <div class="daily-info">
+          <strong>{{ dailyFeatured()!.soundTitle }}</strong>
+          @if (dailyFeatured()!.soundCity) {
+            <span class="daily-city">{{ dailyFeatured()!.soundCity }}</span>
+          }
+          <span class="daily-teasing">{{ getLocalizedTeasing(dailyFeatured()!) }}</span>
+        </div>
+        <span class="daily-date">{{ dailyFeatured()!.date }}</span>
+      </div>
+    } @else {
+      <p class="no-current">{{ 'admin.featuredSound.noCurrent' | translate }}</p>
+    }
+  </div>
+
+  <!-- Candidates List -->
+  <div class="header">
+    <div>
+      <h2>{{ 'admin.featuredSound.candidates' | translate }}</h2>
+      <p class="subtitle">{{ 'admin.featuredSound.subtitle' | translate }}</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.featuredSound.addCandidate' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (candidates().length === 0) {
+    <div class="empty-state">
+      <mat-icon>headphones</mat-icon>
+      <p>{{ 'admin.featuredSound.noCandidates' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        {{ 'admin.featuredSound.addCandidate' | translate }}
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="candidates()" class="candidates-table">
+      <!-- Teasing Column -->
+      <ng-container matColumnDef="teasing">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.featuredSound.dialog.teasing' | translate }}</th>
+        <td mat-cell *matCellDef="let candidate">
+          <div class="candidate-teasing">
+            {{ getLocalizedTeasing(candidate) }}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- IsActive Column -->
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let candidate">
+          <mat-chip [class.active-chip]="candidate.isActive" [class.inactive-chip]="!candidate.isActive"
+            (click)="toggleActive(candidate)">
+            {{ candidate.isActive ? 'ON' : 'OFF' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Sort Order Column -->
+      <ng-container matColumnDef="sortOrder">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let candidate">{{ candidate.sortOrder ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let candidate">
+          <div class="actions">
+            <button mat-icon-button (click)="openEditDialog(candidate)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteCandidate(candidate)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>
