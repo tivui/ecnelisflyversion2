@@ -1,0 +1,155 @@
+<h2 mat-dialog-title>
+  {{ (isEditMode() ? 'admin.zones.dialog.editTitle' : 'admin.zones.dialog.createTitle') | translate }}
+</h2>
+
+<mat-dialog-content>
+  <mat-tab-group>
+    <!-- Info Tab -->
+    <mat-tab [label]="'admin.zones.dialog.tabInfo' | translate">
+      <div class="tab-content">
+        <form [formGroup]="form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.zones.dialog.name' | translate }}</mat-label>
+            <input matInput formControlName="name" required />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.zones.dialog.slug' | translate }}</mat-label>
+            <input matInput formControlName="slug" required />
+            <mat-hint>{{ 'admin.zones.dialog.slugHint' | translate }}</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.zones.dialog.description' | translate }}</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.zones.dialog.color' | translate }}</mat-label>
+              <input matInput type="color" formControlName="color" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.zones.dialog.defaultZoom' | translate }}</mat-label>
+              <input matInput type="number" formControlName="defaultZoom" min="1" max="20" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.zones.dialog.sortOrder' | translate }}</mat-label>
+              <input matInput type="number" formControlName="sortOrder" />
+            </mat-form-field>
+          </div>
+
+          <mat-slide-toggle formControlName="isPublic">
+            {{ 'admin.zones.dialog.isPublic' | translate }}
+          </mat-slide-toggle>
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- Translations Tab -->
+    <mat-tab [label]="'admin.zones.dialog.tabTranslations' | translate">
+      <div class="tab-content">
+        <form [formGroup]="form">
+          <h4>{{ 'admin.zones.dialog.nameTranslations' | translate }}</h4>
+          <div class="translations-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Français</mat-label>
+              <input matInput formControlName="name_fr" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>English</mat-label>
+              <input matInput formControlName="name_en" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Español</mat-label>
+              <input matInput formControlName="name_es" />
+            </mat-form-field>
+          </div>
+
+          <h4>{{ 'admin.zones.dialog.descriptionTranslations' | translate }}</h4>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Français</mat-label>
+            <textarea matInput formControlName="description_fr" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>English</mat-label>
+            <textarea matInput formControlName="description_en" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Español</mat-label>
+            <textarea matInput formControlName="description_es" rows="2"></textarea>
+          </mat-form-field>
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- Map Tab -->
+    <mat-tab [label]="'admin.zones.dialog.tabPolygon' | translate">
+      <div class="tab-content map-tab">
+        <div class="map-toolbar">
+          @if (!isDrawing()) {
+            <button mat-raised-button color="primary" (click)="startDrawing()">
+              <mat-icon>edit</mat-icon>
+              {{ 'admin.zones.dialog.startDrawing' | translate }}
+            </button>
+            @if (polygon()) {
+              <button mat-button color="warn" (click)="clearPolygon()">
+                <mat-icon>delete</mat-icon>
+                {{ 'admin.zones.dialog.clearPolygon' | translate }}
+              </button>
+            }
+          } @else {
+            <button mat-raised-button color="accent" (click)="finishDrawing()">
+              <mat-icon>check</mat-icon>
+              {{ 'admin.zones.dialog.finishDrawing' | translate }}
+            </button>
+            <button mat-button (click)="cancelDrawing()">
+              <mat-icon>close</mat-icon>
+              {{ 'admin.zones.dialog.cancelDrawing' | translate }}
+            </button>
+          }
+
+          @if (polygon()) {
+            <span class="polygon-status valid">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'admin.zones.dialog.polygonValid' | translate }}
+            </span>
+          } @else {
+            <span class="polygon-status invalid">
+              <mat-icon>warning</mat-icon>
+              {{ 'admin.zones.dialog.polygonMissing' | translate }}
+            </span>
+          }
+        </div>
+
+        <div #mapContainer class="map-container"></div>
+
+        @if (isDrawing()) {
+          <p class="draw-instructions">
+            {{ 'admin.zones.dialog.drawInstructions' | translate }}
+          </p>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="saving() || !form.valid || !polygon()"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ 'common.action.save' | translate }}
+    }
+  </button>
+</mat-dialog-actions>

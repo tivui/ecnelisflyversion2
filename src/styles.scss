@@ -301,6 +301,78 @@ body.dark-theme {
       color: rgba(255, 255, 255, 0.87);
     }
   }
+
+  // Zones admin styles
+  .zones-container {
+    h2 {
+      color: #f5f5f5;
+    }
+  }
+
+  .zones-table {
+    background-color: #2c2c3e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .empty-state {
+    mat-icon {
+      color: #666;
+    }
+
+    p {
+      color: #aaa;
+    }
+  }
+
+  .public-chip {
+    background-color: #2e7d32 !important;
+  }
+
+  .private-chip {
+    background-color: #ef6c00 !important;
+  }
+
+  // Zone dialog map container
+  .map-container {
+    border-color: #444;
+  }
+
+  .draw-instructions {
+    background-color: #3a3a4e;
+    color: #aaa;
+  }
+
+  .polygon-status {
+    &.valid {
+      background-color: rgba(76, 175, 80, 0.2);
+      color: #81c784;
+    }
+
+    &.invalid {
+      background-color: rgba(255, 152, 0, 0.2);
+      color: #ffb74d;
+    }
+  }
+
+  // Zone sounds dialog
+  .sounds-list {
+    border-color: #444;
+    background-color: #2c2c3e;
+
+    mat-list-item {
+      border-bottom-color: #3a3a4e;
+    }
+  }
+
+  .empty-message {
+    color: #888;
+  }
+
+  // Translations grid
+  .translations-grid h4,
+  .tab-content h4 {
+    color: #aaa;
+  }
 }
 
 

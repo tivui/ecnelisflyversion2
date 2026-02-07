@@ -1,0 +1,99 @@
+<div class="zones-container">
+  <div class="header">
+    <h2>{{ 'admin.zones.title' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.zones.create' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (zones().length === 0) {
+    <div class="empty-state">
+      <mat-icon>map</mat-icon>
+      <p>{{ 'admin.zones.noZones' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        {{ 'admin.zones.createFirst' | translate }}
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="zones()" class="zones-table">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.zones.table.name' | translate }}</th>
+        <td mat-cell *matCellDef="let zone">
+          <div class="zone-name">
+            <span class="color-dot" [style.background-color]="zone.color"></span>
+            {{ getLocalizedName(zone) }}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Slug Column -->
+      <ng-container matColumnDef="slug">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.zones.table.slug' | translate }}</th>
+        <td mat-cell *matCellDef="let zone">{{ zone.slug }}</td>
+      </ng-container>
+
+      <!-- IsPublic Column -->
+      <ng-container matColumnDef="isPublic">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.zones.table.status' | translate }}</th>
+        <td mat-cell *matCellDef="let zone">
+          <mat-chip [class.public-chip]="zone.isPublic" [class.private-chip]="!zone.isPublic">
+            {{ (zone.isPublic ? 'admin.zones.public' : 'admin.zones.private') | translate }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Sort Order Column -->
+      <ng-container matColumnDef="sortOrder">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.zones.table.order' | translate }}</th>
+        <td mat-cell *matCellDef="let zone">{{ zone.sortOrder ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.zones.table.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let zone">
+          <div class="actions">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.zones.actions.viewOnMap' | translate"
+              (click)="viewOnMap(zone)"
+            >
+              <mat-icon>map</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.zones.actions.manageSounds' | translate"
+              (click)="openSoundsDialog(zone)"
+            >
+              <mat-icon>library_music</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.zones.actions.edit' | translate"
+              (click)="openEditDialog(zone)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'admin.zones.actions.delete' | translate"
+              (click)="deleteZone(zone)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>

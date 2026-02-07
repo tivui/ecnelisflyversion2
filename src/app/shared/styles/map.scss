@@ -945,3 +945,60 @@ body.dark-theme .leaflet-popup-tip {
 .leaflet-marker-pane .marker-cluster {
   z-index: 600 !important;
 }
+
+/* Zone Title Control */
+.zone-title-control {
+  pointer-events: auto;
+}
+
+.zone-title-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 300px;
+}
+
+.zone-title-text {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+@media (max-width: 480px) {
+  .zone-title-content {
+    padding: 8px 12px;
+    max-width: 200px;
+  }
+
+  .zone-title-text {
+    font-size: 0.9rem;
+  }
+}

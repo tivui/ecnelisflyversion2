@@ -32,6 +32,8 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../core/services/auth.service';
 import { GeoSearchService } from '../../../../core/services/geo-search.service';
+import { ZoneService } from '../../../../core/services/zone.service';
+import { Zone } from '../../../../core/models/zone.model';
 
 @Component({
   selector: 'app-mapfly',
@@ -51,8 +53,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private geoSearchService = inject(GeoSearchService);
+  private readonly zoneService = inject(ZoneService);
 
   private map!: L.Map;
+  private currentZone = signal<Zone | null>(null);
+  private zonePolygonLayer: L.Polygon | null = null;
+  private zoneMaskLayer: L.Polygon | null = null;
+  private zoneTitleControl: L.Control | null = null;
   private currentUserLanguage = 'fr';
 
   // Convertit ton currentUser$ en signal Angular
@@ -128,6 +135,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       | undefined;
     const secondaryCategory =
       params.get(MAP_QUERY_KEYS.secondaryCategory) ?? undefined;
+    const zoneId = params.get('zoneId') ?? undefined;
 
     // --- Paramètres initiaux de la carte ---
     const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
@@ -166,6 +174,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // Ajoute le fond de carte initial
     activeBaseLayer.addTo(this.map);
+
+    // --- Load zone if zoneId is provided ---
+    if (zoneId) {
+      this.loadZone(zoneId);
+    }
 
     // --- ✅ Attendre la traduction avant d'initialiser le contrôle ---
     this.translate
@@ -813,6 +826,124 @@ export class MapflyComponent implements OnInit, OnDestroy {
     });
 
     return { [allGroupName]: Object.fromEntries(overlayEntries) };
+  }
+
+  // --- Zone management ---
+  private async loadZone(zoneId: string) {
+    try {
+      const zone = await this.zoneService.getZoneById(zoneId);
+      if (zone) {
+        this.currentZone.set(zone);
+        this.displayZoneOnMap(zone);
+      }
+    } catch (error) {
+      console.error('Error loading zone:', error);
+    }
+  }
+
+  private displayZoneOnMap(zone: Zone) {
+    if (!zone.polygon || !this.map) return;
+
+    const color = zone.color ?? '#1976d2';
+    const coords = zone.polygon.coordinates[0].map((c) => L.latLng(c[1], c[0]));
+
+    // Create zone polygon border
+    this.zonePolygonLayer = L.polygon(coords, {
+      color,
+      weight: 3,
+      fillOpacity: 0,
+      dashArray: '10, 5',
+    }).addTo(this.map);
+
+    // Create mask outside the zone (gray overlay)
+    this.createZoneMask(coords, color);
+
+    // Add zone title control
+    this.addZoneTitleControl(zone);
+
+    // Fit map to zone bounds
+    const bounds = this.zonePolygonLayer.getBounds();
+    this.map.fitBounds(bounds, { padding: [50, 50] });
+  }
+
+  private createZoneMask(zoneCoords: L.LatLng[], color: string) {
+    // Create a large rectangle covering the world
+    const worldBounds: L.LatLngTuple[] = [
+      [-90, -180],
+      [-90, 180],
+      [90, 180],
+      [90, -180],
+      [-90, -180],
+    ];
+
+    // Create polygon with hole (the zone area)
+    const outerRing = worldBounds.map((c) => L.latLng(c[0], c[1]));
+    const innerRing = [...zoneCoords, zoneCoords[0]]; // Close the ring
+
+    this.zoneMaskLayer = L.polygon([outerRing, innerRing], {
+      color: 'transparent',
+      fillColor: '#000',
+      fillOpacity: 0.4,
+      interactive: false,
+    }).addTo(this.map);
+  }
+
+  private addZoneTitleControl(zone: Zone) {
+    const lang = this.currentUserLanguage;
+    const title = zone.name_i18n?.[lang] ?? zone.name;
+
+    const ZoneTitleControl = L.Control.extend({
+      options: { position: 'topleft' as L.ControlPosition },
+      onAdd: () => {
+        const container = L.DomUtil.create('div', 'zone-title-control');
+        container.innerHTML = `
+          <div class="zone-title-content" style="background-color: ${zone.color ?? '#1976d2'}">
+            <span class="zone-title-text">${title}</span>
+            <button class="zone-close-btn" title="Fermer la zone">×</button>
+          </div>
+        `;
+
+        // Handle close button click
+        const closeBtn = container.querySelector('.zone-close-btn') as HTMLElement;
+        if (closeBtn) {
+          L.DomEvent.on(closeBtn, 'click', (e: Event) => {
+            L.DomEvent.stopPropagation(e);
+            this.clearZone();
+          });
+        }
+
+        L.DomEvent.disableClickPropagation(container);
+        return container;
+      },
+    });
+
+    this.zoneTitleControl = new ZoneTitleControl();
+    this.zoneTitleControl.addTo(this.map);
+  }
+
+  private clearZone() {
+    // Remove zone layers
+    if (this.zonePolygonLayer) {
+      this.map.removeLayer(this.zonePolygonLayer);
+      this.zonePolygonLayer = null;
+    }
+    if (this.zoneMaskLayer) {
+      this.map.removeLayer(this.zoneMaskLayer);
+      this.zoneMaskLayer = null;
+    }
+    if (this.zoneTitleControl) {
+      this.map.removeControl(this.zoneTitleControl);
+      this.zoneTitleControl = null;
+    }
+
+    this.currentZone.set(null);
+
+    // Remove zoneId from URL
+    this.router.navigate([], {
+      queryParamsHandling: 'merge',
+      queryParams: { zoneId: null },
+      replaceUrl: true,
+    });
   }
 
   ngOnDestroy() {

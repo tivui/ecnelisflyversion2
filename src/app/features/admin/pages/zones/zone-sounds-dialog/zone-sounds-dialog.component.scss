@@ -1,0 +1,58 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+mat-dialog-content {
+  min-height: 400px;
+  max-height: 70vh;
+}
+
+.sounds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  h3 {
+    margin: 0 0 12px;
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.sounds-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+
+  &.available {
+    max-height: 200px;
+  }
+
+  mat-list-item {
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.empty-message {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+}

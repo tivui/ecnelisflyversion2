@@ -226,7 +226,85 @@
   },
   "admin": {
     "database": {
-      "importSounds": "Importar sonidos"
+      "importSounds": "Importar sonidos",
+      "zones": "Zonas geográficas"
+    },
+    "zones": {
+      "title": "Zonas Geográficas",
+      "create": "Crear zona",
+      "createFirst": "Crear tu primera zona",
+      "noZones": "No hay zonas creadas",
+      "loadError": "Error al cargar las zonas",
+      "public": "Pública",
+      "private": "Privada",
+      "table": {
+        "name": "Nombre",
+        "slug": "Slug",
+        "status": "Estado",
+        "order": "Orden",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "viewOnMap": "Ver en el mapa",
+        "manageSounds": "Gestionar sonidos",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "delete": {
+        "title": "Eliminar zona",
+        "message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "success": "Zona eliminada con éxito",
+        "error": "Error al eliminar la zona"
+      },
+      "dialog": {
+        "createTitle": "Crear zona",
+        "editTitle": "Editar zona",
+        "tabInfo": "Información",
+        "tabTranslations": "Traducciones",
+        "tabPolygon": "Polígono",
+        "name": "Nombre de la zona",
+        "slug": "Slug (URL)",
+        "slugHint": "Identificador único para la URL",
+        "description": "Descripción",
+        "color": "Color",
+        "defaultZoom": "Zoom predeterminado",
+        "sortOrder": "Orden de visualización",
+        "isPublic": "Zona pública",
+        "nameTranslations": "Traducciones del nombre",
+        "descriptionTranslations": "Traducciones de la descripción",
+        "startDrawing": "Dibujar polígono",
+        "finishDrawing": "Terminar",
+        "cancelDrawing": "Cancelar",
+        "clearPolygon": "Borrar polígono",
+        "polygonValid": "Polígono definido",
+        "polygonMissing": "Polígono requerido",
+        "drawHint": "Haz clic en el mapa para dibujar los puntos del polígono",
+        "drawInstructions": "Haz clic en el mapa para agregar puntos. Haz clic en \"Terminar\" cuando hayas terminado.",
+        "minPoints": "El polígono debe tener al menos 3 puntos",
+        "polygonCreated": "Polígono creado con éxito",
+        "polygonRequired": "Por favor dibuja un polígono en el mapa",
+        "formInvalid": "Por favor completa todos los campos requeridos",
+        "createSuccess": "Zona creada con éxito",
+        "updateSuccess": "Zona actualizada con éxito",
+        "saveError": "Error al guardar la zona"
+      },
+      "sounds": {
+        "title": "Sonidos en la zona \"{{name}}\"",
+        "current": "Sonidos en la zona",
+        "empty": "No hay sonidos en esta zona",
+        "add": "Agregar sonidos",
+        "search": "Buscar un sonido",
+        "searchPlaceholder": "Título o ubicación...",
+        "noResults": "No se encontraron sonidos",
+        "remove": "Quitar de la zona",
+        "addToZone": "Agregar a la zona",
+        "loadError": "Error al cargar los sonidos",
+        "addSuccess": "Sonido agregado a la zona",
+        "addError": "Error al agregar el sonido",
+        "removeSuccess": "Sonido eliminado de la zona",
+        "removeError": "Error al eliminar el sonido"
+      }
     }
   },
 

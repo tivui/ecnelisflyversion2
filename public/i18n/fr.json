@@ -227,7 +227,85 @@
   },
   "admin": {
     "database": {
-      "importSounds": "Importer les sons"
+      "importSounds": "Importer les sons",
+      "zones": "Zones géographiques"
+    },
+    "zones": {
+      "title": "Zones géographiques",
+      "create": "Créer une zone",
+      "createFirst": "Créer votre première zone",
+      "noZones": "Aucune zone créée",
+      "loadError": "Erreur lors du chargement des zones",
+      "public": "Publique",
+      "private": "Privée",
+      "table": {
+        "name": "Nom",
+        "slug": "Slug",
+        "status": "Statut",
+        "order": "Ordre",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewOnMap": "Voir sur la carte",
+        "manageSounds": "Gérer les sons",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "delete": {
+        "title": "Supprimer la zone",
+        "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
+        "confirm": "Supprimer",
+        "success": "Zone supprimée avec succès",
+        "error": "Erreur lors de la suppression"
+      },
+      "dialog": {
+        "createTitle": "Créer une zone",
+        "editTitle": "Modifier la zone",
+        "tabInfo": "Informations",
+        "tabTranslations": "Traductions",
+        "tabPolygon": "Polygone",
+        "name": "Nom de la zone",
+        "slug": "Slug (URL)",
+        "slugHint": "Identifiant unique pour l'URL",
+        "description": "Description",
+        "color": "Couleur",
+        "defaultZoom": "Zoom par défaut",
+        "sortOrder": "Ordre d'affichage",
+        "isPublic": "Zone publique",
+        "nameTranslations": "Traductions du nom",
+        "descriptionTranslations": "Traductions de la description",
+        "startDrawing": "Dessiner le polygone",
+        "finishDrawing": "Terminer",
+        "cancelDrawing": "Annuler",
+        "clearPolygon": "Supprimer le polygone",
+        "polygonValid": "Polygone défini",
+        "polygonMissing": "Polygone requis",
+        "drawHint": "Cliquez sur la carte pour dessiner les points du polygone",
+        "drawInstructions": "Cliquez sur la carte pour ajouter des points. Cliquez sur \"Terminer\" quand vous avez fini.",
+        "minPoints": "Le polygone doit avoir au moins 3 points",
+        "polygonCreated": "Polygone créé avec succès",
+        "polygonRequired": "Veuillez dessiner un polygone sur la carte",
+        "formInvalid": "Veuillez remplir tous les champs requis",
+        "createSuccess": "Zone créée avec succès",
+        "updateSuccess": "Zone mise à jour avec succès",
+        "saveError": "Erreur lors de l'enregistrement"
+      },
+      "sounds": {
+        "title": "Sons de la zone \"{{name}}\"",
+        "current": "Sons dans la zone",
+        "empty": "Aucun son dans cette zone",
+        "add": "Ajouter des sons",
+        "search": "Rechercher un son",
+        "searchPlaceholder": "Titre ou lieu...",
+        "noResults": "Aucun son trouvé",
+        "remove": "Retirer de la zone",
+        "addToZone": "Ajouter à la zone",
+        "loadError": "Erreur lors du chargement des sons",
+        "addSuccess": "Son ajouté à la zone",
+        "addError": "Erreur lors de l'ajout",
+        "removeSuccess": "Son retiré de la zone",
+        "removeError": "Erreur lors du retrait"
+      }
     }
   },
   "mapfly": {

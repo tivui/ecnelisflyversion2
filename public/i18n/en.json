@@ -226,7 +226,85 @@
   },
   "admin": {
     "database": {
-      "importSounds": "Import sounds"
+      "importSounds": "Import sounds",
+      "zones": "Geographic zones"
+    },
+    "zones": {
+      "title": "Geographic Zones",
+      "create": "Create zone",
+      "createFirst": "Create your first zone",
+      "noZones": "No zones created",
+      "loadError": "Error loading zones",
+      "public": "Public",
+      "private": "Private",
+      "table": {
+        "name": "Name",
+        "slug": "Slug",
+        "status": "Status",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewOnMap": "View on map",
+        "manageSounds": "Manage sounds",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Delete zone",
+        "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "confirm": "Delete",
+        "success": "Zone deleted successfully",
+        "error": "Error deleting zone"
+      },
+      "dialog": {
+        "createTitle": "Create zone",
+        "editTitle": "Edit zone",
+        "tabInfo": "Information",
+        "tabTranslations": "Translations",
+        "tabPolygon": "Polygon",
+        "name": "Zone name",
+        "slug": "Slug (URL)",
+        "slugHint": "Unique identifier for URL",
+        "description": "Description",
+        "color": "Color",
+        "defaultZoom": "Default zoom",
+        "sortOrder": "Display order",
+        "isPublic": "Public zone",
+        "nameTranslations": "Name translations",
+        "descriptionTranslations": "Description translations",
+        "startDrawing": "Draw polygon",
+        "finishDrawing": "Finish",
+        "cancelDrawing": "Cancel",
+        "clearPolygon": "Clear polygon",
+        "polygonValid": "Polygon defined",
+        "polygonMissing": "Polygon required",
+        "drawHint": "Click on the map to draw polygon points",
+        "drawInstructions": "Click on the map to add points. Click \"Finish\" when done.",
+        "minPoints": "Polygon must have at least 3 points",
+        "polygonCreated": "Polygon created successfully",
+        "polygonRequired": "Please draw a polygon on the map",
+        "formInvalid": "Please fill in all required fields",
+        "createSuccess": "Zone created successfully",
+        "updateSuccess": "Zone updated successfully",
+        "saveError": "Error saving zone"
+      },
+      "sounds": {
+        "title": "Sounds in zone \"{{name}}\"",
+        "current": "Sounds in zone",
+        "empty": "No sounds in this zone",
+        "add": "Add sounds",
+        "search": "Search for a sound",
+        "searchPlaceholder": "Title or location...",
+        "noResults": "No sounds found",
+        "remove": "Remove from zone",
+        "addToZone": "Add to zone",
+        "loadError": "Error loading sounds",
+        "addSuccess": "Sound added to zone",
+        "addError": "Error adding sound",
+        "removeSuccess": "Sound removed from zone",
+        "removeError": "Error removing sound"
+      }
     }
   },
   "mapfly": {

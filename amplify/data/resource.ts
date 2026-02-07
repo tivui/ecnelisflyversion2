@@ -3,6 +3,7 @@ import { CategoryKey } from './categories';
 import { importSounds } from '../functions/import-sounds/resource';
 import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 import { deleteSoundFile } from '../functions/delete-sound-file/resource';
+import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -84,6 +85,8 @@ const schema = a
 
         hashtags: a.string(),
         shortHashtags: a.string(),
+
+        zoneSounds: a.hasMany('ZoneSound', 'soundId'),
       })
       .secondaryIndexes((index) => [
         index('userId')
@@ -103,6 +106,57 @@ const schema = a
         allow.authenticated().to(['read']),
         allow.guest().to(['read']),
         allow.groups(['ADMIN']).to(['read']),
+      ]),
+
+    Zone: a
+      .model({
+        id: a.id().required(),
+        name: a.string().required(),
+        name_i18n: a.json(),
+        description: a.string(),
+        description_i18n: a.json(),
+        slug: a.string().required(),
+        polygon: a.json().required(),
+        center: a.json(),
+        defaultZoom: a.integer().default(12),
+        coverImage: a.string(),
+        color: a.string().default('#1976d2'),
+        isPublic: a.boolean().default(true),
+        sortOrder: a.integer().default(0),
+        createdBy: a.id(),
+
+        zoneSounds: a.hasMany('ZoneSound', 'zoneId'),
+      })
+      .secondaryIndexes((index) => [
+        index('slug').queryField('getZoneBySlug'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    ZoneSound: a
+      .model({
+        id: a.id().required(),
+        zoneId: a.id().required(),
+        soundId: a.id().required(),
+        zone: a.belongsTo('Zone', 'zoneId'),
+        sound: a.belongsTo('Sound', 'soundId'),
+        sortOrder: a.integer().default(0),
+      })
+      .secondaryIndexes((index) => [
+        index('zoneId')
+          .sortKeys(['sortOrder'])
+          .queryField('listZoneSoundsByZone'),
+        index('soundId').queryField('listZoneSoundsBySound'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
     importSounds: a
@@ -135,6 +189,20 @@ const schema = a
       ])
       .handler(a.handler.function(listSoundsForMap)),
 
+    listSoundsByZone: a
+      .query()
+      .arguments({
+        zoneId: a.id().required(),
+      })
+      .returns(a.ref('Sound').array())
+      .authorization((allow) => [
+        allow.publicApiKey(),
+        allow.authenticated(),
+        allow.groups(['ADMIN']),
+        allow.guest(),
+      ])
+      .handler(a.handler.function(listSoundsByZone)),
+
     translate: a
       .query()
       .arguments({
@@ -159,6 +227,7 @@ const schema = a
     allow.resource(importSounds),
     allow.resource(listSoundsForMap),
     allow.resource(deleteSoundFile),
+    allow.resource(listSoundsByZone),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
