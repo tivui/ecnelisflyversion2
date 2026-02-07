@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { AmplifyService } from '../../../core/services/amplify.service';
 import { SoundsService } from '../../../core/services/sounds.service';
 import { StorageService } from '../../../core/services/storage.service';
-import { Sound, SoundStatus } from '../../../core/models/sound.model';
+import { Sound } from '../../../core/models/sound.model';
 
 @Injectable({
   providedIn: 'root',

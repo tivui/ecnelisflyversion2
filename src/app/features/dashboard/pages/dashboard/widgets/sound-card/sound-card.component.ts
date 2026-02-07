@@ -56,6 +56,12 @@ export class SoundCardComponent {
     return translated !== key ? translated : this.sound.category;
   }
 
+  get categoryBackgroundUrl(): string | null {
+    const categoryKey = this.sound.secondaryCategory || this.sound.category;
+    if (!categoryKey) return null;
+    return `url('img/backgrounds/categories/fond_${categoryKey}.jpg')`;
+  }
+
   get statusClass(): string {
     return `status-${this.sound.status || 'unknown'}`;
   }

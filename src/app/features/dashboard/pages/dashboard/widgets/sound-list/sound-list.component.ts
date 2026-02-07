@@ -127,6 +127,13 @@ export class SoundListComponent implements OnInit, OnDestroy {
     return translated !== key ? translated : sound.category;
   }
 
+  // Get category image URL based on secondary category
+  getCategoryImageUrl(sound: Sound): string | null {
+    const categoryKey = sound.secondaryCategory || sound.category;
+    if (!categoryKey) return null;
+    return `img/backgrounds/categories/fond_${categoryKey}.jpg`;
+  }
+
   // Get status chip color
   getStatusColor(status: SoundStatus | undefined): string {
     switch (status) {
