@@ -129,4 +129,178 @@ body.dark-theme {
   }
 }
 
+// =======================
+// Dialog backdrop styling (both themes)
+// =======================
+.cdk-overlay-dark-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+// =======================
+// Dark theme global component styles
+// =======================
+body.dark-theme {
+  // Dialog styling for dark mode
+  .mat-mdc-dialog-container {
+    .mat-mdc-dialog-surface {
+      background-color: #1e1e2e;
+      color: #f5f5f5;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Form field styling in dialogs
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled) {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .mat-mdc-input-element {
+      color: #f5f5f5;
+    }
+
+    .mat-mdc-floating-label {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .mat-mdc-select-value {
+      color: #f5f5f5;
+    }
+  }
+
+  // Tab styling in dialogs
+  .mat-mdc-tab-group {
+    .mat-mdc-tab:not(.mat-mdc-tab-disabled) {
+      color: rgba(255, 255, 255, 0.7);
+
+      &.mdc-tab--active {
+        color: #90caf9;
+      }
+    }
+
+    .mat-mdc-tab-body-content {
+      color: #f5f5f5;
+    }
+  }
+
+  // Autocomplete panel
+  .mat-mdc-autocomplete-panel {
+    background-color: #2c2c3e;
+
+    .mat-mdc-option {
+      color: #f5f5f5;
+
+      &:hover:not(.mdc-list-item--disabled),
+      &.mat-mdc-option-active {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+
+  // Select panel
+  .mat-mdc-select-panel {
+    background-color: #2c2c3e;
+
+    .mat-mdc-option {
+      color: #f5f5f5;
+
+      &:hover:not(.mdc-list-item--disabled),
+      &.mat-mdc-option-active {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+
+  // Datepicker
+  .mat-datepicker-content {
+    background-color: #2c2c3e;
+    color: #f5f5f5;
+
+    .mat-calendar-body-cell-content {
+      color: #f5f5f5;
+    }
+
+    .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+      border-color: rgba(144, 202, 249, 0.5);
+    }
+  }
+
+  // Menu panel
+  .mat-mdc-menu-panel {
+    background-color: #2c2c3e;
+
+    .mat-mdc-menu-item {
+      color: #f5f5f5;
+
+      &:hover:not([disabled]) {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .mat-icon {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  // Snackbar
+  .mat-mdc-snack-bar-container {
+    .mdc-snackbar__surface {
+      background-color: #424242;
+    }
+
+    .mat-mdc-snack-bar-label {
+      color: #f5f5f5;
+    }
+  }
+
+  // Tooltip
+  .mat-mdc-tooltip {
+    .mdc-tooltip__surface {
+      background-color: #424242;
+      color: #f5f5f5;
+    }
+  }
+
+  // Table
+  .mat-mdc-table {
+    background-color: transparent;
+
+    .mat-mdc-header-row {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .mat-mdc-row:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      color: rgba(255, 255, 255, 0.87);
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Paginator
+  .mat-mdc-paginator {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.87);
+
+    .mat-mdc-paginator-icon {
+      fill: rgba(255, 255, 255, 0.7);
+    }
+
+    .mat-mdc-select-value {
+      color: rgba(255, 255, 255, 0.87);
+    }
+  }
+}
+
 
