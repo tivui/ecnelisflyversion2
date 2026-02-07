@@ -1,6 +1,6 @@
 {
   "home": {
-    "welcome": "Bienvenue {{name}} 🎉",
+    "welcome": "Bienvenue {{name}}",
     "hero": {
       "title": "Explorez les sons du monde",
       "subtitle": "Découvrez des ambiances sonores captées aux quatre coins de la planète",

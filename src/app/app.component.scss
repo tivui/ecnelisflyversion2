@@ -69,3 +69,108 @@
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
   }
 }
+
+// =====================
+// Welcome Overlay
+// =====================
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  animation: welcome-overlay-in 0.4s ease-out;
+  transition: opacity 1s ease;
+
+  &.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.welcome-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 64px;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(25, 118, 210, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: welcome-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+  // Logo watermark in background
+  &::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: url('/img/logos/logo_blue_orange_left_round.png') no-repeat center / contain;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  :host-context(body.dark-theme) & {
+    background: rgba(28, 28, 42, 0.97);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &::before {
+      opacity: 0.08;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 36px 28px;
+    margin: 0 16px;
+  }
+}
+
+.welcome-text {
+  position: relative;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.3px;
+  color: #1a1a2e;
+  animation: welcome-text-in 0.5s ease-out 0.1s both;
+
+  :host-context(body.dark-theme) & {
+    color: #f0f0f5;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
+}
+
+@keyframes welcome-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes welcome-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes welcome-text-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

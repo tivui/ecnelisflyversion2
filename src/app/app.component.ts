@@ -75,6 +75,24 @@ export class AppComponent implements OnInit {
   public sidenavOpened = signal(false);
   public isHomePage = signal(false);
 
+  // ==================== WELCOME OVERLAY ====================
+  public welcomeVisible = signal(false);
+  public welcomeFadingOut = signal(false);
+  public welcomeUsername = signal('');
+  public welcomeFlag = signal('');
+
+  private showWelcomeOverlay(username: string, country?: string) {
+    this.welcomeUsername.set(username);
+    this.welcomeFlag.set(country ?? '');
+    this.welcomeVisible.set(true);
+    this.welcomeFadingOut.set(false);
+
+    // Start fade out after 2.5s
+    setTimeout(() => this.welcomeFadingOut.set(true), 2500);
+    // Remove from DOM after fade animation
+    setTimeout(() => this.welcomeVisible.set(false), 3500);
+  }
+
   // ==================== FULLSCREEN ====================
 
   // Detect mobile environment (Android / iOS)
@@ -203,6 +221,11 @@ export class AppComponent implements OnInit {
           }
 
           this.router.navigate(['/home']);
+
+          // Show welcome overlay
+          if (appUser?.username) {
+            this.showWelcomeOverlay(appUser.username, appUser.country ?? undefined);
+          }
           break;
         }
 

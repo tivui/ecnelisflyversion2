@@ -1,19 +1,4 @@
 <div class="home-container">
-  <!-- Welcome message -->
-  @if (appUser()) {
-    <div class="welcome-banner">
-      <h2>
-        {{ "home.welcome" | translate: { name: appUser()!.username } }}
-        <img
-          [src]="'/img/flags/' + appUser()?.country + '.png'"
-          alt="{{ appUser()?.country }}"
-          width="24"
-          height="16"
-        />
-      </h2>
-    </div>
-  }
-
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">

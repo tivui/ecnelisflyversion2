@@ -127,3 +127,14 @@
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<!-- Welcome overlay on login -->
+@if (welcomeVisible()) {
+  <div class="welcome-overlay" [class.fade-out]="welcomeFadingOut()">
+    <div class="welcome-card">
+      <h1 class="welcome-text">
+        {{ 'home.welcome' | translate: { name: welcomeUsername() } }}
+      </h1>
+    </div>
+  </div>
+}
