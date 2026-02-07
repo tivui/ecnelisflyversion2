@@ -57,13 +57,18 @@ export class DashboardComponent implements OnInit {
     // Check admin status
     this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
-    // Get current user
-    const appUser = await firstValueFrom(this.appUserService.currentUser$);
+    // Get current user (try from cache first, then load if needed)
+    let appUser = await firstValueFrom(this.appUserService.currentUser$);
+    if (!appUser) {
+      // User not in cache, try to load
+      appUser = await this.appUserService.loadCurrentUser();
+    }
+
     if (appUser?.id) {
       this.currentUserId.set(appUser.id);
       await this.loadSounds();
     } else {
-      this.error.set('User not found');
+      this.error.set(this.translate.instant('dashboard.userNotFound'));
       this.loading.set(false);
     }
   }

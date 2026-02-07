@@ -46,6 +46,7 @@
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
     "loadError": "Failed to load sounds.",
+    "userNotFound": "User not found",
     "refresh": "Refresh",
     "audioError": "Audio playback error",
     "table": {

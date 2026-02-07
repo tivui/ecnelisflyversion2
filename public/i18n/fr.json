@@ -46,6 +46,7 @@
     "addFirstSound": "Ajouter votre premier son",
     "addSound": "Ajouter un son",
     "loadError": "Erreur lors du chargement des sons.",
+    "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
     "audioError": "Erreur lors de la lecture audio",
     "table": {
