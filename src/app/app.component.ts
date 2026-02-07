@@ -6,7 +6,7 @@ import {
   signal,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { RouterOutlet, RouterLink, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -73,6 +73,7 @@ export class AppComponent implements OnInit {
   public isDark = signal(false);
   public isAdmin = signal(false);
   public sidenavOpened = signal(false);
+  public isHomePage = signal(false);
 
   // ==================== FULLSCREEN ====================
 
@@ -128,6 +129,13 @@ export class AppComponent implements OnInit {
 
   constructor() {
     this.translate.addLangs(this.languages);
+
+    // Track current route for conditional UI
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isHomePage.set(event.urlAfterRedirects.startsWith('/home'));
+      }
+    });
 
     // Subscribe to currentUser$ with automatic unsubscription on destroy
     this.appUserService.currentUser$
