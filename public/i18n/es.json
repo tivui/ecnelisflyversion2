@@ -1,6 +1,41 @@
 {
   "home": {
-    "welcome": "Bienvenido {{name}} 🎉"
+    "welcome": "Bienvenido {{name}} 🎉",
+    "hero": {
+      "title": "Explora los sonidos del mundo",
+      "subtitle": "Descubre ambientes sonoros capturados de todo el planeta",
+      "exploreMap": "Mapa mundial",
+      "exploreMapDesc": "Navega por todos los sonidos geolocalizados en un mapa interactivo",
+      "exploreZones": "Descubrir zonas",
+      "exploreZonesDesc": "Explora regiones sonoras temáticas y únicas",
+      "explore": "Explorar",
+      "discover": "Descubrir"
+    },
+    "zones": {
+      "title": "Explorar por zonas",
+      "subtitle": "Sumérgete en regiones sonoras únicas",
+      "viewAll": "Ver todas las zonas",
+      "explore": "Explorar",
+      "noZones": "No hay zonas disponibles por el momento"
+    },
+    "navigation": {
+      "worldMap": "Mapa mundial",
+      "zones": "Zonas"
+    }
+  },
+  "sidenav": {
+    "worldMap": "Mapa mundial",
+    "discoverZones": "Descubrir zonas"
+  },
+  "zones": {
+    "title": "Zonas geográficas",
+    "subtitle": "Explora regiones sonoras temáticas",
+    "loading": "Cargando zonas...",
+    "empty": {
+      "title": "No hay zonas disponibles",
+      "message": "Aún no hay zonas para explorar. ¡Vuelve pronto!",
+      "exploreMap": "Explorar el mapa mundial"
+    }
   },
   "common": {
     "save": "Guardar",
@@ -226,7 +261,93 @@
   },
   "admin": {
     "database": {
-      "importSounds": "Importar sonidos"
+      "importSounds": "Importar sonidos",
+      "zones": "Zonas geográficas"
+    },
+    "zones": {
+      "title": "Zonas Geográficas",
+      "create": "Crear zona",
+      "createFirst": "Crear tu primera zona",
+      "noZones": "No hay zonas creadas",
+      "loadError": "Error al cargar las zonas",
+      "public": "Pública",
+      "private": "Privada",
+      "table": {
+        "name": "Nombre",
+        "slug": "Slug",
+        "status": "Estado",
+        "order": "Orden",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "viewOnMap": "Ver en el mapa",
+        "manageSounds": "Gestionar sonidos",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "delete": {
+        "title": "Eliminar zona",
+        "message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "success": "Zona eliminada con éxito",
+        "error": "Error al eliminar la zona"
+      },
+      "dialog": {
+        "createTitle": "Crear zona",
+        "editTitle": "Editar zona",
+        "tabInfo": "Información",
+        "tabTranslations": "Traducciones",
+        "tabPolygon": "Polígono",
+        "name": "Nombre de la zona",
+        "slug": "Slug (URL)",
+        "slugHint": "Identificador único para la URL",
+        "description": "Descripción",
+        "color": "Color",
+        "defaultZoom": "Zoom predeterminado",
+        "sortOrder": "Orden de visualización",
+        "isPublic": "Zona pública",
+        "nameTranslations": "Traducciones del nombre",
+        "descriptionTranslations": "Traducciones de la descripción",
+        "startDrawing": "Dibujar polígono",
+        "editPolygon": "Modificar puntos",
+        "redrawPolygon": "Redibujar",
+        "finishDrawing": "Terminar",
+        "finishEditing": "Validar",
+        "cancelDrawing": "Cancelar",
+        "cancelEditing": "Cancelar",
+        "clearPolygon": "Borrar polígono",
+        "editHint": "Haz clic en el mapa para dibujar el nuevo polígono. El antiguo se muestra en transparencia.",
+        "editDragHint": "Arrastra los puntos para modificar. Arrastra los puntos blancos para añadir vértices.",
+        "editInstructions": "Arrastra los marcadores de color para ajustar. Arrastra los pequeños puntos blancos para añadir nuevos vértices.",
+        "polygonUpdated": "Polígono actualizado con éxito",
+        "polygonValid": "Polígono definido",
+        "polygonMissing": "Polígono requerido",
+        "drawHint": "Haz clic en el mapa para dibujar los puntos del polígono",
+        "drawInstructions": "Haz clic en el mapa para agregar puntos. Haz clic en \"Terminar\" cuando hayas terminado.",
+        "minPoints": "El polígono debe tener al menos 3 puntos",
+        "polygonCreated": "Polígono creado con éxito",
+        "polygonRequired": "Por favor dibuja un polígono en el mapa",
+        "formInvalid": "Por favor completa todos los campos requeridos",
+        "createSuccess": "Zona creada con éxito",
+        "updateSuccess": "Zona actualizada con éxito",
+        "saveError": "Error al guardar la zona"
+      },
+      "sounds": {
+        "title": "Sonidos en la zona \"{{name}}\"",
+        "current": "Sonidos en la zona",
+        "empty": "No hay sonidos en esta zona",
+        "add": "Agregar sonidos",
+        "search": "Buscar un sonido",
+        "searchPlaceholder": "Título o ubicación...",
+        "noResults": "No se encontraron sonidos",
+        "remove": "Quitar de la zona",
+        "addToZone": "Agregar a la zona",
+        "loadError": "Error al cargar los sonidos",
+        "addSuccess": "Sonido agregado a la zona",
+        "addError": "Error al agregar el sonido",
+        "removeSuccess": "Sonido eliminado de la zona",
+        "removeError": "Error al eliminar el sonido"
+      }
     }
   },
 
@@ -240,6 +361,12 @@
     },
     "categories": {
       "all": "TODO"
+    },
+    "zone": {
+      "showInfo": "Ver información",
+      "close": "Cerrar zona",
+      "noDescription": "No hay descripción disponible para esta zona.",
+      "exploreZone": "Explorar esta zona"
     }
   },
   "categories": {

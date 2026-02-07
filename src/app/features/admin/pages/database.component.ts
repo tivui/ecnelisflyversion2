@@ -14,6 +14,7 @@ export class DatabaseComponent {
 
   tabs = signal([
     { route: 'import-sounds', label: 'admin.database.importSounds' },
+    { route: 'zones', label: 'admin.database.zones' },
   ]);
 
   activeTab = this.tabs()[0].route;

@@ -1,0 +1,28 @@
+<a class="zone-card" [routerLink]="['/mapfly']" [queryParams]="{ zoneId: zone().id }">
+  <div class="zone-card-inner">
+    <!-- Zone visual with color accent -->
+    <div class="zone-visual" [style.background]="'linear-gradient(135deg, ' + zoneColor() + ' 0%, ' + zoneColor() + '99 100%)'">
+      <div class="zone-pattern"></div>
+      @if (zone().coverImage) {
+        <img [src]="zone().coverImage" [alt]="localizedName()" class="zone-cover" />
+      }
+    </div>
+
+    <!-- Zone info -->
+    <div class="zone-info">
+      <h3 class="zone-title">{{ localizedName() }}</h3>
+      @if (localizedDescription()) {
+        <p class="zone-description">{{ localizedDescription() }}</p>
+      }
+      <span class="zone-cta" [style.color]="zoneColor()">
+        {{ 'home.zones.explore' | translate }}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </span>
+    </div>
+
+    <!-- Color accent bar -->
+    <div class="zone-accent" [style.background-color]="zoneColor()"></div>
+  </div>
+</a>

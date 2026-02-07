@@ -12,6 +12,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { SidenavMenuComponent } from './shared/components/sidenav-menu/sidenav-menu.component';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import {
   AmplifyAuthenticatorModule,
@@ -43,6 +45,7 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
     MatSlideToggleModule,
     MatIconModule,
     MatButtonModule,
+    MatSidenavModule,
     AmplifyAuthenticatorModule,
     TranslatePipe,
     MatInputModule,
@@ -50,6 +53,7 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
     RouterLink,
     MatMenuModule,
     MatTooltipModule,
+    SidenavMenuComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -68,6 +72,7 @@ export class AppComponent implements OnInit {
   public showLogin = signal(false);
   public isDark = signal(false);
   public isAdmin = signal(false);
+  public sidenavOpened = signal(false);
 
   // ==================== FULLSCREEN ====================
 
@@ -254,5 +259,13 @@ export class AppComponent implements OnInit {
 
   goToNewSound() {
     this.router.navigate(['/new-sound']);
+  }
+
+  toggleSidenav() {
+    this.sidenavOpened.update((v) => !v);
+  }
+
+  closeSidenav() {
+    this.sidenavOpened.set(false);
   }
 }

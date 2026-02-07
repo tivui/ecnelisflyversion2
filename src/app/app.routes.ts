@@ -32,5 +32,12 @@ export const routes: Routes = [
 
   { path: 'login', component: LoginComponent },
   { path: 'mapfly', component: MapflyComponent },
+  {
+    path: 'zones',
+    loadComponent: () =>
+      import('./features/zones/pages/zones-list/zones-list.component').then(
+        (m) => m.ZonesListComponent,
+      ),
+  },
   { path: '**', redirectTo: 'home' },
 ];

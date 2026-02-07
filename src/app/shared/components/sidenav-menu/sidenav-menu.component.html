@@ -1,0 +1,36 @@
+<div class="sidenav-content">
+  <!-- Header with close button -->
+  <div class="sidenav-header">
+    <button class="close-btn" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="brand">
+      <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="brand-logo" />
+      <span class="brand-name">ECNELIS FLY</span>
+    </div>
+  </div>
+
+  <!-- Menu items -->
+  <nav class="sidenav-nav">
+    @for (item of menuItems; track item.route) {
+      <a
+        class="nav-item"
+        [routerLink]="item.route"
+        [queryParams]="item.queryParams"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/mapfly' }"
+        matRipple
+        (click)="onItemClick()"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span class="nav-label">{{ item.labelKey | translate }}</span>
+        <mat-icon class="nav-arrow">chevron_right</mat-icon>
+      </a>
+    }
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidenav-footer">
+    <span class="footer-text">Sounds of the world</span>
+  </div>
+</div>

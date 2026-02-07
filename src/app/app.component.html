@@ -1,99 +1,127 @@
-<mat-toolbar color="primary">
-  <a class="logo-link" routerLink="/home">
-    <img src="img/logos/logo_blue_orange_left.png" alt="Ecnelis Fly" class="toolbar-logo" />
-    <span class="app-title">Ecnelis FLY</span>
-  </a>
-  <!-- Bouton plein écran -->
-  <button
-    class="fullscreen-btn"
-    mat-icon-button
-    (click)="toggleFullscreen()"
-    [matTooltip]="
-      (isFullscreen() ? 'toolbar.fullscreen.exit' : 'toolbar.fullscreen.enter')
-        | translate
-    "
+<mat-sidenav-container class="sidenav-container">
+  <!-- Sidenav Menu -->
+  <mat-sidenav
+    #sidenav
+    mode="over"
+    position="start"
+    [opened]="sidenavOpened()"
+    (closedStart)="closeSidenav()"
+    class="main-sidenav"
   >
-    <mat-icon>{{ isFullscreen() ? "fullscreen_exit" : "fullscreen" }}</mat-icon>
-  </button>
-  <span class="spacer"></span>
+    <app-sidenav-menu (closed)="closeSidenav()"></app-sidenav-menu>
+  </mat-sidenav>
 
-  <!-- Admin settings wheel -->
-  @if (authenticator.user && isAdmin()) {
-    <button
-      mat-icon-button
-      [matMenuTriggerFor]="adminMenu"
-      matTooltip="Settings"
-    >
-      <mat-icon>settings</mat-icon>
-    </button>
-
-    <mat-menu #adminMenu="matMenu">
-      <button mat-menu-item>
-        <mat-icon>manage_accounts</mat-icon>
-        {{ "toolbar.admin.dashboard" | translate }}
+  <!-- Main Content -->
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <!-- Hamburger menu button -->
+      <button
+        class="menu-btn"
+        mat-icon-button
+        (click)="toggleSidenav()"
+        aria-label="Toggle menu"
+      >
+        <mat-icon>menu</mat-icon>
       </button>
-      <button mat-menu-item [routerLink]="'/admin/database'">
-        <mat-icon>storage</mat-icon>
-        {{ "toolbar.admin.manage-database" | translate }}
-      </button>
-    </mat-menu>
-  }
 
-  <!-- Lang selector -->
-  <mat-menu #langMenu="matMenu">
-    @for (l of languages; track l) {
-      <button mat-menu-item (click)="changeLang(l)">
-        {{ l.toUpperCase() }}
-      </button>
-    }
-  </mat-menu>
+      <a class="logo-link" routerLink="/home">
+        <img src="img/logos/logo_blue_orange_left.png" alt="Ecnelis Fly" class="toolbar-logo" />
+        <span class="app-title">Ecnelis FLY</span>
+      </a>
 
-  <button mat-button [matMenuTriggerFor]="langMenu">
-    {{ selectedLang() | uppercase }}
-    <mat-icon>arrow_drop_down</mat-icon>
-  </button>
-
-  <!-- Dark mode toggle with icons -->
-  <button
-    mat-icon-button
-    (click)="toggleDarkMode()"
-    [matTooltip]="(isDark() ? 'toolbar.light' : 'toolbar.dark') | translate"
-  >
-    <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
-  </button>
-
-  <!-- Auth -->
-  @if (authenticator.user) {
-    <!-- Avatar button -->
-    <button mat-icon-button>
-      <mat-icon [matMenuTriggerFor]="userMenu">account_circle</mat-icon>
-    </button>
-
-    <!-- User menu -->
-    <mat-menu #userMenu="matMenu">
-      <button mat-menu-item (click)="goToAccount()">
-        <mat-icon>manage_accounts</mat-icon>
-        {{ "toolbar.account" | translate }}
+      <!-- Bouton plein écran -->
+      <button
+        class="fullscreen-btn"
+        mat-icon-button
+        (click)="toggleFullscreen()"
+        [matTooltip]="
+          (isFullscreen() ? 'toolbar.fullscreen.exit' : 'toolbar.fullscreen.enter')
+            | translate
+        "
+      >
+        <mat-icon>{{ isFullscreen() ? "fullscreen_exit" : "fullscreen" }}</mat-icon>
       </button>
-      <button mat-menu-item [routerLink]="'/dashboard'">
-        <mat-icon>library_music</mat-icon>
-        {{ "toolbar.dashboard" | translate }}
-      </button>
-      <button mat-menu-item (click)="goToNewSound()">
-        <mat-icon>add_location</mat-icon>
-        {{ "toolbar.new-sound" | translate }}
-      </button>
-      <button mat-menu-item (click)="authenticator.signOut()">
-        <mat-icon>logout</mat-icon>
-        {{ "toolbar.logout" | translate }}
-      </button>
-    </mat-menu>
-  } @else {
-    <button mat-button color="primary" [routerLink]="'/login'">
-      <mat-icon>login</mat-icon>
-      {{ "toolbar.login" | translate }}
-    </button>
-  }
-</mat-toolbar>
+      <span class="spacer"></span>
 
-<router-outlet></router-outlet>
+      <!-- Admin settings wheel -->
+      @if (authenticator.user && isAdmin()) {
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="adminMenu"
+          matTooltip="Settings"
+        >
+          <mat-icon>settings</mat-icon>
+        </button>
+
+        <mat-menu #adminMenu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>manage_accounts</mat-icon>
+            {{ "toolbar.admin.dashboard" | translate }}
+          </button>
+          <button mat-menu-item [routerLink]="'/admin/database'">
+            <mat-icon>storage</mat-icon>
+            {{ "toolbar.admin.manage-database" | translate }}
+          </button>
+        </mat-menu>
+      }
+
+      <!-- Lang selector -->
+      <mat-menu #langMenu="matMenu">
+        @for (l of languages; track l) {
+          <button mat-menu-item (click)="changeLang(l)">
+            {{ l.toUpperCase() }}
+          </button>
+        }
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="langMenu">
+        {{ selectedLang() | uppercase }}
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+
+      <!-- Dark mode toggle with icons -->
+      <button
+        mat-icon-button
+        (click)="toggleDarkMode()"
+        [matTooltip]="(isDark() ? 'toolbar.light' : 'toolbar.dark') | translate"
+      >
+        <mat-icon>{{ isDark() ? "dark_mode" : "light_mode" }}</mat-icon>
+      </button>
+
+      <!-- Auth -->
+      @if (authenticator.user) {
+        <!-- Avatar button -->
+        <button mat-icon-button>
+          <mat-icon [matMenuTriggerFor]="userMenu">account_circle</mat-icon>
+        </button>
+
+        <!-- User menu -->
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item (click)="goToAccount()">
+            <mat-icon>manage_accounts</mat-icon>
+            {{ "toolbar.account" | translate }}
+          </button>
+          <button mat-menu-item [routerLink]="'/dashboard'">
+            <mat-icon>library_music</mat-icon>
+            {{ "toolbar.dashboard" | translate }}
+          </button>
+          <button mat-menu-item (click)="goToNewSound()">
+            <mat-icon>add_location</mat-icon>
+            {{ "toolbar.new-sound" | translate }}
+          </button>
+          <button mat-menu-item (click)="authenticator.signOut()">
+            <mat-icon>logout</mat-icon>
+            {{ "toolbar.logout" | translate }}
+          </button>
+        </mat-menu>
+      } @else {
+        <button mat-button color="primary" [routerLink]="'/login'">
+          <mat-icon>login</mat-icon>
+          {{ "toolbar.login" | translate }}
+        </button>
+      }
+    </mat-toolbar>
+
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

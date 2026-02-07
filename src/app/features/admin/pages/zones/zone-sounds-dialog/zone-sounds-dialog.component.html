@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>
+  {{ 'admin.zones.sounds.title' | translate: { name: zone.name } }}
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="sounds-container">
+      <!-- Current sounds in zone -->
+      <div class="section">
+        <h3>{{ 'admin.zones.sounds.current' | translate }} ({{ zoneSounds().length }})</h3>
+
+        @if (zoneSounds().length === 0) {
+          <p class="empty-message">{{ 'admin.zones.sounds.empty' | translate }}</p>
+        } @else {
+          <mat-list class="sounds-list">
+            @for (sound of zoneSounds(); track sound.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>music_note</mat-icon>
+                <div matListItemTitle>{{ getLocalizedTitle(sound) }}</div>
+                <div matListItemLine>{{ sound.city ?? '-' }}</div>
+                <button
+                  matListItemMeta
+                  mat-icon-button
+                  color="warn"
+                  (click)="removeSound(sound)"
+                  [matTooltip]="'admin.zones.sounds.remove' | translate"
+                >
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </mat-list-item>
+            }
+          </mat-list>
+        }
+      </div>
+
+      <!-- Add sounds -->
+      <div class="section">
+        <h3>{{ 'admin.zones.sounds.add' | translate }}</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'admin.zones.sounds.search' | translate }}</mat-label>
+          <input
+            matInput
+            [formControl]="searchControl"
+            [placeholder]="'admin.zones.sounds.searchPlaceholder' | translate"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        @if (filteredSounds().length > 0) {
+          <mat-list class="sounds-list available">
+            @for (sound of filteredSounds(); track sound.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>music_note</mat-icon>
+                <div matListItemTitle>{{ getLocalizedTitle(sound) }}</div>
+                <div matListItemLine>{{ sound.city ?? '-' }}</div>
+                <button
+                  matListItemMeta
+                  mat-icon-button
+                  color="primary"
+                  (click)="addSound(sound)"
+                  [disabled]="adding()"
+                  [matTooltip]="'admin.zones.sounds.addToZone' | translate"
+                >
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </mat-list-item>
+            }
+          </mat-list>
+        } @else if (searchControl.value) {
+          <p class="empty-message">{{ 'admin.zones.sounds.noResults' | translate }}</p>
+        }
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+</mat-dialog-actions>

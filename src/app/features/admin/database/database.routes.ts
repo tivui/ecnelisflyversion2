@@ -13,6 +13,13 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.ImportSoundsComponent,
           ),
       },
+      {
+        path: 'zones',
+        loadComponent: () =>
+          import('../pages/zones/zones.component').then(
+            (m) => m.ZonesComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
     ],
   },

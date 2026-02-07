@@ -1,0 +1,140 @@
+.zone-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+
+    .zone-visual {
+      transform: scale(1.05);
+    }
+
+    .zone-cta svg {
+      transform: translateX(4px);
+    }
+  }
+}
+
+.zone-card-inner {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+
+  // Dark theme
+  :host-context(body.dark-theme) & {
+    background: #1e1e2e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.zone-visual {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  @media (max-width: 600px) {
+    height: 120px;
+  }
+}
+
+.zone-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 0%, transparent 40%);
+  z-index: 1;
+}
+
+.zone-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.zone-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  @media (max-width: 600px) {
+    padding: 12px;
+    gap: 6px;
+  }
+}
+
+.zone-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  :host-context(body.dark-theme) & {
+    color: #f5f5f5;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
+}
+
+.zone-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  :host-context(body.dark-theme) & {
+    color: #aaa;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 1;
+  }
+}
+
+.zone-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 4px;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.8rem;
+  }
+}
+
+.zone-accent {
+  height: 4px;
+  width: 100%;
+}

@@ -1,6 +1,41 @@
 {
   "home": {
-    "welcome": "Welcome {{name}} 🎉"
+    "welcome": "Welcome {{name}} 🎉",
+    "hero": {
+      "title": "Explore the sounds of the world",
+      "subtitle": "Discover sound ambiances captured from around the globe",
+      "exploreMap": "World Map",
+      "exploreMapDesc": "Browse all geolocated sounds on an interactive map",
+      "exploreZones": "Discover Zones",
+      "exploreZonesDesc": "Explore unique thematic sound regions",
+      "explore": "Explore",
+      "discover": "Discover"
+    },
+    "zones": {
+      "title": "Explore by zones",
+      "subtitle": "Dive into unique sound regions",
+      "viewAll": "View all zones",
+      "explore": "Explore",
+      "noZones": "No zones available at the moment"
+    },
+    "navigation": {
+      "worldMap": "World Map",
+      "zones": "Zones"
+    }
+  },
+  "sidenav": {
+    "worldMap": "World Map",
+    "discoverZones": "Discover Zones"
+  },
+  "zones": {
+    "title": "Geographic Zones",
+    "subtitle": "Explore thematic sound regions",
+    "loading": "Loading zones...",
+    "empty": {
+      "title": "No zones available",
+      "message": "There are no zones to explore yet. Check back soon!",
+      "exploreMap": "Explore the world map"
+    }
   },
   "common": {
     "save": "Save",
@@ -226,7 +261,93 @@
   },
   "admin": {
     "database": {
-      "importSounds": "Import sounds"
+      "importSounds": "Import sounds",
+      "zones": "Geographic zones"
+    },
+    "zones": {
+      "title": "Geographic Zones",
+      "create": "Create zone",
+      "createFirst": "Create your first zone",
+      "noZones": "No zones created",
+      "loadError": "Error loading zones",
+      "public": "Public",
+      "private": "Private",
+      "table": {
+        "name": "Name",
+        "slug": "Slug",
+        "status": "Status",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewOnMap": "View on map",
+        "manageSounds": "Manage sounds",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Delete zone",
+        "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "confirm": "Delete",
+        "success": "Zone deleted successfully",
+        "error": "Error deleting zone"
+      },
+      "dialog": {
+        "createTitle": "Create zone",
+        "editTitle": "Edit zone",
+        "tabInfo": "Information",
+        "tabTranslations": "Translations",
+        "tabPolygon": "Polygon",
+        "name": "Zone name",
+        "slug": "Slug (URL)",
+        "slugHint": "Unique identifier for URL",
+        "description": "Description",
+        "color": "Color",
+        "defaultZoom": "Default zoom",
+        "sortOrder": "Display order",
+        "isPublic": "Public zone",
+        "nameTranslations": "Name translations",
+        "descriptionTranslations": "Description translations",
+        "startDrawing": "Draw polygon",
+        "editPolygon": "Edit points",
+        "redrawPolygon": "Redraw",
+        "finishDrawing": "Finish",
+        "finishEditing": "Validate",
+        "cancelDrawing": "Cancel",
+        "cancelEditing": "Cancel",
+        "clearPolygon": "Clear polygon",
+        "editHint": "Click on the map to draw the new polygon. The old one is shown transparently.",
+        "editDragHint": "Drag points to modify. Drag white points to add new vertices.",
+        "editInstructions": "Drag colored markers to adjust. Drag small white points to add new vertices.",
+        "polygonUpdated": "Polygon updated successfully",
+        "polygonValid": "Polygon defined",
+        "polygonMissing": "Polygon required",
+        "drawHint": "Click on the map to draw polygon points",
+        "drawInstructions": "Click on the map to add points. Click \"Finish\" when done.",
+        "minPoints": "Polygon must have at least 3 points",
+        "polygonCreated": "Polygon created successfully",
+        "polygonRequired": "Please draw a polygon on the map",
+        "formInvalid": "Please fill in all required fields",
+        "createSuccess": "Zone created successfully",
+        "updateSuccess": "Zone updated successfully",
+        "saveError": "Error saving zone"
+      },
+      "sounds": {
+        "title": "Sounds in zone \"{{name}}\"",
+        "current": "Sounds in zone",
+        "empty": "No sounds in this zone",
+        "add": "Add sounds",
+        "search": "Search for a sound",
+        "searchPlaceholder": "Title or location...",
+        "noResults": "No sounds found",
+        "remove": "Remove from zone",
+        "addToZone": "Add to zone",
+        "loadError": "Error loading sounds",
+        "addSuccess": "Sound added to zone",
+        "addError": "Error adding sound",
+        "removeSuccess": "Sound removed from zone",
+        "removeError": "Error removing sound"
+      }
     }
   },
   "mapfly": {
@@ -239,6 +360,12 @@
     },
     "categories": {
       "all": "ALL"
+    },
+    "zone": {
+      "showInfo": "Show information",
+      "close": "Close zone",
+      "noDescription": "No description available for this zone.",
+      "exploreZone": "Explore this zone"
     }
   },
   "categories": {
