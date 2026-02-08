@@ -46,5 +46,12 @@ export const routes: Routes = [
         (m) => m.JourneysListComponent,
       ),
   },
+  {
+    path: 'categories',
+    loadComponent: () =>
+      import('./features/categories/pages/categories-list/categories-list.component').then(
+        (m) => m.CategoriesListComponent,
+      ),
+  },
   { path: '**', redirectTo: 'home' },
 ];

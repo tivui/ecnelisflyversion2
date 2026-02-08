@@ -25,7 +25,7 @@
       </button>
 
       <a class="logo-link" routerLink="/home">
-        @if (!isHomePage()) {
+        @if (!isHomePage() && !isCategoryMapPage()) {
           <img src="img/logos/logo_blue_orange_left.png" alt="Ecnelis Fly" class="toolbar-logo" />
         }
         <span class="app-title">Ecnelis FLY</span>

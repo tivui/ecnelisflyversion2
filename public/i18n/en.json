@@ -35,7 +35,8 @@
     "worldMap": "World Map",
     "discoverZones": "Discover Zones",
     "soundOfTheDay": "Sound of the Day",
-    "soundJourneys": "Sound Journeys"
+    "soundJourneys": "Sound Journeys",
+    "categories": "Categories"
   },
   "zones": {
     "title": "Geographic Zones",
@@ -499,6 +500,18 @@
       "next": "Next",
       "finish": "Finish",
       "step": "Step"
+    },
+    "empty": {
+      "title": "No sounds available",
+      "message": "There are no sounds recorded yet for \"{{category}}\". Be the first to upload one!",
+      "explore": "Explore the full map",
+      "snackbar": "No sounds found for \"{{category}}\"",
+      "back": "Go back"
+    },
+    "category": {
+      "count": "{{count}} sounds",
+      "countOne": "1 sound",
+      "lonely": "A lone wolf... waiting for friends!"
     }
   },
   "categories": {
@@ -506,6 +519,8 @@
     "secondaryCategory": "Sub-category",
     "searchPlaceholder": "Search...",
     "noResult": "No results",
+    "explore": "Explore",
+    "exploreAll": "Explore full category",
     "status": "Status",
     "license": "License",
     "ambiancefly": "Ambient sounds",
@@ -550,6 +565,10 @@
     "ambiancefly.factoryfly": "Factory ambiance",
     "ambiancefly.cityfly": "City ambiance",
     "ambiancefly.zoofly": "Zoo, wildlife park ambiance",
+    "ambiancefly.naturefly": "Nature, outdoor ambiance",
+    "ambiancefly.interiorfly": "Indoor ambiance",
+    "ambiancefly.publicfly": "Public places ambiance",
+    "ambiancefly.transportationfly": "Transportation ambiance",
     "animalfly": "Animal sounds",
     "animalfly.donkeyfly": "Donkeys",
     "animalfly.antelopefly": "Antelopes, gazelles, okapis",
@@ -777,6 +796,10 @@
     "transportfly.ziplinefly": "Ziplines",
     "transportfly.microlightfly": "Microlights",
     "transportfly.carfly": "Cars"
+  },
+  "categoriesPage": {
+    "title": "Sound categories",
+    "subtitle": "Explore all sound universes"
   },
   "pwa": {
     "install": {

@@ -76,6 +76,7 @@ export class AppComponent implements OnInit {
   public isAdmin = signal(false);
   public sidenavOpened = signal(false);
   public isHomePage = signal(false);
+  public isCategoryMapPage = signal(false);
 
   // ==================== WELCOME OVERLAY ====================
   public welcomeVisible = signal(false);
@@ -153,7 +154,9 @@ export class AppComponent implements OnInit {
     // Track current route for conditional UI
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        this.isHomePage.set(event.urlAfterRedirects.startsWith('/home'));
+        const url = event.urlAfterRedirects;
+        this.isHomePage.set(url.startsWith('/home'));
+        this.isCategoryMapPage.set(url.startsWith('/mapfly') && url.includes('category='));
       }
     });
 

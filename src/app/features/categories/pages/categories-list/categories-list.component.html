@@ -1,0 +1,27 @@
+<div class="categories-page">
+  <header class="categories-header">
+    <a routerLink="/home" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div class="header-content">
+      <h1><span class="header-dot"></span>{{ 'categoriesPage.title' | translate }}</h1>
+      <p>{{ 'categoriesPage.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <main class="categories-content">
+    <div class="categories-grid">
+      @for (s of categories(); track s.key) {
+        <app-card-category
+          [title]="s.title"
+          [icon]="s.icon"
+          [category]="s.key"
+          [background]="s.background"
+          [color]="s.color"
+          [accentColor]="s.accentColor"
+          [overlay]="s.overlay"
+        />
+      }
+    </div>
+  </main>
+</div>

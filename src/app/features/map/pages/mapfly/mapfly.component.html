@@ -56,4 +56,43 @@
       <span>{{ 'mapfly.journey.exploreFullMap' | translate }}</span>
     </button>
   }
+
+  <!-- Category filter banner -->
+  @if (isCategoryMode() && !isEmptyResults() && !isLoading()) {
+    <div class="category-banner" [style.--cat-color]="categoryFilterColor()">
+      <img [src]="categoryFilterOverlay()" alt="" class="category-banner-overlay" />
+      <span class="category-banner-dot" [style.background]="categoryFilterColor()"></span>
+      <span class="category-banner-label">{{ categoryFilterLabel() }}</span>
+      <span class="category-banner-divider"></span>
+      @if (categorySoundCount() === 1) {
+        <span class="category-banner-count">{{ 'mapfly.category.countOne' | translate }}</span>
+        <span class="category-banner-lonely">{{ 'mapfly.category.lonely' | translate }}</span>
+      } @else {
+        <span class="category-banner-count">{{ 'mapfly.category.count' | translate:{ count: categorySoundCount() } }}</span>
+      }
+    </div>
+  }
+
+  <!-- Empty results overlay -->
+  @if (isEmptyResults()) {
+    <div class="empty-overlay">
+      <div class="empty-overlay-content">
+        <div class="empty-overlay-icon">
+          <span class="material-icons">hearing_disabled</span>
+        </div>
+        <h2 class="empty-overlay-title">{{ 'mapfly.empty.title' | translate }}</h2>
+        <p class="empty-overlay-message">{{ 'mapfly.empty.message' | translate:{ category: emptyCategoryLabel() } }}</p>
+        <div class="empty-overlay-actions">
+          <button class="empty-overlay-btn secondary" (click)="goBack()">
+            <span class="material-icons">arrow_back</span>
+            <span>{{ 'mapfly.empty.back' | translate }}</span>
+          </button>
+          <button class="empty-overlay-btn" (click)="goToFullMap()">
+            <span class="material-icons">public</span>
+            <span>{{ 'mapfly.empty.explore' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

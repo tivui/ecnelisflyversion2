@@ -87,6 +87,29 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public journeyColor = signal('#1976d2');
   public journeyName = signal('');
 
+  // Empty state
+  public isEmptyResults = signal(false);
+  public emptyCategoryLabel = signal('');
+
+  // Category filter info
+  public isCategoryMode = signal(false);
+  public categoryFilterLabel = signal('');
+  public categoryFilterColor = signal('');
+  public categoryFilterOverlay = signal('');
+  public categorySoundCount = signal(0);
+
+  private readonly categoryColors: Record<string, string> = {
+    ambiancefly: '#3AE27A',
+    animalfly: '#FF54F9',
+    foodfly: '#E8A849',
+    humanfly: '#FFC1F7',
+    itemfly: '#888888',
+    musicfly: '#D60101',
+    naturalfly: '#39AFF7',
+    sportfly: '#A24C06',
+    transportfly: '#E8D000',
+  };
+
   private journeyData: SoundJourney | null = null;
   private journeySteps: SoundJourneyStep[] = [];
   private journeySounds: any[] = [];
@@ -408,6 +431,25 @@ export class MapflyComponent implements OnInit, OnDestroy {
         console.log('result', result);
         const soundsData = result?.data?.listSoundsForMap ?? [];
         sounds = soundsData.map((raw) => this.soundsService.map(raw));
+      }
+
+      // --- Category filter info banner ---
+      if (category) {
+        const catLabel = this.translate.instant(`categories.${category}`);
+        const subLabel = secondaryCategory
+          ? this.translate.instant(`categories.${category}.${secondaryCategory}`)
+          : '';
+        this.categoryFilterLabel.set(subLabel || catLabel);
+        this.categoryFilterColor.set(this.categoryColors[category] ?? '#1976d2');
+        this.categoryFilterOverlay.set(`/img/logos/overlays/layer_control_${category}.png`);
+        this.categorySoundCount.set(sounds.length);
+        this.isCategoryMode.set(true);
+
+        // --- Empty state detection ---
+        if (sounds.length === 0) {
+          this.emptyCategoryLabel.set(subLabel || catLabel);
+          this.isEmptyResults.set(true);
+        }
       }
 
       // --- MarkerCluster ---
@@ -747,6 +789,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
       // --- Add cluster to map ---
       this.map.addLayer(this.markersCluster);
+
+      // --- Fit bounds when filtering by category ---
+      if ((category || secondaryCategory) && sounds.length > 0) {
+        const bounds = this.markersCluster.getBounds();
+        if (bounds.isValid()) {
+          this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+      }
 
       const categoryOverlays = this.buildCategoryOverlays();
 
@@ -1740,6 +1790,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   goToFullMap() {
     window.location.href = '/mapfly';
+  }
+
+  goBack() {
+    this.router.navigate(['/']);
   }
 
   private forceReload() {

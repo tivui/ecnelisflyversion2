@@ -11,8 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SubcategorySheetComponent, SubcategorySheetData } from './subcategory-sheet.component';
 import { CategoryKey, getSubCategoryKeys } from '../../../../../../../../amplify/data/categories';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { Subscription, debounceTime, distinctUntilChanged, map } from 'rxjs';
@@ -31,6 +34,8 @@ interface SubCategoryOption {
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
+    MatButtonModule,
+    MatBottomSheetModule,
     ReactiveFormsModule,
     TranslatePipe,
   ],
@@ -50,8 +55,10 @@ export class CardCategoryComponent implements OnInit, OnDestroy {
 
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private bottomSheet = inject(MatBottomSheet);
 
   subCategoryControl = new FormControl<string>('');
+  selectedSubCategory: SubCategoryOption | null = null;
   lists: SubCategoryOption[] = [];
   filteredLists: SubCategoryOption[] = [];
   private sub!: Subscription;
@@ -92,17 +99,49 @@ export class CardCategoryComponent implements OnInit, OnDestroy {
   }
 
   onSelectSubCategory(option: SubCategoryOption) {
+    this.selectedSubCategory = option;
+    this.subCategoryControl.setValue('', { emitEvent: false });
+  }
+
+  confirmNavigation() {
+    if (!this.selectedSubCategory) return;
     this.router.navigate(['/mapfly'], {
       queryParams: {
         category: this.category(),
-        secondaryCategory: option.key,
+        secondaryCategory: this.selectedSubCategory.key,
       },
     });
   }
 
+  clearSelection() {
+    this.selectedSubCategory = null;
+    this.subCategoryControl.setValue('', { emitEvent: false });
+  }
+
   goToMapflyCategory() {
-    this.router.navigate(['/mapfly'], {
-      queryParams: { category: this.category() },
+    if (this.isMobilePortrait()) {
+      this.openSubcategorySheet();
+    } else {
+      this.router.navigate(['/mapfly'], {
+        queryParams: { category: this.category() },
+      });
+    }
+  }
+
+  private isMobilePortrait(): boolean {
+    return window.matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
+  }
+
+  private openSubcategorySheet() {
+    this.bottomSheet.open(SubcategorySheetComponent, {
+      data: {
+        category: this.category(),
+        categoryTitle: this.title(),
+        accentColor: this.accentColor(),
+        overlay: this.overlay(),
+        lists: this.lists,
+      } as SubcategorySheetData,
+      panelClass: 'subcategory-sheet-panel',
     });
   }
 }

@@ -1,0 +1,134 @@
+.categories-page {
+  min-height: calc(100vh - 64px);
+  background: #f8f9fa;
+
+  :host-context(body.dark-theme) & {
+    background: #0d0d1a;
+  }
+}
+
+// =====================
+// Header
+// =====================
+.categories-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
+  color: #fff;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(135deg, #0d1f3c 0%, #1565c0 100%);
+  }
+
+  @media (max-width: 600px) {
+    padding: 16px;
+  }
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+.header-content {
+  flex: 1;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 600px) {
+      font-size: 1.4rem;
+    }
+  }
+
+  .header-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ff9800;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 6px rgba(#ff9800, 0.6),
+      0 0 14px rgba(#ff9800, 0.3);
+    outline: 2px solid rgba(#ff9800, 0.25);
+    outline-offset: 2px;
+    animation: dot-glow-cat 3s ease-in-out infinite;
+  }
+
+  @keyframes dot-glow-cat {
+    0%, 100% {
+      box-shadow:
+        0 0 6px rgba(#ff9800, 0.6),
+        0 0 14px rgba(#ff9800, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 8px rgba(#ff9800, 0.8),
+        0 0 20px rgba(#ff9800, 0.4);
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    padding-left: 20px;
+
+    @media (max-width: 600px) {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// =====================
+// Content
+// =====================
+.categories-content {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 600px) {
+    padding: 16px;
+  }
+}
+
+// =====================
+// Grid
+// =====================
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

@@ -35,7 +35,8 @@
     "worldMap": "Carte mondiale",
     "discoverZones": "Découvrir les zones",
     "soundOfTheDay": "Son du jour",
-    "soundJourneys": "Voyages sonores"
+    "soundJourneys": "Voyages sonores",
+    "categories": "Catégories"
   },
   "zones": {
     "title": "Zones géographiques",
@@ -500,6 +501,18 @@
       "next": "Suivant",
       "finish": "Terminer",
       "step": "Étape"
+    },
+    "empty": {
+      "title": "Aucun son disponible",
+      "message": "Il n'y a pas encore de son enregistré pour « {{category}} ». Soyez le premier à en déposer un !",
+      "explore": "Explorer toute la carte",
+      "snackbar": "Aucun son trouvé pour « {{category}} »",
+      "back": "Retour"
+    },
+    "category": {
+      "count": "{{count}} sons",
+      "countOne": "1 son",
+      "lonely": "Un peu seul... il attend de la compagnie !"
     }
   },
   "categories": {
@@ -507,6 +520,8 @@
     "secondaryCategory": "Sous-catégorie",
     "searchPlaceholder": "Rechercher...",
     "noResult": "Aucun résultat",
+    "explore": "Explorer",
+    "exploreAll": "Explorer toute la catégorie",
     "ambiancefly": "Sons d'ambiances",
     "ambiancefly.agriculturefly": "Ambiance de travaux agricoles",
     "ambiancefly.airportfly": "Ambiance d'aéroport",
@@ -549,6 +564,10 @@
     "ambiancefly.factoryfly": "Ambiance d'usine",
     "ambiancefly.cityfly": "Ambiance de ville",
     "ambiancefly.zoofly": "Ambiance de zoo, de parc animalier",
+    "ambiancefly.naturefly": "Ambiance de nature, de plein air",
+    "ambiancefly.interiorfly": "Ambiance d'intérieur",
+    "ambiancefly.publicfly": "Ambiance de lieux publics",
+    "ambiancefly.transportationfly": "Ambiance de transports",
     "animalfly": "Sons d'animaux",
     "animalfly.donkeyfly": "Ânes",
     "animalfly.antelopefly": "Antilopes, gazelles, okapis",
@@ -776,6 +795,10 @@
     "transportfly.ziplinefly": "Tyroliennes, ziplines",
     "transportfly.microlightfly": "ULM",
     "transportfly.carfly": "Voitures"
+  },
+  "categoriesPage": {
+    "title": "Catégories de sons",
+    "subtitle": "Explorez tous les univers sonores"
   },
   "pwa": {
     "install": {
