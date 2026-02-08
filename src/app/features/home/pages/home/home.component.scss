@@ -113,7 +113,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   background-clip: text;
 
   :host-context(body.dark-theme) & {
-    background: linear-gradient(135deg, #64b5f6 0%, #90caf9 78%, #FFD180 100%);
+    background: linear-gradient(135deg, #e8ecff 0%, #82b1ff 45%, #b39ddb 72%, #FFD180 100%);
     -webkit-background-clip: text;
     background-clip: text;
   }
@@ -537,13 +537,184 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 }
 
 // =====================
-// Mobile Portrait: Floating Carousel
+// Mobile Portrait: Immersive Redesign
 // =====================
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpBar {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 700px) and (orientation: portrait) {
   .home-container {
-    padding-bottom: 80px;
+    padding-bottom: 120px;
   }
 
+  // --- Hero header: compact ---
+  .hero-section {
+    padding: 14px 16px 10px;
+  }
+
+  .hero-content {
+    margin-bottom: 10px;
+  }
+
+  .hero-main-logo {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 6px;
+    animation: fadeInUp 0.6s ease-out both;
+  }
+
+  .hero-title {
+    font-size: 1.55rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+  }
+
+  // --- Hero cards: horizontal scroll-snap (style PSG) ---
+  .hero-actions {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 14px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .hero-card {
+    flex: none;
+    min-width: 80vw;
+    max-width: 80vw;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    border-radius: 20px;
+    position: relative;
+    animation: fadeInUp 0.5s ease-out 0.3s both;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+    :host-context(body.dark-theme) & {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: none;
+    }
+
+    &:hover {
+      transform: none;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+      :host-context(body.dark-theme) & {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+
+  .hero-card-visual {
+    height: 200px;
+  }
+
+  .hero-card-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.22);
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  // --- Content overlay on gradient (like PSG hero) ---
+  .hero-card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 40px 16px 14px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
+    z-index: 2;
+
+    h3 {
+      color: #fff;
+      font-size: 1rem;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .hero-card-desc {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.78rem;
+    -webkit-line-clamp: 1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .hero-card-cta {
+    color: #fff !important;
+    font-size: 0.8rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Override all card-type CTA colors to white on mobile
+  .hero-card-featured .hero-card-cta,
+  .hero-card-journey .hero-card-cta,
+  .hero-card-zones .hero-card-cta {
+    color: #fff !important;
+
+    :host-context(body.dark-theme) & {
+      color: #fff !important;
+    }
+  }
+
+  .featured-badge,
+  .journey-badge {
+    top: 10px;
+    right: 10px;
+    padding: 4px 11px;
+    font-size: 0.6rem;
+  }
+
+  // --- Floating Carousel bottom bar ---
   .carousel-section {
     position: fixed;
     bottom: 0;
@@ -552,11 +723,12 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     z-index: 100;
     padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
     margin: 0;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(28px) saturate(1.6);
     -webkit-backdrop-filter: blur(28px) saturate(1.6);
-    box-shadow: 0 -1px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.06);
     border-top: none;
+    animation: slideUpBar 0.5s ease-out 0.5s both;
 
     // Brand gradient accent line at top
     &::before {
@@ -566,12 +738,12 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
       top: 0;
       left: 0;
       right: 0;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(90deg,
-        transparent 8%,
-        rgba($primary-blue, 0.25) 30%,
-        rgba($logo-orange, 0.20) 70%,
-        transparent 92%
+        transparent 5%,
+        rgba($primary-blue, 0.35) 30%,
+        rgba($logo-orange, 0.30) 70%,
+        transparent 95%
       );
       z-index: 1;
     }
@@ -584,25 +756,25 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
       left: 0;
       right: 0;
       height: 32px;
-      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4));
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.5));
       pointer-events: none;
     }
 
     :host-context(body.dark-theme) & {
-      background: rgba(18, 18, 32, 0.88);
-      box-shadow: 0 -1px 16px rgba(0, 0, 0, 0.3);
+      background: rgba(18, 18, 32, 0.92);
+      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.35);
 
       &::before {
         background: linear-gradient(90deg,
-          transparent 8%,
-          rgba(#64b5f6, 0.18) 30%,
-          rgba(#FFD180, 0.14) 70%,
-          transparent 92%
+          transparent 5%,
+          rgba(#64b5f6, 0.25) 30%,
+          rgba(#FFD180, 0.20) 70%,
+          transparent 95%
         );
       }
 
       &::after {
-        background: linear-gradient(to bottom, transparent, rgba(18, 18, 32, 0.4));
+        background: linear-gradient(to bottom, transparent, rgba(18, 18, 32, 0.5));
       }
     }
   }
