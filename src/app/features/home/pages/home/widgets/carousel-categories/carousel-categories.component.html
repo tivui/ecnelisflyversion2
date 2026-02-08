@@ -1,3 +1,4 @@
+<!-- Desktop: Swiper carousel -->
 <swiper-container loop="true" navigation="true"
   breakpoints='{
     "10":   { "slidesPerView": 2, "spaceBetween": 10 },
@@ -22,3 +23,20 @@
     </swiper-slide>
   }
 </swiper-container>
+
+<!-- Mobile: pastille dock -->
+<div class="mobile-category-dock">
+  @for (s of slides; track s.key; let i = $index) {
+    <button
+      class="pastille"
+      [style.--accent]="s.accentColor"
+      [style.--delay]="(i * 0.04 + 0.35) + 's'"
+      (click)="onPastilleTap(s)"
+    >
+      <span class="pastille-ring">
+        <img [src]="s.overlay" [alt]="s.title" class="pastille-img" />
+      </span>
+      <span class="pastille-label">{{ s.title }}</span>
+    </button>
+  }
+</div>
