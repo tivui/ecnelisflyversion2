@@ -11,7 +11,10 @@
       "explore": "Explorer",
       "discover": "Découvrir",
       "soundOfTheDay": "Son du jour",
-      "listen": "Écouter"
+      "listen": "Écouter",
+      "soundJourney": "Voyage sonore",
+      "startJourney": "Commencer le voyage",
+      "discoverJourneys": "Découvrir les voyages"
     },
     "zones": {
       "title": "Explorer par zones",
@@ -28,7 +31,8 @@
   "sidenav": {
     "worldMap": "Carte mondiale",
     "discoverZones": "Découvrir les zones",
-    "soundOfTheDay": "Son du jour"
+    "soundOfTheDay": "Son du jour",
+    "soundJourneys": "Voyages sonores"
   },
   "zones": {
     "title": "Zones géographiques",
@@ -37,6 +41,17 @@
     "empty": {
       "title": "Aucune zone disponible",
       "message": "Il n'y a pas encore de zones à explorer. Revenez bientôt !",
+      "exploreMap": "Explorer la carte mondiale"
+    }
+  },
+  "journeys": {
+    "title": "Voyages sonores",
+    "subtitle": "Parcourez des itinéraires sonores thématiques à travers le monde",
+    "loading": "Chargement des voyages...",
+    "startJourney": "Commencer le voyage",
+    "empty": {
+      "title": "Aucun voyage disponible",
+      "message": "Il n'y a pas encore de voyages sonores à explorer. Revenez bientôt !",
       "exploreMap": "Explorer la carte mondiale"
     }
   },
@@ -267,7 +282,8 @@
     "database": {
       "importSounds": "Importer les sons",
       "zones": "Zones géographiques",
-      "featuredSound": "Son du jour"
+      "featuredSound": "Son du jour",
+      "journeys": "Voyages sonores"
     },
     "featuredSound": {
       "title": "Son du jour",
@@ -376,6 +392,78 @@
         "removeSuccess": "Son retiré de la zone",
         "removeError": "Erreur lors du retrait"
       }
+    },
+    "journeys": {
+      "title": "Voyages sonores",
+      "create": "Créer un voyage",
+      "createFirst": "Créer votre premier voyage",
+      "noJourneys": "Aucun voyage créé",
+      "loadError": "Erreur lors du chargement des voyages",
+      "public": "Public",
+      "private": "Privé",
+      "table": {
+        "name": "Nom",
+        "slug": "Slug",
+        "status": "Statut",
+        "order": "Ordre",
+        "actions": "Actions"
+      },
+      "actions": {
+        "previewOnMap": "Aperçu sur la carte",
+        "manageSteps": "Gérer les étapes",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "delete": {
+        "title": "Supprimer le voyage",
+        "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
+        "confirm": "Supprimer",
+        "success": "Voyage supprimé avec succès",
+        "error": "Erreur lors de la suppression"
+      },
+      "dialog": {
+        "createTitle": "Créer un voyage sonore",
+        "editTitle": "Modifier le voyage sonore",
+        "tabInfo": "Informations",
+        "tabTranslations": "Traductions",
+        "name": "Nom du voyage",
+        "slug": "Slug (URL)",
+        "slugHint": "Identifiant unique pour l'URL",
+        "description": "Description",
+        "color": "Couleur du thème",
+        "sortOrder": "Ordre d'affichage",
+        "isPublic": "Voyage public",
+        "nameTranslations": "Traductions du nom",
+        "descriptionTranslations": "Traductions de la description",
+        "formInvalid": "Veuillez remplir tous les champs requis",
+        "createSuccess": "Voyage créé avec succès",
+        "updateSuccess": "Voyage mis à jour avec succès",
+        "saveError": "Erreur lors de l'enregistrement"
+      },
+      "steps": {
+        "title": "Étapes du voyage \"{{name}}\"",
+        "current": "Étapes du voyage",
+        "empty": "Aucune étape dans ce voyage",
+        "minRequired": "Min. 3 requises",
+        "maxReached": "Maximum atteint",
+        "add": "Ajouter des sons",
+        "search": "Rechercher un son",
+        "searchPlaceholder": "Titre ou lieu...",
+        "noResults": "Aucun son trouvé",
+        "remove": "Retirer du voyage",
+        "addToJourney": "Ajouter au voyage",
+        "loadError": "Erreur lors du chargement des étapes",
+        "addSuccess": "Son ajouté au voyage",
+        "addError": "Erreur lors de l'ajout",
+        "removeSuccess": "Son retiré du voyage",
+        "removeError": "Erreur lors du retrait",
+        "reorderError": "Erreur lors de la réorganisation",
+        "editStory": "Écrire l'histoire de cette étape",
+        "storyTitle": "Histoire de l'étape",
+        "storyDefault": "Texte par défaut",
+        "storySaved": "Histoire enregistrée",
+        "storyError": "Erreur lors de l'enregistrement de l'histoire"
+      }
     }
   },
   "mapfly": {
@@ -400,6 +488,15 @@
       "discovering": "Voyage vers le son du jour...",
       "exploreFullMap": "Explorer la carte",
       "recordedIn": "Enregistré à {{city}}"
+    },
+    "journey": {
+      "badge": "Voyage sonore",
+      "discovering": "Voyage vers la première étape...",
+      "exploreFullMap": "Explorer la carte",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "finish": "Terminer",
+      "step": "Étape"
     }
   },
   "categories": {

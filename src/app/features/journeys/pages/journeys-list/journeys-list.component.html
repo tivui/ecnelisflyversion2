@@ -1,0 +1,54 @@
+<div class="journeys-page">
+  <!-- Header -->
+  <header class="journeys-header">
+    <a routerLink="/home" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div class="header-content">
+      <h1><span class="header-dot"></span>{{ 'journeys.title' | translate }}</h1>
+      <p>{{ 'journeys.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="journeys-content">
+    @if (loading()) {
+      <div class="journeys-loading">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>{{ 'journeys.loading' | translate }}</p>
+      </div>
+    } @else if (journeys().length === 0) {
+      <div class="journeys-empty">
+        <mat-icon>route</mat-icon>
+        <h2>{{ 'journeys.empty.title' | translate }}</h2>
+        <p>{{ 'journeys.empty.message' | translate }}</p>
+        <a routerLink="/mapfly" mat-raised-button color="primary">
+          <mat-icon>public</mat-icon>
+          {{ 'journeys.empty.exploreMap' | translate }}
+        </a>
+      </div>
+    } @else {
+      <div class="journeys-grid">
+        @for (journey of journeys(); track journey.id) {
+          <div class="journey-card" matRipple (click)="goToJourney(journey)">
+            <div class="journey-card-visual">
+              <div class="journey-card-icon">
+                <mat-icon>route</mat-icon>
+              </div>
+            </div>
+            <div class="journey-card-body">
+              <h3>{{ journeyName(journey) }}</h3>
+              @if (journeyDescription(journey)) {
+                <p class="journey-card-desc">{{ journeyDescription(journey) }}</p>
+              }
+              <span class="journey-card-cta">
+                {{ 'journeys.startJourney' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

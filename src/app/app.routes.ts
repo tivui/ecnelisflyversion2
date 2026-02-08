@@ -39,5 +39,12 @@ export const routes: Routes = [
         (m) => m.ZonesListComponent,
       ),
   },
+  {
+    path: 'journeys',
+    loadComponent: () =>
+      import('./features/journeys/pages/journeys-list/journeys-list.component').then(
+        (m) => m.JourneysListComponent,
+      ),
+  },
   { path: '**', redirectTo: 'home' },
 ];

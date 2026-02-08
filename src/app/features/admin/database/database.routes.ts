@@ -27,6 +27,13 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.FeaturedSoundComponent,
           ),
       },
+      {
+        path: 'journeys',
+        loadComponent: () =>
+          import('../pages/journeys/journeys.component').then(
+            (m) => m.JourneysComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
     ],
   },

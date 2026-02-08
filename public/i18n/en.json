@@ -11,7 +11,10 @@
       "explore": "Explore",
       "discover": "Discover",
       "soundOfTheDay": "Sound of the Day",
-      "listen": "Listen"
+      "listen": "Listen",
+      "soundJourney": "Sound Journey",
+      "startJourney": "Start the journey",
+      "discoverJourneys": "Discover journeys"
     },
     "zones": {
       "title": "Explore by zones",
@@ -28,7 +31,8 @@
   "sidenav": {
     "worldMap": "World Map",
     "discoverZones": "Discover Zones",
-    "soundOfTheDay": "Sound of the Day"
+    "soundOfTheDay": "Sound of the Day",
+    "soundJourneys": "Sound Journeys"
   },
   "zones": {
     "title": "Geographic Zones",
@@ -37,6 +41,17 @@
     "empty": {
       "title": "No zones available",
       "message": "There are no zones to explore yet. Check back soon!",
+      "exploreMap": "Explore the world map"
+    }
+  },
+  "journeys": {
+    "title": "Sound Journeys",
+    "subtitle": "Follow themed sound itineraries around the world",
+    "loading": "Loading journeys...",
+    "startJourney": "Start the journey",
+    "empty": {
+      "title": "No journeys available",
+      "message": "There are no sound journeys to explore yet. Check back soon!",
       "exploreMap": "Explore the world map"
     }
   },
@@ -266,7 +281,8 @@
     "database": {
       "importSounds": "Import sounds",
       "zones": "Geographic zones",
-      "featuredSound": "Sound of the Day"
+      "featuredSound": "Sound of the Day",
+      "journeys": "Sound Journeys"
     },
     "featuredSound": {
       "title": "Sound of the Day",
@@ -375,6 +391,78 @@
         "removeSuccess": "Sound removed from zone",
         "removeError": "Error removing sound"
       }
+    },
+    "journeys": {
+      "title": "Sound Journeys",
+      "create": "Create journey",
+      "createFirst": "Create your first journey",
+      "noJourneys": "No journeys created",
+      "loadError": "Error loading journeys",
+      "public": "Public",
+      "private": "Private",
+      "table": {
+        "name": "Name",
+        "slug": "Slug",
+        "status": "Status",
+        "order": "Order",
+        "actions": "Actions"
+      },
+      "actions": {
+        "previewOnMap": "Preview on map",
+        "manageSteps": "Manage steps",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Delete journey",
+        "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "confirm": "Delete",
+        "success": "Journey deleted successfully",
+        "error": "Error deleting journey"
+      },
+      "dialog": {
+        "createTitle": "Create sound journey",
+        "editTitle": "Edit sound journey",
+        "tabInfo": "Information",
+        "tabTranslations": "Translations",
+        "name": "Journey name",
+        "slug": "Slug (URL)",
+        "slugHint": "Unique identifier for URL",
+        "description": "Description",
+        "color": "Theme color",
+        "sortOrder": "Display order",
+        "isPublic": "Public journey",
+        "nameTranslations": "Name translations",
+        "descriptionTranslations": "Description translations",
+        "formInvalid": "Please fill in all required fields",
+        "createSuccess": "Journey created successfully",
+        "updateSuccess": "Journey updated successfully",
+        "saveError": "Error saving journey"
+      },
+      "steps": {
+        "title": "Steps for journey \"{{name}}\"",
+        "current": "Journey steps",
+        "empty": "No steps in this journey",
+        "minRequired": "Min. 3 required",
+        "maxReached": "Maximum reached",
+        "add": "Add sounds",
+        "search": "Search for a sound",
+        "searchPlaceholder": "Title or location...",
+        "noResults": "No sounds found",
+        "remove": "Remove from journey",
+        "addToJourney": "Add to journey",
+        "loadError": "Error loading steps",
+        "addSuccess": "Sound added to journey",
+        "addError": "Error adding sound",
+        "removeSuccess": "Sound removed from journey",
+        "removeError": "Error removing sound",
+        "reorderError": "Error reordering steps",
+        "editStory": "Write this step's story",
+        "storyTitle": "Step story",
+        "storyDefault": "Default text",
+        "storySaved": "Story saved",
+        "storyError": "Error saving story"
+      }
     }
   },
   "mapfly": {
@@ -399,6 +487,15 @@
       "discovering": "Traveling to the sound of the day...",
       "exploreFullMap": "Explore the map",
       "recordedIn": "Recorded in {{city}}"
+    },
+    "journey": {
+      "badge": "Sound Journey",
+      "discovering": "Traveling to the first step...",
+      "exploreFullMap": "Explore the map",
+      "previous": "Previous",
+      "next": "Next",
+      "finish": "Finish",
+      "step": "Step"
     }
   },
   "categories": {
