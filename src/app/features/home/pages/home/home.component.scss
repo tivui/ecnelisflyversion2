@@ -573,51 +573,55 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 
 @media (max-width: 700px) and (orientation: portrait) {
   .home-container {
-    padding-bottom: 130px;
+    padding-bottom: 140px;
+    min-height: calc(100dvh - 56px);
+    display: flex;
+    flex-direction: column;
   }
 
-  // --- Hero header: compact ---
+  // --- Hero section fills viewport ---
   .hero-section {
-    padding: 14px 16px 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 12px;
   }
 
   .hero-content {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
   }
 
   .hero-main-logo {
-    width: 42px;
-    height: 42px;
-    margin-bottom: 6px;
-    animation: fadeInUp 0.6s ease-out both;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 10px;
+    animation: fadeInUp 0.6s ease-out both, float 3s ease-in-out 1s infinite;
   }
 
   .hero-title {
     font-size: 1.45rem;
     font-weight: 800;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     text-wrap: balance;
     animation: fadeInUp 0.6s ease-out 0.1s both;
   }
 
   .hero-subtitle {
-    font-size: 0.8rem;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    font-size: 0.82rem;
+    line-height: 1.4;
     text-wrap: balance;
     animation: fadeInUp 0.6s ease-out 0.2s both;
   }
 
-  // --- Hero layout: map card + secondary scroll ---
+  // --- Hero actions: fill remaining space ---
   .hero-actions {
+    flex: 1;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
+    gap: 16px;
     padding: 0;
     overflow: visible;
+    justify-content: center;
   }
 
   // --- Primary card: full-width spectacular ---
@@ -626,7 +630,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     min-width: unset;
     max-width: unset;
     width: auto;
-    margin: 0 16px;
+    margin: 0;
     border-radius: 22px;
     position: relative;
     overflow: hidden;
@@ -649,7 +653,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     }
 
     .hero-card-visual {
-      height: 200px;
+      height: 240px;
 
       // Shimmer sweep effect
       &::after {
@@ -664,14 +668,14 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     }
 
     .hero-card-icon {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       background: rgba(255, 255, 255, 0.25);
 
       mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
+        font-size: 34px;
+        width: 34px;
+        height: 34px;
       }
     }
 
@@ -680,34 +684,35 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 44px 18px 16px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
+      padding: 48px 20px 18px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
       z-index: 2;
 
       h3 {
         color: #fff;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
         text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
       }
     }
 
     .hero-card-desc {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.82rem;
       -webkit-line-clamp: 2;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
     .hero-card-cta {
       color: #fff !important;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
+      font-weight: 600;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
       mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
       }
     }
   }
@@ -718,6 +723,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     flex-direction: row;
     flex-wrap: nowrap;
     gap: 12px;
+    margin: 0 -16px;
     padding: 0 16px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -757,18 +763,18 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
     }
 
     .hero-card-visual {
-      height: 140px;
+      height: 160px;
     }
 
     .hero-card-icon {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       background: rgba(255, 255, 255, 0.22);
 
       mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
       }
     }
 
@@ -777,8 +783,8 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 36px 14px 12px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
+      padding: 40px 14px 14px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
       z-index: 2;
 
       h3 {
@@ -790,20 +796,20 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 
     .hero-card-desc {
       color: rgba(255, 255, 255, 0.88);
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       -webkit-line-clamp: 1;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .hero-card-cta {
       color: #fff !important;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
       mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
     }
   }
