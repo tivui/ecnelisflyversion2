@@ -1,17 +1,24 @@
 <swiper-container loop="true" navigation="true"
   breakpoints='{
-    "10":   { "slidesPerView": 2 },
-    "768":   { "slidesPerView": 3 },
-    "930":  { "slidesPerView": 4 },
-    "1200":  { "slidesPerView": 5 },
-    "1420":  { "slidesPerView": 6 },
-    "1751":  { "slidesPerView": 7 },
-    "2000":  { "slidesPerView": 8 }
+    "10":   { "slidesPerView": 2, "spaceBetween": 10 },
+    "768":   { "slidesPerView": 3, "spaceBetween": 30 },
+    "930":  { "slidesPerView": 4, "spaceBetween": 30 },
+    "1200":  { "slidesPerView": 5, "spaceBetween": 30 },
+    "1420":  { "slidesPerView": 6, "spaceBetween": 30 },
+    "1751":  { "slidesPerView": 7, "spaceBetween": 30 },
+    "2000":  { "slidesPerView": 8, "spaceBetween": 30 }
   }' [spaceBetween]="30" class="swipper-container">
   @for (s of slides; track s) {
     <swiper-slide>
-      <app-card-category [title]="s.title" [icon]="s.icon" [category]="s.key" [background]="s.background"
-        [color]="s.color"></app-card-category>
+      <app-card-category
+        [title]="s.title"
+        [icon]="s.icon"
+        [category]="s.key"
+        [background]="s.background"
+        [color]="s.color"
+        [accentColor]="s.accentColor"
+        [overlay]="s.overlay"
+      ></app-card-category>
     </swiper-slide>
   }
 </swiper-container>

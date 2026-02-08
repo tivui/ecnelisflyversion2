@@ -65,6 +65,12 @@ export class SidenavMenuComponent {
       queryParams: {},
     },
     {
+      icon: 'category',
+      labelKey: 'sidenav.categories',
+      route: '/categories',
+      queryParams: {},
+    },
+    {
       icon: 'location_on',
       labelKey: 'sidenav.discoverZones',
       route: '/zones',
