@@ -9,7 +9,7 @@
 
     <!-- Main action cards -->
     <div class="hero-actions">
-      <!-- World Map Card -->
+      <!-- World Map Card (primary CTA) -->
       <a routerLink="/mapfly" class="hero-card hero-card-map">
         <div class="hero-card-visual">
           <div class="hero-card-icon">
@@ -26,69 +26,72 @@
         </div>
       </a>
 
-      <!-- Sound of the Day Card -->
-      @if (dailyFeatured()) {
-        <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
-          <div class="hero-card-visual">
-            <div class="hero-card-icon">
-              <mat-icon>headphones</mat-icon>
+      <!-- Secondary cards (scrollable on mobile) -->
+      <div class="hero-cards-secondary">
+        <!-- Sound of the Day Card -->
+        @if (dailyFeatured()) {
+          <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
+            <div class="hero-card-visual">
+              <div class="hero-card-icon">
+                <mat-icon>headphones</mat-icon>
+              </div>
+              <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
             </div>
-            <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
+            <div class="hero-card-content">
+              <h3>{{ dailyFeatured()!.soundTitle }}</h3>
+              <p class="hero-card-desc">{{ teasingText() }}</p>
+              <span class="hero-card-cta">
+                {{ 'home.hero.listen' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
+            </div>
+          </a>
+        }
+
+        <!-- Zones Card -->
+        <a routerLink="/zones" class="hero-card hero-card-zones">
+          <div class="hero-card-visual">
+            @if (zones().length > 0) {
+              <div class="zones-preview">
+                @for (zone of zones().slice(0, 4); track zone.id) {
+                  <div class="zone-preview-dot" [style.background-color]="zone.color ?? '#ff6b35'"></div>
+                }
+              </div>
+            }
+            <div class="hero-card-icon">
+              <mat-icon>location_on</mat-icon>
+            </div>
           </div>
           <div class="hero-card-content">
-            <h3>{{ dailyFeatured()!.soundTitle }}</h3>
-            <p class="hero-card-desc">{{ teasingText() }}</p>
+            <h3>{{ 'home.hero.exploreZones' | translate }}</h3>
+            <p class="hero-card-desc">{{ 'home.hero.exploreZonesDesc' | translate }}</p>
             <span class="hero-card-cta">
-              {{ 'home.hero.listen' | translate }}
+              {{ 'home.hero.discover' | translate }}
               <mat-icon>arrow_forward</mat-icon>
             </span>
           </div>
         </a>
-      }
 
-      <!-- Zones Card -->
-      <a routerLink="/zones" class="hero-card hero-card-zones">
-        <div class="hero-card-visual">
-          @if (zones().length > 0) {
-            <div class="zones-preview">
-              @for (zone of zones().slice(0, 4); track zone.id) {
-                <div class="zone-preview-dot" [style.background-color]="zone.color ?? '#ff6b35'"></div>
-              }
+        <!-- Journey Cards -->
+        @for (journey of journeys(); track journey.id) {
+          <a class="hero-card hero-card-journey" (click)="goToJourney(journey)">
+            <div class="hero-card-visual">
+              <div class="hero-card-icon">
+                <mat-icon>route</mat-icon>
+              </div>
+              <span class="journey-badge">{{ 'home.hero.soundJourney' | translate }}</span>
             </div>
-          }
-          <div class="hero-card-icon">
-            <mat-icon>location_on</mat-icon>
-          </div>
-        </div>
-        <div class="hero-card-content">
-          <h3>{{ 'home.hero.exploreZones' | translate }}</h3>
-          <p class="hero-card-desc">{{ 'home.hero.exploreZonesDesc' | translate }}</p>
-          <span class="hero-card-cta">
-            {{ 'home.hero.discover' | translate }}
-            <mat-icon>arrow_forward</mat-icon>
-          </span>
-        </div>
-      </a>
-
-      <!-- Journey Cards -->
-      @for (journey of journeys(); track journey.id) {
-        <a class="hero-card hero-card-journey" (click)="goToJourney(journey)">
-          <div class="hero-card-visual">
-            <div class="hero-card-icon">
-              <mat-icon>route</mat-icon>
+            <div class="hero-card-content">
+              <h3>{{ journeyName(journey) }}</h3>
+              <p class="hero-card-desc">{{ journeyDescription(journey) }}</p>
+              <span class="hero-card-cta">
+                {{ 'home.hero.startJourney' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
             </div>
-            <span class="journey-badge">{{ 'home.hero.soundJourney' | translate }}</span>
-          </div>
-          <div class="hero-card-content">
-            <h3>{{ journeyName(journey) }}</h3>
-            <p class="hero-card-desc">{{ journeyDescription(journey) }}</p>
-            <span class="hero-card-cta">
-              {{ 'home.hero.startJourney' | translate }}
-              <mat-icon>arrow_forward</mat-icon>
-            </span>
-          </div>
-        </a>
-      }
+          </a>
+        }
+      </div>
     </div>
   </section>
 
