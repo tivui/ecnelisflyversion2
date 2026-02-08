@@ -7,8 +7,10 @@ export interface CategorySlide {
   key: CategoryKey;
   title: string;
   icon: string;
-  background: string; // peut être un dégradé
-  color: string;      // texte
+  background: string;
+  color: string;
+  accentColor: string;
+  overlay: string;
 }
 
 @Injectable({
@@ -17,16 +19,16 @@ export interface CategorySlide {
 export class CategoriesService {
   private readonly translate = inject(TranslateService);
 
-private readonly categorySlideTitlesColors: Record<CategoryKey, { background: string; color: string }> = {
-  musicfly: { background: 'linear-gradient(135deg, #D60101, #d601015e)', color: '#FFCD1D' },
-  ambiancefly: { background: 'linear-gradient(135deg, #3AE27A, #3ae27a69)', color: '#000000' },
-  itemfly: { background: 'linear-gradient(135deg, #000000, #00000054)', color: '#FEFF9F' },
-  sportfly: { background: 'linear-gradient(135deg, #A24C06, #a24c066e)', color: '#00FDFF' },
-  animalfly: { background: 'linear-gradient(135deg, #FF54F9, #ff54f975)', color: '#460143' },
-  humanfly: { background: 'linear-gradient(135deg, #FFC1F7, #ffc1f769)', color: '#C00B0B' },
-  naturalfly: { background: 'linear-gradient(135deg, #39AFF7, #39aef769)', color: '#000080' },
-  foodfly: { background: 'linear-gradient(135deg, #FFFFC3, #ffffc3d0)', color: '#A0784B' },
-  transportfly: { background: 'linear-gradient(135deg, #FFFC00, #fffb008e)', color: '#000000' },
+private readonly categoryMeta: Record<CategoryKey, { background: string; color: string; accentColor: string }> = {
+  ambiancefly:  { background: 'linear-gradient(135deg, #3AE27A, #3ae27a69)', color: '#000000', accentColor: '#3AE27A' },
+  animalfly:    { background: 'linear-gradient(135deg, #FF54F9, #ff54f975)', color: '#460143', accentColor: '#FF54F9' },
+  foodfly:      { background: 'linear-gradient(135deg, #FFFFC3, #ffffc3d0)', color: '#A0784B', accentColor: '#E8A849' },
+  humanfly:     { background: 'linear-gradient(135deg, #FFC1F7, #ffc1f769)', color: '#C00B0B', accentColor: '#FFC1F7' },
+  itemfly:      { background: 'linear-gradient(135deg, #000000, #00000054)', color: '#FEFF9F', accentColor: '#888888' },
+  musicfly:     { background: 'linear-gradient(135deg, #D60101, #d601015e)', color: '#FFCD1D', accentColor: '#D60101' },
+  naturalfly:   { background: 'linear-gradient(135deg, #39AFF7, #39aef769)', color: '#000080', accentColor: '#39AFF7' },
+  sportfly:     { background: 'linear-gradient(135deg, #A24C06, #a24c066e)', color: '#00FDFF', accentColor: '#A24C06' },
+  transportfly: { background: 'linear-gradient(135deg, #FFFC00, #fffb008e)', color: '#000000', accentColor: '#E8D000' },
 };
 
   getLabel(key: CategoryKey): string {
@@ -41,7 +43,8 @@ private readonly categorySlideTitlesColors: Record<CategoryKey, { background: st
           key,
           title: translations[`categories.${key}`],
           icon: 'home',
-          ...this.categorySlideTitlesColors[key],
+          overlay: `/img/logos/overlays/layer_control_${key}.png`,
+          ...this.categoryMeta[key],
         }))
       )
     );

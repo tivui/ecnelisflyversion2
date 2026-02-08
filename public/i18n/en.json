@@ -26,6 +26,9 @@
     "navigation": {
       "worldMap": "World Map",
       "zones": "Zones"
+    },
+    "categories": {
+      "title": "Explore by category"
     }
   },
   "sidenav": {
@@ -501,6 +504,8 @@
   "categories": {
     "category": "Category",
     "secondaryCategory": "Sub-category",
+    "searchPlaceholder": "Search...",
+    "noResult": "No results",
     "status": "Status",
     "license": "License",
     "ambiancefly": "Ambient sounds",

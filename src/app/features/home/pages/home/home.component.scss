@@ -4,6 +4,7 @@
 $primary-blue: #1976d2;
 $primary-teal: #00897b;
 $primary-purple: #7c4dff;
+$logo-orange: #F5A623;
 $gradient-blue: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
 $gradient-teal: linear-gradient(135deg, #00695c 0%, #26a69a 100%);
 $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
@@ -21,9 +22,31 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   overflow-x: hidden;
   position: relative;
 
+  @media (min-width: 701px) {
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    // Golden ratio spacers: 2/5 top, 3/5 bottom
+    &::before,
+    &::after {
+      content: '';
+      display: block;
+    }
+
+    &::before {
+      flex: 2;
+    }
+
+    &::after {
+      flex: 3;
+    }
+  }
+
   // Subtle radial gradient mesh background — light mode
   background:
     radial-gradient(ellipse 80% 60% at 10% 20%, rgba($primary-blue, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 88% 18%, rgba($logo-orange, 0.035) 0%, transparent 50%),
     radial-gradient(ellipse 60% 50% at 90% 80%, rgba($primary-teal, 0.04) 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 50% 50%, rgba($primary-purple, 0.025) 0%, transparent 50%),
     linear-gradient(180deg, #fafbfd 0%, #f5f7fa 50%, #f0f2f5 100%);
@@ -31,6 +54,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   :host-context(body.dark-theme) & {
     background:
       radial-gradient(ellipse 80% 60% at 10% 20%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 45% at 88% 18%, rgba(#FFD180, 0.025) 0%, transparent 50%),
       radial-gradient(ellipse 60% 50% at 90% 80%, rgba($primary-teal, 0.03) 0%, transparent 55%),
       radial-gradient(ellipse 50% 40% at 50% 50%, rgba($primary-purple, 0.02) 0%, transparent 50%),
       linear-gradient(180deg, #121220 0%, #16162a 50%, #1a1a2e 100%);
@@ -41,36 +65,32 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 // Hero Section
 // =====================
 .hero-section {
-  padding: 32px 24px 40px;
+  padding: 0 24px 20px;
   text-align: center;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
     padding: 20px 16px 28px;
   }
 }
 
 .hero-content {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 
-  @media (max-width: 600px) {
-    margin-bottom: 28px;
+  @media (max-width: 700px) {
+    margin-bottom: 16px;
   }
 }
 
 .hero-main-logo {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 24px;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
   animation: float 3s ease-in-out infinite;
 
-  @media (max-width: 600px) {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 16px;
+  @media (max-width: 700px) {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
   }
 }
 
@@ -84,16 +104,16 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 }
 
 .hero-title {
-  font-size: 2.4rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 16px;
-  background: $gradient-blue;
+  margin: 0 0 10px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #1976d2 78%, rgba($logo-orange, 0.85) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
   :host-context(body.dark-theme) & {
-    background: linear-gradient(135deg, #64b5f6 0%, #90caf9 100%);
+    background: linear-gradient(135deg, #64b5f6 0%, #90caf9 78%, #FFD180 100%);
     -webkit-background-clip: text;
     background-clip: text;
   }
@@ -108,20 +128,21 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 }
 
 .hero-subtitle {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: #666;
   margin: 0;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.6;
+  line-height: 1.5;
 
   :host-context(body.dark-theme) & {
     color: #aaa;
   }
 
-  @media (max-width: 600px) {
-    font-size: 1rem;
+  @media (max-width: 700px) {
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 }
 
@@ -131,21 +152,24 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 .hero-actions {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  flex-wrap: wrap;
+  gap: 16px;
+  flex-wrap: nowrap;
 
   @media (max-width: 700px) {
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    flex-wrap: nowrap;
+    gap: 12px;
   }
 }
 
 .hero-card {
   display: flex;
   flex-direction: column;
-  width: 320px;
-  border-radius: 24px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 320px;
+  border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
@@ -164,7 +188,7 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   }
 
   &:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-6px) scale(1.02);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
 
     :host-context(body.dark-theme) & {
@@ -181,8 +205,10 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   }
 
   @media (max-width: 700px) {
+    flex: none;
     width: 100%;
     max-width: 360px;
+    border-radius: 16px;
   }
 }
 
@@ -244,11 +270,18 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   letter-spacing: 1px;
   color: #fff;
   z-index: 1;
+
+  @media (max-width: 700px) {
+    top: 8px;
+    right: 8px;
+    padding: 3px 10px;
+    font-size: 0.62rem;
+  }
 }
 
 .hero-card-visual {
   position: relative;
-  height: 160px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,14 +296,14 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
       radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 40%);
   }
 
-  @media (max-width: 600px) {
-    height: 140px;
+  @media (max-width: 700px) {
+    height: 96px;
   }
 }
 
 .hero-card-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -281,20 +314,20 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   z-index: 1;
 
   mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
     color: #fff;
   }
 
-  @media (max-width: 600px) {
-    width: 64px;
-    height: 64px;
+  @media (max-width: 700px) {
+    width: 48px;
+    height: 48px;
 
     mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
   }
 }
@@ -317,39 +350,52 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 }
 
 .hero-card-content {
-  padding: 24px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  flex: 1;
 
   h3 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #1a1a2e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     :host-context(body.dark-theme) & {
       color: #f5f5f5;
     }
   }
 
-  @media (max-width: 600px) {
-    padding: 20px;
+  @media (max-width: 700px) {
+    padding: 10px 14px 12px;
 
     h3 {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
     }
   }
 }
 
 .hero-card-desc {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: #666;
-  line-height: 1.5;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
   :host-context(body.dark-theme) & {
     color: #aaa;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 0.78rem;
+    -webkit-line-clamp: 1;
   }
 }
 
@@ -357,8 +403,9 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 8px;
-  font-size: 0.9rem;
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 0.85rem;
   font-weight: 600;
   color: $primary-blue;
 
@@ -371,6 +418,17 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 
   :host-context(body.dark-theme) & {
     color: #90caf9;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 0.8rem;
+    margin-top: 2px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
@@ -406,16 +464,150 @@ $gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 // =====================
 .carousel-section {
   position: relative;
-  padding: 24px 8px 32px;
-  background: rgba(0, 0, 0, 0.025);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 20px 8px 24px;
+
+  // Subtle brand-colored separator — blue to orange
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 5%,
+      rgba($primary-blue, 0.15) 30%,
+      rgba($logo-orange, 0.12) 70%,
+      transparent 95%
+    );
+  }
 
   :host-context(body.dark-theme) & {
-    background: rgba(255, 255, 255, 0.025);
-    border-top-color: rgba(255, 255, 255, 0.06);
+    &::before {
+      background: linear-gradient(90deg,
+        transparent 5%,
+        rgba(#64b5f6, 0.10) 30%,
+        rgba(#FFD180, 0.08) 70%,
+        transparent 95%
+      );
+    }
   }
 
   @media (max-width: 600px) {
-    padding: 16px 4px 24px;
+    padding: 16px 4px 20px;
+    margin-top: 0;
+  }
+}
+
+.carousel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 10px;
+
+  @media (max-width: 600px) {
+    padding: 0 16px 8px;
+  }
+}
+
+.carousel-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #444;
+  margin: 0;
+
+  :host-context(body.dark-theme) & {
+    color: #bbb;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.95rem;
+  }
+}
+
+.carousel-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #999;
+
+  :host-context(body.dark-theme) & {
+    color: #666;
+  }
+}
+
+// =====================
+// Mobile Portrait: Floating Carousel
+// =====================
+@media (max-width: 700px) and (orientation: portrait) {
+  .home-container {
+    padding-bottom: 80px;
+  }
+
+  .carousel-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    box-shadow: 0 -1px 16px rgba(0, 0, 0, 0.05);
+    border-top: none;
+
+    // Brand gradient accent line at top
+    &::before {
+      display: block;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 8%,
+        rgba($primary-blue, 0.25) 30%,
+        rgba($logo-orange, 0.20) 70%,
+        transparent 92%
+      );
+      z-index: 1;
+    }
+
+    // Soft fade above the bar
+    &::after {
+      content: '';
+      position: absolute;
+      top: -32px;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4));
+      pointer-events: none;
+    }
+
+    :host-context(body.dark-theme) & {
+      background: rgba(18, 18, 32, 0.88);
+      box-shadow: 0 -1px 16px rgba(0, 0, 0, 0.3);
+
+      &::before {
+        background: linear-gradient(90deg,
+          transparent 8%,
+          rgba(#64b5f6, 0.18) 30%,
+          rgba(#FFD180, 0.14) 70%,
+          transparent 92%
+        );
+      }
+
+      &::after {
+        background: linear-gradient(to bottom, transparent, rgba(18, 18, 32, 0.4));
+      }
+    }
+  }
+
+  .carousel-header {
+    display: none;
   }
 }

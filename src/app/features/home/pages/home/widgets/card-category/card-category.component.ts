@@ -14,7 +14,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CategoryKey, getSubCategoryKeys } from '../../../../../../../../amplify/data/categories';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { Subscription, debounceTime, distinctUntilChanged, map } from 'rxjs';
 
 interface SubCategoryOption {
@@ -32,6 +32,7 @@ interface SubCategoryOption {
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
+    TranslatePipe,
   ],
   templateUrl: './card-category.component.html',
   styleUrl: './card-category.component.scss',
@@ -44,6 +45,8 @@ export class CardCategoryComponent implements OnInit, OnDestroy {
   icon = input<string>('');
   background = input.required<string>();
   color = input.required<string>();
+  accentColor = input.required<string>();
+  overlay = input.required<string>();
 
   private router = inject(Router);
   private translate = inject(TranslateService);

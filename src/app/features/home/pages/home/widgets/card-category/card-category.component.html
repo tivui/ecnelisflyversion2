@@ -1,22 +1,25 @@
 <mat-card class="category-card">
-  <mat-card-header>
-    <mat-card-title
-      [style.background]="background()"
-      [style.color]="color()"
-      (click)="goToMapflyCategory()"
-    >
-      {{ title() }}
-    </mat-card-title>
+  <mat-card-header (click)="goToMapflyCategory()">
+    <img
+      [src]="overlay()"
+      [alt]="title()"
+      class="category-overlay"
+    />
+    <div class="category-label">
+      <span class="category-dot" [style.background]="accentColor()" [style.--dot-color]="accentColor()"></span>
+      <mat-card-title>{{ title() }}</mat-card-title>
+    </div>
   </mat-card-header>
 
   <mat-card-content>
-    <mat-form-field class="mat-form-field-secondary-categories" appearance="outline">
+    <mat-form-field class="subcategory-field" appearance="outline">
+      <mat-icon matPrefix class="search-icon">search</mat-icon>
       <input
         type="text"
         matInput
         [formControl]="subCategoryControl"
         [matAutocomplete]="auto"
-        placeholder="Sous-catégorie"
+        [placeholder]="'categories.searchPlaceholder' | translate"
       />
 
       <mat-autocomplete
@@ -30,7 +33,7 @@
             {{ opt.label }}
           </mat-option>
         } @empty {
-          <mat-option disabled>Aucune sous-catégorie</mat-option>
+          <mat-option disabled>{{ 'categories.noResult' | translate }}</mat-option>
         }
       </mat-autocomplete>
     </mat-form-field>

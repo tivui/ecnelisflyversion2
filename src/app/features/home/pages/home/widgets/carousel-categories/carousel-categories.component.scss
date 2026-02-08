@@ -1,4 +1,45 @@
 .swipper-container {
-  // background: rgba(58, 58, 58);
   padding: 10px;
+
+  &::part(button-prev),
+  &::part(button-next) {
+    color: #b0b0b0;
+    width: 24px;
+    height: 24px;
+    margin-top: -12px;
+    opacity: 0.6;
+    transition: opacity 0.2s, color 0.2s;
+  }
+
+  &:hover::part(button-prev),
+  &:hover::part(button-next) {
+    opacity: 1;
+    color: #666;
+  }
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    padding: 2px 4px;
+
+    &::part(button-prev),
+    &::part(button-next) {
+      width: 18px;
+      height: 18px;
+      margin-top: -9px;
+      opacity: 0.4;
+    }
+  }
+}
+
+:host-context(body.dark-theme) {
+  .swipper-container {
+    &::part(button-prev),
+    &::part(button-next) {
+      color: #555;
+    }
+
+    &:hover::part(button-prev),
+    &:hover::part(button-next) {
+      color: #999;
+    }
+  }
 }

@@ -26,6 +26,9 @@
     "navigation": {
       "worldMap": "Carte mondiale",
       "zones": "Zones"
+    },
+    "categories": {
+      "title": "Explorer par catégorie"
     }
   },
   "sidenav": {
@@ -502,6 +505,8 @@
   "categories": {
     "category": "Catégorie",
     "secondaryCategory": "Sous-catégorie",
+    "searchPlaceholder": "Rechercher...",
+    "noResult": "Aucun résultat",
     "ambiancefly": "Sons d'ambiances",
     "ambiancefly.agriculturefly": "Ambiance de travaux agricoles",
     "ambiancefly.airportfly": "Ambiance d'aéroport",
