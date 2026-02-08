@@ -1,0 +1,15 @@
+customHeaders:
+  - pattern: '/manifest.json'
+    headers:
+      - key: 'Content-Type'
+        value: 'application/manifest+json'
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400'
+  - pattern: '/ngsw-worker.js'
+    headers:
+      - key: 'Service-Worker-Allowed'
+        value: '/'
+  - pattern: '*.json'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=3600'
