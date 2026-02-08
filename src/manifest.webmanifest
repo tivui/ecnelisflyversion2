@@ -2,7 +2,7 @@
   "name": "Ecnelis Fly",
   "short_name": "Ecnelis Fly",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#01012e",
   "theme_color": "#1976d2",
