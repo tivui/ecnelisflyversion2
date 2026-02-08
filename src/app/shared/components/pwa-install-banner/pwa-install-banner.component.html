@@ -1,0 +1,33 @@
+@if (visible()) {
+  <div class="pwa-banner" role="banner">
+    <img
+      src="img/logos/logo_blue_orange_left_round.png"
+      alt="Ecnelis Fly"
+      class="pwa-banner-icon"
+    />
+
+    <div class="pwa-banner-text">
+      <span class="pwa-banner-title">{{ 'pwa.install.title' | translate }}</span>
+      <span class="pwa-banner-desc">{{ 'pwa.install.description' | translate }}</span>
+    </div>
+
+    <button
+      mat-flat-button
+      color="primary"
+      class="pwa-banner-install"
+      (click)="install()"
+    >
+      <mat-icon>download</mat-icon>
+      {{ 'pwa.install.button' | translate }}
+    </button>
+
+    <button
+      mat-icon-button
+      class="pwa-banner-close"
+      (click)="dismiss()"
+      [attr.aria-label]="'pwa.install.dismiss' | translate"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}

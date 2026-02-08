@@ -771,5 +771,13 @@
     "transportfly.ziplinefly": "Tirolinas",
     "transportfly.microlightfly": "ULM",
     "transportfly.carfly": "Coches"
+  },
+  "pwa": {
+    "install": {
+      "title": "Instalar Ecnelis Fly",
+      "description": "Accede a la app con un toque, sin barra de dirección",
+      "button": "Instalar",
+      "dismiss": "Cerrar"
+    }
   }
 }

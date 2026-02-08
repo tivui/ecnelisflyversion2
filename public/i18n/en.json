@@ -772,5 +772,13 @@
     "transportfly.ziplinefly": "Ziplines",
     "transportfly.microlightfly": "Microlights",
     "transportfly.carfly": "Cars"
+  },
+  "pwa": {
+    "install": {
+      "title": "Install Ecnelis Fly",
+      "description": "Access the app in one tap, without the address bar",
+      "button": "Install",
+      "dismiss": "Close"
+    }
   }
 }
