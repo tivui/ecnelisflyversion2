@@ -7,6 +7,8 @@ $primary-purple: #7c4dff;
 $gradient-blue: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
 $gradient-teal: linear-gradient(135deg, #00695c 0%, #26a69a 100%);
 $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
+$primary-journey: #c2185b;
+$gradient-journey: linear-gradient(135deg, #880e4f 0%, #e91e63 100%);
 
 // =====================
 // Home Container
@@ -210,6 +212,24 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
   }
 }
 
+.hero-card-journey {
+  .hero-card-visual {
+    background: linear-gradient(135deg, #ad1457 0%, #ec407a 100%);
+
+    :host-context(body.dark-theme) & {
+      background: $gradient-journey;
+    }
+  }
+
+  .hero-card-cta {
+    color: #d81b60;
+
+    :host-context(body.dark-theme) & {
+      color: #f48fb1;
+    }
+  }
+}
+
 .featured-badge {
   position: absolute;
   top: 12px;
@@ -360,6 +380,25 @@ $gradient-featured: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
   :host-context(body.dark-theme) & {
     color: #80cbc4;
   }
+}
+
+// =====================
+// Journey Hero Card
+// =====================
+.journey-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  z-index: 1;
 }
 
 // =====================

@@ -1,0 +1,99 @@
+<div class="journeys-container">
+  <div class="header">
+    <h2>{{ 'admin.journeys.title' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.journeys.create' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (journeys().length === 0) {
+    <div class="empty-state">
+      <mat-icon>route</mat-icon>
+      <p>{{ 'admin.journeys.noJourneys' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        {{ 'admin.journeys.createFirst' | translate }}
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="journeys()" class="journeys-table">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.journeys.table.name' | translate }}</th>
+        <td mat-cell *matCellDef="let journey">
+          <div class="journey-name">
+            <span class="color-dot" [style.background-color]="journey.color"></span>
+            {{ getLocalizedName(journey) }}
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Slug Column -->
+      <ng-container matColumnDef="slug">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.journeys.table.slug' | translate }}</th>
+        <td mat-cell *matCellDef="let journey">{{ journey.slug }}</td>
+      </ng-container>
+
+      <!-- IsPublic Column -->
+      <ng-container matColumnDef="isPublic">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.journeys.table.status' | translate }}</th>
+        <td mat-cell *matCellDef="let journey">
+          <mat-chip [class.public-chip]="journey.isPublic" [class.private-chip]="!journey.isPublic">
+            {{ (journey.isPublic ? 'admin.journeys.public' : 'admin.journeys.private') | translate }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Sort Order Column -->
+      <ng-container matColumnDef="sortOrder">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.journeys.table.order' | translate }}</th>
+        <td mat-cell *matCellDef="let journey">{{ journey.sortOrder ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.journeys.table.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let journey">
+          <div class="actions">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.journeys.actions.previewOnMap' | translate"
+              (click)="previewOnMap(journey)"
+            >
+              <mat-icon>map</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.journeys.actions.manageSteps' | translate"
+              (click)="openStepsDialog(journey)"
+            >
+              <mat-icon>library_music</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.journeys.actions.edit' | translate"
+              (click)="openEditDialog(journey)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'admin.journeys.actions.delete' | translate"
+              (click)="deleteJourney(journey)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>

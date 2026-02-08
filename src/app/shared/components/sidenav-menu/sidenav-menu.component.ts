@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, output } from '@angular/core';
+import { Component, inject, signal, computed, output, input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,14 +24,23 @@ import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
   templateUrl: './sidenav-menu.component.html',
   styleUrl: './sidenav-menu.component.scss',
 })
-export class SidenavMenuComponent implements OnInit {
+export class SidenavMenuComponent {
   private readonly featuredSoundService = inject(FeaturedSoundService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
 
+  isOpen = input(false);
   closed = output<void>();
 
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
+
+  constructor() {
+    effect(() => {
+      if (this.isOpen()) {
+        this.loadDailyFeatured();
+      }
+    });
+  }
 
   private currentLang = toSignal(
     this.translate.onLangChange.pipe(map((e) => e.lang)),
@@ -61,11 +70,13 @@ export class SidenavMenuComponent implements OnInit {
       route: '/zones',
       queryParams: {},
     },
+    {
+      icon: 'route',
+      labelKey: 'sidenav.soundJourneys',
+      route: '/journeys',
+      queryParams: {},
+    },
   ];
-
-  ngOnInit() {
-    this.loadDailyFeatured();
-  }
 
   private async loadDailyFeatured() {
     try {

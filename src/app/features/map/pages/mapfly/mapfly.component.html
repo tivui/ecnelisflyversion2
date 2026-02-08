@@ -34,4 +34,26 @@
       <span>{{ 'mapfly.featured.exploreFullMap' | translate }}</span>
     </button>
   }
+
+  <!-- Journey cinematic overlay -->
+  @if (journeyOverlayVisible()) {
+    <div class="journey-overlay" [style.--journey-color]="journeyColor()">
+      <div class="journey-overlay-content">
+        <div class="journey-overlay-icon" [style.background]="'linear-gradient(135deg, ' + journeyColor() + ' 0%, ' + journeyColor() + 'cc 100%)'">
+          <span class="material-icons">route</span>
+        </div>
+        <span class="journey-overlay-badge" [style.background]="journeyColor() + '4d'" [style.border-color]="journeyColor() + '80'">{{ 'mapfly.journey.badge' | translate }}</span>
+        <h2 class="journey-overlay-title">{{ journeyName() }}</h2>
+        <p class="journey-overlay-subtitle">{{ 'mapfly.journey.discovering' | translate }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Journey mode: "Explore full map" button -->
+  @if (isJourneyMode() && !journeyOverlayVisible()) {
+    <button class="journey-explore-btn" (click)="goToFullMap()" [style.--journey-color]="journeyColor()">
+      <span class="material-icons">public</span>
+      <span>{{ 'mapfly.journey.exploreFullMap' | translate }}</span>
+    </button>
+  }
 </div>

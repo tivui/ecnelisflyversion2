@@ -16,6 +16,7 @@ export class DatabaseComponent {
     { route: 'import-sounds', label: 'admin.database.importSounds' },
     { route: 'zones', label: 'admin.database.zones' },
     { route: 'featured-sound', label: 'admin.database.featuredSound' },
+    { route: 'journeys', label: 'admin.database.journeys' },
   ]);
 
   activeTab = this.tabs()[0].route;

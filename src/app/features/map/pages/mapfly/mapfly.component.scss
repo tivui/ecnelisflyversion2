@@ -204,3 +204,418 @@
     transform: translateY(0);
   }
 }
+
+// =====================
+// Journey Mode Cinematic Overlay
+// =====================
+.journey-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(10, 5, 30, 0.7) 0%, rgba(10, 5, 30, 0.92) 100%);
+  animation: featured-overlay-in 0.8s ease-out;
+  pointer-events: none;
+}
+
+.journey-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: featured-content-in 1s ease-out 0.3s both;
+}
+
+.journey-overlay-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--journey-color) 40%, transparent),
+    0 0 80px color-mix(in srgb, var(--journey-color) 20%, transparent);
+  animation: journey-icon-pulse 2s ease-in-out infinite;
+
+  .material-icons {
+    font-size: 40px;
+    color: #fff;
+  }
+}
+
+@keyframes journey-icon-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.journey-overlay-badge {
+  padding: 6px 20px;
+  backdrop-filter: blur(8px);
+  border: 1px solid;
+  border-radius: 24px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #e0e0ff;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.journey-overlay-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+  font-family: 'Inter', system-ui, sans-serif;
+  text-align: center;
+  max-width: 300px;
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
+}
+
+.journey-overlay-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Inter', system-ui, sans-serif;
+  text-align: center;
+  animation: featured-title-glow 3s ease-in-out infinite;
+}
+
+// =====================
+// Journey Pulse Circle on Map
+// =====================
+:host ::ng-deep .journey-pulse-circle {
+  animation: map-pulse 2s ease-out infinite;
+}
+
+// =====================
+// Journey Mode: Explore Full Map Button
+// =====================
+.journey-explore-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: btn-fade-in 0.5s ease-out 5s both;
+
+  .material-icons {
+    font-size: 20px;
+  }
+
+  body.light-theme & {
+    background: #fff;
+    color: #1976d2;
+
+    &:hover {
+      background: #e3f2fd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  body.dark-theme & {
+    background: #2c2c3e;
+    color: #90caf9;
+
+    &:hover {
+      background: #3a3a4e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+
+    .material-icons {
+      font-size: 18px;
+    }
+  }
+}
+
+// =====================
+// Journey Stepper Control
+// =====================
+.journey-stepper-control {
+  pointer-events: auto;
+}
+
+.journey-stepper-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-left: 4px solid var(--journey-color);
+  backdrop-filter: blur(12px);
+  max-width: 240px;
+  font-family: 'Inter', system-ui, sans-serif;
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  body.dark-theme & {
+    background: rgba(30, 30, 46, 0.92);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.journey-stepper-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journey-stepper-icon {
+  color: var(--journey-color);
+  font-size: 20px;
+}
+
+.journey-stepper-title {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  body.light-theme & {
+    color: #333;
+  }
+
+  body.dark-theme & {
+    color: #eee;
+  }
+}
+
+.journey-stepper-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  .material-icons {
+    font-size: 18px;
+  }
+
+  body.light-theme & {
+    color: #999;
+    &:hover { background: rgba(0,0,0,0.08); }
+  }
+
+  body.dark-theme & {
+    color: #888;
+    &:hover { background: rgba(255,255,255,0.1); }
+  }
+}
+
+.journey-stepper-dots {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 4px 6px;
+}
+
+.journey-step-dot {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid transparent;
+
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  body.light-theme & {
+    background: rgba(0,0,0,0.08);
+    color: #999;
+  }
+
+  body.dark-theme & {
+    background: rgba(255,255,255,0.1);
+    color: #888;
+  }
+
+  &.active {
+    background: var(--journey-color);
+    color: #fff;
+    border-color: var(--journey-color);
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--journey-color) 40%, transparent);
+  }
+
+  &.passed {
+    background: var(--journey-color);
+    color: #fff;
+    opacity: 0.7;
+  }
+
+  &:hover:not(.active) {
+    transform: scale(1.1);
+    border-color: var(--journey-color);
+  }
+
+  @media (max-width: 480px) {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.65rem;
+  }
+}
+
+.journey-step-line {
+  width: 16px;
+  min-width: 16px;
+  height: 2px;
+  transition: background-color 0.3s ease;
+
+  body.light-theme & {
+    background: rgba(0,0,0,0.12);
+  }
+
+  body.dark-theme & {
+    background: rgba(255,255,255,0.12);
+  }
+
+  &.passed {
+    background: var(--journey-color);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 480px) {
+    width: 10px;
+    min-width: 10px;
+  }
+}
+
+// =====================
+// Journey Popup Styles
+// =====================
+.journey-popup-header {
+  margin: -8px -8px 8px -8px;
+  padding: 10px 14px;
+  border-radius: 6px 6px 0 0;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journey-step-badge {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.journey-popup-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.journey-theme-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: justify;
+  margin: 4px 0 8px;
+  font-style: italic;
+
+  body.light-theme & {
+    color: #555;
+  }
+
+  body.dark-theme & {
+    color: #ccc;
+  }
+}
+
+.journey-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.journey-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 2px solid;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all 0.2s ease;
+
+  .material-icons {
+    font-size: 16px;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.journey-nav-prev {
+  background: transparent;
+}
+
+.journey-nav-next,
+.journey-nav-finish {
+  color: #fff;
+}

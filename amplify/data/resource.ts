@@ -90,6 +90,7 @@ const schema = a
         zoneSounds: a.hasMany('ZoneSound', 'soundId'),
         featuredSoundCandidates: a.hasMany('FeaturedSoundCandidate', 'soundId'),
         dailyFeaturedSounds: a.hasMany('DailyFeaturedSound', 'soundId'),
+        journeySteps: a.hasMany('SoundJourneyStep', 'soundId'),
       })
       .secondaryIndexes((index) => [
         index('userId')
@@ -201,6 +202,56 @@ const schema = a
       })
       .secondaryIndexes((index) => [
         index('date').queryField('getDailyFeaturedByDate'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    SoundJourney: a
+      .model({
+        id: a.id().required(),
+        name: a.string().required(),
+        name_i18n: a.json(),
+        description: a.string(),
+        description_i18n: a.json(),
+        slug: a.string().required(),
+        color: a.string().default('#1976d2'),
+        coverImage: a.string(),
+        isPublic: a.boolean().default(true),
+        sortOrder: a.integer().default(0),
+        createdBy: a.id(),
+
+        journeySteps: a.hasMany('SoundJourneyStep', 'journeyId'),
+      })
+      .secondaryIndexes((index) => [
+        index('slug').queryField('getJourneyBySlug'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    SoundJourneyStep: a
+      .model({
+        id: a.id().required(),
+        journeyId: a.id().required(),
+        soundId: a.id().required(),
+        journey: a.belongsTo('SoundJourney', 'journeyId'),
+        sound: a.belongsTo('Sound', 'soundId'),
+        stepOrder: a.integer().required(),
+        themeText: a.string(),
+        themeText_i18n: a.json(),
+      })
+      .secondaryIndexes((index) => [
+        index('journeyId')
+          .sortKeys(['stepOrder'])
+          .queryField('listJourneyStepsByJourney'),
+        index('soundId').queryField('listJourneyStepsBySound'),
       ])
       .authorization((allow) => [
         allow.publicApiKey().to(['read']),

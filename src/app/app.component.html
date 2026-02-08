@@ -8,7 +8,7 @@
     (closedStart)="closeSidenav()"
     class="main-sidenav"
   >
-    <app-sidenav-menu (closed)="closeSidenav()"></app-sidenav-menu>
+    <app-sidenav-menu [isOpen]="sidenavOpened()" (closed)="closeSidenav()"></app-sidenav-menu>
   </mat-sidenav>
 
   <!-- Main Content -->

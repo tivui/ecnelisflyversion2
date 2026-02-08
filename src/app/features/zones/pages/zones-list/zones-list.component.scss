@@ -58,9 +58,39 @@
     font-size: 1.8rem;
     font-weight: 700;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
     @media (max-width: 600px) {
       font-size: 1.4rem;
+    }
+  }
+
+  .header-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #26a69a;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 6px rgba(#26a69a, 0.6),
+      0 0 14px rgba(#26a69a, 0.3);
+    outline: 2px solid rgba(#26a69a, 0.25);
+    outline-offset: 2px;
+    animation: dot-glow-zone 3s ease-in-out infinite;
+  }
+
+  @keyframes dot-glow-zone {
+    0%, 100% {
+      box-shadow:
+        0 0 6px rgba(#26a69a, 0.6),
+        0 0 14px rgba(#26a69a, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 8px rgba(#26a69a, 0.8),
+        0 0 20px rgba(#26a69a, 0.4);
     }
   }
 
@@ -68,6 +98,7 @@
     margin: 0;
     font-size: 1rem;
     opacity: 0.9;
+    padding-left: 20px;
 
     @media (max-width: 600px) {
       font-size: 0.9rem;

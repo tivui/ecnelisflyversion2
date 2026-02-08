@@ -1,0 +1,217 @@
+// ── Base styles (from zone-sounds-dialog) ──────────────────
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+mat-dialog-content {
+  min-height: 400px;
+  max-height: 70vh;
+}
+
+.sounds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  h3 {
+    margin: 0 0 12px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.sounds-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+
+  &.available {
+    max-height: 200px;
+  }
+
+  mat-list-item {
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.empty-message {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+}
+
+// ── Drag-and-drop step list ────────────────────────────────
+
+.steps-list {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.step-item-wrapper {
+  border-bottom: 1px solid #f0f0f0;
+  background: white;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: move;
+}
+
+.drag-handle {
+  color: #999;
+  cursor: grab;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-city {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+// ── Step story editing panel ─────────────────────────────
+
+.step-story-panel {
+  padding: 12px 16px 16px;
+  border-top: 1px dashed #e0e0e0;
+  background: #f8f9fa;
+
+  h4 {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.story-translations {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4px;
+}
+
+.story-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+// ── Chips ──────────────────────────────────────────────────
+
+.min-chip {
+  background-color: #ff9800 !important;
+  color: white !important;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.max-chip {
+  background-color: #f44336 !important;
+  color: white !important;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+// ── CDK drag-drop animation ───────────────────────────────
+
+.cdk-drag-preview {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ── Dark theme support ────────────────────────────────────
+
+:host-context(body.dark-theme) {
+  .step-item-wrapper {
+    background: #1e1e2e;
+  }
+
+  .steps-list {
+    border-color: #444;
+  }
+
+  .step-city {
+    color: #aaa;
+  }
+
+  .drag-handle {
+    color: #666;
+  }
+
+  .step-story-panel {
+    background: #252538;
+    border-top-color: #444;
+
+    h4 {
+      color: #90caf9;
+    }
+  }
+}

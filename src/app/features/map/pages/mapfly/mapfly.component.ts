@@ -35,6 +35,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { GeoSearchService } from '../../../../core/services/geo-search.service';
 import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
+import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
+import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 
 @Component({
   selector: 'app-mapfly',
@@ -55,6 +57,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private geoSearchService = inject(GeoSearchService);
   private readonly zoneService = inject(ZoneService);
+  private readonly soundJourneyService = inject(SoundJourneyService);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -75,6 +78,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public isLoading = signal(false);
   public isFeaturedMode = signal(false);
   public featuredOverlayVisible = signal(false);
+
+  // Journey mode
+  public isJourneyMode = signal(false);
+  public journeyOverlayVisible = signal(false);
+  public currentJourneyStep = signal(0);
+  public totalJourneySteps = signal(0);
+  public journeyColor = signal('#1976d2');
+  public journeyName = signal('');
+
+  private journeyData: SoundJourney | null = null;
+  private journeySteps: SoundJourneyStep[] = [];
+  private journeySounds: any[] = [];
+  private journeyMarkers: L.Marker[] = [];
+  private journeyPulseCircles: L.CircleMarker[] = [];
+  private journeyStepperControl: L.Control | null = null;
 
   // --- Fonds de carte ---
   osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -155,6 +173,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
     if (featuredMode && soundFilename) {
       this.isFeaturedMode.set(true);
       this.initFeaturedMode(params);
+      return;
+    }
+
+    // Journey mode: multi-step cinematic journey
+    const journeyMode = params.get('journeyMode') === 'true';
+    const journeyId = params.get('journeyId') ?? undefined;
+    if (journeyMode && journeyId) {
+      this.isJourneyMode.set(true);
+      this.initJourneyMode(journeyId);
       return;
     }
 
@@ -1138,12 +1165,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
       try {
         const soundResult = await (this.amplifyService.client.models.Sound.get as any)(
           { id: soundId },
-          { selectionSet: [
-            'id', 'userId', 'title', 'title_i18n', 'shortStory', 'shortStory_i18n',
-            'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
-            'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
-            'user.username', 'user.country',
-          ]},
+          {
+            authMode: 'apiKey',
+            selectionSet: [
+              'id', 'userId', 'title', 'title_i18n', 'shortStory', 'shortStory_i18n',
+              'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
+              'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
+              'user.username', 'user.country',
+            ],
+          },
         );
         s = soundResult.data;
       } catch { /* ignore */ }
@@ -1353,6 +1383,359 @@ export class MapflyComponent implements OnInit, OnDestroy {
         }, 500);
       });
     }, 1800);
+  }
+
+  // =====================================================
+  // Journey Mode — multi-step cinematic journey
+  // =====================================================
+  private async initJourneyMode(journeyId: string) {
+    // Start zoomed out for cinematic fly-in
+    this.map = L.map('mapfly', {
+      center: L.latLng(30, 2.5),
+      zoom: 3,
+      attributionControl: false,
+      zoomControl: false,
+    });
+
+    this.esri.addTo(this.map);
+
+    try {
+      // Load journey data
+      const journey = await this.soundJourneyService.getJourneyByIdPublic(journeyId);
+      if (!journey) {
+        console.error('Journey not found');
+        this.goToFullMap();
+        return;
+      }
+      this.journeyData = journey;
+      this.journeyColor.set(journey.color ?? '#1976d2');
+
+      // Get localized name
+      const lang = this.currentUserLanguage;
+      this.journeyName.set(
+        journey.name_i18n?.[lang] ?? journey.name
+      );
+
+      // Load steps
+      const steps = await this.soundJourneyService.listStepsByJourneyPublic(journeyId);
+      if (steps.length === 0) {
+        console.error('Journey has no steps');
+        this.goToFullMap();
+        return;
+      }
+      this.journeySteps = steps;
+      this.totalJourneySteps.set(steps.length);
+
+      // Load sounds for all steps in parallel
+      const soundPromises = steps.map(async (step) => {
+        try {
+          const result = await (this.amplifyService.client.models.Sound.get as any)(
+            { id: step.soundId },
+            {
+              authMode: 'apiKey',
+              selectionSet: [
+                'id', 'userId', 'title', 'title_i18n', 'shortStory', 'shortStory_i18n',
+                'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
+                'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
+                'user.username', 'user.country',
+              ],
+            },
+          );
+          return result.data;
+        } catch {
+          return null;
+        }
+      });
+      this.journeySounds = await Promise.all(soundPromises);
+
+      // Show overlay
+      this.journeyOverlayVisible.set(true);
+
+      // Create stepper control
+      this.createJourneyStepperControl();
+
+      // Start cinematic fly to first step
+      setTimeout(() => {
+        this.flyToJourneyStep(0);
+      }, 1800);
+    } catch (error) {
+      console.error('Error initializing journey mode:', error);
+      this.goToFullMap();
+    }
+  }
+
+  private async flyToJourneyStep(stepIndex: number) {
+    const sound = this.journeySounds[stepIndex];
+    if (!sound || !sound.latitude || !sound.longitude) return;
+
+    const step = this.journeySteps[stepIndex];
+    const targetLatLng = L.latLng(sound.latitude, sound.longitude);
+    const color = this.journeyColor();
+
+    this.currentJourneyStep.set(stepIndex);
+    this.updateJourneyStepper();
+
+    // Load audio
+    const url = await this.storageService.getSoundUrl(sound.filename);
+    const mimeType = this.soundsService.getMimeType(sound.filename);
+
+    // Create marker for this step
+    const secondaryCat = sound.secondaryCategory || '';
+    const catTronquee = secondaryCat ? secondaryCat.slice(0, -3) : 'city';
+    const marker = L.marker(targetLatLng, {
+      icon: L.icon({
+        ...L.Icon.Default.prototype.options,
+        iconUrl: `img/markers/marker_${catTronquee}.png`,
+        iconRetinaUrl: `img/markers/marker_${catTronquee}.png`,
+        shadowUrl: 'img/markers/markers-shadow.png',
+        iconSize: [32, 43],
+        iconAnchor: [15, 40],
+        shadowAnchor: [8, 10],
+        popupAnchor: [0, -35],
+      }),
+    });
+
+    // Build journey popup
+    const lang = this.currentUserLanguage;
+    const themeText_i18n = step.themeText_i18n;
+    const themeText = (themeText_i18n && themeText_i18n[lang]) ? themeText_i18n[lang] : (step.themeText ?? '');
+    const title = sound.title;
+    const stepLabel = `${stepIndex + 1}/${this.totalJourneySteps()}`;
+    const isFirst = stepIndex === 0;
+    const isLast = stepIndex === this.totalJourneySteps() - 1;
+
+    const prevBtnHtml = !isFirst ? `
+      <button class="journey-nav-btn journey-nav-prev" id="journey-prev-${stepIndex}" style="border-color: ${color}; color: ${color};">
+        <span class="material-icons">arrow_back</span>
+        <span>${this.translate.instant('mapfly.journey.previous')}</span>
+      </button>
+    ` : '<div></div>';
+
+    const nextBtnHtml = !isLast ? `
+      <button class="journey-nav-btn journey-nav-next" id="journey-next-${stepIndex}" style="background-color: ${color}; border-color: ${color};">
+        <span>${this.translate.instant('mapfly.journey.next')}</span>
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    ` : `
+      <button class="journey-nav-btn journey-nav-next journey-nav-finish" id="journey-finish-${stepIndex}" style="background-color: ${color}; border-color: ${color};">
+        <span>${this.translate.instant('mapfly.journey.finish')}</span>
+        <span class="material-icons">check</span>
+      </button>
+    `;
+
+    marker.bindPopup(`
+      <div class="popup-container journey-popup">
+        <div class="journey-popup-header" style="background-color: ${color};">
+          <span class="journey-step-badge">${stepLabel}</span>
+          <b class="journey-popup-title">${title}</b>
+        </div>
+        ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
+        <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
+          <source src="${url}" type="${mimeType}">
+        </audio>
+        <div class="journey-nav-buttons">
+          ${prevBtnHtml}
+          ${nextBtnHtml}
+        </div>
+      </div>
+    `, { maxWidth: 350, minWidth: 280 });
+
+    // Popup open logic
+    marker.on('popupopen', () => {
+      // Record info
+      const recordInfoEl = document.getElementById(`journey-record-info-${stepIndex}`);
+      if (recordInfoEl && sound.user?.username) {
+        const flagImg = sound.user.country
+          ? `<img src="/img/flags/${sound.user.country}.png" alt="${sound.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+          : '';
+        recordInfoEl.innerHTML = this.translate.instant(
+          'mapfly.record-info',
+          { city: sound.city ?? '', username: `${sound.user.username}${flagImg}` },
+        );
+      }
+
+      // Navigation buttons
+      const prevBtn = document.getElementById(`journey-prev-${stepIndex}`);
+      const nextBtn = document.getElementById(`journey-next-${stepIndex}`);
+      const finishBtn = document.getElementById(`journey-finish-${stepIndex}`);
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          marker.closePopup();
+          this.flyToJourneyStep(stepIndex - 1);
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          marker.closePopup();
+          this.flyToJourneyStep(stepIndex + 1);
+        });
+      }
+      if (finishBtn) {
+        finishBtn.addEventListener('click', () => {
+          marker.closePopup();
+          this.goToFullMap();
+        });
+      }
+    });
+
+    this.journeyMarkers.push(marker);
+
+    // Create pulse circle
+    const pulseCircle = L.circleMarker(targetLatLng, {
+      radius: 30,
+      color,
+      fillColor: color,
+      fillOpacity: 0.2,
+      weight: 2,
+      className: 'journey-pulse-circle',
+    });
+    this.journeyPulseCircles.push(pulseCircle);
+
+    const currentZoom = this.map.getZoom();
+
+    if (stepIndex === 0 && currentZoom <= 4) {
+      // First step: cinematic fly-in from world view
+      this.map.flyTo(targetLatLng, 6, {
+        duration: 2.5,
+        easeLinearity: 0.2,
+      });
+
+      this.map.once('moveend', () => {
+        // Switch to satellite+streets
+        this.map.removeLayer(this.esri);
+        this.mapbox.addTo(this.map);
+
+        // Hide overlay
+        this.journeyOverlayVisible.set(false);
+
+        setTimeout(() => {
+          this.map.flyTo(targetLatLng, 17, {
+            duration: 2,
+            easeLinearity: 0.4,
+          });
+
+          this.map.once('moveend', () => {
+            marker.addTo(this.map);
+            pulseCircle.addTo(this.map);
+            setTimeout(() => marker.openPopup(), 400);
+
+            // Add zoom control after animation
+            L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+          });
+        }, 500);
+      });
+    } else {
+      // Subsequent steps: direct fly
+      this.map.flyTo(targetLatLng, 15, {
+        duration: 1.8,
+        easeLinearity: 0.3,
+      });
+
+      this.map.once('moveend', () => {
+        this.map.flyTo(targetLatLng, 17, {
+          duration: 0.8,
+          easeLinearity: 0.4,
+        });
+
+        this.map.once('moveend', () => {
+          marker.addTo(this.map);
+          pulseCircle.addTo(this.map);
+          setTimeout(() => marker.openPopup(), 300);
+        });
+      });
+    }
+  }
+
+  private createJourneyStepperControl() {
+    const color = this.journeyColor();
+    const name = this.journeyName();
+    const total = this.totalJourneySteps();
+
+    const JourneyStepperControl = L.Control.extend({
+      options: { position: 'topleft' as L.ControlPosition },
+      onAdd: () => {
+        const container = L.DomUtil.create('div', 'journey-stepper-control');
+
+        const dotsHtml = Array.from({ length: total }, (_, i) => {
+          const dotClass = i === 0 ? 'active' : '';
+          const lineHtml = i < total - 1 ? `<div class="journey-step-line" data-index="${i}"></div>` : '';
+          return `
+            <div class="journey-step-dot ${dotClass}" data-index="${i}" style="--journey-color: ${color};">
+              <span>${i + 1}</span>
+            </div>
+            ${lineHtml}
+          `;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="journey-stepper-content" style="--journey-color: ${color};">
+            <div class="journey-stepper-header">
+              <span class="material-icons journey-stepper-icon">route</span>
+              <span class="journey-stepper-title">${name}</span>
+              <button class="journey-stepper-close" title="Close">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+            <div class="journey-stepper-dots">
+              ${dotsHtml}
+            </div>
+          </div>
+        `;
+
+        // Handle dot clicks
+        const dots = container.querySelectorAll('.journey-step-dot');
+        dots.forEach((dot: any) => {
+          L.DomEvent.on(dot, 'click', (e: Event) => {
+            L.DomEvent.stopPropagation(e);
+            const index = parseInt(dot.getAttribute('data-index')!, 10);
+            if (index !== this.currentJourneyStep()) {
+              this.flyToJourneyStep(index);
+            }
+          });
+        });
+
+        // Handle close button
+        const closeBtn = container.querySelector('.journey-stepper-close') as HTMLElement;
+        if (closeBtn) {
+          L.DomEvent.on(closeBtn, 'click', (e: Event) => {
+            L.DomEvent.stopPropagation(e);
+            this.goToFullMap();
+          });
+        }
+
+        L.DomEvent.disableClickPropagation(container);
+
+        // Store reference for updates
+        (container as any).__updateStepper = (currentStep: number) => {
+          const dots = container.querySelectorAll('.journey-step-dot');
+          const lines = container.querySelectorAll('.journey-step-line');
+
+          dots.forEach((dot: any, i: number) => {
+            dot.classList.toggle('active', i === currentStep);
+            dot.classList.toggle('passed', i < currentStep);
+          });
+
+          lines.forEach((line: any, i: number) => {
+            line.classList.toggle('passed', i < currentStep);
+          });
+        };
+
+        return container;
+      },
+    });
+
+    this.journeyStepperControl = new JourneyStepperControl();
+    this.journeyStepperControl.addTo(this.map);
+  }
+
+  private updateJourneyStepper() {
+    if (!this.journeyStepperControl) return;
+    const container = (this.journeyStepperControl as any)._container;
+    if (container?.__updateStepper) {
+      container.__updateStepper(this.currentJourneyStep());
+    }
   }
 
   goToFullMap() {

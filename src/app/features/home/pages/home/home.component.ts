@@ -12,6 +12,8 @@ import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
 import { FeaturedSoundService } from '../../../../core/services/featured-sound.service';
 import { DailyFeaturedSound } from '../../../../core/models/featured-sound.model';
+import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
+import { SoundJourney } from '../../../../core/models/sound-journey.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
 
 @Component({
@@ -32,6 +34,7 @@ export class HomeComponent implements OnInit {
   private readonly appUserService = inject(AppUserService);
   private readonly zoneService = inject(ZoneService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
+  private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
 
@@ -41,6 +44,7 @@ export class HomeComponent implements OnInit {
 
   zones = signal<Zone[]>([]);
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
+  journeys = signal<SoundJourney[]>([]);
 
   private currentLang = toSignal(
     this.translate.onLangChange.pipe(map((e) => e.lang)),
@@ -60,6 +64,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.loadPublicZones();
     this.loadDailyFeatured();
+    this.loadPublicJourneys();
   }
 
   async loadPublicZones() {
@@ -81,6 +86,39 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error('Error loading daily featured:', error);
     }
+  }
+
+  private async loadPublicJourneys() {
+    try {
+      const journeys = await this.soundJourneyService.listPublicJourneys();
+      this.journeys.set(journeys);
+    } catch (error) {
+      console.error('Error loading journeys:', error);
+    }
+  }
+
+  journeyName(journey: SoundJourney): string {
+    const lang = this.currentLang();
+    if (journey.name_i18n && journey.name_i18n[lang]) {
+      return journey.name_i18n[lang];
+    }
+    return journey.name;
+  }
+
+  journeyDescription(journey: SoundJourney): string {
+    const lang = this.currentLang();
+    if (journey.description_i18n && journey.description_i18n[lang]) {
+      return journey.description_i18n[lang];
+    }
+    return journey.description ?? '';
+  }
+
+  goToJourney(journey: SoundJourney) {
+    const params = new URLSearchParams({
+      journeyMode: 'true',
+      journeyId: journey.id!,
+    });
+    window.location.href = `/mapfly?${params.toString()}`;
   }
 
   goToFeaturedSound() {

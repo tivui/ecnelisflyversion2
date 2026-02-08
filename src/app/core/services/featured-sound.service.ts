@@ -139,7 +139,7 @@ export class FeaturedSoundService {
 
     const result = await (
       this.client.models.DailyFeaturedSound.getDailyFeaturedByDate as any
-    )({ date: today });
+    )({ date: today }, { authMode: 'apiKey' });
 
     if (result.errors?.length) {
       console.error('Error getting daily featured:', result.errors);

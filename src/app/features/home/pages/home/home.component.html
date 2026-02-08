@@ -69,6 +69,26 @@
           </span>
         </div>
       </a>
+
+      <!-- Journey Cards -->
+      @for (journey of journeys(); track journey.id) {
+        <a class="hero-card hero-card-journey" (click)="goToJourney(journey)">
+          <div class="hero-card-visual">
+            <div class="hero-card-icon">
+              <mat-icon>route</mat-icon>
+            </div>
+            <span class="journey-badge">{{ 'home.hero.soundJourney' | translate }}</span>
+          </div>
+          <div class="hero-card-content">
+            <h3>{{ journeyName(journey) }}</h3>
+            <p class="hero-card-desc">{{ journeyDescription(journey) }}</p>
+            <span class="hero-card-cta">
+              {{ 'home.hero.startJourney' | translate }}
+              <mat-icon>arrow_forward</mat-icon>
+            </span>
+          </div>
+        </a>
+      }
     </div>
   </section>
 

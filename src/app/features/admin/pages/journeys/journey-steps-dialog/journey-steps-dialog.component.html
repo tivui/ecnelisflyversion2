@@ -1,0 +1,150 @@
+<h2 mat-dialog-title>
+  {{ 'admin.journeys.steps.title' | translate: { name: journey.name } }}
+</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="sounds-container">
+      <!-- Current steps in journey -->
+      <div class="section">
+        <h3>
+          {{ 'admin.journeys.steps.current' | translate }} ({{ journeySteps().length }})
+          @if (journeySteps().length < 3) {
+            <mat-chip class="min-chip">{{ 'admin.journeys.steps.minRequired' | translate }}</mat-chip>
+          }
+          @if (journeySteps().length >= 10) {
+            <mat-chip class="max-chip">{{ 'admin.journeys.steps.maxReached' | translate }}</mat-chip>
+          }
+        </h3>
+
+        @if (journeySteps().length === 0) {
+          <p class="empty-message">{{ 'admin.journeys.steps.empty' | translate }}</p>
+        } @else {
+          <div cdkDropList (cdkDropListDropped)="onDrop($event)" class="steps-list">
+            @for (item of journeySteps(); track item.step.id; let i = $index) {
+              <div cdkDrag class="step-item-wrapper">
+                <div class="step-item">
+                  <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
+                  <span class="step-number">{{ i + 1 }}</span>
+                  <div class="step-info">
+                    <div class="step-title">{{ getLocalizedTitle(item.sound) }}</div>
+                    <div class="step-city">{{ item.sound.city ?? '-' }}</div>
+                  </div>
+                  <button
+                    mat-icon-button
+                    [color]="hasStory(item) ? 'primary' : 'default'"
+                    (click)="toggleEditStory(item)"
+                    [matTooltip]="'admin.journeys.steps.editStory' | translate"
+                  >
+                    <mat-icon>{{ hasStory(item) ? 'auto_stories' : 'edit_note' }}</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="removeStep(item)"
+                    [matTooltip]="'admin.journeys.steps.remove' | translate"
+                  >
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Story editing panel -->
+                @if (editingStepId() === item.step.id) {
+                  <div class="step-story-panel">
+                    <h4>{{ 'admin.journeys.steps.storyTitle' | translate }}</h4>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>{{ 'admin.journeys.steps.storyDefault' | translate }}</mat-label>
+                      <textarea matInput [formControl]="storyControl" rows="3"></textarea>
+                    </mat-form-field>
+
+                    <div class="story-translations">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Français</mat-label>
+                        <textarea matInput [formControl]="storyFrControl" rows="2"></textarea>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>English</mat-label>
+                        <textarea matInput [formControl]="storyEnControl" rows="2"></textarea>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Español</mat-label>
+                        <textarea matInput [formControl]="storyEsControl" rows="2"></textarea>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="story-actions">
+                      <button mat-button (click)="editingStepId.set(null)">
+                        {{ 'common.action.cancel' | translate }}
+                      </button>
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="saveStepStory(item)"
+                        [disabled]="savingStory()"
+                      >
+                        @if (savingStory()) {
+                          <mat-spinner diameter="18"></mat-spinner>
+                        } @else {
+                          {{ 'common.action.save' | translate }}
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Add sounds section -->
+      <div class="section">
+        <h3>{{ 'admin.journeys.steps.add' | translate }}</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'admin.journeys.steps.search' | translate }}</mat-label>
+          <input
+            matInput
+            [formControl]="searchControl"
+            [placeholder]="'admin.journeys.steps.searchPlaceholder' | translate"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        @if (filteredSounds().length > 0) {
+          <mat-list class="sounds-list available">
+            @for (sound of filteredSounds(); track sound.id) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>music_note</mat-icon>
+                <div matListItemTitle>{{ getLocalizedTitle(sound) }}</div>
+                <div matListItemLine>{{ sound.city ?? '-' }}</div>
+                <button
+                  matListItemMeta
+                  mat-icon-button
+                  color="primary"
+                  (click)="addSound(sound)"
+                  [disabled]="adding() || !canAddMore"
+                  [matTooltip]="'admin.journeys.steps.addToJourney' | translate"
+                >
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </mat-list-item>
+            }
+          </mat-list>
+        } @else if (searchControl.value) {
+          <p class="empty-message">{{ 'admin.journeys.steps.noResults' | translate }}</p>
+        }
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="close()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+</mat-dialog-actions>
