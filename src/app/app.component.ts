@@ -32,6 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from './core/services/auth.service';
 import { DOCUMENT } from '@angular/common'; // required for fullscreen
+import { PwaInstallBannerComponent } from './shared/components/pwa-install-banner/pwa-install-banner.component';
 
 @Component({
   selector: 'app-root',
@@ -54,6 +55,7 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
     MatMenuModule,
     MatTooltipModule,
     SidenavMenuComponent,
+    PwaInstallBannerComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
