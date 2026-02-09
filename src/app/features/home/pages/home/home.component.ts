@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, signal, computed, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -37,6 +37,11 @@ export class HomeComponent implements OnInit {
   private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+
+  shimmerX = signal('-200%');
+  hasScrolled = signal(false);
+  scrollHintX = signal(14); // centered in 44px track (track - thumb) / 2 = (44-16)/2
 
   appUser = toSignal<AppUser | null>(this.appUserService.currentUser$, {
     initialValue: null,
@@ -119,6 +124,19 @@ export class HomeComponent implements OnInit {
       journeyId: journey.id!,
     });
     window.location.href = `/mapfly?${params.toString()}`;
+  }
+
+  onSecondaryScroll(event: Event) {
+    const el = event.target as HTMLElement;
+    if (!this.hasScrolled()) this.hasScrolled.set(true);
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) return;
+    const ratio = el.scrollLeft / maxScroll;
+    // Shimmer: map 0→1 to -200%→200%
+    const pos = -200 + ratio * 400;
+    this.shimmerX.set(`${pos}%`);
+    // Scroll hint thumb: 0→28px (44px track - 16px thumb)
+    this.scrollHintX.set(Math.round(ratio * 28));
   }
 
   goToFeaturedSound() {

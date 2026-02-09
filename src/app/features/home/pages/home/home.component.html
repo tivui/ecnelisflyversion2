@@ -10,7 +10,7 @@
     <!-- Main action cards -->
     <div class="hero-actions">
       <!-- World Map Card (primary CTA) -->
-      <a routerLink="/mapfly" class="hero-card hero-card-map">
+      <a routerLink="/mapfly" class="hero-card hero-card-map" [style.--shimmer-x]="shimmerX()">
         <div class="hero-card-visual">
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
@@ -27,7 +27,7 @@
       </a>
 
       <!-- Secondary cards (scrollable on mobile) -->
-      <div class="hero-cards-secondary">
+      <div class="hero-cards-secondary" (scroll)="onSecondaryScroll($event)">
         <!-- Sound of the Day Card -->
         @if (dailyFeatured()) {
           <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
@@ -91,6 +91,16 @@
             </div>
           </a>
         }
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="scroll-hint" aria-hidden="true">
+        <span class="scroll-hint-track">
+          <span class="scroll-hint-thumb"
+            [class.tracking]="hasScrolled()"
+            [style.--hint-x]="scrollHintX() + 'px'">
+          </span>
+        </span>
       </div>
     </div>
   </section>
