@@ -710,10 +710,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     justify-content: flex-start;
   }
 
-  // --- Primary card: expands to fill available space ---
+  // --- Primary card: expands to fill available space (capped) ---
   .hero-card-map {
     flex: 1 1 0;
     min-height: 0;
+    max-height: 28dvh;
     min-width: unset;
     max-width: unset;
     width: auto;
@@ -1102,6 +1103,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-card-map {
+    max-height: 24dvh;
+
     .hero-card-visual {
       min-height: 60px;
     }
