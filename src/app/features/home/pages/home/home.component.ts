@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, signal, computed, NgZone } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, signal, computed, NgZone, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -39,9 +39,11 @@ export class HomeComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
 
+  @ViewChild('secondaryScroll') secondaryScrollEl?: ElementRef<HTMLElement>;
+
   shimmerX = signal('-200%');
   hasScrolled = signal(false);
-  scrollHintX = signal(14); // centered in 44px track (track - thumb) / 2 = (44-16)/2
+  scrollHintX = signal(0);
 
   appUser = toSignal<AppUser | null>(this.appUserService.currentUser$, {
     initialValue: null,
@@ -66,40 +68,33 @@ export class HomeComponent implements OnInit {
     return daily.teasing ?? '';
   });
 
-  ngOnInit() {
-    this.loadPublicZones();
-    this.loadDailyFeatured();
-    this.loadPublicJourneys();
-  }
+  async ngOnInit() {
+    const [zonesResult, dailyResult, journeysResult] = await Promise.allSettled([
+      this.zoneService.listZones(),
+      this.featuredSoundService.getTodayFeatured(),
+      this.soundJourneyService.listPublicJourneys(),
+    ]);
 
-  async loadPublicZones() {
-    try {
-      const allZones = await this.zoneService.listZones();
-      const publicZones = allZones
-        .filter((z) => z.isPublic)
-        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    if (zonesResult.status === 'fulfilled') {
+      const publicZones = zonesResult.value
+        .filter((z: Zone) => z.isPublic)
+        .sort((a: Zone, b: Zone) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
       this.zones.set(publicZones);
-    } catch (error) {
-      console.error('Error loading zones:', error);
     }
-  }
 
-  private async loadDailyFeatured() {
-    try {
-      const daily = await this.featuredSoundService.getTodayFeatured();
-      this.dailyFeatured.set(daily);
-    } catch (error) {
-      console.error('Error loading daily featured:', error);
+    if (dailyResult.status === 'fulfilled') {
+      this.dailyFeatured.set(dailyResult.value);
     }
-  }
 
-  private async loadPublicJourneys() {
-    try {
-      const journeys = await this.soundJourneyService.listPublicJourneys();
-      this.journeys.set(journeys);
-    } catch (error) {
-      console.error('Error loading journeys:', error);
+    if (journeysResult.status === 'fulfilled') {
+      this.journeys.set(journeysResult.value);
     }
+
+    setTimeout(() => {
+      if (this.secondaryScrollEl) {
+        this.secondaryScrollEl.nativeElement.scrollLeft = 0;
+      }
+    });
   }
 
   journeyName(journey: SoundJourney): string {
@@ -135,8 +130,8 @@ export class HomeComponent implements OnInit {
     // Shimmer: map 0→1 to -200%→200%
     const pos = -200 + ratio * 400;
     this.shimmerX.set(`${pos}%`);
-    // Scroll hint thumb: 0→28px (44px track - 16px thumb)
-    this.scrollHintX.set(Math.round(ratio * 28));
+    // Scroll hint thumb: 0→32px (52px track - 20px thumb)
+    this.scrollHintX.set(Math.round(ratio * 32));
   }
 
   goToFeaturedSound() {

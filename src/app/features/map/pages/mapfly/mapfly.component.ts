@@ -1252,8 +1252,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }),
     });
 
+    const featuredLabel = this.translate.instant('home.hero.soundOfTheDay');
     marker.bindPopup(`
-      <div class="popup-container">
+      <div class="popup-container featured-popup">
+        <div class="featured-popup-header">
+          <span class="material-icons featured-popup-icon">headphones</span>
+          <span class="featured-popup-badge">${featuredLabel}</span>
+        </div>
         <b class="popup-title" id="title-${soundFilename}">${soundTitle}</b>
         <p class="popup-shortstory" id="shortStory-${soundFilename}">${s?.shortStory ?? ''}</p>
         <div id="btn-container-title-${soundFilename}"></div>
@@ -1411,8 +1416,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.mapbox.addTo(this.map);
 
         // Step 4: Brief pause, then zoom to street level
+        // Offset center northward so popup has room above the marker
         setTimeout(() => {
-          this.map.flyTo(targetLatLng, 17, {
+          const offsetLat = L.latLng(lat + 0.0012, lng);
+          this.map.flyTo(offsetLat, 17, {
             duration: 2,
             easeLinearity: 0.4,
           });
