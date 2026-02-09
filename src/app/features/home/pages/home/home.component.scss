@@ -224,8 +224,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   display: contents;
 }
 
-// Desktop: scroll hint hidden
-.scroll-hint {
+// Desktop: scroll dots hidden
+.scroll-dots {
   display: none;
 }
 
@@ -483,7 +483,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 }
 
 // Per-card accent colors — distinct identity within the blue harmony
-// Palette: blue, amber, teal, rose (+ emerald, coral for future cards)
+// Palette: blue, violet, teal, amber (+ emerald, coral for future cards)
 .hero-card-map .hero-card-content {
   border-left: 3px solid rgba($primary-blue, 0.4);
 }
@@ -656,6 +656,19 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    // Light mode: subtle gradient mesh for richness
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba($primary-blue, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 60%, rgba($primary-indigo, 0.04) 0%, transparent 50%),
+      linear-gradient(180deg, #f0f3f8 0%, #f6f7fb 40%, #eef1f6 100%);
+
+    :host-context(body.dark-theme) & {
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 10%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 60%, rgba(#7986cb, 0.03) 0%, transparent 50%),
+        linear-gradient(180deg, #0d0d1a 0%, #111124 50%, #151528 100%);
+    }
   }
 
   // --- Hero section fills remaining space (carousel is fixed at bottom) ---
@@ -664,38 +677,48 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 12px 16px 8px;
+    padding: 10px 16px 8px;
     overflow: hidden;
   }
 
   .hero-content {
     flex-shrink: 0;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .hero-main-logo {
-    width: 46px;
-    height: 46px;
-    margin-bottom: 6px;
-    animation: fadeInUp 0.6s ease-out both, float 3s ease-in-out 1s infinite;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 2px;
+    animation: fadeInUp 0.5s ease-out both, float 3s ease-in-out 1s infinite;
   }
 
   .hero-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 800;
     margin-bottom: 4px;
     text-wrap: balance;
-    animation: fadeInUp 0.6s ease-out 0.1s both;
+    animation: fadeInUp 0.5s ease-out both;
   }
 
   .hero-subtitle {
-    font-size: 0.78rem;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease-out 0.2s both;
+    display: none;
+  }
+
+  // Subtle accent line below title for visual structure
+  .hero-content::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    margin: 4px auto 0;
+    border-radius: 1px;
+    background: linear-gradient(90deg, rgba($primary-blue, 0.4), rgba($logo-orange, 0.3));
+    animation: fadeInUp 0.5s ease-out 0.1s both;
+
+    :host-context(body.dark-theme) & {
+      background: linear-gradient(90deg, rgba(#64b5f6, 0.3), rgba(#FFD180, 0.25));
+    }
   }
 
   // --- Hero actions: fill remaining space ---
@@ -722,9 +745,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     border-radius: 22px;
     position: relative;
     overflow: hidden;
-    animation: fadeInUp 0.5s ease-out 0.25s both;
-    border: none;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+    animation: fadeInUp 0.5s ease-out 0.15s both;
+    border: 1px solid rgba($primary-blue, 0.12);
+    box-shadow: 0 8px 32px rgba($primary-blue, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
 
     :host-context(body.dark-theme) & {
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -733,11 +756,6 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     &:hover {
       transform: none;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
-
-      :host-context(body.dark-theme) & {
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      }
     }
 
     .hero-card-visual {
@@ -746,6 +764,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       min-height: 80px;
       align-items: center;
       justify-content: center;
+      padding-bottom: 30px; // offset icon upward to avoid overlay clash
 
       // Shimmer sweep — driven by secondary cards scroll
       &::after {
@@ -763,7 +782,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     .hero-card-icon {
       width: 56px;
       height: 56px;
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 
       mat-icon {
         font-size: 28px;
@@ -777,22 +797,22 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 28px 16px 12px;
+      padding: 20px 16px 10px;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
       z-index: 2;
 
       h3 {
         color: #fff;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
         font-weight: 700;
         text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
       }
     }
 
     .hero-card-desc {
-      color: rgba(255, 255, 255, 0.92);
-      font-size: 0.82rem;
-      -webkit-line-clamp: 2;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.78rem;
+      -webkit-line-clamp: 1;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
@@ -810,13 +830,13 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
   }
 
-  // --- Secondary cards: horizontal scroll (fixed height, never shrinks) ---
+  // --- Secondary cards: horizontal scroll, full-bleed overlay style ---
   .hero-cards-secondary {
     flex-shrink: 0;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 12px;
+    gap: 14px;
     margin: 0 -16px;
     padding: 0 16px;
     overflow-x: auto;
@@ -831,175 +851,228 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     .hero-card {
       flex: none;
-      min-width: 52vw;
-      max-width: 52vw;
+      min-width: 65vw;
+      max-width: 65vw;
+      min-height: clamp(130px, 20dvh, 180px);
       flex-shrink: 0;
       scroll-snap-align: start;
-      border-radius: 18px;
+      border-radius: 20px;
       position: relative;
-      animation: fadeInUp 0.5s ease-out 0.4s both;
-      border: none;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out 0.35s both;
+      border: 1px solid rgba($primary-indigo, 0.10);
+      box-shadow: 0 6px 24px rgba($primary-indigo, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05);
 
       :host-context(body.dark-theme) & {
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
         border: none;
       }
 
       &:hover {
         transform: none;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-
-        :host-context(body.dark-theme) & {
-          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-        }
       }
     }
 
-    // Visual: proportional-height colored header (same for all cards)
+    // Visual: fills entire card (full-bleed gradient)
     .hero-card-visual {
-      height: clamp(60px, 9dvh, 85px);
+      position: absolute;
+      inset: 0;
+      height: auto;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 8px 10px;
-      gap: 4px;
+      padding-top: 18%; // clear badge zone
+      padding-bottom: 38%; // clear overlay content zone
+      gap: 0;
     }
 
     .hero-card-icon {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
+      flex-shrink: 0;
       background: rgba(255, 255, 255, 0.22);
 
       mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
       }
     }
 
-    // Badges in normal flow below icon — no overlap possible
+    // Badges: absolute positioned top-left to avoid icon overlap
     .featured-badge,
     .journey-badge {
-      position: relative;
-      top: auto;
-      left: auto;
+      position: absolute;
+      top: 8px;
+      left: 10px;
       right: auto;
       transform: none;
       white-space: nowrap;
       padding: 3px 10px;
-      font-size: 0.58rem;
+      font-size: 0.55rem;
+      z-index: 3;
     }
 
-    // Zone dots: flow below icon (like badges) for visual balance
+    // Zone dots: absolute top-left
     .zones-preview {
-      position: relative;
-      top: auto;
+      position: absolute;
+      top: 10px;
+      left: 10px;
       right: auto;
-      gap: 5px;
+      gap: 4px;
 
       .zone-preview-dot {
-        width: 12px;
-        height: 12px;
+        width: 9px;
+        height: 9px;
       }
     }
 
-    // Content: normal flow below visual, flex to align CTAs at bottom
+    // Content: overlay at bottom with gradient (like map card)
     .hero-card-content {
-      position: static;
-      padding: 8px 10px 10px;
-      background: none;
-      z-index: auto;
-      flex: 1;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 12px 10px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 100%);
+      z-index: 2;
       display: flex;
       flex-direction: column;
+      gap: 4px;
+      border-left: none;
 
       h3 {
-        color: #1a1a2e;
-        font-size: 0.88rem;
-        white-space: normal;
-        text-shadow: none;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 
         :host-context(body.dark-theme) & {
-          color: #f5f5f5;
+          color: #fff;
         }
       }
     }
 
     .hero-card-desc {
-      color: #666;
-      font-size: 0.74rem;
-      -webkit-line-clamp: 2;
-      text-shadow: none;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.7rem;
+      -webkit-line-clamp: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 
       :host-context(body.dark-theme) & {
-        color: #aaa;
+        color: rgba(255, 255, 255, 0.85);
       }
     }
 
     .hero-card-cta {
+      color: #fff !important;
       font-size: 0.78rem;
-      text-shadow: none;
-      margin-top: auto;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      margin-top: 2px;
 
       mat-icon {
         font-size: 15px;
         width: 15px;
         height: 15px;
       }
+
+      :host-context(body.dark-theme) & {
+        color: #fff !important;
+      }
+    }
+
+    // Per-card thematic accents on overlay cards
+    .hero-card-featured .hero-card-cta {
+      color: #e0b3ff !important; // violet accent
+    }
+
+    .hero-card-zones .hero-card-cta {
+      color: #80cbc4 !important; // teal accent
+    }
+
+    .hero-card-journey .hero-card-cta {
+      color: #fbbf24 !important; // amber accent
+    }
+
+    // Colored left accent bar per card type (vertical, like desktop border-left)
+    .hero-card-featured::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      left: 0;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: linear-gradient(180deg, #7c4dff, #b388ff);
+      z-index: 3;
+    }
+
+    .hero-card-zones::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      left: 0;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: linear-gradient(180deg, #00897b, #80cbc4);
+      z-index: 3;
+    }
+
+    .hero-card-journey::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      left: 0;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: linear-gradient(180deg, #b07c10, #fbbf24);
+      z-index: 3;
+    }
+
+    // Remove border-left accent on mobile overlay cards (replaced by top bar)
+    .hero-card-content {
+      border-left: none !important;
     }
   }
 
-  // Badge base styles for mobile (map card keeps absolute positioning)
-  .featured-badge,
-  .journey-badge {
-    top: 10px;
-    right: 10px;
-    padding: 4px 11px;
-    font-size: 0.6rem;
-  }
-
-  // --- Scroll hint indicator (mini scrollbar) ---
-  .scroll-hint {
+  // --- Scroll dots pagination ---
+  .scroll-dots {
     flex-shrink: 0;
     display: flex;
     justify-content: center;
-    padding: 6px 0 4px;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0 4px;
     animation: fadeInUp 0.4s ease-out 0.5s both;
   }
 
-  .scroll-hint-track {
+  .scroll-dot {
     display: block;
-    width: 52px;
-    height: 5px;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.15);
-    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.18);
+    transition: background 0.25s ease, transform 0.25s ease, width 0.25s ease;
 
-    :host-context(body.dark-theme) & {
-      background: rgba(255, 255, 255, 0.15);
-    }
-  }
-
-  .scroll-hint-thumb {
-    display: block;
-    width: 20px;
-    height: 100%;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.4);
-    position: absolute;
-    top: 0;
-    left: var(--hint-x, 0px);
-    animation: hintSlide 1.4s ease-in-out 1.2s 3 both;
-
-    // Once user scrolls, switch to JS-driven position
-    &.tracking {
-      animation: none;
-      transition: left 0.12s ease-out;
+    &.active {
+      width: 18px;
+      border-radius: 3px;
+      background: rgba($primary-blue, 0.6);
     }
 
     :host-context(body.dark-theme) & {
-      background: rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.2);
+
+      &.active {
+        background: rgba(#90caf9, 0.6);
+      }
     }
   }
 
@@ -1066,7 +1139,24 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .carousel-header {
-    display: none;
+    display: flex;
+    padding: 0 14px 4px;
+    gap: 6px;
+
+    .carousel-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      opacity: 0.5;
+    }
+
+    .carousel-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.5;
+    }
   }
 }
 
@@ -1080,26 +1170,22 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-content {
-    margin-bottom: 6px;
-  }
-
-  .hero-main-logo {
-    width: 38px;
-    height: 38px;
-    margin-bottom: 4px;
-  }
-
-  .hero-title {
-    font-size: 1.15rem;
     margin-bottom: 2px;
   }
 
-  .hero-subtitle {
-    font-size: 0.72rem;
+  .hero-main-logo {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 2px;
+  }
+
+  .hero-title {
+    font-size: 0.95rem;
+    margin-bottom: 0;
   }
 
   .hero-actions {
-    gap: 8px;
+    gap: 6px;
   }
 
   .hero-card-map {
@@ -1107,6 +1193,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     .hero-card-visual {
       min-height: 60px;
+      padding-bottom: 24px;
     }
 
     .hero-card-icon {
@@ -1121,54 +1208,67 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-content {
-      padding: 24px 14px 10px;
+      padding: 16px 12px 8px;
 
       h3 {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
       }
+    }
+
+    .hero-card-desc {
+      font-size: 0.72rem;
     }
   }
 
   .hero-cards-secondary {
-    gap: 8px;
+    gap: 10px;
+
+    .hero-card {
+      min-width: 58vw;
+      max-width: 58vw;
+      min-height: clamp(110px, 17dvh, 150px);
+    }
 
     .hero-card-visual {
-      height: clamp(44px, 7dvh, 58px);
-      padding: 4px 8px;
-      gap: 2px;
+      padding-top: 20%;
+      padding-bottom: 35%;
     }
 
     .hero-card-icon {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
 
       mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
       }
     }
 
     .hero-card-content {
-      padding: 6px 8px 8px;
+      padding: 14px 10px 8px;
 
       h3 {
-        font-size: 0.78rem;
+        font-size: 0.76rem;
       }
     }
 
     .hero-card-desc {
       -webkit-line-clamp: 1;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
     }
 
     .hero-card-cta {
-      font-size: 0.68rem;
+      font-size: 0.66rem;
     }
+  }
 
-    .hero-card {
-      min-width: 48vw;
-      max-width: 48vw;
+  .scroll-dot {
+    width: 5px;
+    height: 5px;
+
+    &.active {
+      width: 14px;
     }
   }
 
