@@ -533,6 +533,32 @@
 }
 
 // =====================
+// Featured Popup Styles
+// =====================
+.featured-popup-header {
+  margin: -8px -8px 8px -8px;
+  padding: 10px 14px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(135deg, #7c4dff 0%, #536dfe 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.featured-popup-icon {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.featured-popup-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// =====================
 // Journey Popup Styles
 // =====================
 .journey-popup-header {

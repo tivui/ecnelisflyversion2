@@ -27,7 +27,7 @@
       </a>
 
       <!-- Secondary cards (scrollable on mobile) -->
-      <div class="hero-cards-secondary" (scroll)="onSecondaryScroll($event)">
+      <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
         <!-- Sound of the Day Card -->
         @if (dailyFeatured()) {
           <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">

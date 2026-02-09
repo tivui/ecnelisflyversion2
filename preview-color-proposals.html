@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecnelis FLY — Color Proposals Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .theme-btn {
+    padding: 8px 20px;
+    border: 1.5px solid #444;
+    border-radius: 20px;
+    background: transparent;
+    color: #999;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-btn.active {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+  }
+
+  /* Proposals grid */
+  .proposals {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .proposal {
+    width: 360px;
+    flex-shrink: 0;
+  }
+  .proposal-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    color: #888;
+  }
+  .proposal-name {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 360px;
+    height: 740px;
+    border-radius: 36px;
+    border: 3px solid #333;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Home container */
+  .home-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .home-container::-webkit-scrollbar { display: none; }
+
+  /* Hero section */
+  .hero-section {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 12px;
+  }
+
+  .hero-content {
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .hero-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #1976d2, #F5A623);
+  }
+  .hero-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .hero-subtitle-text {
+    font-size: 0.78rem;
+    opacity: 0.6;
+    line-height: 1.3;
+  }
+
+  /* Hero actions */
+  .hero-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Map card */
+  .hero-card-map {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .card-visual {
+    height: 170px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.12) 48%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.12) 52%, transparent 70%);
+  }
+  .card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+  }
+  .card-icon .material-icons { font-size: 28px; color: #fff; }
+  .card-content {
+    padding: 12px 14px 14px;
+  }
+  .card-content h3 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .card-content p {
+    font-size: 0.74rem;
+    opacity: 0.6;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .card-cta .material-icons { font-size: 16px; }
+
+  /* Secondary cards */
+  .secondary-cards {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+  .secondary-cards::-webkit-scrollbar { display: none; }
+
+  .hero-card-sm {
+    min-width: 52%;
+    flex-shrink: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .card-visual-sm {
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-visual-sm::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.1) 52%, transparent 70%);
+  }
+  .card-icon-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.2);
+    z-index: 1;
+  }
+  .card-icon-sm .material-icons { font-size: 18px; color: #fff; }
+  .badge-sm {
+    font-size: 0.52rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    z-index: 1;
+  }
+  .card-content-sm {
+    padding: 8px 12px 10px;
+  }
+  .card-content-sm h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .card-content-sm p {
+    font-size: 0.68rem;
+    opacity: 0.55;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .card-cta-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .card-cta-sm .material-icons { font-size: 14px; }
+
+  /* Scroll hint */
+  .scroll-hint {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 4px;
+  }
+  .scroll-track {
+    width: 52px;
+    height: 5px;
+    border-radius: 3px;
+    position: relative;
+  }
+  .scroll-thumb {
+    width: 20px;
+    height: 100%;
+    border-radius: 3px;
+    position: absolute;
+    top: 0;
+    left: 16px;
+    animation: hintSlide 2s ease-in-out infinite;
+  }
+  @keyframes hintSlide {
+    0%, 100% { left: 16px; }
+    30% { left: 32px; }
+    70% { left: 0px; }
+  }
+
+  /* Pastille dock */
+  .pastille-dock {
+    position: sticky;
+    bottom: 0;
+    flex-shrink: 0;
+    padding: 10px 8px 14px;
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    row-gap: 8px;
+    z-index: 10;
+  }
+  .dock-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px 4px;
+  }
+  .dock-header .material-icons { font-size: 14px; opacity: 0.5; }
+  .dock-header span { font-size: 0.7rem; font-weight: 600; opacity: 0.5; }
+
+  .pastille { grid-row: 2; display: flex; flex-direction: column; align-items: center; gap: 3px; justify-self: center; }
+  .pastille:nth-child(2) { grid-column: 3 / 7; }
+  .pastille:nth-child(3) { grid-column: 7 / 11; }
+  .pastille:nth-child(4) { grid-column: 11 / 15; }
+  .pastille:nth-child(5) { grid-column: 15 / 19; }
+  .pastille:nth-child(6) { grid-column: 1 / 5; grid-row: 3; }
+  .pastille:nth-child(7) { grid-column: 5 / 9; grid-row: 3; }
+  .pastille:nth-child(8) { grid-column: 9 / 13; grid-row: 3; }
+  .pastille:nth-child(9) { grid-column: 13 / 17; grid-row: 3; }
+  .pastille:nth-child(10) { grid-column: 17 / 21; grid-row: 3; }
+
+  .pastille-ring {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    overflow: hidden;
+  }
+  .pastille-label {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-align: center;
+    max-width: 48px;
+    line-height: 1.15;
+    opacity: 0.7;
+  }
+
+  /* --- LIGHT THEME --- */
+  .light .home-container { background: linear-gradient(180deg, #f8f9fc, #f2f4f8, #eceef3); }
+  .light .hero-title { color: #1a1a2e; }
+  .light .hero-subtitle-text { color: #666; }
+  .light .card-content { background: #fff; }
+  .light .card-content h3 { color: #1a1a2e; }
+  .light .card-content p { color: #666; }
+  .light .card-content-sm { background: #fff; }
+  .light .card-content-sm h3 { color: #1a1a2e; }
+  .light .card-content-sm p { color: #666; }
+  .light .scroll-track { background: rgba(0,0,0,0.12); }
+  .light .scroll-thumb { background: rgba(0,0,0,0.35); }
+  .light .pastille-dock {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+  }
+  .light .pastille-label { color: #444; }
+  .light .pastille-ring { background: #fff; }
+
+  /* --- DARK THEME --- */
+  .dark .home-container { background: linear-gradient(180deg, #0d0d1a, #111124, #151528); }
+  .dark .hero-title { color: #f5f5f5; }
+  .dark .hero-subtitle-text { color: #888; }
+  .dark .card-content { background: #1e1e2e; }
+  .dark .card-content h3 { color: #f5f5f5; }
+  .dark .card-content p { color: #aaa; }
+  .dark .card-content-sm { background: #1e1e2e; }
+  .dark .card-content-sm h3 { color: #f5f5f5; }
+  .dark .card-content-sm p { color: #aaa; }
+  .dark .scroll-track { background: rgba(255,255,255,0.12); }
+  .dark .scroll-thumb { background: rgba(255,255,255,0.4); }
+  .dark .pastille-dock {
+    background: rgba(21,21,40,0.92);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.3);
+  }
+  .dark .pastille-label { color: #b0b0b0; }
+  .dark .pastille-ring { background: #151528; }
+  .dark .hero-card-map { box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .dark .hero-card-sm { box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+
+  /* ============================================== */
+  /* PROPOSAL A: Gradient Harmony (blue → violet)   */
+  /* ============================================== */
+  .propA .map-visual { background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%); }
+  .propA .feat-visual { background: linear-gradient(135deg, #283593 0%, #5c6bc0 100%); }
+  .propA .zone-visual { background: linear-gradient(135deg, #1a237e 0%, #3f51b5 100%); }
+  .propA .journey-visual { background: linear-gradient(135deg, #4527a0 0%, #7e57c2 100%); }
+
+  .propA.light .card-cta,
+  .propA.light .card-cta-sm { color: #1976d2; }
+  .propA.dark .card-cta,
+  .propA.dark .card-cta-sm { color: #90caf9; }
+
+  /* ============================================== */
+  /* PROPOSAL B: Monochrome + Brand Accent          */
+  /* ============================================== */
+  .propB .map-visual { background: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%); }
+  .propB .feat-visual { background: linear-gradient(135deg, #2c2c3e 0%, #3a3a52 100%); }
+  .propB .zone-visual { background: linear-gradient(135deg, #2c2c3e 0%, #3a3a52 100%); }
+  .propB .journey-visual { background: linear-gradient(135deg, #2c2c3e 0%, #3a3a52 100%); }
+
+  .propB.light .card-cta,
+  .propB.light .card-cta-sm { color: #1976d2; }
+  .propB.dark .card-cta,
+  .propB.dark .card-cta-sm { color: #90caf9; }
+
+  /* Dark theme: slightly brighter slate for non-map cards */
+  .propB.dark .feat-visual { background: linear-gradient(135deg, #1e1e30 0%, #2a2a42 100%); }
+  .propB.dark .zone-visual { background: linear-gradient(135deg, #1e1e30 0%, #2a2a42 100%); }
+  .propB.dark .journey-visual { background: linear-gradient(135deg, #1e1e30 0%, #2a2a42 100%); }
+
+  /* Desaturated pastille rings for Proposal B */
+  .propB .pastille-ring { filter: saturate(0.3) brightness(1.1); }
+
+  /* ============================================== */
+  /* PROPOSAL C: Duo Tone (Blue + Amber)            */
+  /* ============================================== */
+  .propC .map-visual { background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%); }
+  .propC .feat-visual { background: linear-gradient(135deg, #e65100 0%, #ff9800 100%); }
+  .propC .zone-visual { background: linear-gradient(135deg, #bf360c 0%, #f4511e 100%); }
+  .propC .journey-visual { background: linear-gradient(135deg, #e65100 0%, #ffa726 100%); }
+
+  .propC.light .card-cta { color: #1976d2; }
+  .propC.light .card-cta-sm { color: #e65100; }
+  .propC.dark .card-cta { color: #90caf9; }
+  .propC.dark .card-cta-sm { color: #ffb74d; }
+
+  /* Pastille accent colors */
+  .cat-amb { --cat-color: #3AE27A; }
+  .cat-ani { --cat-color: #FF54F9; }
+  .cat-foo { --cat-color: #E8A849; }
+  .cat-hum { --cat-color: #FFC1F7; }
+  .cat-ite { --cat-color: #888888; }
+  .cat-mus { --cat-color: #D60101; }
+  .cat-nat { --cat-color: #39AFF7; }
+  .cat-spo { --cat-color: #A24C06; }
+  .cat-tra { --cat-color: #E8D000; }
+
+  .pastille-ring {
+    border-color: var(--cat-color, #999);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 6px color-mix(in srgb, var(--cat-color, #999) 15%, transparent);
+  }
+  .dark .pastille-ring {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 8px color-mix(in srgb, var(--cat-color, #999) 22%, transparent);
+  }
+
+  .pastille-emoji {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .proposals { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Ecnelis FLY — Propositions couleur</h1>
+<p class="subtitle">Cliquer sur Light / Dark pour comparer</p>
+
+<div class="theme-toggle">
+  <button class="theme-btn active" onclick="setTheme('light')">Light</button>
+  <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
+</div>
+
+<div class="proposals" id="proposals">
+
+  <!-- ======== PROPOSAL A ======== -->
+  <div class="proposal">
+    <div class="proposal-label">Proposition A</div>
+    <div class="proposal-name">Gradient Harmony</div>
+    <div class="phone-frame propA light" id="frameA">
+      <div class="home-container">
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-logo">E</div>
+            <div class="hero-title">Ecnelis Fly</div>
+            <div class="hero-subtitle-text">Explorez le monde par ses sons</div>
+          </div>
+          <div class="hero-actions">
+            <div class="hero-card-map">
+              <div class="card-visual map-visual">
+                <div class="card-icon"><span class="material-icons">public</span></div>
+              </div>
+              <div class="card-content">
+                <h3>Carte interactive</h3>
+                <p>Parcourez la carte et ecoutez des sons</p>
+                <span class="card-cta">Explorer <span class="material-icons">arrow_forward</span></span>
+              </div>
+            </div>
+            <div class="secondary-cards">
+              <div class="hero-card-sm">
+                <div class="card-visual-sm feat-visual">
+                  <div class="card-icon-sm"><span class="material-icons">headphones</span></div>
+                  <span class="badge-sm">Son du jour</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Marche a Istanbul</h3>
+                  <p>Ambiance matinale au bazar</p>
+                  <span class="card-cta-sm">Ecouter <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm zone-visual">
+                  <div class="card-icon-sm"><span class="material-icons">location_on</span></div>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Explorer les zones</h3>
+                  <p>Collections geographiques</p>
+                  <span class="card-cta-sm">Decouvrir <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm journey-visual">
+                  <div class="card-icon-sm"><span class="material-icons">route</span></div>
+                  <span class="badge-sm">Parcours</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Voyage sonore</h3>
+                  <p>Un parcours immersif</p>
+                  <span class="card-cta-sm">Commencer <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="scroll-hint">
+              <div class="scroll-track"><div class="scroll-thumb"></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Pastille dock -->
+        <div class="pastille-dock">
+          <div class="dock-header"><span class="material-icons">category</span><span>Categories</span></div>
+          <div class="pastille cat-amb"><div class="pastille-ring"><span class="pastille-emoji">🌿</span></div><div class="pastille-label">Sons d'amb.</div></div>
+          <div class="pastille cat-ani"><div class="pastille-ring"><span class="pastille-emoji">🐾</span></div><div class="pastille-label">Sons d'anim.</div></div>
+          <div class="pastille cat-foo"><div class="pastille-ring"><span class="pastille-emoji">🍽</span></div><div class="pastille-label">Sons de nourr.</div></div>
+          <div class="pastille cat-hum"><div class="pastille-ring"><span class="pastille-emoji">👤</span></div><div class="pastille-label">Sons humains</div></div>
+          <div class="pastille cat-ite"><div class="pastille-ring"><span class="pastille-emoji">📦</span></div><div class="pastille-label">Sons d'objets</div></div>
+          <div class="pastille cat-mus"><div class="pastille-ring"><span class="pastille-emoji">🎵</span></div><div class="pastille-label">Sons de musiq.</div></div>
+          <div class="pastille cat-nat"><div class="pastille-ring"><span class="pastille-emoji">🌊</span></div><div class="pastille-label">Sons de nature</div></div>
+          <div class="pastille cat-spo"><div class="pastille-ring"><span class="pastille-emoji">⚽</span></div><div class="pastille-label">Sons de sport</div></div>
+          <div class="pastille cat-tra"><div class="pastille-ring"><span class="pastille-emoji">🚗</span></div><div class="pastille-label">Sons de transp.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== PROPOSAL B ======== -->
+  <div class="proposal">
+    <div class="proposal-label">Proposition B</div>
+    <div class="proposal-name">Monochrome + Accent</div>
+    <div class="phone-frame propB light" id="frameB">
+      <div class="home-container">
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-logo">E</div>
+            <div class="hero-title">Ecnelis Fly</div>
+            <div class="hero-subtitle-text">Explorez le monde par ses sons</div>
+          </div>
+          <div class="hero-actions">
+            <div class="hero-card-map">
+              <div class="card-visual map-visual">
+                <div class="card-icon"><span class="material-icons">public</span></div>
+              </div>
+              <div class="card-content">
+                <h3>Carte interactive</h3>
+                <p>Parcourez la carte et ecoutez des sons</p>
+                <span class="card-cta">Explorer <span class="material-icons">arrow_forward</span></span>
+              </div>
+            </div>
+            <div class="secondary-cards">
+              <div class="hero-card-sm">
+                <div class="card-visual-sm feat-visual">
+                  <div class="card-icon-sm"><span class="material-icons">headphones</span></div>
+                  <span class="badge-sm">Son du jour</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Marche a Istanbul</h3>
+                  <p>Ambiance matinale au bazar</p>
+                  <span class="card-cta-sm">Ecouter <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm zone-visual">
+                  <div class="card-icon-sm"><span class="material-icons">location_on</span></div>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Explorer les zones</h3>
+                  <p>Collections geographiques</p>
+                  <span class="card-cta-sm">Decouvrir <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm journey-visual">
+                  <div class="card-icon-sm"><span class="material-icons">route</span></div>
+                  <span class="badge-sm">Parcours</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Voyage sonore</h3>
+                  <p>Un parcours immersif</p>
+                  <span class="card-cta-sm">Commencer <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="scroll-hint">
+              <div class="scroll-track"><div class="scroll-thumb"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="pastille-dock">
+          <div class="dock-header"><span class="material-icons">category</span><span>Categories</span></div>
+          <div class="pastille cat-amb"><div class="pastille-ring"><span class="pastille-emoji">🌿</span></div><div class="pastille-label">Sons d'amb.</div></div>
+          <div class="pastille cat-ani"><div class="pastille-ring"><span class="pastille-emoji">🐾</span></div><div class="pastille-label">Sons d'anim.</div></div>
+          <div class="pastille cat-foo"><div class="pastille-ring"><span class="pastille-emoji">🍽</span></div><div class="pastille-label">Sons de nourr.</div></div>
+          <div class="pastille cat-hum"><div class="pastille-ring"><span class="pastille-emoji">👤</span></div><div class="pastille-label">Sons humains</div></div>
+          <div class="pastille cat-ite"><div class="pastille-ring"><span class="pastille-emoji">📦</span></div><div class="pastille-label">Sons d'objets</div></div>
+          <div class="pastille cat-mus"><div class="pastille-ring"><span class="pastille-emoji">🎵</span></div><div class="pastille-label">Sons de musiq.</div></div>
+          <div class="pastille cat-nat"><div class="pastille-ring"><span class="pastille-emoji">🌊</span></div><div class="pastille-label">Sons de nature</div></div>
+          <div class="pastille cat-spo"><div class="pastille-ring"><span class="pastille-emoji">⚽</span></div><div class="pastille-label">Sons de sport</div></div>
+          <div class="pastille cat-tra"><div class="pastille-ring"><span class="pastille-emoji">🚗</span></div><div class="pastille-label">Sons de transp.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== PROPOSAL C ======== -->
+  <div class="proposal">
+    <div class="proposal-label">Proposition C</div>
+    <div class="proposal-name">Duo Tone (Bleu + Ambre)</div>
+    <div class="phone-frame propC light" id="frameC">
+      <div class="home-container">
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-logo">E</div>
+            <div class="hero-title">Ecnelis Fly</div>
+            <div class="hero-subtitle-text">Explorez le monde par ses sons</div>
+          </div>
+          <div class="hero-actions">
+            <div class="hero-card-map">
+              <div class="card-visual map-visual">
+                <div class="card-icon"><span class="material-icons">public</span></div>
+              </div>
+              <div class="card-content">
+                <h3>Carte interactive</h3>
+                <p>Parcourez la carte et ecoutez des sons</p>
+                <span class="card-cta">Explorer <span class="material-icons">arrow_forward</span></span>
+              </div>
+            </div>
+            <div class="secondary-cards">
+              <div class="hero-card-sm">
+                <div class="card-visual-sm feat-visual">
+                  <div class="card-icon-sm"><span class="material-icons">headphones</span></div>
+                  <span class="badge-sm">Son du jour</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Marche a Istanbul</h3>
+                  <p>Ambiance matinale au bazar</p>
+                  <span class="card-cta-sm">Ecouter <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm zone-visual">
+                  <div class="card-icon-sm"><span class="material-icons">location_on</span></div>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Explorer les zones</h3>
+                  <p>Collections geographiques</p>
+                  <span class="card-cta-sm">Decouvrir <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+              <div class="hero-card-sm">
+                <div class="card-visual-sm journey-visual">
+                  <div class="card-icon-sm"><span class="material-icons">route</span></div>
+                  <span class="badge-sm">Parcours</span>
+                </div>
+                <div class="card-content-sm">
+                  <h3>Voyage sonore</h3>
+                  <p>Un parcours immersif</p>
+                  <span class="card-cta-sm">Commencer <span class="material-icons">arrow_forward</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="scroll-hint">
+              <div class="scroll-track"><div class="scroll-thumb"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="pastille-dock">
+          <div class="dock-header"><span class="material-icons">category</span><span>Categories</span></div>
+          <div class="pastille cat-amb"><div class="pastille-ring"><span class="pastille-emoji">🌿</span></div><div class="pastille-label">Sons d'amb.</div></div>
+          <div class="pastille cat-ani"><div class="pastille-ring"><span class="pastille-emoji">🐾</span></div><div class="pastille-label">Sons d'anim.</div></div>
+          <div class="pastille cat-foo"><div class="pastille-ring"><span class="pastille-emoji">🍽</span></div><div class="pastille-label">Sons de nourr.</div></div>
+          <div class="pastille cat-hum"><div class="pastille-ring"><span class="pastille-emoji">👤</span></div><div class="pastille-label">Sons humains</div></div>
+          <div class="pastille cat-ite"><div class="pastille-ring"><span class="pastille-emoji">📦</span></div><div class="pastille-label">Sons d'objets</div></div>
+          <div class="pastille cat-mus"><div class="pastille-ring"><span class="pastille-emoji">🎵</span></div><div class="pastille-label">Sons de musiq.</div></div>
+          <div class="pastille cat-nat"><div class="pastille-ring"><span class="pastille-emoji">🌊</span></div><div class="pastille-label">Sons de nature</div></div>
+          <div class="pastille cat-spo"><div class="pastille-ring"><span class="pastille-emoji">⚽</span></div><div class="pastille-label">Sons de sport</div></div>
+          <div class="pastille cat-tra"><div class="pastille-ring"><span class="pastille-emoji">🚗</span></div><div class="pastille-label">Sons de transp.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setTheme(theme) {
+  document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+
+  ['frameA', 'frameB', 'frameC'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('light', 'dark');
+    el.classList.add(theme);
+  });
+}
+</script>
+
+</body>
+</html>
