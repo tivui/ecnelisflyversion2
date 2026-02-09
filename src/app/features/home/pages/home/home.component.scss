@@ -743,8 +743,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       height: auto;
       flex: 1;
       min-height: 80px;
-      align-items: flex-start;
-      padding-top: 20px;
+      align-items: center;
+      justify-content: center;
 
       // Shimmer sweep — driven by secondary cards scroll
       &::after {
@@ -1104,7 +1104,6 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   .hero-card-map {
     .hero-card-visual {
       min-height: 60px;
-      padding-top: 12px;
     }
 
     .hero-card-icon {
