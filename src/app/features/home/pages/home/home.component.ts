@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
 
   shimmerX = signal('-200%');
   hasScrolled = signal(false);
-  scrollHintX = signal(0);
+  activeCardIndex = signal(0);
 
   appUser = toSignal<AppUser | null>(this.appUserService.currentUser$, {
     initialValue: null,
@@ -52,6 +52,13 @@ export class HomeComponent implements OnInit {
   zones = signal<Zone[]>([]);
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
   journeys = signal<SoundJourney[]>([]);
+
+  secondaryCardIndices = computed(() => {
+    let count = 1; // Zones card is always present
+    if (this.dailyFeatured()) count++;
+    count += this.journeys().length;
+    return Array.from({ length: count }, (_, i) => i);
+  });
 
   private currentLang = toSignal(
     this.translate.onLangChange.pipe(map((e) => e.lang)),
@@ -130,8 +137,10 @@ export class HomeComponent implements OnInit {
     // Shimmer: map 0→1 to -200%→200%
     const pos = -200 + ratio * 400;
     this.shimmerX.set(`${pos}%`);
-    // Scroll hint thumb: 0→32px (52px track - 20px thumb)
-    this.scrollHintX.set(Math.round(ratio * 32));
+    // Active card index based on scroll position
+    const cardCount = this.secondaryCardIndices().length;
+    const index = Math.round(ratio * (cardCount - 1));
+    this.activeCardIndex.set(Math.min(index, cardCount - 1));
   }
 
   goToFeaturedSound() {

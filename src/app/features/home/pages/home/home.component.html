@@ -93,14 +93,11 @@
         }
       </div>
 
-      <!-- Scroll hint -->
-      <div class="scroll-hint" aria-hidden="true">
-        <span class="scroll-hint-track">
-          <span class="scroll-hint-thumb"
-            [class.tracking]="hasScrolled()"
-            [style.--hint-x]="scrollHintX() + 'px'">
-          </span>
-        </span>
+      <!-- Scroll dots -->
+      <div class="scroll-dots" aria-hidden="true">
+        @for (i of secondaryCardIndices(); track i) {
+          <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
+        }
       </div>
     </div>
   </section>
