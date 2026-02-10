@@ -657,44 +657,46 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     flex-direction: column;
     overflow: hidden;
 
-    // Light mode: subtle gradient mesh for richness
+    // Light mode: enriched gradient mesh
     background:
-      radial-gradient(ellipse 70% 50% at 15% 10%, rgba($primary-blue, 0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 85% 60%, rgba($primary-indigo, 0.04) 0%, transparent 50%),
-      linear-gradient(180deg, #f0f3f8 0%, #f6f7fb 40%, #eef1f6 100%);
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba($primary-blue, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 60%, rgba($primary-indigo, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 45% at 50% 80%, rgba($primary-violet, 0.06) 0%, transparent 55%),
+      linear-gradient(180deg, #f5f6fa 0%, #f0f3f8 35%, #eaecf2 100%);
 
     :host-context(body.dark-theme) & {
       background:
-        radial-gradient(ellipse 70% 50% at 15% 10%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 85% 60%, rgba(#7986cb, 0.03) 0%, transparent 50%),
-        linear-gradient(180deg, #0d0d1a 0%, #111124 50%, #151528 100%);
+        radial-gradient(ellipse 70% 50% at 15% 10%, rgba(#64b5f6, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 60%, rgba(#7986cb, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 45% at 50% 80%, rgba(#9575cd, 0.05) 0%, transparent 55%),
+        linear-gradient(180deg, #0a0a18 0%, #0f0f22 40%, #131328 100%);
     }
   }
 
-  // --- Hero section fills remaining space (carousel is fixed at bottom) ---
+  // --- Hero section: takes remaining space, scrolls internally ---
   .hero-section {
     flex: 1 1 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 10px 16px 8px;
-    overflow: hidden;
+    padding: 16px 0 10px;
+    overflow-y: auto;
   }
 
   .hero-content {
-    flex-shrink: 0;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
+    padding: 0 16px;
   }
 
   .hero-main-logo {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 2px;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 4px;
     animation: fadeInUp 0.5s ease-out both, float 3s ease-in-out 1s infinite;
   }
 
   .hero-title {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 800;
     margin-bottom: 4px;
     text-wrap: balance;
@@ -702,16 +704,22 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-subtitle {
-    display: none;
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: fadeInUp 0.5s ease-out 0.05s both;
   }
 
-  // Subtle accent line below title for visual structure
+  // Accent line below hero content for visual structure
   .hero-content::after {
     content: '';
     display: block;
-    width: 40px;
+    width: 60px;
     height: 2px;
-    margin: 4px auto 0;
+    margin: 6px auto 0;
     border-radius: 1px;
     background: linear-gradient(90deg, rgba($primary-blue, 0.4), rgba($logo-orange, 0.3));
     animation: fadeInUp 0.5s ease-out 0.1s both;
@@ -721,23 +729,20 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
   }
 
-  // --- Hero actions: fill remaining space ---
+  // --- Hero actions: natural flow ---
   .hero-actions {
-    flex: 1 1 0;
-    min-height: 0;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-    padding: 0;
+    padding: 0 16px;
     overflow: visible;
     justify-content: flex-start;
   }
 
-  // --- Primary card: expands to fill available space (capped) ---
+  // --- Primary card: immersive hero ---
   .hero-card-map {
-    flex: 1 1 0;
-    min-height: 0;
-    max-height: 28dvh;
+    height: clamp(200px, 38dvh, 320px);
+    flex-shrink: 0;
     min-width: unset;
     max-width: unset;
     width: auto;
@@ -760,11 +765,23 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     .hero-card-visual {
       height: auto;
-      flex: 1;
-      min-height: 80px;
+      position: absolute;
+      inset: 0;
       align-items: center;
       justify-content: center;
-      padding-bottom: 30px; // offset icon upward to avoid overlay clash
+      padding-bottom: 30px;
+
+      // Floating orbs (like desktop)
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle 70px at 10% 20%, rgba(100, 210, 255, 0.22) 0%, transparent 100%),
+          radial-gradient(circle 55px at 85% 65%, rgba(30, 136, 229, 0.18) 0%, transparent 100%),
+          radial-gradient(circle 35px at 55% 5%, rgba(144, 202, 249, 0.12) 0%, transparent 100%);
+        z-index: 0;
+      }
 
       // Shimmer sweep — driven by secondary cards scroll
       &::after {
@@ -780,15 +797,16 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-icon {
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 40px rgba(255, 255, 255, 0.08);
+      z-index: 1;
 
       mat-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
       }
     }
 
@@ -797,7 +815,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 20px 16px 10px;
+      padding: 20px 16px 12px;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
       z-index: 2;
 
@@ -836,9 +854,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 14px;
-    margin: 0 -16px;
-    padding: 0 16px;
+    gap: 16px;
+    margin: 0 -16px;  // extend beyond hero-actions padding
+    padding: 0 16px;  // bring content back to alignment
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 16px;
@@ -851,9 +869,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     .hero-card {
       flex: none;
-      min-width: 65vw;
-      max-width: 65vw;
-      min-height: clamp(130px, 20dvh, 180px);
+      min-width: 75vw;
+      max-width: 75vw;
+      min-height: clamp(160px, 28dvh, 240px);
       flex-shrink: 0;
       scroll-snap-align: start;
       border-radius: 20px;
@@ -881,9 +899,21 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding-top: 18%; // clear badge zone
-      padding-bottom: 38%; // clear overlay content zone
+      padding-top: 15%;
+      padding-bottom: 35%;
       gap: 0;
+
+      // Floating orbs for secondary cards
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle 60px at 12% 25%, rgba(255, 255, 255, 0.18) 0%, transparent 100%),
+          radial-gradient(circle 45px at 88% 60%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
+          radial-gradient(circle 30px at 50% 8%, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+        z-index: 0;
+      }
     }
 
     .hero-card-icon {
@@ -1049,21 +1079,21 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     justify-content: center;
     align-items: center;
     gap: 8px;
-    padding: 8px 0 4px;
+    padding: 12px 0 8px;
     animation: fadeInUp 0.4s ease-out 0.5s both;
   }
 
   .scroll-dot {
     display: block;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.18);
     transition: background 0.25s ease, transform 0.25s ease, width 0.25s ease;
 
     &.active {
-      width: 18px;
-      border-radius: 3px;
+      width: 22px;
+      border-radius: 4px;
       background: rgba($primary-blue, 0.6);
     }
 
@@ -1076,11 +1106,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
   }
 
-  // --- Carousel bottom bar (fixed at bottom of viewport) ---
+  // --- Carousel bottom bar (pinned at bottom via flex) ---
   .carousel-section {
     z-index: 100;
     flex-shrink: 0;
-    padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
     margin: 0;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(28px) saturate(1.6);
@@ -1166,44 +1196,47 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 @media (max-width: 700px) and (orientation: portrait) and (max-height: 800px) {
 
   .hero-section {
-    padding: 8px 14px 4px;
+    padding: 10px 14px 6px;
   }
 
   .hero-content {
-    margin-bottom: 2px;
+    margin-bottom: 8px;
   }
 
   .hero-main-logo {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     margin-bottom: 2px;
   }
 
   .hero-title {
-    font-size: 0.95rem;
-    margin-bottom: 0;
+    font-size: 1.05rem;
+    margin-bottom: 2px;
+  }
+
+  .hero-subtitle {
+    display: none;
   }
 
   .hero-actions {
-    gap: 6px;
+    gap: 8px;
   }
 
   .hero-card-map {
-    max-height: 24dvh;
+    height: clamp(170px, 32dvh, 260px);
 
     .hero-card-visual {
-      min-height: 60px;
-      padding-bottom: 24px;
+      padding-bottom: 26px;
     }
 
     .hero-card-icon {
-      width: 42px;
-      height: 42px;
+      width: 50px;
+      height: 50px;
 
       mat-icon {
-        font-size: 22px;
-        width: 22px;
-        height: 22px;
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
       }
     }
 
@@ -1211,7 +1244,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       padding: 16px 12px 8px;
 
       h3 {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
     }
 
@@ -1221,27 +1254,28 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-cards-secondary {
-    gap: 10px;
+    gap: 12px;
 
     .hero-card {
-      min-width: 58vw;
-      max-width: 58vw;
-      min-height: clamp(110px, 17dvh, 150px);
+      min-width: 65vw;
+      max-width: 65vw;
+      min-height: clamp(130px, 22dvh, 190px);
     }
 
     .hero-card-visual {
-      padding-top: 20%;
-      padding-bottom: 35%;
+      padding-top: 18%;
+      padding-bottom: 33%;
     }
 
     .hero-card-icon {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
+      min-height: 30px;
 
       mat-icon {
-        font-size: 15px;
-        width: 15px;
-        height: 15px;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
     }
 
@@ -1249,30 +1283,30 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       padding: 14px 10px 8px;
 
       h3 {
-        font-size: 0.76rem;
+        font-size: 0.78rem;
       }
     }
 
     .hero-card-desc {
       -webkit-line-clamp: 1;
-      font-size: 0.62rem;
+      font-size: 0.64rem;
     }
 
     .hero-card-cta {
-      font-size: 0.66rem;
+      font-size: 0.68rem;
     }
   }
 
   .scroll-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
 
     &.active {
-      width: 14px;
+      width: 16px;
     }
   }
 
   .carousel-section {
-    padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
   }
 }
