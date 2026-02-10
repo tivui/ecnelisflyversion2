@@ -165,6 +165,7 @@ export class AppComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe((user) => {
         if (user) {
+          this.isDark.set(user.theme === 'dark');
           this.applyTheme(user.theme);
           I18n.setLanguage(user.language);
           this.selectedLang.set(user.language);

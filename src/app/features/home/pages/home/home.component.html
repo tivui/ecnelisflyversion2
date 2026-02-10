@@ -11,6 +11,12 @@
     <div class="hero-actions">
       <!-- World Map Card (primary CTA) -->
       <a routerLink="/mapfly" class="hero-card hero-card-map" [style.--shimmer-x]="shimmerX()">
+        <video
+          class="map-card-video"
+          src="/videos/globe.webm"
+          autoplay muted loop playsinline
+          disablePictureInPicture
+        ></video>
         <div class="hero-card-visual">
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
