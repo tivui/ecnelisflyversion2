@@ -26,6 +26,16 @@
           "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
       }
+    },
+    {
+      "name": "media",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": [
+          "/videos/*.(webm|mp4|ogg|wav)"
+        ]
+      }
     }
   ]
 }
