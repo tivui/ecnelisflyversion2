@@ -216,6 +216,17 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     width: 100%;
     max-width: 360px;
     border-radius: 16px;
+
+    // Native mobile: press-down instead of hover lift-up
+    &:hover {
+      transform: none;
+      box-shadow: inherit;
+    }
+
+    &:active {
+      transform: scale(0.97);
+      transition: transform 0.1s ease;
+    }
   }
 }
 
@@ -226,6 +237,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
 // Desktop: scroll dots hidden
 .scroll-dots {
+  display: none;
+}
+
+// Video background: hidden on desktop, revealed on mobile
+.map-card-video {
   display: none;
 }
 
@@ -679,7 +695,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 16px 0 10px;
+    padding: 16px 0 0;
     overflow-y: auto;
   }
 
@@ -704,12 +720,13 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-subtitle {
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     font-size: 0.75rem;
     opacity: 0.65;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-wrap: balance;
     animation: fadeInUp 0.5s ease-out 0.05s both;
   }
 
@@ -729,25 +746,44 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
   }
 
-  // --- Hero actions: natural flow ---
+  // --- Hero actions: natural flow, grows to fill ---
   .hero-actions {
+    flex: 1 1 0;
+    min-height: 0;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-    padding: 0 16px;
+    padding: 0 10px;
     overflow: visible;
     justify-content: flex-start;
   }
 
+  // --- Globe video in map card (mobile only) ---
+  .map-card-video {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.55;
+    pointer-events: none;
+
+    :host-context(body.dark-theme) & {
+      opacity: 0.55;
+    }
+  }
+
   // --- Primary card: immersive hero ---
   .hero-card-map {
-    height: clamp(200px, 38dvh, 320px);
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-height: 140px;
     min-width: unset;
     max-width: unset;
     width: auto;
     margin: 0;
-    border-radius: 22px;
+    border-radius: 14px;
     position: relative;
     overflow: hidden;
     animation: fadeInUp 0.5s ease-out 0.15s both;
@@ -770,6 +806,14 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       align-items: center;
       justify-content: center;
       padding-bottom: 30px;
+      // Semi-transparent gradient so video shows through
+      // Light: lighter overlay to preserve video brightness
+      background: linear-gradient(135deg, rgba(30, 58, 95, 0.22) 0%, rgba(25, 118, 210, 0.22) 100%) !important;
+      background-blend-mode: normal !important;
+
+      :host-context(body.dark-theme) & {
+        background: linear-gradient(135deg, rgba(30, 58, 95, 0.38) 0%, rgba(25, 118, 210, 0.38) 100%) !important;
+      }
 
       // Floating orbs (like desktop)
       &::before {
@@ -777,9 +821,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
         position: absolute;
         inset: 0;
         background:
-          radial-gradient(circle 70px at 10% 20%, rgba(100, 210, 255, 0.22) 0%, transparent 100%),
-          radial-gradient(circle 55px at 85% 65%, rgba(30, 136, 229, 0.18) 0%, transparent 100%),
-          radial-gradient(circle 35px at 55% 5%, rgba(144, 202, 249, 0.12) 0%, transparent 100%);
+          radial-gradient(circle 70px at 10% 20%, rgba(100, 210, 255, 0.18) 0%, transparent 100%),
+          radial-gradient(circle 55px at 85% 65%, rgba(30, 136, 229, 0.14) 0%, transparent 100%),
+          radial-gradient(circle 35px at 55% 5%, rgba(144, 202, 249, 0.10) 0%, transparent 100%);
         z-index: 0;
       }
 
@@ -788,7 +832,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
         background-size: 200% 100%;
         background-position: var(--shimmer-x, -200%) center;
         transition: background-position 0.12s ease-out;
@@ -797,17 +841,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-icon {
-      width: 64px;
-      height: 64px;
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 40px rgba(255, 255, 255, 0.08);
-      z-index: 1;
-
-      mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-      }
+      display: none;
     }
 
     .hero-card-content {
@@ -830,7 +864,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     .hero-card-desc {
       color: rgba(255, 255, 255, 0.9);
       font-size: 0.78rem;
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
@@ -838,7 +872,18 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       color: #fff !important;
       font-size: 0.85rem;
       font-weight: 600;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      text-shadow: none;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(6px);
+      padding: 0 20px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 6px;
+      transition: background 0.2s ease;
 
       mat-icon {
         font-size: 18px;
@@ -855,11 +900,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     flex-direction: row;
     flex-wrap: nowrap;
     gap: 16px;
-    margin: 0 -16px;  // extend beyond hero-actions padding
-    padding: 0 16px;  // bring content back to alignment
+    margin: 0 -10px;  // extend beyond hero-actions padding
+    padding: 0 10px;  // bring content back to alignment
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 16px;
+    scroll-padding-inline: 10px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 
@@ -874,12 +919,22 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       min-height: clamp(160px, 28dvh, 240px);
       flex-shrink: 0;
       scroll-snap-align: start;
-      border-radius: 20px;
+      border-radius: 16px;
       position: relative;
       overflow: hidden;
       animation: fadeInUp 0.5s ease-out 0.35s both;
       border: 1px solid rgba($primary-indigo, 0.10);
       box-shadow: 0 6px 24px rgba($primary-indigo, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05);
+
+      // Depth: non-snapped cards recede, active card pops
+      opacity: 0.55;
+      scale: 0.95;
+      transition: opacity 0.3s ease, scale 0.3s ease, transform 0.1s ease;
+
+      &.card-in-view {
+        opacity: 1;
+        scale: 1;
+      }
 
       :host-context(body.dark-theme) & {
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
@@ -1196,7 +1251,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 @media (max-width: 700px) and (orientation: portrait) and (max-height: 800px) {
 
   .hero-section {
-    padding: 10px 14px 6px;
+    padding: 10px 14px 0;
   }
 
   .hero-content {
@@ -1215,7 +1270,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-subtitle {
-    display: none;
+    -webkit-line-clamp: 1;
+    font-size: 0.68rem;
   }
 
   .hero-actions {
@@ -1223,21 +1279,10 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-card-map {
-    height: clamp(170px, 32dvh, 260px);
+    min-height: 120px;
 
     .hero-card-visual {
       padding-bottom: 26px;
-    }
-
-    .hero-card-icon {
-      width: 50px;
-      height: 50px;
-
-      mat-icon {
-        font-size: 26px;
-        width: 26px;
-        height: 26px;
-      }
     }
 
     .hero-card-content {
@@ -1307,6 +1352,6 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .carousel-section {
-    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 0 calc(8px + env(safe-area-inset-bottom, 0px));
   }
 }

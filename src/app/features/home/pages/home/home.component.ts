@@ -99,7 +99,14 @@ export class HomeComponent implements OnInit {
 
     setTimeout(() => {
       if (this.secondaryScrollEl) {
-        this.secondaryScrollEl.nativeElement.scrollLeft = 0;
+        const el = this.secondaryScrollEl.nativeElement;
+        el.scrollLeft = 0;
+        this.updateActiveCard(el);
+        // Hint swipe: briefly scroll right then back to hint horizontal scrolling
+        setTimeout(() => {
+          el.scrollTo({ left: 40, behavior: 'smooth' });
+          setTimeout(() => el.scrollTo({ left: 0, behavior: 'smooth' }), 600);
+        }, 1200);
       }
     });
   }
@@ -141,6 +148,15 @@ export class HomeComponent implements OnInit {
     const cardCount = this.secondaryCardIndices().length;
     const index = Math.round(ratio * (cardCount - 1));
     this.activeCardIndex.set(Math.min(index, cardCount - 1));
+    this.updateActiveCard(el);
+  }
+
+  private updateActiveCard(container: HTMLElement) {
+    const cards = container.querySelectorAll('.hero-card');
+    const idx = this.activeCardIndex();
+    cards.forEach((card, i) => {
+      card.classList.toggle('card-in-view', i === idx);
+    });
   }
 
   goToFeaturedSound() {
