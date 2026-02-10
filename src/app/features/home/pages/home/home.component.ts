@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit {
   private readonly ngZone = inject(NgZone);
 
   @ViewChild('secondaryScroll') secondaryScrollEl?: ElementRef<HTMLElement>;
+  @ViewChild('heroVideo') heroVideoEl?: ElementRef<HTMLVideoElement>;
 
   shimmerX = signal('-200%');
   hasScrolled = signal(false);
@@ -96,6 +97,9 @@ export class HomeComponent implements OnInit {
     if (journeysResult.status === 'fulfilled') {
       this.journeys.set(journeysResult.value);
     }
+
+    // Force video play on mobile (autoplay can be blocked by browser policy)
+    setTimeout(() => this.heroVideoEl?.nativeElement.play().catch(() => {}));
 
     setTimeout(() => {
       if (this.secondaryScrollEl) {
