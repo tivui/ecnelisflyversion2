@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, signal, computed, NgZone, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, signal, computed, NgZone, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ import { CarouselCategoriesComponent } from './widgets/carousel-categories/carou
   styleUrls: ['./home.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   private readonly appUserService = inject(AppUserService);
   private readonly zoneService = inject(ZoneService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
@@ -98,9 +98,6 @@ export class HomeComponent implements OnInit {
       this.journeys.set(journeysResult.value);
     }
 
-    // Force video play on mobile (autoplay can be blocked by browser policy)
-    setTimeout(() => this.heroVideoEl?.nativeElement.play().catch(() => {}));
-
     setTimeout(() => {
       if (this.secondaryScrollEl) {
         const el = this.secondaryScrollEl.nativeElement;
@@ -113,6 +110,17 @@ export class HomeComponent implements OnInit {
         }, 1200);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    const video = this.heroVideoEl?.nativeElement;
+    if (video) {
+      // Force load + play for mobile browsers that ignore autoplay
+      video.load();
+      video.play().catch(() => {});
+      // Safety net: retry when video data is ready (slow connections)
+      video.addEventListener('canplay', () => video.play().catch(() => {}), { once: true });
+    }
   }
 
   journeyName(journey: SoundJourney): string {
