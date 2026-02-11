@@ -120,20 +120,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     background-clip: text;
   }
 
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-  }
-
   @media (max-width: 700px) {
-    font-size: 2.1rem;
     font-weight: 800;
     letter-spacing: -0.5px;
     line-height: 1.12;
     margin: 0 0 8px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 2rem;
   }
 }
 
@@ -722,10 +713,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-title {
-    font-size: 1.4rem;
     font-weight: 800;
     margin-bottom: 6px;
-    white-space: nowrap;
     letter-spacing: -0.4px;
     line-height: 1.15;
     animation: fadeInUp 0.5s ease-out both;
@@ -1033,7 +1022,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 20px 12px 10px;
+      min-height: 55%;
+      padding: 14px 12px 14px;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 100%);
       z-index: 2;
       display: flex;
@@ -1072,7 +1062,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       font-size: 0.78rem;
       font-weight: 600;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-      margin-top: 2px;
+      margin-top: auto;
 
       mat-icon {
         font-size: 15px;
@@ -1279,7 +1269,6 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-title {
-    font-size: 1.05rem;
     margin-bottom: 2px;
   }
 
