@@ -180,7 +180,14 @@
     "country": "País",
     "language": "App idioma",
     "theme": "Tema",
-    "save": "Guardar cambios"
+    "save": "Guardar cambios",
+    "avatar": {
+      "title": "Avatar de perfil",
+      "seed": "Semilla del avatar",
+      "chooseStyle": "Elegir un estilo",
+      "chooseVariation": "Elegir una variación",
+      "chooseColor": "Color de fondo"
+    }
   },
   "sound": {
     "sound-title": "Sonido",

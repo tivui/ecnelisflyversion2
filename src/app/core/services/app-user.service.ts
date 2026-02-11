@@ -135,6 +135,9 @@ export class AppUserService {
         likedSoundIds: userRecord.likedSoundIds
           ? JSON.parse(userRecord.likedSoundIds)
           : [],
+        avatarStyle: userRecord.avatarStyle,
+        avatarSeed: userRecord.avatarSeed,
+        avatarBgColor: userRecord.avatarBgColor,
       };
 
       this._currentUser.next(appUser);
@@ -206,6 +209,9 @@ export class AppUserService {
     country?: string | null;
     firstName?: string | null;
     lastName?: string | null;
+    avatarStyle?: string | null;
+    avatarSeed?: string | null;
+    avatarBgColor?: string | null;
   }): Promise<AppUser | null> {
     const current = this._currentUser.value;
     if (!current) return null;
@@ -233,6 +239,9 @@ export class AppUserService {
         theme: d.theme as Theme,
         firstName: d.firstName,
         lastName: d.lastName,
+        avatarStyle: d.avatarStyle,
+        avatarSeed: d.avatarSeed,
+        avatarBgColor: d.avatarBgColor,
       };
 
       this._currentUser.next(appUser);

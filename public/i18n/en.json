@@ -185,7 +185,14 @@
     "country": "Country",
     "language": "App language",
     "theme": "Theme",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "avatar": {
+      "title": "Profile Avatar",
+      "seed": "Avatar seed",
+      "chooseStyle": "Choose a style",
+      "chooseVariation": "Pick a variation",
+      "chooseColor": "Background color"
+    }
   },
   "sound": {
     "sound-title": "Sound",

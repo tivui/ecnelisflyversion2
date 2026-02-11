@@ -14,6 +14,9 @@ export interface AppUser {
   flashNew: boolean;
   country?: string | null;
   likedSoundIds?: string[];
+  avatarStyle?: string | null;
+  avatarSeed?: string | null;
+  avatarBgColor?: string | null;
 }
 export { Language };
 

@@ -33,6 +33,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from './core/services/auth.service';
 import { DOCUMENT } from '@angular/common'; // required for fullscreen
 import { PwaInstallBannerComponent } from './shared/components/pwa-install-banner/pwa-install-banner.component';
+import { UserAvatarComponent } from './shared/components/user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-root',
@@ -56,6 +57,7 @@ import { PwaInstallBannerComponent } from './shared/components/pwa-install-banne
     MatTooltipModule,
     SidenavMenuComponent,
     PwaInstallBannerComponent,
+    UserAvatarComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
@@ -164,6 +166,7 @@ export class AppComponent implements OnInit {
     this.appUserService.currentUser$
       .pipe(takeUntilDestroyed())
       .subscribe((user) => {
+        this.appUser.set(user);
         if (user) {
           this.isDark.set(user.theme === 'dark');
           this.applyTheme(user.theme);

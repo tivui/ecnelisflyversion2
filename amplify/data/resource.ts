@@ -40,6 +40,10 @@ const schema = a
 
         newNotificationCount: a.integer().default(0),
         flashNew: a.boolean().default(false),
+
+        avatarStyle: a.string(),
+        avatarSeed: a.string(),
+        avatarBgColor: a.string(),
       })
       .secondaryIndexes((index) => [
         index('cognitoSub').queryField('getUserByCognitoSub'),

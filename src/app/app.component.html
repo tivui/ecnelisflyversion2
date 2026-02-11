@@ -96,8 +96,18 @@
       <!-- Auth -->
       @if (authenticator.user) {
         <!-- Avatar button -->
-        <button mat-icon-button>
-          <mat-icon [matMenuTriggerFor]="userMenu">account_circle</mat-icon>
+        <button mat-icon-button class="avatar-btn" [matMenuTriggerFor]="userMenu">
+          @if (appUser()) {
+            <app-user-avatar
+              [username]="appUser()!.username"
+              [avatarStyle]="appUser()!.avatarStyle"
+              [avatarSeed]="appUser()!.avatarSeed"
+              [avatarBgColor]="appUser()!.avatarBgColor"
+              size="32px"
+            />
+          } @else {
+            <mat-icon>account_circle</mat-icon>
+          }
         </button>
 
         <!-- User menu -->
