@@ -15,6 +15,7 @@ import { DailyFeaturedSound } from '../../../../core/models/featured-sound.model
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
 import { SoundJourney } from '../../../../core/models/sound-journey.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
+import { FitTextDirective } from '../../../../shared/directives/fit-text.directive';
 
 @Component({
   selector: 'app-home',
@@ -25,6 +26,7 @@ import { CarouselCategoriesComponent } from './widgets/carousel-categories/carou
     RouterLink,
     MatIconModule,
     CarouselCategoriesComponent,
+    FitTextDirective,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

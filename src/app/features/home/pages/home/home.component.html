@@ -3,7 +3,7 @@
   <section class="hero-section">
     <div class="hero-content">
       <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="hero-main-logo" />
-      <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
+      <h1 class="hero-title" appFitText [fitTextMax]="34" [fitTextMin]="16">{{ 'home.hero.title' | translate }}</h1>
       <p class="hero-subtitle">{{ randomSubtitle() }}</p>
     </div>
 
