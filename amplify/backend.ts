@@ -6,6 +6,8 @@ import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { deleteSoundFile } from './functions/delete-sound-file/resource';
 import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/resource';
+import { startImport } from './functions/start-import/resource';
+import { processImport } from './functions/process-import/resource';
 
 const backend = defineBackend({
   auth,
@@ -13,6 +15,8 @@ const backend = defineBackend({
   storage,
   deleteSoundFile,
   pickDailyFeaturedSound,
+  startImport,
+  processImport,
 });
 
 // ➡ Ajouter le data source Amazon Translate
@@ -47,6 +51,35 @@ deleteSoundFileLambda.addToRolePolicy(
 );
 
 deleteSoundFileLambda.addEnvironment(
+  'ECNELISFLY_STORAGE_BUCKET_NAME',
+  storageBucket.bucketName,
+);
+
+// ➡ Permissions pour start-import : invoquer process-import de manière asynchrone
+const startImportLambda = backend.startImport.resources.lambda as LambdaFunction;
+const processImportLambda = backend.processImport.resources.lambda as LambdaFunction;
+
+startImportLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['lambda:InvokeFunction'],
+    resources: [processImportLambda.functionArn],
+  }),
+);
+
+startImportLambda.addEnvironment(
+  'PROCESS_IMPORT_FUNCTION_NAME',
+  processImportLambda.functionName,
+);
+
+// ➡ Permissions pour process-import : lire les fichiers JSON depuis S3
+processImportLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['s3:GetObject'],
+    resources: [`${storageBucket.bucketArn}/imports/*`],
+  }),
+);
+
+processImportLambda.addEnvironment(
   'ECNELISFLY_STORAGE_BUCKET_NAME',
   storageBucket.bucketName,
 );
