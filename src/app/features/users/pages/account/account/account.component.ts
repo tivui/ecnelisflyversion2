@@ -22,6 +22,8 @@ import { AppUserService } from '../../../../../core/services/app-user.service';
 import { AppUser, Theme } from '../../../../../core/models/app-user.model';
 import { Language } from '../../../../../core/models/i18n.model';
 import { Router } from '@angular/router';
+import { AvatarService, AvatarStyleOption } from '../../../../../core/services/avatar.service';
+import { UserAvatarComponent } from '../../../../../shared/components/user-avatar/user-avatar.component';
 
 import * as countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
@@ -44,6 +46,7 @@ import esLocale from 'i18n-iso-countries/langs/es.json';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatTooltipModule,
+    UserAvatarComponent,
   ],
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.scss'],
@@ -53,9 +56,16 @@ export class AccountComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  readonly avatarService = inject(AvatarService);
 
   public appUser = signal<AppUser | null>(null);
   public saving = signal(false);
+
+  // Avatar
+  selectedAvatarStyle = signal<string>('initials');
+  selectedAvatarSeed = signal<string>('');
+  selectedAvatarBgColor = signal<string>('1976d2');
+  avatarDirty = signal(false);
 
   public languages: Language[] = ['fr', 'en', 'es'];
   public themes: Theme[] = ['light', 'dark'];
@@ -98,6 +108,9 @@ export class AccountComponent implements OnInit {
           language: user.language,
           theme: user.theme,
         });
+        this.selectedAvatarStyle.set(user.avatarStyle ?? 'initials');
+        this.selectedAvatarSeed.set(user.avatarSeed ?? user.username ?? '');
+        this.selectedAvatarBgColor.set(user.avatarBgColor ?? '1976d2');
       }
     });
 
@@ -153,6 +166,41 @@ export class AccountComponent implements OnInit {
     );
   }
 
+  /** Seeds shown in the variation gallery for the selected style */
+  variationSeeds = signal<string[]>([]);
+
+  selectAvatarStyle(style: string) {
+    this.selectedAvatarStyle.set(style);
+    this.avatarDirty.set(true);
+    // Show variation gallery for this style
+    this.variationSeeds.set(this.avatarService.getVariationSeeds());
+  }
+
+  selectVariation(seed: string) {
+    this.selectedAvatarSeed.set(seed);
+    this.avatarDirty.set(true);
+  }
+
+  onAvatarSeedChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.selectedAvatarSeed.set(value);
+    this.avatarDirty.set(true);
+  }
+
+  selectAvatarBgColor(hex: string) {
+    this.selectedAvatarBgColor.set(hex);
+    this.avatarDirty.set(true);
+  }
+
+  get canSave(): boolean {
+    return (
+      (this.accountForm.dirty || this.avatarDirty()) &&
+      this.accountForm.valid &&
+      !!this.appUser() &&
+      !this.saving()
+    );
+  }
+
   // Save the form and update user profile
   async save() {
     this.countryCodeControl.updateValueAndValidity();
@@ -162,7 +210,7 @@ export class AccountComponent implements OnInit {
       return;
     }
 
-    if (!this.accountForm.valid || !this.accountForm.dirty || !this.appUser())
+    if (!this.accountForm.valid || (!this.accountForm.dirty && !this.avatarDirty()) || !this.appUser())
       return;
 
     this.saving.set(true);
@@ -177,6 +225,9 @@ export class AccountComponent implements OnInit {
         country: values.country ?? null,
         firstName: values.firstName ?? '',
         lastName: values.lastName ?? '',
+        avatarStyle: this.selectedAvatarStyle(),
+        avatarSeed: this.selectedAvatarSeed(),
+        avatarBgColor: this.selectedAvatarBgColor(),
       });
 
       if (updatedUser) {

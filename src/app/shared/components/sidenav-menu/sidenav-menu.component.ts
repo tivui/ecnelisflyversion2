@@ -9,6 +9,8 @@ import { MatRippleModule } from '@angular/material/core';
 
 import { FeaturedSoundService } from '../../../core/services/featured-sound.service';
 import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
+import { AppUserService } from '../../../core/services/app-user.service';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-sidenav-menu',
@@ -20,6 +22,7 @@ import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
     TranslateModule,
     MatIconModule,
     MatRippleModule,
+    UserAvatarComponent,
   ],
   templateUrl: './sidenav-menu.component.html',
   styleUrl: './sidenav-menu.component.scss',
@@ -28,6 +31,9 @@ export class SidenavMenuComponent {
   private readonly featuredSoundService = inject(FeaturedSoundService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly appUserService = inject(AppUserService);
+
+  currentUser = toSignal(this.appUserService.currentUser$);
 
   isOpen = input(false);
   closed = output<void>();

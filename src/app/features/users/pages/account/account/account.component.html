@@ -69,6 +69,91 @@
         </mat-form-field>
       </div>
 
+      <!-- Avatar Section -->
+      <div class="avatar-section">
+        <h3>{{ "account.avatar.title" | translate }}</h3>
+
+        <div class="avatar-preview-row">
+          <app-user-avatar
+            [username]="accountForm.get('username')?.value ?? ''"
+            [avatarStyle]="selectedAvatarStyle()"
+            [avatarSeed]="selectedAvatarSeed()"
+            [avatarBgColor]="selectedAvatarBgColor()"
+            size="96px"
+          />
+
+          <mat-form-field class="seed-field">
+            <mat-label>{{ "account.avatar.seed" | translate }}</mat-label>
+            <input
+              matInput
+              [value]="selectedAvatarSeed()"
+              (input)="onAvatarSeedChange($event)"
+            />
+          </mat-form-field>
+        </div>
+
+        <p class="avatar-style-label">{{ "account.avatar.chooseStyle" | translate }}</p>
+
+        <div class="avatar-style-grid">
+          @for (style of avatarService.availableStyles; track style.key) {
+            <button
+              type="button"
+              class="avatar-style-item"
+              [class.selected]="selectedAvatarStyle() === style.key"
+              (click)="selectAvatarStyle(style.key)"
+            >
+              <app-user-avatar
+                [username]="accountForm.get('username')?.value || 'U'"
+                [avatarStyle]="style.key"
+                [avatarSeed]="style.key"
+                [avatarBgColor]="selectedAvatarBgColor()"
+                size="48px"
+              />
+              <span class="style-label">{{ style.label }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- Variation gallery: pick a variation within the selected style -->
+        @if (variationSeeds().length > 0) {
+          <p class="avatar-style-label">{{ "account.avatar.chooseVariation" | translate }}</p>
+
+          <div class="avatar-variation-grid">
+            @for (seed of variationSeeds(); track seed) {
+              <button
+                type="button"
+                class="avatar-variation-item"
+                [class.selected]="selectedAvatarSeed() === seed"
+                (click)="selectVariation(seed)"
+              >
+                <app-user-avatar
+                  [username]="seed"
+                  [avatarStyle]="selectedAvatarStyle()"
+                  [avatarSeed]="seed"
+                  [avatarBgColor]="selectedAvatarBgColor()"
+                  size="56px"
+                />
+              </button>
+            }
+          </div>
+        }
+
+        <p class="avatar-style-label">{{ "account.avatar.chooseColor" | translate }}</p>
+
+        <div class="avatar-color-grid">
+          @for (color of avatarService.availableColors; track color.hex) {
+            <button
+              type="button"
+              class="color-swatch"
+              [class.selected]="selectedAvatarBgColor() === color.hex"
+              [style.background-color]="'#' + color.hex"
+              [matTooltip]="color.label"
+              (click)="selectAvatarBgColor(color.hex)"
+            ></button>
+          }
+        </div>
+      </div>
+
       <mat-divider></mat-divider>
 
       <div class="form-actions">
@@ -76,7 +161,7 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="!accountForm.dirty || accountForm.invalid || saving()"
+          [disabled]="!canSave"
         >
           @if (saving()) {
             <mat-spinner diameter="20"></mat-spinner>

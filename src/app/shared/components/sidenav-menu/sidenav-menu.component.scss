@@ -90,6 +90,34 @@
 }
 
 // =====================
+// User Section
+// =====================
+.sidenav-user-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  :host-context(body.dark-theme) & {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.sidenav-username {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  :host-context(body.dark-theme) & {
+    color: #f5f5f5;
+  }
+}
+
+// =====================
 // Navigation
 // =====================
 .sidenav-nav {

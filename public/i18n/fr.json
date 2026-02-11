@@ -185,7 +185,14 @@
     "country": "Pays",
     "language": "Langue de l'application",
     "theme": "Thème",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "avatar": {
+      "title": "Avatar de profil",
+      "seed": "Graine de l'avatar",
+      "chooseStyle": "Choisir un style",
+      "chooseVariation": "Choisir une variation",
+      "chooseColor": "Couleur de fond"
+    }
   },
   "sound": {
     "sound-title": "Son",

@@ -57,6 +57,27 @@
   flex: 1 1 auto;
 }
 
+.avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-left: 4px;
+
+  ::ng-deep .mdc-icon-button__icon,
+  ::ng-deep .mat-mdc-button-touch-target {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  app-user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 .fullscreen-btn {
   margin-top: 2px;
 
