@@ -88,6 +88,7 @@ export class SoundFiltersComponent implements OnInit {
   // Signals
   expanded = signal(false);
   activeFilterCount = signal(0);
+  favoritesOnly = signal(false);
 
   // Form
   filterForm = new FormGroup({
@@ -180,6 +181,7 @@ export class SoundFiltersComponent implements OnInit {
         start: form.dateStart || null,
         end: form.dateEnd || null,
       },
+      favoritesOnly: this.favoritesOnly(),
     };
 
     this.activeFilterCount.set(countActiveFilters(filters));
@@ -209,8 +211,14 @@ export class SoundFiltersComponent implements OnInit {
     this.expanded.update((v) => !v);
   }
 
+  toggleFavorites() {
+    this.favoritesOnly.update((v) => !v);
+    this.emitFilters();
+  }
+
   resetFilters() {
     this.filterForm.reset();
+    this.favoritesOnly.set(false);
     this.emitFilters();
   }
 

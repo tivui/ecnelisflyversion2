@@ -112,6 +112,7 @@
       "status": "Status",
       "location": "Location",
       "date": "Date",
+      "likes": "Likes",
       "actions": "Actions"
     },
     "actions": {
@@ -160,7 +161,9 @@
       "dateFrom": "Start",
       "dateTo": "End",
       "noResults": "No results match your criteria",
-      "resultsCount": "{{count}} result(s) of {{total}}"
+      "resultsCount": "{{count}} result(s) of {{total}}",
+      "favorites": "Favorites",
+      "favoritesOnly": "My favorites"
     }
   },
   "account": {
@@ -813,6 +816,9 @@
   "categoriesPage": {
     "title": "Sound categories",
     "subtitle": "Explore all sound universes"
+  },
+  "likes": {
+    "login_required": "Log in to like"
   },
   "pwa": {
     "install": {

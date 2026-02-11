@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { Sound, SoundStatus } from '../../../../../../core/models/sound.model';
+import { LikeButtonComponent } from '../../../../../../shared/components/like-button/like-button.component';
 
 @Component({
   selector: 'app-sound-card',
@@ -22,6 +23,7 @@ import { Sound, SoundStatus } from '../../../../../../core/models/sound.model';
     MatMenuModule,
     MatTooltipModule,
     TranslateModule,
+    LikeButtonComponent,
   ],
   templateUrl: './sound-card.component.html',
   styleUrl: './sound-card.component.scss',

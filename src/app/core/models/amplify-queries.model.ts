@@ -1,6 +1,7 @@
 export const ListSoundsForMapWithAppUser = /* GraphQL */ `
   query ListSoundsForMapWithAppUser($category: String, $userId: ID, $secondaryCategory: String) {
     listSoundsForMap(category: $category, userId: $userId, secondaryCategory: $secondaryCategory) {
+      id
       userId
       user {
         username
@@ -26,6 +27,7 @@ export const ListSoundsForMapWithAppUser = /* GraphQL */ `
       url
       urlTitle
       hashtags
+      likesCount
     }
   }
 `;

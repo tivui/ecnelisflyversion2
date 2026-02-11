@@ -12,6 +12,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { AppUserService } from '../../../../core/services/app-user.service';
+import { LikeService } from '../../../../core/services/like.service';
 import { DashboardService } from '../../services/dashboard.service';
 import { Sound } from '../../../../core/models/sound.model';
 import { SoundListComponent } from './widgets/sound-list/sound-list.component';
@@ -52,6 +53,7 @@ export class DashboardComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly likeService = inject(LikeService);
 
   // Signals
   currentUserId = signal<string | null>(null);
@@ -73,7 +75,8 @@ export class DashboardComponent implements OnInit {
     const lang = this.translate.currentLang || 'fr';
 
     // Apply filters
-    let result = filterSounds(allSounds, filters, lang);
+    const likedIds = this.likeService.likedSoundIds();
+    let result = filterSounds(allSounds, filters, lang, likedIds);
 
     // Apply sort
     result = sortSounds(result, sort, lang);

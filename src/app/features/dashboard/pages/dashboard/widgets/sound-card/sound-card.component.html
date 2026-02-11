@@ -65,6 +65,7 @@
   </mat-card-content>
 
   <mat-card-actions align="end">
+    <app-like-button [soundId]="sound.id!" [likesCount]="sound.likesCount ?? 0" />
     <button
       mat-icon-button
       [matTooltip]="'dashboard.actions.edit' | translate"

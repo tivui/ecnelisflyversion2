@@ -20,6 +20,11 @@ export class AppUserService {
   private readonly _currentUser = new BehaviorSubject<AppUser | null>(null);
   public readonly currentUser$ = this._currentUser.asObservable();
 
+  /** Synchronous snapshot of the current user */
+  get currentUser(): AppUser | null {
+    return this._currentUser.value;
+  }
+
   /**
    * Load or create the full AppUser
    * Always resolves with a consistent AppUser | null
@@ -127,6 +132,9 @@ export class AppUserService {
         country: userRecord.country,
         firstName: userRecord.firstName,
         lastName: userRecord.lastName,
+        likedSoundIds: userRecord.likedSoundIds
+          ? JSON.parse(userRecord.likedSoundIds)
+          : [],
       };
 
       this._currentUser.next(appUser);

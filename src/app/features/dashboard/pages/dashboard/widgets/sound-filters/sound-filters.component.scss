@@ -23,6 +23,26 @@
     }
   }
 
+  .favorites-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 56px;
+    border-radius: 4px;
+
+    &.active {
+      background-color: rgba(230, 81, 0, 0.08);
+      border-color: #e65100;
+    }
+
+    .favorites-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+  }
+
   .filter-toggle-btn {
     display: flex;
     align-items: center;
@@ -109,6 +129,13 @@
       color: rgba(255, 255, 255, 0.5);
     }
 
+    .favorites-toggle-btn {
+      &.active {
+        background-color: rgba(255, 171, 64, 0.15);
+        border-color: #ffab40;
+      }
+    }
+
     .filter-toggle-btn {
       &.active {
         background-color: rgba(144, 202, 249, 0.15);
@@ -155,9 +182,15 @@
       }
     }
 
+    .favorites-toggle-btn {
+      order: 2;
+      height: 44px;
+      font-size: 14px;
+    }
+
     .filter-toggle-btn {
       flex: 1;
-      order: 2;
+      order: 3;
       height: 44px;
       font-size: 14px;
     }

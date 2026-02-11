@@ -22,6 +22,21 @@
 
     <button
       mat-stroked-button
+      class="favorites-toggle-btn"
+      (click)="toggleFavorites()"
+      [class.active]="favoritesOnly()"
+      [matTooltip]="'dashboard.filters.favoritesOnly' | translate"
+    >
+      <img
+        [src]="favoritesOnly() ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png'"
+        alt="favorites"
+        class="favorites-icon"
+      />
+      {{ "dashboard.filters.favorites" | translate }}
+    </button>
+
+    <button
+      mat-stroked-button
       class="filter-toggle-btn"
       (click)="toggleExpanded()"
       [class.active]="expanded() || hasActiveFilters()"
@@ -147,6 +162,12 @@
   <!-- Active filters chips -->
   @if (hasActiveFilters() && !expanded()) {
     <div class="active-filters">
+      @if (favoritesOnly()) {
+        <mat-chip (removed)="toggleFavorites()">
+          {{ "dashboard.filters.favorites" | translate }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
       @if (filterForm.controls.category.value) {
         <mat-chip (removed)="removeCategoryFilter()">
           {{ filterForm.controls.category.value.label }}

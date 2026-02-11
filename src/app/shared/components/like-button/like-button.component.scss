@@ -1,0 +1,74 @@
+:host {
+  display: inline-flex;
+}
+
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 16px;
+  transition: background-color 0.2s, transform 0.15s;
+
+  &:hover:not(.disabled) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &.disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  &.liked {
+    .like-count {
+      color: #e65100;
+      font-weight: 600;
+    }
+  }
+
+  &.animating {
+    .like-icon {
+      animation: likePopIn 0.3s ease;
+    }
+  }
+}
+
+.like-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  transition: transform 0.15s ease;
+}
+
+.like-count {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+  min-width: 12px;
+  text-align: center;
+}
+
+@keyframes likePopIn {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+// Dark theme
+:host-context(body.dark-theme) {
+  .like-btn {
+    &:hover:not(.disabled) {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &.liked .like-count {
+      color: #ffab40;
+    }
+  }
+
+  .like-count {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}

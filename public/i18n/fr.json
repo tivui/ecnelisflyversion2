@@ -112,6 +112,7 @@
       "status": "Statut",
       "location": "Lieu",
       "date": "Date",
+      "likes": "Likes",
       "actions": "Actions"
     },
     "actions": {
@@ -160,7 +161,9 @@
       "dateFrom": "Début",
       "dateTo": "Fin",
       "noResults": "Aucun résultat ne correspond à vos critères",
-      "resultsCount": "{{count}} résultat(s) sur {{total}}"
+      "resultsCount": "{{count}} résultat(s) sur {{total}}",
+      "favorites": "Favoris",
+      "favoritesOnly": "Mes favoris"
     }
   },
   "account": {
@@ -813,6 +816,9 @@
   "categoriesPage": {
     "title": "Catégories de sons",
     "subtitle": "Explorez tous les univers sonores"
+  },
+  "likes": {
+    "login_required": "Connectez-vous pour liker"
   },
   "pwa": {
     "install": {

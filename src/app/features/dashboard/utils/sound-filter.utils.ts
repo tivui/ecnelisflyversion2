@@ -4,8 +4,15 @@ import { SoundFilters, SoundSort } from '../models/sound-filters.model';
 /**
  * Filter sounds based on client-side filters
  */
-export function filterSounds(sounds: Sound[], filters: SoundFilters, currentLang: string): Sound[] {
+export function filterSounds(sounds: Sound[], filters: SoundFilters, currentLang: string, likedSoundIds?: Set<string>): Sound[] {
   return sounds.filter((sound) => {
+    // Favorites filter
+    if (filters.favoritesOnly && likedSoundIds) {
+      if (!sound.id || !likedSoundIds.has(sound.id)) {
+        return false;
+      }
+    }
+
     // Text search (case-insensitive)
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase().trim();
@@ -129,7 +136,8 @@ export function hasActiveFilters(filters: SoundFilters): boolean {
     filters.secondaryCategory ||
     filters.status ||
     filters.dateRange.start ||
-    filters.dateRange.end
+    filters.dateRange.end ||
+    filters.favoritesOnly
   );
 }
 
@@ -143,5 +151,6 @@ export function countActiveFilters(filters: SoundFilters): number {
   if (filters.secondaryCategory) count++;
   if (filters.status) count++;
   if (filters.dateRange.start || filters.dateRange.end) count++;
+  if (filters.favoritesOnly) count++;
   return count;
 }

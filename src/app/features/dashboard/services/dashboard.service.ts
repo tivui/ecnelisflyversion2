@@ -77,6 +77,7 @@ export class DashboardService {
       'secondaryUrl',
       'secondaryUrlTitle',
       'hashtags',
+      'likesCount',
       'createdAt',
       'updatedAt',
     ] as const;

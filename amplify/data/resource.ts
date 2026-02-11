@@ -107,7 +107,7 @@ const schema = a
       .authorization((allow) => [
         allow.owner(),
         allow.publicApiKey().to(['read']),
-        allow.authenticated().to(['read']),
+        allow.authenticated().to(['read', 'update']),
         allow.guest().to(['read']),
         allow.groups(['ADMIN']).to(['read']),
       ]),
