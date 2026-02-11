@@ -41,6 +41,10 @@
   height: 36px;
   width: auto;
   object-fit: contain;
+
+  &.hide-desktop-home {
+    display: none;
+  }
 }
 
 .app-title {

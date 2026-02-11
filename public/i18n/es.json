@@ -2,8 +2,17 @@
   "home": {
     "welcome": "Bienvenido {{name}}",
     "hero": {
-      "title": "Explora los sonidos del mundo",
-      "subtitle": "Descubre ambientes sonoros capturados de todo el planeta",
+      "title": "Cierra los ojos. Escucha el mundo.",
+      "subtitle": "La experiencia sonora geolocalizada.",
+      "subtitles": [
+        "Cada lugar tiene una voz. Es tuya para escucharla.",
+        "Los lugares hablan. Presta atención.",
+        "El mundo te habla. Tómate el tiempo de escuchar.",
+        "Donde el sonido se convierte en paisaje.",
+        "Cuando el silencio se invierte, el mundo aparece.",
+        "La experiencia sonora geolocalizada.",
+        "Cambia de perspectiva. Pasa al modo escucha."
+      ],
       "exploreMap": "Mapa mundial",
       "exploreMapDesc": "Navega por todos los sonidos geolocalizados en un mapa interactivo",
       "exploreZones": "Descubrir zonas",
