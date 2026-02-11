@@ -10,20 +10,6 @@
     </a>
   </div>
 
-  <!-- User section -->
-  @if (currentUser(); as user) {
-    <div class="sidenav-user-section">
-      <app-user-avatar
-        [username]="user.username"
-        [avatarStyle]="user.avatarStyle"
-        [avatarSeed]="user.avatarSeed"
-        [avatarBgColor]="user.avatarBgColor"
-        size="48px"
-      />
-      <span class="sidenav-username">{{ user.username }}</span>
-    </div>
-  }
-
   <!-- Menu items -->
   <nav class="sidenav-nav">
     @for (item of menuItems; track item.route) {
