@@ -1,0 +1,15 @@
+<button
+  class="like-btn"
+  [class.liked]="isLiked"
+  [class.animating]="animating()"
+  [class.disabled]="!isAuthenticated"
+  [matTooltip]="tooltip"
+  (click)="onToggle()"
+>
+  <img
+    [src]="isLiked ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png'"
+    alt="like"
+    class="like-icon"
+  />
+  <span class="like-count">{{ displayCount() }}</span>
+</button>

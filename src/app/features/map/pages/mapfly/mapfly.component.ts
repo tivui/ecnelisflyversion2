@@ -36,6 +36,7 @@ import { GeoSearchService } from '../../../../core/services/geo-search.service';
 import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
+import { LikeService } from '../../../../core/services/like.service';
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 
 @Component({
@@ -58,6 +59,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private geoSearchService = inject(GeoSearchService);
   private readonly zoneService = inject(ZoneService);
   private readonly soundJourneyService = inject(SoundJourneyService);
+  private readonly likeService = inject(LikeService);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -531,7 +533,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
         m.bindPopup(`
         <div class="popup-container">
-          <b class="popup-title" id="title-${s.filename}">${s.title}</b>
+          <div class="popup-header-row">
+            <b class="popup-title" id="title-${s.filename}">${s.title}</b>
+            <div id="like-btn-${s.id}" class="popup-like-btn" data-sound-id="${s.id}" data-likes-count="${s.likesCount ?? 0}">
+              <img src="img/icon/${this.likeService.isLiked(s.id!) ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png" class="popup-like-icon" />
+              <span class="popup-like-count">${s.likesCount ?? 0}</span>
+            </div>
+          </div>
           <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
           <div id="btn-container-title-${s.filename}"></div>
           <div id="btn-container-shortStory-${s.filename}"></div>
@@ -759,6 +767,32 @@ export class MapflyComponent implements OnInit, OnDestroy {
               a.click();
               document.body.removeChild(a);
             });
+
+          // --- Like button ---
+          const likeBtn = document.getElementById(`like-btn-${s.id}`);
+          if (likeBtn && s.id) {
+            const likeIcon = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+            const likeCount = likeBtn.querySelector('.popup-like-count') as HTMLElement;
+
+            // Update visual state based on current liked status
+            const updateLikeVisual = () => {
+              if (!likeIcon || !likeCount) return;
+              const liked = this.likeService.isLiked(s.id!);
+              likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
+              likeBtn.classList.toggle('liked', liked);
+            };
+            updateLikeVisual();
+
+            likeBtn.addEventListener('click', async () => {
+              if (!this.isAuthenticated()) return;
+              const currentCount = parseInt(likeCount?.textContent || '0', 10);
+              const result = await this.likeService.toggleLike(s.id!, currentCount);
+              if (result && likeCount) {
+                likeCount.textContent = String(result.newCount);
+              }
+              updateLikeVisual();
+            });
+          }
 
           // --- Subscriptions ---
           const recordSub = this.appUserService.currentUser$.subscribe(() =>
@@ -1259,7 +1293,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
           <span class="material-icons featured-popup-icon">headphones</span>
           <span class="featured-popup-badge">${featuredLabel}</span>
         </div>
-        <b class="popup-title" id="title-${soundFilename}">${soundTitle}</b>
+        <div class="popup-header-row">
+          <b class="popup-title" id="title-${soundFilename}">${soundTitle}</b>
+          <div id="like-btn-featured-${soundId}" class="popup-like-btn" data-sound-id="${soundId}" data-likes-count="${s?.likesCount ?? 0}">
+            <img src="img/icon/${soundId && this.likeService.isLiked(soundId) ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png" class="popup-like-icon" />
+            <span class="popup-like-count">${s?.likesCount ?? 0}</span>
+          </div>
+        </div>
         <p class="popup-shortstory" id="shortStory-${soundFilename}">${s?.shortStory ?? ''}</p>
         <div id="btn-container-title-${soundFilename}"></div>
         <div id="btn-container-shortStory-${soundFilename}"></div>
@@ -1363,6 +1403,31 @@ export class MapflyComponent implements OnInit, OnDestroy {
             btn.style.display = 'none';
           });
         }
+      }
+
+      // --- Like button (featured popup) ---
+      const featuredLikeBtn = document.getElementById(`like-btn-featured-${soundId}`);
+      if (featuredLikeBtn && soundId) {
+        const likeIcon = featuredLikeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+        const likeCount = featuredLikeBtn.querySelector('.popup-like-count') as HTMLElement;
+
+        const updateLikeVisual = () => {
+          if (!likeIcon) return;
+          const liked = this.likeService.isLiked(soundId);
+          likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
+          featuredLikeBtn.classList.toggle('liked', liked);
+        };
+        updateLikeVisual();
+
+        featuredLikeBtn.addEventListener('click', async () => {
+          if (!this.isAuthenticated()) return;
+          const currentCount = parseInt(likeCount?.textContent || '0', 10);
+          const result = await this.likeService.toggleLike(soundId, currentCount);
+          if (result && likeCount) {
+            likeCount.textContent = String(result.newCount);
+          }
+          updateLikeVisual();
+        });
       }
 
       // --- Zoom & Download buttons ---
@@ -1584,7 +1649,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
       <div class="popup-container journey-popup">
         <div class="journey-popup-header" style="background-color: ${color};">
           <span class="journey-step-badge">${stepLabel}</span>
-          <b class="journey-popup-title">${title}</b>
+          <div class="popup-header-row">
+            <b class="journey-popup-title">${title}</b>
+            <div id="like-btn-journey-${sound.id}" class="popup-like-btn popup-like-btn-journey" data-sound-id="${sound.id}" data-likes-count="${sound.likesCount ?? 0}">
+              <img src="${this.likeService.isLiked(sound.id!) ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png'}" class="popup-like-icon" alt="like" />
+              <span class="popup-like-count">${sound.likesCount ?? 0}</span>
+            </div>
+          </div>
         </div>
         ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
@@ -1610,6 +1681,29 @@ export class MapflyComponent implements OnInit, OnDestroy {
           'mapfly.record-info',
           { city: sound.city ?? '', username: `${sound.user.username}${flagImg}` },
         );
+      }
+
+      // Like button
+      const likeBtn = document.getElementById(`like-btn-journey-${sound.id}`);
+      if (likeBtn) {
+        const currentIsLiked = this.likeService.isLiked(sound.id!);
+        const imgEl = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+        if (imgEl) {
+          imgEl.src = currentIsLiked ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
+        }
+        likeBtn.addEventListener('click', async () => {
+          if (!this.isAuthenticated()) return;
+          const countEl = likeBtn.querySelector('.popup-like-count');
+          const btnImg = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+          const currentCount = parseInt(countEl?.textContent || '0', 10);
+          const result = await this.likeService.toggleLike(sound.id!, currentCount);
+          if (result && countEl) {
+            countEl.textContent = String(result.newCount);
+          }
+          if (btnImg) {
+            btnImg.src = this.likeService.isLiked(sound.id!) ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
+          }
+        });
       }
 
       // Navigation buttons

@@ -43,7 +43,8 @@ export class SoundsService {
       urlTitle: raw.urlTitle,
       secondaryUrl: raw.secondaryUrl,
       secondaryUrlTitle: raw.secondaryUrlTitle,
-      hashtags: raw.hashtags
+      hashtags: raw.hashtags,
+      likesCount: raw.likesCount ?? 0,
     });
   }
 

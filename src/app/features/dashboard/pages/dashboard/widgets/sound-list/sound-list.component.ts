@@ -32,6 +32,7 @@ import { SoundCardComponent } from '../sound-card/sound-card.component';
 import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
 import { SoundEditDialogComponent } from '../sound-edit-dialog/sound-edit-dialog.component';
 import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
+import { LikeButtonComponent } from '../../../../../../shared/components/like-button/like-button.component';
 
 @Component({
   selector: 'app-sound-list',
@@ -49,6 +50,7 @@ import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
     MatTooltipModule,
     TranslateModule,
     SoundCardComponent,
+    LikeButtonComponent,
   ],
   templateUrl: './sound-list.component.html',
   styleUrl: './sound-list.component.scss',
@@ -84,7 +86,7 @@ export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
 
   // Table columns
   get displayedColumns(): string[] {
-    const cols = ['title', 'category', 'status', 'city', 'date', 'actions'];
+    const cols = ['title', 'category', 'status', 'city', 'date', 'likes', 'actions'];
     if (this.showUserColumn) {
       cols.splice(1, 0, 'user');
     }

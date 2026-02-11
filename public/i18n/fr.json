@@ -2,8 +2,17 @@
   "home": {
     "welcome": "Bienvenue {{name}}",
     "hero": {
-      "title": "Explorez les sons du monde",
-      "subtitle": "Ambiances sonores captées aux quatre coins de la planète",
+      "title": "Fermez les yeux. Écoutez le monde.",
+      "subtitle": "L'expérience sonore géolocalisée.",
+      "subtitles": [
+        "Chaque lieu a une voix. À vous de l'écouter.",
+        "Les lieux parlent. Tendez l'oreille.",
+        "Le monde vous parle. Prenez le temps d'écouter.",
+        "Là où le son devient paysage.",
+        "Quand le silence s'inverse, le monde apparaît.",
+        "L'expérience sonore géolocalisée.",
+        "Changez de perspective. Passez en mode écoute."
+      ],
       "exploreMap": "Carte mondiale",
       "exploreMapDesc": "Parcourez tous les sons géolocalisés sur une carte interactive",
       "exploreZones": "Découvrir les zones",
@@ -112,6 +121,7 @@
       "status": "Statut",
       "location": "Lieu",
       "date": "Date",
+      "likes": "Likes",
       "actions": "Actions"
     },
     "actions": {
@@ -160,7 +170,9 @@
       "dateFrom": "Début",
       "dateTo": "Fin",
       "noResults": "Aucun résultat ne correspond à vos critères",
-      "resultsCount": "{{count}} résultat(s) sur {{total}}"
+      "resultsCount": "{{count}} résultat(s) sur {{total}}",
+      "favorites": "Favoris",
+      "favoritesOnly": "Mes favoris"
     }
   },
   "account": {
@@ -813,6 +825,9 @@
   "categoriesPage": {
     "title": "Catégories de sons",
     "subtitle": "Explorez tous les univers sonores"
+  },
+  "likes": {
+    "login_required": "Connectez-vous pour liker"
   },
   "pwa": {
     "install": {

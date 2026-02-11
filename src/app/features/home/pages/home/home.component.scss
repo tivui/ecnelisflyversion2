@@ -71,7 +71,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   text-align: center;
 
   @media (max-width: 700px) {
-    padding: 20px 16px 28px;
+    padding: 16px 16px 20px;
   }
 }
 
@@ -79,7 +79,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   margin-bottom: 24px;
 
   @media (max-width: 700px) {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 }
 
@@ -90,9 +90,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   animation: float 3s ease-in-out infinite;
 
   @media (max-width: 700px) {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 10px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
   }
 }
 
@@ -124,8 +124,16 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     font-size: 1.8rem;
   }
 
+  @media (max-width: 700px) {
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.12;
+    margin: 0 0 8px;
+  }
+
   @media (max-width: 480px) {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 }
 
@@ -143,8 +151,10 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   @media (max-width: 700px) {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     line-height: 1.4;
+    color: #777;
+    letter-spacing: 0.15px;
   }
 }
 
@@ -700,22 +710,24 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 
   .hero-content {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     padding: 0 16px;
   }
 
   .hero-main-logo {
-    width: 44px;
-    height: 44px;
-    margin-bottom: 4px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
     animation: fadeInUp 0.5s ease-out both, float 3s ease-in-out 1s infinite;
   }
 
   .hero-title {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 800;
-    margin-bottom: 4px;
-    text-wrap: balance;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    letter-spacing: -0.4px;
+    line-height: 1.15;
     animation: fadeInUp 0.5s ease-out both;
   }
 
@@ -724,9 +736,10 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-size: 0.75rem;
-    opacity: 0.65;
+    font-size: 0.88rem;
+    opacity: 0.75;
     text-wrap: balance;
+    line-height: 1.35;
     animation: fadeInUp 0.5s ease-out 0.05s both;
   }
 
@@ -767,7 +780,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     height: 100%;
     object-fit: cover;
     z-index: 0;
-    opacity: 0.55;
+    opacity: 0.9;
     pointer-events: none;
 
     :host-context(body.dark-theme) & {
@@ -778,7 +791,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   // --- Primary card: immersive hero ---
   .hero-card-map {
     flex: 1 1 0;
-    min-height: 140px;
+    min-height: 120px;
+    max-height: 38dvh;
     min-width: unset;
     max-width: unset;
     width: auto;
@@ -807,8 +821,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       justify-content: center;
       padding-bottom: 30px;
       // Semi-transparent gradient so video shows through
-      // Light: lighter overlay to preserve video brightness
-      background: linear-gradient(135deg, rgba(30, 58, 95, 0.22) 0%, rgba(25, 118, 210, 0.22) 100%) !important;
+      // Light: near-transparent overlay to let video shine
+      background: linear-gradient(135deg, rgba(30, 58, 95, 0.04) 0%, rgba(25, 118, 210, 0.04) 100%) !important;
       background-blend-mode: normal !important;
 
       :host-context(body.dark-theme) & {
@@ -972,16 +986,16 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-icon {
-      width: 36px;
-      height: 36px;
-      min-height: 36px;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
       flex-shrink: 0;
       background: rgba(255, 255, 255, 0.22);
 
       mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
       }
     }
 

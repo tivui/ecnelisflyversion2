@@ -46,6 +46,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   hasScrolled = signal(false);
   activeCardIndex = signal(0);
 
+  private readonly subtitleIndex = Math.floor(Math.random() * 7);
+  randomSubtitle = computed(() => {
+    // Re-evaluate when language changes
+    this.currentLang();
+    const subtitles = this.translate.instant('home.hero.subtitles');
+    if (Array.isArray(subtitles)) {
+      return subtitles[this.subtitleIndex % subtitles.length];
+    }
+    return this.translate.instant('home.hero.subtitle');
+  });
+
   appUser = toSignal<AppUser | null>(this.appUserService.currentUser$, {
     initialValue: null,
   });

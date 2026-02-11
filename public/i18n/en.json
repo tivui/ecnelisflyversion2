@@ -2,8 +2,17 @@
   "home": {
     "welcome": "Welcome {{name}}",
     "hero": {
-      "title": "Explore the sounds of the world",
-      "subtitle": "Discover sound ambiances captured from around the globe",
+      "title": "Close your eyes. Listen to the world.",
+      "subtitle": "The geolocated sound experience.",
+      "subtitles": [
+        "Every place has a voice. It's yours to hear.",
+        "Places speak. Lend them your ear.",
+        "The world speaks to you. Take the time to listen.",
+        "Where sound becomes landscape.",
+        "When silence reverses, the world appears.",
+        "The geolocated sound experience.",
+        "Shift your perspective. Switch to listening mode."
+      ],
       "exploreMap": "World Map",
       "exploreMapDesc": "Browse all geolocated sounds on an interactive map",
       "exploreZones": "Discover Zones",
@@ -112,6 +121,7 @@
       "status": "Status",
       "location": "Location",
       "date": "Date",
+      "likes": "Likes",
       "actions": "Actions"
     },
     "actions": {
@@ -160,7 +170,9 @@
       "dateFrom": "Start",
       "dateTo": "End",
       "noResults": "No results match your criteria",
-      "resultsCount": "{{count}} result(s) of {{total}}"
+      "resultsCount": "{{count}} result(s) of {{total}}",
+      "favorites": "Favorites",
+      "favoritesOnly": "My favorites"
     }
   },
   "account": {
@@ -813,6 +825,9 @@
   "categoriesPage": {
     "title": "Sound categories",
     "subtitle": "Explore all sound universes"
+  },
+  "likes": {
+    "login_required": "Log in to like"
   },
   "pwa": {
     "install": {

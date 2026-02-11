@@ -10,6 +10,7 @@ export interface SoundFilters {
     start: Date | null;
     end: Date | null;
   };
+  favoritesOnly: boolean;
 }
 
 export const DEFAULT_FILTERS: SoundFilters = {
@@ -21,6 +22,7 @@ export const DEFAULT_FILTERS: SoundFilters = {
     start: null,
     end: null,
   },
+  favoritesOnly: false,
 };
 
 export type SortField = 'title' | 'category' | 'status' | 'city' | 'date' | 'user';

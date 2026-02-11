@@ -96,12 +96,23 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
 
+  .popup-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
   b.popup-title {
     display: block;
     font-size: 1.1rem;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 6px;
+  }
+
+  .popup-header-row b.popup-title {
+    margin-bottom: 0;
   }
 
   p.popup-shortstory {
@@ -277,6 +288,71 @@
         }
       }
     }
+  }
+}
+
+/* Like button in popup */
+.popup-like-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 16px;
+  margin: 0;
+  transition: background-color 0.2s;
+  width: fit-content;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  &.liked .popup-like-count {
+    color: #e65100;
+    font-weight: 600;
+  }
+
+  .popup-like-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    transition: transform 0.15s ease;
+  }
+
+  .popup-like-count {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+    min-width: 12px;
+  }
+}
+
+body.dark-theme .popup-like-btn {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  &.liked .popup-like-count {
+    color: #ffab40;
+  }
+
+  .popup-like-count {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.popup-like-btn-journey {
+  .popup-like-count {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  &.liked .popup-like-count {
+    color: #fff;
+    font-weight: 600;
   }
 }
 

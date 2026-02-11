@@ -13,6 +13,7 @@ export interface AppUser {
   newNotificationCount: number;
   flashNew: boolean;
   country?: string | null;
+  likedSoundIds?: string[];
 }
 export { Language };
 
