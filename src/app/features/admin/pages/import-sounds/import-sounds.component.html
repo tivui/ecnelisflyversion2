@@ -7,6 +7,7 @@
       color="primary"
       matSuffix
       (click)="fileInput.click()"
+      [disabled]="isUploading() || isProcessing()"
     >
       <mat-icon>upload_file</mat-icon>
     </button>
@@ -21,10 +22,27 @@
   />
 </div>
 
-@if (isLoading) {
-  <div>Import en cours...</div>
+@if (isProcessing() || progressPercent() > 0) {
+  <div class="progress-section">
+    <div class="progress-header">
+      {{ processedCount() }} / {{ totalSounds() }} sons traités
+    </div>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="progressPercent()"
+    ></mat-progress-bar>
+    <div class="progress-details">
+      <span>Importés : {{ importedCount() }}</span>
+      <span>Ignorés : {{ skippedCount() }}</span>
+      <span>{{ progressPercent() }}%</span>
+    </div>
+  </div>
 }
 
-@if (message) {
-  <div>{{ message }}</div>
+@if (message()) {
+  <div class="status-message">{{ message() }}</div>
+}
+
+@if (errorMessage()) {
+  <div class="error-message">{{ errorMessage() }}</div>
 }

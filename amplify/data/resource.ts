@@ -5,6 +5,8 @@ import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
 import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/resource';
+import { startImport } from '../functions/start-import/resource';
+import { processImport } from '../functions/process-import/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -14,6 +16,7 @@ const schema = a
     Language: a.enum(['fr', 'en', 'es']),
     Theme: a.enum(['light', 'dark']),
     LicenseType: a.enum(['READ_ONLY', 'PUBLIC_DOMAIN', 'CC_BY', 'CC_BY_NC']),
+    ImportJobStatus: a.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED']),
 
     User: a
       .model({
@@ -260,12 +263,39 @@ const schema = a
         allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
+    ImportJob: a
+      .model({
+        id: a.id().required(),
+        status: a.ref('ImportJobStatus'),
+        s3Key: a.string().required(),
+        totalSounds: a.integer().default(0),
+        processedCount: a.integer().default(0),
+        importedCount: a.integer().default(0),
+        skippedCount: a.integer().default(0),
+        invalidCategoryCount: a.integer().default(0),
+        invalidDatesCount: a.integer().default(0),
+        emptyHashtagsCount: a.integer().default(0),
+        errorMessage: a.string(),
+        startedAt: a.datetime(),
+        completedAt: a.datetime(),
+      })
+      .authorization((allow) => [
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
     importSounds: a
       .mutation()
       .arguments({ fileContent: a.json() })
       .returns(a.json())
       .authorization((allow) => [allow.groups(['ADMIN'])])
       .handler(a.handler.function(importSounds)),
+
+    startImport: a
+      .mutation()
+      .arguments({ s3Key: a.string().required() })
+      .returns(a.json())
+      .authorization((allow) => [allow.groups(['ADMIN'])])
+      .handler(a.handler.function(startImport)),
 
     deleteSoundFile: a
       .mutation()
@@ -330,6 +360,8 @@ const schema = a
     allow.resource(deleteSoundFile),
     allow.resource(listSoundsByZone),
     allow.resource(pickDailyFeaturedSound),
+    allow.resource(startImport),
+    allow.resource(processImport),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
