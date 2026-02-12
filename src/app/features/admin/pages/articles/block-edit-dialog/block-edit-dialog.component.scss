@@ -1,0 +1,74 @@
+.form-content {
+  padding: 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+h4 {
+  margin: 16px 0 8px;
+  font-weight: 600;
+  color: #555;
+}
+
+// Sound
+.sound-search-section {
+  margin-bottom: 8px;
+}
+
+.selected-sound-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(76, 175, 80, 0.08);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+
+  mat-icon {
+    color: #4caf50;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.sound-city {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+// Image
+.image-upload-section {
+  margin-bottom: 16px;
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #f5f5f5;
+}
+
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}

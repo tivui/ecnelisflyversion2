@@ -16,6 +16,8 @@ import { SoundJourneyService } from '../../../../core/services/sound-journey.ser
 import { SoundJourney } from '../../../../core/models/sound-journey.model';
 import { QuizService } from '../../../quiz/services/quiz.service';
 import { Quiz } from '../../../quiz/models/quiz.model';
+import { ArticleService } from '../../../articles/services/article.service';
+import { SoundArticle } from '../../../articles/models/article.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
 import { FitTextDirective } from '../../../../shared/directives/fit-text.directive';
 
@@ -40,6 +42,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly featuredSoundService = inject(FeaturedSoundService);
   private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly quizService = inject(QuizService);
+  private readonly articleService = inject(ArticleService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
@@ -70,6 +73,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
   journeys = signal<SoundJourney[]>([]);
   monthlyQuiz = signal<Quiz | null>(null);
+  latestArticle = signal<SoundArticle | null>(null);
 
   /** Max 3 secondary cards on desktop (map is always primary = 4 total).
    *  Priority: quiz du mois > son du jour > zones > journeys.
@@ -80,6 +84,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const cards: { type: string; data?: any }[] = [];
     if (this.monthlyQuiz()) cards.push({ type: 'quiz', data: this.monthlyQuiz() });
     if (this.dailyFeatured()) cards.push({ type: 'featured', data: this.dailyFeatured() });
+    if (this.latestArticle() && cards.length < this.MAX_DESKTOP_SECONDARY) cards.push({ type: 'article', data: this.latestArticle() });
     if (cards.length < this.MAX_DESKTOP_SECONDARY) cards.push({ type: 'zones' });
     for (const j of this.journeys()) {
       if (cards.length >= this.MAX_DESKTOP_SECONDARY) break;
@@ -92,6 +97,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     let count = 1; // Zones card is always present
     if (this.monthlyQuiz()) count++;
     if (this.dailyFeatured()) count++;
+    if (this.latestArticle()) count++;
     count += this.journeys().length;
     return Array.from({ length: count }, (_, i) => i);
   });
@@ -112,11 +118,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   });
 
   async ngOnInit() {
-    const [zonesResult, dailyResult, journeysResult, monthlyQuizResult] = await Promise.allSettled([
+    const [zonesResult, dailyResult, journeysResult, monthlyQuizResult, articleResult] = await Promise.allSettled([
       this.zoneService.listZones(),
       this.featuredSoundService.getTodayFeatured(),
       this.soundJourneyService.listPublicJourneys(),
       this.quizService.getMonthlyQuiz(),
+      this.articleService.getLatestPublishedArticle(),
     ]);
 
     if (zonesResult.status === 'fulfilled') {
@@ -136,6 +143,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     if (monthlyQuizResult.status === 'fulfilled' && monthlyQuizResult.value) {
       this.monthlyQuiz.set(monthlyQuizResult.value.quiz);
+    }
+
+    if (articleResult.status === 'fulfilled' && articleResult.value) {
+      this.latestArticle.set(articleResult.value);
     }
 
     setTimeout(() => {
@@ -225,6 +236,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const lang = this.currentLang();
     if (quiz.description_i18n && quiz.description_i18n[lang]) return quiz.description_i18n[lang];
     return quiz.description ?? '';
+  });
+
+  articleTitle = computed(() => {
+    const article = this.latestArticle();
+    if (!article) return '';
+    const lang = this.currentLang();
+    if (article.title_i18n && article.title_i18n[lang]) return article.title_i18n[lang];
+    return article.title;
+  });
+
+  articleDescription = computed(() => {
+    const article = this.latestArticle();
+    if (!article) return '';
+    const lang = this.currentLang();
+    if (article.description_i18n && article.description_i18n[lang]) return article.description_i18n[lang];
+    return article.description ?? '';
   });
 
   goToFeaturedSound() {

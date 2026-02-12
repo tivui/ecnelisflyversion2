@@ -27,6 +27,15 @@ const schema = a
       'odd_one_out',
       'true_false',
     ]),
+    ArticleStatus: a.enum(['draft', 'published', 'archived']),
+    ArticleBlockType: a.enum([
+      'heading',
+      'paragraph',
+      'sound',
+      'image',
+      'quote',
+      'callout',
+    ]),
 
     User: a
       .model({
@@ -378,6 +387,79 @@ const schema = a
       })
       .secondaryIndexes((index) => [
         index('month').queryField('getMonthlyQuizByMonth'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    // ============ ARTICLES ============
+
+    SoundArticle: a
+      .model({
+        id: a.id().required(),
+        title: a.string().required(),
+        title_i18n: a.json(),
+        description: a.string(),
+        description_i18n: a.json(),
+        slug: a.string().required(),
+        coverImageKey: a.string(),
+        tags: a.json(),
+        status: a.ref('ArticleStatus').required(),
+        authorName: a.string(),
+        readingTimeMinutes: a.integer(),
+        blockCount: a.integer().default(0),
+        publishedAt: a.datetime(),
+        sortOrder: a.integer().default(0),
+        createdAt: a.datetime(),
+        updatedAt: a.datetime(),
+
+        blocks: a.hasMany('ArticleBlock', 'articleId'),
+      })
+      .secondaryIndexes((index) => [
+        index('slug').queryField('getArticleBySlug'),
+        index('status').queryField('listArticlesByStatus'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    ArticleBlock: a
+      .model({
+        id: a.id().required(),
+        articleId: a.id().required(),
+        article: a.belongsTo('SoundArticle', 'articleId'),
+        order: a.integer().required(),
+        type: a.ref('ArticleBlockType').required(),
+
+        // Text content (heading, paragraph, quote, callout)
+        content: a.string(),
+        content_i18n: a.json(),
+
+        // Sound media
+        soundId: a.id(),
+        soundCaption: a.string(),
+        soundCaption_i18n: a.json(),
+
+        // Image media
+        imageKey: a.string(),
+        imageAlt: a.string(),
+        imageAlt_i18n: a.json(),
+        imageCaption: a.string(),
+        imageCaption_i18n: a.json(),
+
+        // Style options (JSON: { level?, align?, size? })
+        settings: a.json(),
+      })
+      .secondaryIndexes((index) => [
+        index('articleId')
+          .sortKeys(['order'])
+          .queryField('listBlocksByArticle'),
       ])
       .authorization((allow) => [
         allow.publicApiKey().to(['read']),

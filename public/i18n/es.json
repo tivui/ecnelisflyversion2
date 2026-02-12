@@ -25,7 +25,9 @@
       "startJourney": "Comenzar el viaje",
       "discoverJourneys": "Descubrir viajes",
       "monthlyQuiz": "Quiz del mes",
-      "play": "Jugar"
+      "play": "Jugar",
+      "newArticle": "Nuevo Artículo",
+      "readArticle": "Leer"
     },
     "zones": {
       "title": "Explorar por zonas",
@@ -47,7 +49,8 @@
     "discoverZones": "Descubrir zonas",
     "soundOfTheDay": "Sonido del día",
     "soundJourneys": "Viajes sonoros",
-    "soundQuiz": "Quiz sonoro"
+    "soundQuiz": "Quiz sonoro",
+    "soundArticles": "Artículos sonoros"
   },
   "zones": {
     "title": "Zonas geográficas",
@@ -121,6 +124,22 @@
       "title": "Mis puntuaciones",
       "empty": "Aún no has jugado ningún quiz",
       "browseQuizzes": "Descubrir los quiz"
+    }
+  },
+  "articles": {
+    "list": {
+      "title": "Artículos Sonoros",
+      "empty": "No hay artículos disponibles por el momento.",
+      "readingTime": "{{count}} min de lectura",
+      "readMore": "Leer más"
+    },
+    "detail": {
+      "back": "Volver a los artículos",
+      "share": "Compartir",
+      "shareSuccess": "¡Enlace copiado!",
+      "tableOfContents": "Índice",
+      "by": "Por",
+      "published": "Publicado el"
     }
   },
   "common": {
@@ -377,7 +396,8 @@
       "zones": "Zonas geográficas",
       "featuredSound": "Sonido del día",
       "journeys": "Viajes sonoros",
-      "quizzes": "Quiz sonoros"
+      "quizzes": "Quiz sonoros",
+      "articles": "Artículos"
     },
     "featuredSound": {
       "title": "Sonido del día",
@@ -641,6 +661,99 @@
         "createSuccess": "Pregunta creada con éxito",
         "updateSuccess": "Pregunta actualizada con éxito",
         "saveError": "Error al guardar la pregunta"
+      }
+    },
+    "articles": {
+      "list": {
+        "title": "Artículos Sonoros",
+        "new": "Nuevo artículo",
+        "empty": "No hay artículos. ¡Crea el primero!",
+        "columns": {
+          "title": "Título",
+          "status": "Estado",
+          "tags": "Tags",
+          "blocks": "Bloques",
+          "readingTime": "Lectura",
+          "published": "Publicado",
+          "actions": "Acciones"
+        }
+      },
+      "editor": {
+        "back": "Volver a la lista",
+        "settings": "Configuración",
+        "preview": "Vista previa",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "addBlock": "Agregar bloque",
+        "blocks": {
+          "heading": "Título",
+          "paragraph": "Párrafo",
+          "sound": "Sonido",
+          "image": "Imagen",
+          "quote": "Cita",
+          "callout": "Recuadro",
+          "listBullet": "Lista con viñetas",
+          "listOrdered": "Lista numerada",
+          "separator": "Separador"
+        },
+        "emptyBlocks": "Comienza agregando un bloque arriba."
+      },
+      "settings": {
+        "title": "Configuración del artículo",
+        "general": "General",
+        "translations": "Traducciones",
+        "media": "Medios & Tags",
+        "fields": {
+          "title": "Título",
+          "description": "Descripción / Resumen",
+          "slug": "Slug (URL)",
+          "author": "Nombre del autor",
+          "status": "Estado",
+          "sortOrder": "Orden",
+          "readingTime": "Tiempo de lectura (min)",
+          "coverImage": "Imagen de portada",
+          "tags": "Tags",
+          "addTag": "Agregar un tag..."
+        }
+      },
+      "block": {
+        "edit": "Editar bloque",
+        "delete": {
+          "title": "Eliminar bloque",
+          "message": "¿Quieres eliminar este bloque?",
+          "confirm": "Eliminar",
+          "success": "Bloque eliminado"
+        },
+        "fields": {
+          "content": "Contenido",
+          "level": "Nivel de título",
+          "align": "Alineación",
+          "size": "Tamaño de visualización",
+          "imageWidth": "Ancho de imagen",
+          "separatorStyle": "Estilo de separador",
+          "listItems": "Elementos de la lista",
+          "listItemsPlaceholder": "Un elemento por línea",
+          "sound": "Sonido",
+          "soundCaption": "Leyenda del sonido",
+          "image": "Imagen",
+          "imageAlt": "Texto alternativo",
+          "imageCaption": "Leyenda de la imagen"
+        }
+      },
+      "status": {
+        "draft": "Borrador",
+        "published": "Publicado",
+        "archived": "Archivado"
+      },
+      "save": {
+        "success": "Artículo guardado",
+        "error": "Error al guardar el artículo"
+      },
+      "delete": {
+        "title": "Eliminar artículo",
+        "message": "Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "success": "Artículo eliminado"
       }
     }
   },

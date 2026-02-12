@@ -48,6 +48,20 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.QuizQuestionsEditorComponent,
           ),
       },
+      {
+        path: 'articles',
+        loadComponent: () =>
+          import('../pages/articles/article-admin-list/article-admin-list.component').then(
+            (m) => m.ArticleAdminListComponent,
+          ),
+      },
+      {
+        path: 'articles/:id/edit',
+        loadComponent: () =>
+          import('../pages/articles/article-editor/article-editor.component').then(
+            (m) => m.ArticleEditorComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
     ],
   },

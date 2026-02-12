@@ -11,5 +11,10 @@ export const storage = defineStorage({
     'imports/*': [
       allow.groups(['ADMIN']).to(['read', 'write']),
     ],
+    'articles/*': [
+      allow.authenticated.to(['read']),
+      allow.guest.to(['read']),
+      allow.groups(['ADMIN']).to(['read', 'write', 'delete']),
+    ],
   }),
 });

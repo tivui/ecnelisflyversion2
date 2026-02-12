@@ -1,4 +1,4 @@
-.journeys-container {
+.article-admin-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -56,7 +56,7 @@
   }
 }
 
-.journeys-table {
+.article-table {
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
@@ -107,29 +107,6 @@
   }
 }
 
-.journey-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.color-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.public-chip {
-  background-color: #4caf50 !important;
-  color: white !important;
-}
-
-.private-chip {
-  background-color: #ff9800 !important;
-  color: white !important;
-}
-
 .actions {
   display: flex;
   gap: 4px;
@@ -138,6 +115,54 @@
     :host-context(body.dark-theme) & {
       color: #bbb;
     }
+  }
+}
+
+.tags-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.tag-chip {
+  font-size: 0.7rem;
+  min-height: 24px;
+  padding: 2px 8px;
+}
+
+.more-tags {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.status-draft {
+  background-color: rgba(158, 158, 158, 0.15) !important;
+  color: #757575 !important;
+
+  :host-context(body.dark-theme) & {
+    background-color: rgba(158, 158, 158, 0.2) !important;
+    color: #bdbdbd !important;
+  }
+}
+
+.status-published {
+  background-color: rgba(76, 175, 80, 0.15) !important;
+  color: #2e7d32 !important;
+
+  :host-context(body.dark-theme) & {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    color: #81c784 !important;
+  }
+}
+
+.status-archived {
+  background-color: rgba(255, 152, 0, 0.15) !important;
+  color: #e65100 !important;
+
+  :host-context(body.dark-theme) & {
+    background-color: rgba(255, 152, 0, 0.2) !important;
+    color: #ffb74d !important;
   }
 }
 
@@ -152,7 +177,7 @@
     }
   }
 
-  .journeys-table {
+  .article-table {
     display: block;
     overflow-x: auto;
   }

@@ -18,6 +18,7 @@ export class DatabaseComponent {
     { route: 'featured-sound', label: 'admin.database.featuredSound' },
     { route: 'journeys', label: 'admin.database.journeys' },
     { route: 'quizzes', label: 'admin.database.quizzes' },
+    { route: 'articles', label: 'admin.database.articles' },
   ]);
 
   trackTab = (tab: { route: string; label: string }) => tab.route;

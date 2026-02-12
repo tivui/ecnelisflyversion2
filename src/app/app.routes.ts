@@ -54,6 +54,22 @@ export const routes: Routes = [
       ),
   },
 
+  // Article routes (public)
+  {
+    path: 'articles',
+    loadComponent: () =>
+      import('./features/articles/pages/article-list/article-list.component').then(
+        (m) => m.ArticleListComponent,
+      ),
+  },
+  {
+    path: 'articles/:slug',
+    loadComponent: () =>
+      import('./features/articles/pages/article-detail/article-detail.component').then(
+        (m) => m.ArticleDetailComponent,
+      ),
+  },
+
   // Quiz routes (public - no authGuard, guest mode supported)
   {
     path: 'quiz',

@@ -13,6 +13,11 @@
   h2 {
     margin: 0;
     font-weight: 500;
+    color: #1a1a2e;
+
+    :host-context(body.dark-theme) & {
+      color: #e8e8f0;
+    }
   }
 }
 
@@ -35,11 +40,19 @@
     height: 64px;
     color: #999;
     margin-bottom: 16px;
+
+    :host-context(body.dark-theme) & {
+      color: #555;
+    }
   }
 
   p {
     color: #666;
     margin-bottom: 20px;
+
+    :host-context(body.dark-theme) & {
+      color: #999;
+    }
   }
 }
 
@@ -47,7 +60,51 @@
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+
+  :host-context(body.dark-theme) & {
+    background: #1e1e2e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  th.mat-header-cell {
+    color: #555;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+
+    :host-context(body.dark-theme) & {
+      color: #aaa;
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  td.mat-cell {
+    color: #333;
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+
+    :host-context(body.dark-theme) & {
+      color: #ddd;
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  tr.mat-header-row {
+    background: #fafafa;
+
+    :host-context(body.dark-theme) & {
+      background: #252538;
+    }
+  }
+
+  tr.mat-row:hover {
+    background: rgba(0, 0, 0, 0.02);
+
+    :host-context(body.dark-theme) & {
+      background: rgba(255, 255, 255, 0.03);
+    }
+  }
 }
 
 .difficulty-easy {
@@ -83,6 +140,12 @@
 .actions {
   display: flex;
   gap: 4px;
+
+  button {
+    :host-context(body.dark-theme) & {
+      color: #bbb;
+    }
+  }
 }
 
 @media (max-width: 768px) {

@@ -77,6 +77,26 @@
           </a>
         }
 
+        <!-- Latest Article Card -->
+        @if (latestArticle()) {
+          <a routerLink="/articles/{{ latestArticle()!.slug }}" class="hero-card hero-card-article">
+            <div class="hero-card-visual">
+              <div class="hero-card-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <span class="article-badge">{{ 'home.hero.newArticle' | translate }}</span>
+            </div>
+            <div class="hero-card-content">
+              <h3>{{ articleTitle() }}</h3>
+              <p class="hero-card-desc">{{ articleDescription() }}</p>
+              <span class="hero-card-cta">
+                {{ 'home.hero.readArticle' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
+            </div>
+          </a>
+        }
+
         <!-- Zones Card -->
         <a routerLink="/zones" class="hero-card hero-card-zones">
           <div class="hero-card-visual">

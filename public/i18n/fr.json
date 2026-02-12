@@ -25,7 +25,9 @@
       "startJourney": "Commencer le voyage",
       "discoverJourneys": "Découvrir les voyages",
       "monthlyQuiz": "Quiz du mois",
-      "play": "Jouer"
+      "play": "Jouer",
+      "newArticle": "Nouvel Article",
+      "readArticle": "Lire"
     },
     "zones": {
       "title": "Explorer par zones",
@@ -48,6 +50,7 @@
     "soundOfTheDay": "Son du jour",
     "soundJourneys": "Voyages sonores",
     "soundQuiz": "Quiz sonore",
+    "soundArticles": "Articles sonores",
     "categories": "Catégories"
   },
   "zones": {
@@ -122,6 +125,22 @@
       "title": "Mes scores",
       "empty": "Vous n'avez pas encore joué de quiz",
       "browseQuizzes": "Découvrir les quiz"
+    }
+  },
+  "articles": {
+    "list": {
+      "title": "Articles Sonores",
+      "empty": "Aucun article pour le moment.",
+      "readingTime": "{{count}} min de lecture",
+      "readMore": "Lire la suite"
+    },
+    "detail": {
+      "back": "Retour aux articles",
+      "share": "Partager",
+      "shareSuccess": "Lien copié !",
+      "tableOfContents": "Sommaire",
+      "by": "Par",
+      "published": "Publié le"
     }
   },
   "common": {
@@ -394,7 +413,8 @@
       "zones": "Zones géographiques",
       "featuredSound": "Son du jour",
       "journeys": "Voyages sonores",
-      "quizzes": "Quiz sonores"
+      "quizzes": "Quiz sonores",
+      "articles": "Articles"
     },
     "featuredSound": {
       "title": "Son du jour",
@@ -658,6 +678,99 @@
         "createSuccess": "Question créée avec succès",
         "updateSuccess": "Question mise à jour avec succès",
         "saveError": "Erreur lors de l'enregistrement"
+      }
+    },
+    "articles": {
+      "list": {
+        "title": "Articles Sonores",
+        "new": "Nouvel article",
+        "empty": "Aucun article. Créez le premier !",
+        "columns": {
+          "title": "Titre",
+          "status": "Statut",
+          "tags": "Tags",
+          "blocks": "Blocs",
+          "readingTime": "Lecture",
+          "published": "Publié le",
+          "actions": "Actions"
+        }
+      },
+      "editor": {
+        "back": "Retour à la liste",
+        "settings": "Paramètres",
+        "preview": "Aperçu",
+        "publish": "Publier",
+        "unpublish": "Dépublier",
+        "addBlock": "Ajouter un bloc",
+        "blocks": {
+          "heading": "Titre",
+          "paragraph": "Paragraphe",
+          "sound": "Son",
+          "image": "Image",
+          "quote": "Citation",
+          "callout": "Encart",
+          "listBullet": "Liste à puces",
+          "listOrdered": "Liste numérotée",
+          "separator": "Séparateur"
+        },
+        "emptyBlocks": "Commencez par ajouter un bloc ci-dessus."
+      },
+      "settings": {
+        "title": "Paramètres de l'article",
+        "general": "Général",
+        "translations": "Traductions",
+        "media": "Média & Tags",
+        "fields": {
+          "title": "Titre",
+          "description": "Description / Chapeau",
+          "slug": "Slug (URL)",
+          "author": "Nom de l'auteur",
+          "status": "Statut",
+          "sortOrder": "Ordre",
+          "readingTime": "Temps de lecture (min)",
+          "coverImage": "Image de couverture",
+          "tags": "Tags",
+          "addTag": "Ajouter un tag..."
+        }
+      },
+      "block": {
+        "edit": "Modifier le bloc",
+        "delete": {
+          "title": "Supprimer le bloc",
+          "message": "Voulez-vous supprimer ce bloc ?",
+          "confirm": "Supprimer",
+          "success": "Bloc supprimé"
+        },
+        "fields": {
+          "content": "Contenu",
+          "level": "Niveau de titre",
+          "align": "Alignement",
+          "size": "Taille d'affichage",
+          "imageWidth": "Largeur de l'image",
+          "separatorStyle": "Style de séparateur",
+          "listItems": "Éléments de la liste",
+          "listItemsPlaceholder": "Un élément par ligne",
+          "sound": "Son",
+          "soundCaption": "Légende du son",
+          "image": "Image",
+          "imageAlt": "Texte alternatif",
+          "imageCaption": "Légende de l'image"
+        }
+      },
+      "status": {
+        "draft": "Brouillon",
+        "published": "Publié",
+        "archived": "Archivé"
+      },
+      "save": {
+        "success": "Article sauvegardé",
+        "error": "Erreur lors de la sauvegarde"
+      },
+      "delete": {
+        "title": "Supprimer l'article",
+        "message": "Cette action est irréversible.",
+        "confirm": "Supprimer",
+        "success": "Article supprimé"
       }
     }
   },
