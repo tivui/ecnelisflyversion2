@@ -737,7 +737,13 @@
           "soundCaption": "Leyenda del sonido",
           "image": "Imagen",
           "imageAlt": "Texto alternativo",
-          "imageCaption": "Leyenda de la imagen"
+          "imageCaption": "Leyenda de la imagen",
+          "attribution": "Atribución",
+          "attributionPlaceholder": "Autor o fuente de la cita"
+        },
+        "duplicate": {
+          "action": "Duplicar bloque",
+          "success": "Bloque duplicado"
         }
       },
       "status": {

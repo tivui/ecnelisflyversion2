@@ -753,7 +753,13 @@
           "soundCaption": "Sound caption",
           "image": "Image",
           "imageAlt": "Alt text",
-          "imageCaption": "Image caption"
+          "imageCaption": "Image caption",
+          "attribution": "Attribution",
+          "attributionPlaceholder": "Author or source of the quote"
+        },
+        "duplicate": {
+          "action": "Duplicate block",
+          "success": "Block duplicated"
         }
       },
       "status": {

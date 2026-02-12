@@ -754,7 +754,13 @@
           "soundCaption": "Légende du son",
           "image": "Image",
           "imageAlt": "Texte alternatif",
-          "imageCaption": "Légende de l'image"
+          "imageCaption": "Légende de l'image",
+          "attribution": "Attribution",
+          "attributionPlaceholder": "Auteur ou source de la citation"
+        },
+        "duplicate": {
+          "action": "Dupliquer le bloc",
+          "success": "Bloc dupliqué"
         }
       },
       "status": {

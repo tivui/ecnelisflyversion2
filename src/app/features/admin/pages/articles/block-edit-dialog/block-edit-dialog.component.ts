@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -20,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -57,13 +58,14 @@ interface DialogData {
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTabsModule,
+    MatTooltipModule,
     MatAutocompleteModule,
     TranslateModule,
   ],
   templateUrl: './block-edit-dialog.component.html',
   styleUrl: './block-edit-dialog.component.scss',
 })
-export class BlockEditDialogComponent implements OnInit {
+export class BlockEditDialogComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<BlockEditDialogComponent>);
   private readonly data: DialogData = inject(MAT_DIALOG_DATA);
@@ -88,6 +90,13 @@ export class BlockEditDialogComponent implements OnInit {
   imagePreviewUrl = signal<string | null>(null);
   uploadingImage = signal(false);
 
+  // Rich text editors
+  @ViewChild('mainEditor') mainEditorRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('editorFr') editorFrRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('editorEn') editorEnRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('editorEs') editorEsRef?: ElementRef<HTMLDivElement>;
+  private translationEditorsInit = false;
+
   headingLevels = [
     { value: 1, label: 'H1' },
     { value: 2, label: 'H2' },
@@ -95,9 +104,10 @@ export class BlockEditDialogComponent implements OnInit {
   ];
 
   alignments = [
-    { value: 'left', label: 'Left' },
-    { value: 'center', label: 'Center' },
-    { value: 'right', label: 'Right' },
+    { value: 'left', label: 'Left', icon: 'format_align_left' },
+    { value: 'center', label: 'Center', icon: 'format_align_center' },
+    { value: 'right', label: 'Right', icon: 'format_align_right' },
+    { value: 'justify', label: 'Justify', icon: 'format_align_justify' },
   ];
 
   imageSizes = [
@@ -164,6 +174,7 @@ export class BlockEditDialogComponent implements OnInit {
       level: [settings.level ?? 2],
       align: [settings.align ?? 'left'],
       imageWidth: [defaultImageWidth],
+      attribution: [settings.attribution ?? ''],
 
       // Separator variant style
       separatorStyle: [variant ?? 'separator'],
@@ -194,6 +205,12 @@ export class BlockEditDialogComponent implements OnInit {
 
     if (this.isTypeImage() && block?.imageKey) {
       this.loadImagePreview(block.imageKey);
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.mainEditorRef && this.isRichTextBlock()) {
+      this.mainEditorRef.nativeElement.innerHTML = this.form.get('content')?.value || '';
     }
   }
 
@@ -229,6 +246,19 @@ export class BlockEditDialogComponent implements OnInit {
     return v === 'list-bullet' || v === 'list-ordered';
   }
 
+  isTypeQuote(): boolean {
+    return this.blockType() === 'quote';
+  }
+
+  isRichTextBlock(): boolean {
+    if (this.isSeparator() || this.isList()) return false;
+    return this.blockType() === 'paragraph' || this.blockType() === 'quote';
+  }
+
+  hasAlignOption(): boolean {
+    return this.isRichTextBlock() || this.blockType() === 'heading';
+  }
+
   getDialogTitle(): string {
     const v = this.blockVariant();
     if (v === 'list-bullet') return this.translate.instant('admin.articles.editor.blocks.listBullet');
@@ -237,6 +267,37 @@ export class BlockEditDialogComponent implements OnInit {
     return this.translate.instant(
       'admin.articles.editor.blocks.' + this.blockType(),
     );
+  }
+
+  // ============ RICH TEXT ============
+
+  execCommand(event: MouseEvent, command: string) {
+    event.preventDefault();
+    document.execCommand(command, false);
+  }
+
+  insertLink(event: MouseEvent) {
+    event.preventDefault();
+    const url = prompt('URL :');
+    if (url) {
+      document.execCommand('createLink', false, url);
+    }
+  }
+
+  onRichTextInput(event: Event, controlName: string) {
+    const el = event.target as HTMLDivElement;
+    this.form.get(controlName)?.setValue(el.innerHTML, { emitEvent: false });
+  }
+
+  onTabChange(index: number) {
+    if (index === 1 && this.isRichTextBlock() && !this.translationEditorsInit) {
+      setTimeout(() => {
+        if (this.editorFrRef) this.editorFrRef.nativeElement.innerHTML = this.form.get('content_fr')?.value || '';
+        if (this.editorEnRef) this.editorEnRef.nativeElement.innerHTML = this.form.get('content_en')?.value || '';
+        if (this.editorEsRef) this.editorEsRef.nativeElement.innerHTML = this.form.get('content_es')?.value || '';
+        this.translationEditorsInit = true;
+      }, 50);
+    }
   }
 
   // ============ SOUND SEARCH ============
@@ -335,6 +396,16 @@ export class BlockEditDialogComponent implements OnInit {
       if (type === 'image') {
         settings.align = v.align;
         settings.imageWidth = v.imageWidth;
+      }
+
+      // Text alignment for paragraphs, quotes, headings
+      if (['paragraph', 'quote', 'heading'].includes(type) && v.align && v.align !== 'left') {
+        settings.align = v.align;
+      }
+
+      // Quote attribution
+      if (type === 'quote' && v.attribution) {
+        settings.attribution = v.attribution;
       }
 
       // Variant (separator / list)

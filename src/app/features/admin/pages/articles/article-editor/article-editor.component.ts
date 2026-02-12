@@ -197,6 +197,40 @@ export class ArticleEditorComponent implements OnInit {
     }
   }
 
+  async duplicateBlock(block: ArticleBlock) {
+    try {
+      const nextOrder = this.blocks().length + 1;
+      const payload: Record<string, unknown> = {
+        articleId: this.articleId,
+        order: nextOrder,
+        type: block.type,
+      };
+
+      if (block.content) payload['content'] = block.content;
+      if (block.content_i18n) payload['content_i18n'] = block.content_i18n;
+      if (block.soundId) payload['soundId'] = block.soundId;
+      if (block.soundCaption) payload['soundCaption'] = block.soundCaption;
+      if (block.soundCaption_i18n) payload['soundCaption_i18n'] = block.soundCaption_i18n;
+      if (block.imageKey) payload['imageKey'] = block.imageKey;
+      if (block.imageAlt) payload['imageAlt'] = block.imageAlt;
+      if (block.imageAlt_i18n) payload['imageAlt_i18n'] = block.imageAlt_i18n;
+      if (block.imageCaption) payload['imageCaption'] = block.imageCaption;
+      if (block.imageCaption_i18n) payload['imageCaption_i18n'] = block.imageCaption_i18n;
+      if (block.settings) payload['settings'] = block.settings;
+
+      await this.articleService.createBlock(payload as any);
+      await this.loadData();
+      await this.updateBlockCount();
+      this.snackBar.open(
+        this.translate.instant('admin.articles.block.duplicate.success'),
+        '',
+        { duration: 3000 },
+      );
+    } catch (error) {
+      console.error('Error duplicating block:', error);
+    }
+  }
+
   // ============ ARTICLE ACTIONS ============
 
   openSettingsDialog() {

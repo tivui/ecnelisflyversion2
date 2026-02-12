@@ -121,13 +121,13 @@
               @else if (block.type === 'heading') {
                 @switch (block.settings?.level) {
                   @case (1) {
-                    <h1 class="block-heading">{{ getLocalizedContent(block) }}</h1>
+                    <h1 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h1>
                   }
                   @case (3) {
-                    <h3 class="block-heading">{{ getLocalizedContent(block) }}</h3>
+                    <h3 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h3>
                   }
                   @default {
-                    <h2 class="block-heading">{{ getLocalizedContent(block) }}</h2>
+                    <h2 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h2>
                   }
                 }
               }
@@ -135,19 +135,22 @@
               <!-- PARAGRAPH -->
               @else if (block.type === 'paragraph') {
                 @if (isRichText(block)) {
-                  <div class="block-paragraph rich-content" [innerHTML]="getLocalizedContent(block) | safeHtml"></div>
+                  <div class="block-paragraph rich-content" [style]="getTextAlignStyle(block)" [innerHTML]="getLocalizedContent(block) | safeHtml"></div>
                 } @else {
-                  <p class="block-paragraph">{{ getLocalizedContent(block) }}</p>
+                  <p class="block-paragraph" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</p>
                 }
               }
 
               <!-- QUOTE -->
               @else if (block.type === 'quote') {
-                <blockquote class="block-quote">
+                <blockquote class="block-quote" [style]="getTextAlignStyle(block)">
                   @if (isRichText(block)) {
                     <div class="rich-content" [innerHTML]="getLocalizedContent(block) | safeHtml"></div>
                   } @else {
                     <p>{{ getLocalizedContent(block) }}</p>
+                  }
+                  @if (getAttribution(block)) {
+                    <cite class="block-attribution">— {{ getAttribution(block) }}</cite>
                   }
                 </blockquote>
               }
@@ -208,6 +211,13 @@
             </div>
           }
         </div>
+
+        <!-- End mark -->
+        @if (blocks().length > 0) {
+          <div class="article-end-mark">
+            <span></span><span></span><span></span>
+          </div>
+        }
       </article>
     </div>
   </div>

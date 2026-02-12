@@ -299,6 +299,15 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
     return text.split('\n').filter(l => l.trim());
   }
 
+  getTextAlignStyle(block: ArticleBlock): string {
+    const align = block.settings?.align;
+    return align && align !== 'left' ? `text-align: ${align}` : '';
+  }
+
+  getAttribution(block: ArticleBlock): string {
+    return block.settings?.attribution ?? '';
+  }
+
   // ============ ACTIONS ============
 
   close() {

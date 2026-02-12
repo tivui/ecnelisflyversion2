@@ -63,9 +63,10 @@ export type BlockVariant =
 
 export interface BlockSettings {
   level?: 1 | 2 | 3;
-  align?: 'left' | 'center' | 'right';
+  align?: 'left' | 'center' | 'right' | 'justify';
   size?: 'small' | 'medium' | 'large';
   variant?: BlockVariant;
   imageWidth?: number;
   richText?: boolean;
+  attribution?: string;
 }

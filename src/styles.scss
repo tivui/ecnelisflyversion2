@@ -130,6 +130,21 @@ body.dark-theme {
 }
 
 // =======================
+// Article preview dialog — fill height
+// =======================
+.article-preview-panel {
+  .mat-mdc-dialog-surface {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: none;
+    flex: 1;
+  }
+}
+
+// =======================
 // Dialog backdrop styling (both themes)
 // =======================
 .cdk-overlay-dark-backdrop {

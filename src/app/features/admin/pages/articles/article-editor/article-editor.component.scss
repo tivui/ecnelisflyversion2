@@ -266,8 +266,8 @@ $coral: #8b6f47;
 
 .block-actions {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
   padding: 4px;
   gap: 0;
 

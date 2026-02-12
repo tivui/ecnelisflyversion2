@@ -108,6 +108,13 @@
               </button>
               <button
                 mat-icon-button
+                [matTooltip]="'admin.articles.block.duplicate.action' | translate"
+                (click)="duplicateBlock(block); $event.stopPropagation()"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <button
+                mat-icon-button
                 color="warn"
                 [matTooltip]="'admin.articles.block.delete.confirm' | translate"
                 (click)="deleteBlock(block); $event.stopPropagation()"
