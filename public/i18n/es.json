@@ -173,6 +173,10 @@
   },
   "account": {
     "title": "Configuración del cuento",
+    "tabs": {
+      "profile": "Perfil",
+      "avatar": "Avatar"
+    },
     "username": "Nombre de usuario",
     "email": "Correo electrónico",
     "firstName": "Nombre",
@@ -186,7 +190,22 @@
       "seed": "Semilla del avatar",
       "chooseStyle": "Elegir un estilo",
       "chooseVariation": "Elegir una variación",
-      "chooseColor": "Color de fondo"
+      "chooseColor": "Color de fondo",
+      "regenerate": "Generar nuevas variaciones",
+      "options": {
+        "eyes": "Ojos",
+        "mouth": "Boca",
+        "hair": "Cabello",
+        "clothes": "Ropa",
+        "face": "Cara",
+        "body": "Cuerpo",
+        "skinColor": "Color de piel",
+        "hairColor": "Color de cabello",
+        "clothesColor": "Color de ropa",
+        "clothingColor": "Color de ropa",
+        "baseColor": "Color base",
+        "backgroundColor": "Color de fondo"
+      }
     }
   },
   "sound": {

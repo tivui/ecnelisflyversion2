@@ -177,6 +177,10 @@
   },
   "account": {
     "title": "Account configuration",
+    "tabs": {
+      "profile": "Profile",
+      "avatar": "Avatar"
+    },
     "username": "Username",
     "email": "Email",
     "emailHelp": "Email cannot be changed",
@@ -191,7 +195,22 @@
       "seed": "Avatar seed",
       "chooseStyle": "Choose a style",
       "chooseVariation": "Pick a variation",
-      "chooseColor": "Background color"
+      "chooseColor": "Background color",
+      "regenerate": "Generate new variations",
+      "options": {
+        "eyes": "Eyes",
+        "mouth": "Mouth",
+        "hair": "Hair",
+        "clothes": "Clothes",
+        "face": "Face",
+        "body": "Body",
+        "skinColor": "Skin color",
+        "hairColor": "Hair color",
+        "clothesColor": "Clothes color",
+        "clothingColor": "Clothes color",
+        "baseColor": "Base color",
+        "backgroundColor": "Background color"
+      }
     }
   },
   "sound": {

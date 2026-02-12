@@ -1,166 +1,223 @@
-<div class="account-container" @if(appUser())>
-  <!-- Title + email chip -->
-  <div class="account-header">
-    <h1>{{ "account.title" | translate }}</h1>
+@if (appUser()) {
+  <div class="account-container">
+    <h1 class="account-title">{{ "account.title" | translate }}</h1>
 
-    <mat-chip
-      color="primary"
-      selected
-      matTooltip="{{ 'account.emailHelp' | translate }}"
-    >
-      {{ appUser()?.email }}
-    </mat-chip>
-  </div>
-
-  <div class="form-wrapper mat-elevation-z1">
-    <form [formGroup]="accountForm" (ngSubmit)="save()">
-      <div class="form-grid">
-        <mat-form-field>
-          <mat-label>{{ "account.username" | translate }}</mat-label>
-          <input matInput formControlName="username" />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>{{ "account.firstName" | translate }}</mat-label>
-          <input matInput formControlName="firstName" />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>{{ "account.lastName" | translate }}</mat-label>
-          <input matInput formControlName="lastName" />
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>{{ "account.country" | translate }}</mat-label>
-          <input
-            type="text"
-            matInput
-            formControlName="country"
-            [matAutocomplete]="auto"
-          />
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="onCountrySelected($event.option.value)"
-            [displayWith]="countryName.bind(this)"
-            [autoActiveFirstOption]="true"
-          >
-            @for (country of filteredCountriesSignal(); track country.code) {
-              <mat-option [value]="country.code">{{ country.name }}</mat-option>
-            }
-          </mat-autocomplete>
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>{{ "account.language" | translate }}</mat-label>
-          <mat-select formControlName="language">
-            @for (l of languages; track l) {
-              <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>{{ "account.theme" | translate }}</mat-label>
-          <mat-select formControlName="theme">
-            @for (t of themes; track t) {
-              <mat-option [value]="t">{{ t | translate }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- Avatar Section -->
-      <div class="avatar-section">
-        <h3>{{ "account.avatar.title" | translate }}</h3>
-
-        <div class="avatar-preview-row">
-          <app-user-avatar
-            [username]="accountForm.get('username')?.value ?? ''"
-            [avatarStyle]="selectedAvatarStyle()"
-            [avatarSeed]="selectedAvatarSeed()"
-            [avatarBgColor]="selectedAvatarBgColor()"
-            size="96px"
-          />
-
-          <mat-form-field class="seed-field">
-            <mat-label>{{ "account.avatar.seed" | translate }}</mat-label>
-            <input
-              matInput
-              [value]="selectedAvatarSeed()"
-              (input)="onAvatarSeedChange($event)"
-            />
-          </mat-form-field>
-        </div>
-
-        <p class="avatar-style-label">{{ "account.avatar.chooseStyle" | translate }}</p>
-
-        <div class="avatar-style-grid">
-          @for (style of avatarService.availableStyles; track style.key) {
-            <button
-              type="button"
-              class="avatar-style-item"
-              [class.selected]="selectedAvatarStyle() === style.key"
-              (click)="selectAvatarStyle(style.key)"
-            >
+    <div class="form-wrapper">
+      <mat-tab-group
+        [selectedIndex]="activeTab()"
+        (selectedIndexChange)="onTabChange($event)"
+        animationDuration="200ms"
+      >
+        <!-- Tab 1: Profile -->
+        <mat-tab [label]="'account.tabs.profile' | translate">
+          <div class="tab-content">
+            <!-- Avatar + user info -->
+            <div class="profile-avatar-section">
               <app-user-avatar
-                [username]="accountForm.get('username')?.value || 'U'"
-                [avatarStyle]="style.key"
-                [avatarSeed]="style.key"
+                [username]="accountForm.get('username')?.value ?? ''"
+                [avatarStyle]="selectedAvatarStyle()"
+                [avatarSeed]="selectedAvatarSeed()"
                 [avatarBgColor]="selectedAvatarBgColor()"
-                size="48px"
+                [avatarOptions]="selectedAvatarOptions()"
+                class="profile-avatar"
+                size="96px"
               />
-              <span class="style-label">{{ style.label }}</span>
-            </button>
-          }
-        </div>
+              <div class="profile-info">
+                <h3>{{ accountForm.get('username')?.value || 'Username' }}</h3>
+                <p class="email-text">{{ appUser()?.email }}</p>
+              </div>
+            </div>
 
-        <!-- Variation gallery: pick a variation within the selected style -->
-        @if (variationSeeds().length > 0) {
-          <p class="avatar-style-label">{{ "account.avatar.chooseVariation" | translate }}</p>
+            <!-- Profile form -->
+            <form [formGroup]="accountForm">
+              <div class="form-grid">
+                <mat-form-field>
+                  <mat-label>{{ "account.username" | translate }}</mat-label>
+                  <input matInput formControlName="username" />
+                </mat-form-field>
 
-          <div class="avatar-variation-grid">
-            @for (seed of variationSeeds(); track seed) {
-              <button
-                type="button"
-                class="avatar-variation-item"
-                [class.selected]="selectedAvatarSeed() === seed"
-                (click)="selectVariation(seed)"
-              >
-                <app-user-avatar
-                  [username]="seed"
-                  [avatarStyle]="selectedAvatarStyle()"
-                  [avatarSeed]="seed"
-                  [avatarBgColor]="selectedAvatarBgColor()"
-                  size="56px"
+                <mat-form-field>
+                  <mat-label>{{ "account.firstName" | translate }}</mat-label>
+                  <input matInput formControlName="firstName" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>{{ "account.lastName" | translate }}</mat-label>
+                  <input matInput formControlName="lastName" />
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>{{ "account.country" | translate }}</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    formControlName="country"
+                    [matAutocomplete]="auto"
+                  />
+                  <mat-autocomplete
+                    #auto="matAutocomplete"
+                    (optionSelected)="onCountrySelected($event.option.value)"
+                    [displayWith]="countryName.bind(this)"
+                    [autoActiveFirstOption]="true"
+                  >
+                    @for (country of filteredCountriesSignal(); track country.code) {
+                      <mat-option [value]="country.code">{{ country.name }}</mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>{{ "account.language" | translate }}</mat-label>
+                  <mat-select formControlName="language">
+                    @for (l of languages; track l) {
+                      <mat-option [value]="l">{{ l.toUpperCase() }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>{{ "account.theme" | translate }}</mat-label>
+                  <mat-select formControlName="theme">
+                    @for (t of themes; track t) {
+                      <mat-option [value]="t">{{ t | translate }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- Tab 2: Avatar -->
+        <mat-tab [label]="'account.tabs.avatar' | translate">
+          <div class="tab-content">
+            <!-- Avatar preview + seed -->
+            <div class="avatar-preview-section">
+              <app-user-avatar
+                [username]="accountForm.get('username')?.value ?? ''"
+                [avatarStyle]="selectedAvatarStyle()"
+                [avatarSeed]="selectedAvatarSeed()"
+                [avatarBgColor]="selectedAvatarBgColor()"
+                [avatarOptions]="selectedAvatarOptions()"
+                class="avatar-preview"
+                size="96px"
+              />
+
+              <mat-form-field class="seed-field">
+                <mat-label>{{ "account.avatar.seed" | translate }}</mat-label>
+                <input
+                  matInput
+                  [value]="selectedAvatarSeed()"
+                  (input)="onAvatarSeedChange($event)"
                 />
-              </button>
+              </mat-form-field>
+            </div>
+
+            <!-- Style grid -->
+            <p class="avatar-style-label">{{ "account.avatar.chooseStyle" | translate }}</p>
+
+            <div class="avatar-style-grid">
+              @for (style of avatarService.availableStyles; track style.key) {
+                <button
+                  type="button"
+                  class="avatar-style-item"
+                  [class.selected]="selectedAvatarStyle() === style.key"
+                  (click)="selectAvatarStyle(style.key)"
+                >
+                  <app-user-avatar
+                    [username]="accountForm.get('username')?.value || 'U'"
+                    [avatarStyle]="style.key"
+                    [avatarSeed]="style.key"
+                    [avatarBgColor]="selectedAvatarBgColor()"
+                    size="48px"
+                  />
+                  <span class="style-label">{{ style.label }}</span>
+                </button>
+              }
+            </div>
+
+            <!-- Variation header with optional regenerate button -->
+            @if (variationSeeds().length > 0) {
+              <div class="variation-header">
+                <p class="avatar-style-label">{{ "account.avatar.chooseVariation" | translate }}</p>
+                @if (!hasCustomOptions()) {
+                  <button
+                    type="button"
+                    mat-icon-button
+                    class="regenerate-btn"
+                    (click)="regenerateSeeds()"
+                    [matTooltip]="'account.avatar.regenerate' | translate"
+                  >
+                    <mat-icon>casino</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <div class="avatar-variation-grid">
+                @for (seed of variationSeeds(); track seed) {
+                  <button
+                    type="button"
+                    class="avatar-variation-item"
+                    [class.selected]="selectedAvatarSeed() === seed"
+                    (click)="selectVariation(seed)"
+                  >
+                    <app-user-avatar
+                      [username]="seed"
+                      [avatarStyle]="selectedAvatarStyle()"
+                      [avatarSeed]="seed"
+                      [avatarBgColor]="selectedAvatarBgColor()"
+                      [avatarOptions]="selectedAvatarOptions()"
+                      size="48px"
+                    />
+                  </button>
+                }
+              </div>
+            }
+
+            <!-- Dynamic style options -->
+            @for (dim of currentStyleDimensions(); track dim.key) {
+              <p class="avatar-style-label">{{ dim.labelKey | translate }}</p>
+
+              @if (dim.type === 'variant') {
+                <div class="avatar-option-chips">
+                  @for (v of dim.variants; track v) {
+                    <button
+                      type="button"
+                      class="option-chip"
+                      [class.selected]="selectedAvatarOptions()[dim.key] === v"
+                      (click)="selectOption(dim.key, v)"
+                    >{{ v }}</button>
+                  }
+                </div>
+              }
+
+              @if (dim.type === 'color') {
+                <div class="avatar-color-grid">
+                  @for (hex of avatarService.getColorPalette(dim.key); track hex) {
+                    <button
+                      type="button"
+                      class="color-swatch"
+                      [class.selected]="selectedAvatarOptions()[dim.key] === hex"
+                      [style.background-color]="'#' + hex"
+                      (click)="selectOption(dim.key, hex)"
+                    ></button>
+                  }
+                </div>
+              }
             }
           </div>
-        }
+        </mat-tab>
+      </mat-tab-group>
 
-        <p class="avatar-style-label">{{ "account.avatar.chooseColor" | translate }}</p>
-
-        <div class="avatar-color-grid">
-          @for (color of avatarService.availableColors; track color.hex) {
-            <button
-              type="button"
-              class="color-swatch"
-              [class.selected]="selectedAvatarBgColor() === color.hex"
-              [style.background-color]="'#' + color.hex"
-              [matTooltip]="color.label"
-              (click)="selectAvatarBgColor(color.hex)"
-            ></button>
-          }
-        </div>
-      </div>
-
+      <!-- Save button (outside tabs, always visible) -->
       <mat-divider></mat-divider>
 
       <div class="form-actions">
         <button
           mat-raised-button
           color="primary"
-          type="submit"
+          type="button"
+          (click)="save()"
           [disabled]="!canSave"
         >
           @if (saving()) {
@@ -170,6 +227,6 @@
           }
         </button>
       </div>
-    </form>
+    </div>
   </div>
-</div>
+}

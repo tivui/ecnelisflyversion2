@@ -44,6 +44,7 @@ const schema = a
         avatarStyle: a.string(),
         avatarSeed: a.string(),
         avatarBgColor: a.string(),
+        avatarOptions: a.string(),
       })
       .secondaryIndexes((index) => [
         index('cognitoSub').queryField('getUserByCognitoSub'),

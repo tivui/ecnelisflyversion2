@@ -177,6 +177,10 @@
   },
   "account": {
     "title": "Configuration du compte",
+    "tabs": {
+      "profile": "Profil",
+      "avatar": "Avatar"
+    },
     "username": "Nom d'utilisateur",
     "email": "Email",
     "emailHelp": "L'email ne peut pas être modifié",
@@ -191,7 +195,22 @@
       "seed": "Graine de l'avatar",
       "chooseStyle": "Choisir un style",
       "chooseVariation": "Choisir une variation",
-      "chooseColor": "Couleur de fond"
+      "chooseColor": "Couleur de fond",
+      "regenerate": "Générer de nouvelles variations",
+      "options": {
+        "eyes": "Yeux",
+        "mouth": "Bouche",
+        "hair": "Cheveux",
+        "clothes": "Vêtements",
+        "face": "Visage",
+        "body": "Corps",
+        "skinColor": "Couleur de peau",
+        "hairColor": "Couleur de cheveux",
+        "clothesColor": "Couleur des vêtements",
+        "clothingColor": "Couleur des vêtements",
+        "baseColor": "Couleur de base",
+        "backgroundColor": "Couleur de fond"
+      }
     }
   },
   "sound": {
