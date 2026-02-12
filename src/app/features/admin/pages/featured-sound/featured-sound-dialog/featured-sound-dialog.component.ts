@@ -25,7 +25,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { FeaturedSoundService } from '../../../../../core/services/featured-sound.service';
-import { AmplifyService } from '../../../../../core/services/amplify.service';
 import { SoundsService } from '../../../../../core/services/sounds.service';
 import { FeaturedSoundCandidate } from '../../../../../core/models/featured-sound.model';
 import { Sound } from '../../../../../core/models/sound.model';
@@ -62,7 +61,6 @@ export class FeaturedSoundDialogComponent implements OnInit {
   );
   private readonly data: DialogData = inject(MAT_DIALOG_DATA);
   private readonly featuredSoundService = inject(FeaturedSoundService);
-  private readonly amplifyService = inject(AmplifyService);
   private readonly soundsService = inject(SoundsService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -98,11 +96,7 @@ export class FeaturedSoundDialogComponent implements OnInit {
   private async loadSounds() {
     this.loadingSounds.set(true);
     try {
-      const result =
-        await this.amplifyService.client.queries.listSoundsForMap({});
-      const sounds = (result.data ?? []).map((s: any) =>
-        this.soundsService.map(s),
-      );
+      const sounds = await this.soundsService.fetchAllPublicSounds();
       this.allSounds.set(sounds);
       this.filteredSounds.set(sounds.slice(0, 50));
 

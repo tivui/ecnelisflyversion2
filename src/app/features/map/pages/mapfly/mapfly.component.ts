@@ -1228,6 +1228,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const soundCategory = params.get('soundCategory') ?? '';
     const soundSecondaryCategory = params.get('soundSecondaryCategory') ?? '';
     const soundId = params.get('soundId') ?? '';
+    const soundTeasing = params.get('soundTeasing') ?? '';
+    let soundTeasingI18n: Record<string, string> | null = null;
+    try {
+      const raw = params.get('soundTeasingI18n');
+      if (raw) soundTeasingI18n = JSON.parse(raw);
+    } catch { /* ignore */ }
 
     // Start zoomed out for cinematic fly-in
     this.map = L.map('mapfly', {
@@ -1286,6 +1292,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }),
     });
 
+    // Resolve teasing text for the current language
+    const lang = this.currentUserLanguage.toLowerCase().trim();
+    const displayTeasing = (soundTeasingI18n?.[lang]) || soundTeasing;
+
     const featuredLabel = this.translate.instant('home.hero.soundOfTheDay');
     marker.bindPopup(`
       <div class="popup-container featured-popup">
@@ -1300,7 +1310,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <span class="popup-like-count">${s?.likesCount ?? 0}</span>
           </div>
         </div>
-        <p class="popup-shortstory" id="shortStory-${soundFilename}">${s?.shortStory ?? ''}</p>
+        <p class="popup-shortstory" id="shortStory-${soundFilename}">${displayTeasing}</p>
         <div id="btn-container-title-${soundFilename}"></div>
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
@@ -1369,16 +1379,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
         }
       }
 
-      // --- Translate button ---
+      // --- Translate button (uses teasing i18n instead of shortStory for featured popup) ---
       if (titleEl && shortStoryEl && btnTitleContainer) {
         const title_i18n_obj = this.parseI18n(s.title_i18n);
-        const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
-        const lang = this.currentUserLanguage.toLowerCase().trim();
-        const translatedTitle = title_i18n_obj?.[lang];
-        const translatedStory = story_i18n_obj?.[lang];
+        const teasingLang = this.currentUserLanguage.toLowerCase().trim();
+        const translatedTitle = title_i18n_obj?.[teasingLang];
+        const translatedTeasing = soundTeasingI18n?.[teasingLang];
         const shouldShow =
           (translatedTitle && translatedTitle !== titleEl.textContent?.trim()) ||
-          (translatedStory && translatedStory !== shortStoryEl.textContent?.trim());
+          (translatedTeasing && translatedTeasing !== shortStoryEl.textContent?.trim());
 
         if (shouldShow) {
           const btn = document.createElement('button');
@@ -1398,8 +1407,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           btnTitleContainer.appendChild(btn);
 
           btn.addEventListener('click', () => {
-            if (title_i18n_obj?.[lang]) titleEl.textContent = title_i18n_obj[lang];
-            if (story_i18n_obj?.[lang]) shortStoryEl.textContent = story_i18n_obj[lang];
+            if (title_i18n_obj?.[teasingLang]) titleEl.textContent = title_i18n_obj[teasingLang];
+            if (soundTeasingI18n?.[teasingLang]) shortStoryEl.textContent = soundTeasingI18n[teasingLang];
             btn.style.display = 'none';
           });
         }

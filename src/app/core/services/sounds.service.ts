@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { Sound } from '../models/sound.model'
 import { StorageService } from './storage.service';
+import { AmplifyService } from './amplify.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoundsService {
   private readonly storageService = inject(StorageService);
+  private readonly amplifyService = inject(AmplifyService);
 
   // Transform raw dynamo db object any to client sound model used in the app
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -46,6 +48,49 @@ export class SoundsService {
       hashtags: raw.hashtags,
       likesCount: raw.likesCount ?? 0,
     });
+  }
+
+  /**
+   * Fetch all public sounds with client-side pagination.
+   * Uses the listSoundsByStatus GSI directly (no Lambda) to avoid
+   * the AppSync 1 MB response payload limit.
+   */
+  async fetchAllPublicSounds(): Promise<Sound[]> {
+    const allItems: Sound[] = [];
+    let nextToken: string | null | undefined = undefined;
+
+    do {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const page: any =
+        await this.amplifyService.client.models.Sound.listSoundsByStatus(
+          { status: 'public' },
+          {
+            limit: 200,
+            nextToken: nextToken ?? undefined,
+            selectionSet: [
+              'id',
+              'userId',
+              'title',
+              'title_i18n',
+              'filename',
+              'city',
+              'category',
+              'secondaryCategory',
+              'latitude',
+              'longitude',
+              'status',
+            ],
+          },
+        );
+
+      const data = page.data ?? [];
+      for (const raw of data) {
+        allItems.push(this.map(raw));
+      }
+      nextToken = page.nextToken ?? null;
+    } while (nextToken);
+
+    return allItems;
   }
 
   /**
