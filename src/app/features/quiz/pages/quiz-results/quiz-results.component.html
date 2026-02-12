@@ -1,0 +1,86 @@
+<div class="quiz-results-container">
+  @if (loading()) {
+    <div class="center-state">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <!-- Score Section -->
+    <div class="score-section">
+      <div class="stars-row">
+        @for (filled of starsArray(); track $index) {
+          <mat-icon class="star-icon" [class.filled]="filled" [class.empty]="!filled">
+            {{ filled ? 'star' : 'star_border' }}
+          </mat-icon>
+        }
+      </div>
+
+      <div class="score-value">{{ score() }}</div>
+      <div class="score-max">/ {{ maxScore() }} ({{ percentage() }}%)</div>
+
+      @if (quiz()) {
+        <h2 class="quiz-title">{{ quiz()!.title }}</h2>
+      }
+    </div>
+
+    <!-- Guest warning -->
+    @if (isGuest()) {
+      <div class="guest-banner">
+        <mat-icon>info</mat-icon>
+        <div class="guest-banner-text">
+          <p>{{ 'quiz.results.guestWarning' | translate }}</p>
+          <button mat-raised-button color="primary" (click)="goToLogin()">
+            {{ 'quiz.results.loginToSave' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Leaderboard -->
+    @if (leaderboard().length > 0) {
+      <div class="leaderboard-section">
+        <h3>
+          <mat-icon>leaderboard</mat-icon>
+          {{ 'quiz.results.leaderboard' | translate }}
+        </h3>
+        <div class="leaderboard-list">
+          @for (entry of leaderboard(); track entry.id; let i = $index) {
+            <div class="leaderboard-row" [class.top-3]="i < 3">
+              <span class="rank">{{ i + 1 }}</span>
+              <app-user-avatar
+                [username]="entry.username ?? '?'"
+                [avatarStyle]="entry.avatarStyle ?? 'initials'"
+                [avatarSeed]="entry.avatarSeed ?? entry.username ?? '?'"
+                [avatarBgColor]="entry.avatarBgColor ?? '0d7c51'"
+                size="32px"
+              />
+              <span class="player-name">{{ entry.username ?? '?' }}</span>
+              <span class="player-score">{{ entry.score }}</span>
+              <div class="player-stars">
+                @for (s of [0,1,2]; track s) {
+                  <mat-icon class="mini-star" [class.filled]="s < entry.stars">
+                    {{ s < entry.stars ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="actions-section">
+      <button mat-raised-button (click)="goToReview()">
+        <mat-icon>visibility</mat-icon>
+        {{ 'quiz.results.review' | translate }}
+      </button>
+      <button mat-raised-button color="primary" (click)="replay()">
+        <mat-icon>replay</mat-icon>
+        {{ 'quiz.results.replay' | translate }}
+      </button>
+      <button mat-button (click)="goToQuizList()">
+        {{ 'quiz.results.backToList' | translate }}
+      </button>
+    </div>
+  }
+</div>

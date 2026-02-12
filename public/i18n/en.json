@@ -23,7 +23,9 @@
       "listen": "Listen",
       "soundJourney": "Sound Journey",
       "startJourney": "Start the journey",
-      "discoverJourneys": "Discover journeys"
+      "discoverJourneys": "Discover journeys",
+      "monthlyQuiz": "Quiz of the Month",
+      "play": "Play"
     },
     "zones": {
       "title": "Explore by zones",
@@ -45,6 +47,7 @@
     "discoverZones": "Discover Zones",
     "soundOfTheDay": "Sound of the Day",
     "soundJourneys": "Sound Journeys",
+    "soundQuiz": "Sound Quiz",
     "categories": "Categories"
   },
   "zones": {
@@ -66,6 +69,59 @@
       "title": "No journeys available",
       "message": "There are no sound journeys to explore yet. Check back soon!",
       "exploreMap": "Explore the world map"
+    }
+  },
+  "quiz": {
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "type": {
+      "listen_identify": "Listen & identify",
+      "listen_choose_category": "Listen & choose category",
+      "listen_choose_location": "Listen & guess location",
+      "odd_one_out": "Odd one out",
+      "true_false": "True or false"
+    },
+    "list": {
+      "title": "Sound Quizzes",
+      "empty": "No quizzes available at the moment",
+      "monthlyQuiz": "Monthly Quiz",
+      "questions": "{{count}} questions"
+    },
+    "lobby": {
+      "start": "Start Quiz",
+      "questions": "{{count}} questions",
+      "bestScore": "Best Score",
+      "topPlayers": "Top Players",
+      "guestNotice": "Log in to save your score"
+    },
+    "play": {
+      "getReady": "Get ready!",
+      "calculating": "Calculating score..."
+    },
+    "results": {
+      "leaderboard": "Leaderboard",
+      "review": "Review Answers",
+      "replay": "Play Again",
+      "backToList": "Back to Quizzes",
+      "guestWarning": "Your score was not saved",
+      "loginToSave": "Log in to save your scores"
+    },
+    "review": {
+      "title": "Answer Review",
+      "backToResults": "Back to Results"
+    },
+    "myScores": {
+      "title": "My Scores",
+      "empty": "You haven't played any quizzes yet",
+      "browseQuizzes": "Browse Quizzes"
     }
   },
   "common": {
@@ -336,7 +392,8 @@
       "importSounds": "Import sounds",
       "zones": "Geographic zones",
       "featuredSound": "Sound of the Day",
-      "journeys": "Sound Journeys"
+      "journeys": "Sound Journeys",
+      "quizzes": "Sound Quizzes"
     },
     "featuredSound": {
       "title": "Sound of the Day",
@@ -516,6 +573,90 @@
         "storyDefault": "Default text",
         "storySaved": "Story saved",
         "storyError": "Error saving story"
+      }
+    },
+    "quiz": {
+      "title": "Sound Quizzes",
+      "create": "New quiz",
+      "createFirst": "Create your first quiz",
+      "noQuizzes": "No quizzes created",
+      "loadError": "Error loading quizzes",
+      "monthlySet": "Monthly quiz set successfully",
+      "table": {
+        "title": "Title",
+        "difficulty": "Difficulty",
+        "status": "Status",
+        "questions": "Questions",
+        "plays": "Plays",
+        "actions": "Actions"
+      },
+      "actions": {
+        "questions": "Questions",
+        "monthly": "Monthly quiz",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "delete": {
+        "title": "Delete quiz",
+        "message": "Are you sure you want to delete the quiz \"{{name}}\"? This action cannot be undone.",
+        "confirm": "Delete",
+        "success": "Quiz deleted successfully",
+        "error": "Error deleting quiz"
+      },
+      "dialog": {
+        "createTitle": "Create quiz",
+        "editTitle": "Edit quiz",
+        "tabs": {
+          "general": "General",
+          "translations": "Translations"
+        },
+        "titleLabel": "Quiz title",
+        "description": "Description",
+        "difficulty": "Difficulty",
+        "category": "Category",
+        "status": "Status",
+        "createSuccess": "Quiz created successfully",
+        "updateSuccess": "Quiz updated successfully",
+        "saveError": "Error saving quiz"
+      },
+      "questions": {
+        "title": "Quiz questions",
+        "createTitle": "Add question",
+        "editTitle": "Edit question",
+        "add": "Add question",
+        "addFirst": "Add your first question",
+        "empty": "No questions in this quiz",
+        "typeLabel": "Question type",
+        "type": {
+          "listen_identify": "Listen & identify",
+          "listen_choose_category": "Listen & choose category",
+          "listen_choose_location": "Listen & guess location",
+          "odd_one_out": "Odd one out",
+          "true_false": "True or false"
+        },
+        "prompt": "Prompt",
+        "sound": "Associated sound",
+        "choicesLabel": "Choices",
+        "choiceLabel": "Choice",
+        "correctAnswer": "Correct answer",
+        "explanation": "Explanation",
+        "timeOverride": "Custom time",
+        "addChoice": "Add choice",
+        "choices": "choices",
+        "delete": {
+          "title": "Delete question",
+          "message": "Are you sure you want to delete this question?",
+          "confirm": "Delete",
+          "success": "Question deleted"
+        },
+        "createSuccess": "Question created successfully",
+        "updateSuccess": "Question updated successfully",
+        "saveError": "Error saving question"
       }
     }
   },

@@ -81,6 +81,12 @@ export class SidenavMenuComponent {
       route: '/journeys',
       queryParams: {},
     },
+    {
+      icon: 'quiz',
+      labelKey: 'sidenav.soundQuiz',
+      route: '/quiz',
+      queryParams: {},
+    },
   ];
 
   private async loadDailyFeatured() {

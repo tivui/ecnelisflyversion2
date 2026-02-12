@@ -5,8 +5,9 @@
         <a
           mat-tab-link
           [routerLink]="tab.route"
-          (click)="activeTab = tab.route"
-          [active]="activeTab === tab.route"
+          routerLinkActive
+          #rla="routerLinkActive"
+          [active]="rla.isActive"
         >
           {{ tab.label | translate }}
         </a>

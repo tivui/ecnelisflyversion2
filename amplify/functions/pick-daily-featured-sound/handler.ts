@@ -53,7 +53,7 @@ export const handler = async () => {
     return { status: 'no_candidates', date: today };
   }
 
-  // --- 4. Get yesterday's pick to avoid repetition ---
+  // --- 4. Get yesterday's pick to avoid the same sound two days in a row ---
   const yesterday = new Date(Date.now() - 86400000)
     .toISOString()
     .split('T')[0];
@@ -62,14 +62,14 @@ export const handler = async () => {
       date: yesterday,
     });
 
-  const yesterdayCandidateId =
-    yesterdayResult.data?.[0]?.featuredCandidateId ?? null;
+  const yesterdaySoundId =
+    yesterdayResult.data?.[0]?.soundId ?? null;
 
-  // --- 5. Filter out yesterday's pick (if more than 1 candidate) ---
+  // --- 5. Filter out yesterday's sound (if more than 1 candidate) ---
   let eligibleCandidates = allCandidates;
-  if (yesterdayCandidateId && allCandidates.length > 1) {
+  if (yesterdaySoundId && allCandidates.length > 1) {
     eligibleCandidates = allCandidates.filter(
-      (c) => c.id !== yesterdayCandidateId,
+      (c) => c.soundId !== yesterdaySoundId,
     );
   }
 

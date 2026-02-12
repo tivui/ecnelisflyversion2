@@ -23,7 +23,9 @@
       "listen": "Écouter",
       "soundJourney": "Voyage sonore",
       "startJourney": "Commencer le voyage",
-      "discoverJourneys": "Découvrir les voyages"
+      "discoverJourneys": "Découvrir les voyages",
+      "monthlyQuiz": "Quiz du mois",
+      "play": "Jouer"
     },
     "zones": {
       "title": "Explorer par zones",
@@ -45,6 +47,7 @@
     "discoverZones": "Découvrir les zones",
     "soundOfTheDay": "Son du jour",
     "soundJourneys": "Voyages sonores",
+    "soundQuiz": "Quiz sonore",
     "categories": "Catégories"
   },
   "zones": {
@@ -66,6 +69,59 @@
       "title": "Aucun voyage disponible",
       "message": "Il n'y a pas encore de voyages sonores à explorer. Revenez bientôt !",
       "exploreMap": "Explorer la carte mondiale"
+    }
+  },
+  "quiz": {
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Difficile"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "published": "Publié",
+      "archived": "Archivé"
+    },
+    "type": {
+      "listen_identify": "Écouter et identifier",
+      "listen_choose_category": "Écouter et choisir la catégorie",
+      "listen_choose_location": "Écouter et deviner le lieu",
+      "odd_one_out": "Trouver l'intrus",
+      "true_false": "Vrai ou faux"
+    },
+    "list": {
+      "title": "Quiz sonores",
+      "empty": "Aucun quiz disponible pour le moment",
+      "monthlyQuiz": "Quiz du mois",
+      "questions": "{{count}} questions"
+    },
+    "lobby": {
+      "start": "Commencer le quiz",
+      "questions": "{{count}} questions",
+      "bestScore": "Meilleur score",
+      "topPlayers": "Meilleurs joueurs",
+      "guestNotice": "Connectez-vous pour sauvegarder votre score"
+    },
+    "play": {
+      "getReady": "Préparez-vous !",
+      "calculating": "Calcul du score..."
+    },
+    "results": {
+      "leaderboard": "Classement",
+      "review": "Revoir les réponses",
+      "replay": "Rejouer",
+      "backToList": "Retour aux quiz",
+      "guestWarning": "Votre score n'a pas été sauvegardé",
+      "loginToSave": "Connectez-vous pour sauvegarder vos scores"
+    },
+    "review": {
+      "title": "Révision des réponses",
+      "backToResults": "Retour aux résultats"
+    },
+    "myScores": {
+      "title": "Mes scores",
+      "empty": "Vous n'avez pas encore joué de quiz",
+      "browseQuizzes": "Découvrir les quiz"
     }
   },
   "common": {
@@ -337,7 +393,8 @@
       "importSounds": "Importer les sons",
       "zones": "Zones géographiques",
       "featuredSound": "Son du jour",
-      "journeys": "Voyages sonores"
+      "journeys": "Voyages sonores",
+      "quizzes": "Quiz sonores"
     },
     "featuredSound": {
       "title": "Son du jour",
@@ -517,6 +574,90 @@
         "storyDefault": "Texte par défaut",
         "storySaved": "Histoire enregistrée",
         "storyError": "Erreur lors de l'enregistrement de l'histoire"
+      }
+    },
+    "quiz": {
+      "title": "Quiz sonores",
+      "create": "Nouveau quiz",
+      "createFirst": "Créer votre premier quiz",
+      "noQuizzes": "Aucun quiz créé",
+      "loadError": "Erreur lors du chargement des quiz",
+      "monthlySet": "Quiz du mois défini avec succès",
+      "table": {
+        "title": "Titre",
+        "difficulty": "Difficulté",
+        "status": "Statut",
+        "questions": "Questions",
+        "plays": "Parties",
+        "actions": "Actions"
+      },
+      "actions": {
+        "questions": "Questions",
+        "monthly": "Quiz du mois",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "published": "Publié",
+        "archived": "Archivé"
+      },
+      "delete": {
+        "title": "Supprimer le quiz",
+        "message": "Êtes-vous sûr de vouloir supprimer le quiz \"{{name}}\" ? Cette action est irréversible.",
+        "confirm": "Supprimer",
+        "success": "Quiz supprimé avec succès",
+        "error": "Erreur lors de la suppression"
+      },
+      "dialog": {
+        "createTitle": "Créer un quiz",
+        "editTitle": "Modifier le quiz",
+        "tabs": {
+          "general": "Général",
+          "translations": "Traductions"
+        },
+        "titleLabel": "Titre du quiz",
+        "description": "Description",
+        "difficulty": "Difficulté",
+        "category": "Catégorie",
+        "status": "Statut",
+        "createSuccess": "Quiz créé avec succès",
+        "updateSuccess": "Quiz mis à jour avec succès",
+        "saveError": "Erreur lors de l'enregistrement"
+      },
+      "questions": {
+        "title": "Questions du quiz",
+        "createTitle": "Ajouter une question",
+        "editTitle": "Modifier la question",
+        "add": "Ajouter une question",
+        "addFirst": "Ajouter votre première question",
+        "empty": "Aucune question dans ce quiz",
+        "typeLabel": "Type de question",
+        "type": {
+          "listen_identify": "Écouter et identifier",
+          "listen_choose_category": "Écouter et choisir la catégorie",
+          "listen_choose_location": "Écouter et deviner le lieu",
+          "odd_one_out": "Trouver l'intrus",
+          "true_false": "Vrai ou faux"
+        },
+        "prompt": "Énoncé",
+        "sound": "Son associé",
+        "choicesLabel": "Choix",
+        "choiceLabel": "Choix",
+        "correctAnswer": "Bonne réponse",
+        "explanation": "Explication",
+        "timeOverride": "Temps personnalisé",
+        "addChoice": "Ajouter un choix",
+        "choices": "choix",
+        "delete": {
+          "title": "Supprimer la question",
+          "message": "Êtes-vous sûr de vouloir supprimer cette question ?",
+          "confirm": "Supprimer",
+          "success": "Question supprimée"
+        },
+        "createSuccess": "Question créée avec succès",
+        "updateSuccess": "Question mise à jour avec succès",
+        "saveError": "Erreur lors de l'enregistrement"
       }
     }
   },

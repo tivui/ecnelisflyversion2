@@ -1,0 +1,106 @@
+<div class="quiz-lobby-container">
+  @if (loading()) {
+    <div class="center-state">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (quiz()) {
+    <button mat-icon-button class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <!-- Hero card -->
+    <div class="lobby-card">
+      <div class="lobby-hero-visual">
+        <div class="hero-icon-circle">
+          <mat-icon>quiz</mat-icon>
+        </div>
+      </div>
+
+      <div class="lobby-hero-body">
+        <h1 class="lobby-title">{{ getLocalizedTitle() }}</h1>
+        @if (getLocalizedDescription()) {
+          <p class="lobby-description">{{ getLocalizedDescription() }}</p>
+        }
+
+        <!-- Info pills -->
+        <div class="info-pills">
+          <div class="pill">
+            <mat-icon>signal_cellular_alt</mat-icon>
+            <span class="difficulty-chip" [class]="'difficulty-' + quiz()!.difficulty">
+              {{ 'quiz.difficulty.' + quiz()!.difficulty | translate }}
+            </span>
+          </div>
+          <div class="pill">
+            <mat-icon>help_outline</mat-icon>
+            <span>{{ 'quiz.lobby.questions' | translate:{ count: quiz()!.questionCount } }}</span>
+          </div>
+          <div class="pill">
+            <mat-icon>timer</mat-icon>
+            <span>{{ estimatedTime() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best score -->
+    @if (bestAttempt()) {
+      <div class="section-card">
+        <div class="section-header">
+          <mat-icon>emoji_events</mat-icon>
+          <h3>{{ 'quiz.lobby.bestScore' | translate }}</h3>
+        </div>
+        <div class="best-score-value">
+          <span class="score">{{ bestAttempt()!.score }}</span>
+          <span class="max-score">/ {{ bestAttempt()!.maxScore }}</span>
+          <div class="best-stars">
+            @for (s of [0,1,2]; track s) {
+              <mat-icon class="mini-star" [class.filled]="s < bestAttempt()!.stars">
+                {{ s < bestAttempt()!.stars ? 'star' : 'star_border' }}
+              </mat-icon>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Guest notice -->
+    @if (!isAuthenticated()) {
+      <div class="guest-notice">
+        <mat-icon>info</mat-icon>
+        <span>{{ 'quiz.lobby.guestNotice' | translate }}</span>
+      </div>
+    }
+
+    <!-- Top players -->
+    @if (topPlayers().length > 0) {
+      <div class="section-card">
+        <div class="section-header">
+          <mat-icon>leaderboard</mat-icon>
+          <h3>{{ 'quiz.lobby.topPlayers' | translate }}</h3>
+        </div>
+        @for (player of topPlayers(); track player.id; let i = $index) {
+          <div class="top-player-row">
+            <span class="rank" [class]="'rank-' + (i + 1)">{{ i + 1 }}</span>
+            <app-user-avatar
+              [username]="player.username ?? '?'"
+              [avatarStyle]="player.avatarStyle ?? 'initials'"
+              [avatarSeed]="player.avatarSeed ?? player.username ?? '?'"
+              [avatarBgColor]="player.avatarBgColor ?? '0d7c51'"
+              size="32px"
+            />
+            <span class="name">{{ player.username ?? '?' }}</span>
+            <span class="top-score">{{ player.score }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Start button -->
+    <div class="start-section">
+      <button class="start-btn" mat-raised-button (click)="startQuiz()">
+        <mat-icon>play_arrow</mat-icon>
+        {{ 'quiz.lobby.start' | translate }}
+      </button>
+    </div>
+  }
+</div>

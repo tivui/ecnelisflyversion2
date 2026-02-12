@@ -1,0 +1,427 @@
+// =====================
+// Variables
+// =====================
+$accent: #0d7c51;
+$accent-light: #66bb6a;
+$primary-blue: #1976d2;
+$primary-indigo: #3f51b5;
+
+// Noise grain texture
+$noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='a' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)' opacity='.05'/%3E%3C/svg%3E");
+
+// =====================
+// Container
+// =====================
+.quiz-list-container {
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba($primary-blue, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 88% 18%, rgba($primary-indigo, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #f8f9fc 0%, #f2f4f8 100%);
+
+  :host-context(body.dark-theme) & {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 45% at 88% 18%, rgba(#7986cb, 0.03) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d1a 0%, #111124 100%);
+  }
+
+  @media (max-width: 700px) {
+    padding: 16px;
+  }
+}
+
+// =====================
+// Hero header
+// =====================
+.list-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+
+  @media (max-width: 700px) {
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+}
+
+.hero-icon-wrap {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1f2f6e, #4a62c6);
+  box-shadow: 0 4px 16px rgba(#1f2f6e, 0.25), 0 0 0 3px rgba($accent, 0.2);
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #fff;
+  }
+
+  @media (max-width: 700px) {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a2e;
+  text-align: center;
+
+  :host-context(body.dark-theme) & {
+    color: #e8e8f0;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 1.2rem;
+  }
+}
+
+// =====================
+// Loading & Empty
+// =====================
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: #bbb;
+    margin-bottom: 16px;
+
+    :host-context(body.dark-theme) & {
+      color: #555;
+    }
+  }
+
+  p {
+    color: #888;
+    font-size: 0.95rem;
+
+    :host-context(body.dark-theme) & {
+      color: #777;
+    }
+  }
+}
+
+// =====================
+// Quiz Grid
+// =====================
+.quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+// =====================
+// Quiz Card
+// =====================
+.quiz-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  font-family: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 6px rgba(0, 0, 0, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  :host-context(body.dark-theme) & {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: #eee;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    :host-context(body.dark-theme) & {
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-icon-circle {
+      transform: scale(1.08);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  // All quiz cards: emerald left accent
+  border-left: 3px solid rgba($accent, 0.35);
+
+  :host-context(body.dark-theme) & {
+    border-left: 3px solid rgba($accent-light, 0.3);
+  }
+
+  // Monthly quiz: stronger accent border
+  &.monthly {
+    border-left: 3px solid $accent;
+    border-color: rgba($accent, 0.2);
+    border-left-color: $accent;
+
+    :host-context(body.dark-theme) & {
+      border-color: rgba($accent-light, 0.15);
+      border-left-color: $accent-light;
+    }
+  }
+}
+
+// =====================
+// Card gradient visual
+// =====================
+.card-visual {
+  position: relative;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: $noise-texture repeat, linear-gradient(135deg, #283593 0%, #5c6bc0 100%);
+  background-blend-mode: overlay, normal;
+
+  // Floating orbs
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle 60px at 15% 30%, rgba(92, 107, 192, 0.28) 0%, transparent 100%),
+      radial-gradient(circle 45px at 85% 65%, rgba(63, 81, 181, 0.22) 0%, transparent 100%),
+      radial-gradient(circle 30px at 50% 5%, rgba(159, 168, 218, 0.14) 0%, transparent 100%);
+    z-index: 0;
+  }
+
+  // Light leak
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.08) 43%,
+      rgba(255, 255, 255, 0.16) 50%,
+      rgba(255, 255, 255, 0.08) 57%,
+      transparent 70%
+    );
+    z-index: 0;
+    transition: transform 0.5s ease;
+  }
+
+  // Monthly quiz: uses quiz gradient
+  &.monthly-visual {
+    background: $noise-texture repeat, linear-gradient(135deg, #1f2f6e 0%, #4a62c6 100%);
+    background-blend-mode: overlay, normal;
+
+    &::before {
+      background:
+        radial-gradient(circle 60px at 15% 30%, rgba(74, 98, 198, 0.28) 0%, transparent 100%),
+        radial-gradient(circle 45px at 85% 65%, rgba(55, 75, 175, 0.22) 0%, transparent 100%),
+        radial-gradient(circle 30px at 50% 5%, rgba(130, 145, 215, 0.14) 0%, transparent 100%);
+    }
+  }
+
+  @media (max-width: 700px) {
+    height: 88px;
+  }
+}
+
+.card-icon-circle {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  z-index: 1;
+  transition: transform 0.3s ease;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #fff;
+  }
+}
+
+.monthly-badge {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #fff;
+  z-index: 2;
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+  }
+}
+
+// =====================
+// Card body
+// =====================
+.card-body {
+  padding: 16px 18px 8px;
+  flex: 1;
+}
+
+.card-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a2e;
+
+  :host-context(body.dark-theme) & {
+    color: #f5f5f5;
+  }
+}
+
+.card-description {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  :host-context(body.dark-theme) & {
+    color: #aaa;
+  }
+}
+
+// =====================
+// Card footer
+// =====================
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 14px;
+}
+
+.difficulty-chip {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.difficulty-easy {
+  background: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+
+  :host-context(body.dark-theme) & {
+    background: rgba(76, 175, 80, 0.15);
+    color: #81c784;
+  }
+}
+
+.difficulty-medium {
+  background: rgba(255, 152, 0, 0.12);
+  color: #e65100;
+
+  :host-context(body.dark-theme) & {
+    background: rgba(255, 152, 0, 0.15);
+    color: #ffb74d;
+  }
+}
+
+.difficulty-hard {
+  background: rgba(244, 67, 54, 0.12);
+  color: #c62828;
+
+  :host-context(body.dark-theme) & {
+    background: rgba(244, 67, 54, 0.15);
+    color: #ef9a9a;
+  }
+}
+
+.question-count {
+  font-size: 0.78rem;
+  color: $accent;
+
+  :host-context(body.dark-theme) & {
+    color: $accent-light;
+  }
+}
+
+.plays-count {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: #888;
+  margin-left: auto;
+
+  :host-context(body.dark-theme) & {
+    color: #888;
+  }
+}
+
+.inline-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}

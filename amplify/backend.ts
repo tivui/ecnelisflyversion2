@@ -6,6 +6,7 @@ import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { deleteSoundFile } from './functions/delete-sound-file/resource';
 import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/resource';
+import { pickMonthlyQuiz } from './functions/pick-monthly-quiz/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
 
@@ -15,6 +16,7 @@ const backend = defineBackend({
   storage,
   deleteSoundFile,
   pickDailyFeaturedSound,
+  pickMonthlyQuiz,
   startImport,
   processImport,
 });

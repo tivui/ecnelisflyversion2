@@ -53,5 +53,51 @@ export const routes: Routes = [
         (m) => m.CategoriesListComponent,
       ),
   },
+
+  // Quiz routes (public - no authGuard, guest mode supported)
+  {
+    path: 'quiz',
+    loadComponent: () =>
+      import('./features/quiz/pages/quiz-list/quiz-list.component').then(
+        (m) => m.QuizListComponent,
+      ),
+  },
+  {
+    path: 'quiz/my-scores',
+    loadComponent: () =>
+      import('./features/quiz/pages/my-scores/my-scores.component').then(
+        (m) => m.MyScoresComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'quiz/:id',
+    loadComponent: () =>
+      import('./features/quiz/pages/quiz-lobby/quiz-lobby.component').then(
+        (m) => m.QuizLobbyComponent,
+      ),
+  },
+  {
+    path: 'quiz/:id/play',
+    loadComponent: () =>
+      import('./features/quiz/pages/quiz-play/quiz-play.component').then(
+        (m) => m.QuizPlayComponent,
+      ),
+  },
+  {
+    path: 'quiz/:id/results/:attemptId',
+    loadComponent: () =>
+      import('./features/quiz/pages/quiz-results/quiz-results.component').then(
+        (m) => m.QuizResultsComponent,
+      ),
+  },
+  {
+    path: 'quiz/:id/review/:attemptId',
+    loadComponent: () =>
+      import('./features/quiz/pages/quiz-review/quiz-review.component').then(
+        (m) => m.QuizReviewComponent,
+      ),
+  },
+
   { path: '**', redirectTo: 'home' },
 ];

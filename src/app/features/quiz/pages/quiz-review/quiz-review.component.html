@@ -1,0 +1,68 @@
+<div class="quiz-review-container">
+  @if (loading()) {
+    <div class="center-state">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <div class="review-header">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2>{{ 'quiz.review.title' | translate }}</h2>
+    </div>
+
+    <div class="review-list">
+      @for (item of reviewItems(); track item.question.id; let i = $index) {
+        <div class="review-card" [class.correct]="item.answer.correct" [class.wrong]="!item.answer.correct">
+          <div class="review-card-header">
+            <span class="question-number">#{{ i + 1 }}</span>
+            <span class="points-badge" [class.correct]="item.answer.correct">
+              {{ item.answer.points }} pts
+            </span>
+          </div>
+
+          <p class="review-prompt">{{ getLocalizedPrompt(item.question) }}</p>
+
+          <!-- Choices list -->
+          <div class="review-choices">
+            @for (choice of item.question.choices; track $index; let ci = $index) {
+              <div
+                class="review-choice"
+                [class.is-correct]="choice.isCorrect"
+                [class.was-chosen]="item.answer.chosenIndex === ci"
+                [class.was-wrong]="item.answer.chosenIndex === ci && !choice.isCorrect"
+              >
+                @if (choice.isCorrect) {
+                  <mat-icon class="choice-icon correct">check_circle</mat-icon>
+                } @else if (item.answer.chosenIndex === ci) {
+                  <mat-icon class="choice-icon wrong">cancel</mat-icon>
+                } @else {
+                  <mat-icon class="choice-icon neutral">radio_button_unchecked</mat-icon>
+                }
+                <span>{{ getLocalizedChoice(choice) }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Explanation -->
+          @if (getLocalizedExplanation(item.question)) {
+            <div class="review-explanation">
+              <mat-icon>lightbulb</mat-icon>
+              <span>{{ getLocalizedExplanation(item.question) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="review-actions">
+      <button mat-raised-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'quiz.review.backToResults' | translate }}
+      </button>
+      <button mat-button (click)="goToQuizList()">
+        {{ 'quiz.results.backToList' | translate }}
+      </button>
+    </div>
+  }
+</div>

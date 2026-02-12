@@ -1,0 +1,85 @@
+<div class="questions-editor-container">
+  <div class="header">
+    <div class="header-left">
+      <button mat-icon-button (click)="goBack()" [matTooltip]="'common.action.back' | translate">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2>
+        @if (quiz()) {
+          {{ quiz()!.title }} - {{ 'admin.quiz.questions.title' | translate }}
+        }
+      </h2>
+    </div>
+    <button mat-raised-button color="primary" (click)="openAddDialog()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.quiz.questions.add' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (questions().length === 0) {
+    <div class="empty-state">
+      <mat-icon>help_outline</mat-icon>
+      <p>{{ 'admin.quiz.questions.empty' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openAddDialog()">
+        {{ 'admin.quiz.questions.addFirst' | translate }}
+      </button>
+    </div>
+  } @else {
+    <div
+      class="questions-list"
+      cdkDropList
+      (cdkDropListDropped)="onDrop($event)"
+    >
+      @for (question of questions(); track question.id) {
+        <div class="question-card" cdkDrag>
+          <div class="drag-handle" cdkDragHandle>
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+
+          <div class="question-info">
+            <div class="question-header">
+              <span class="question-number">#{{ question.order }}</span>
+              <mat-chip class="type-chip">
+                {{ getQuestionTypeLabel(question.type) }}
+              </mat-chip>
+            </div>
+            <p class="question-prompt">{{ question.prompt }}</p>
+            <div class="question-meta">
+              <span class="choices-count">
+                {{ question.choices.length }} {{ 'admin.quiz.questions.choices' | translate }}
+              </span>
+              @if (question.timeLimitOverride) {
+                <span class="time-override">
+                  <mat-icon class="inline-icon">timer</mat-icon>
+                  {{ question.timeLimitOverride }}s
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="question-actions">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.quiz.actions.edit' | translate"
+              (click)="openEditDialog(question)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'admin.quiz.actions.delete' | translate"
+              (click)="deleteQuestion(question)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

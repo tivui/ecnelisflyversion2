@@ -1,0 +1,61 @@
+<div class="quiz-list-container">
+  <!-- Hero header -->
+  <div class="list-hero">
+    <div class="hero-icon-wrap">
+      <mat-icon>quiz</mat-icon>
+    </div>
+    <h1 class="page-title">{{ 'quiz.list.title' | translate }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (quizzes().length === 0) {
+    <div class="empty-state">
+      <mat-icon>quiz</mat-icon>
+      <p>{{ 'quiz.list.empty' | translate }}</p>
+    </div>
+  } @else {
+    <div class="quiz-grid">
+      @for (quiz of quizzes(); track quiz.id) {
+        <button class="quiz-card" (click)="openQuiz(quiz)" [class.monthly]="isMonthly(quiz)">
+          <!-- Card gradient header -->
+          <div class="card-visual" [class.monthly-visual]="isMonthly(quiz)">
+            @if (isMonthly(quiz)) {
+              <span class="monthly-badge">
+                <mat-icon>star</mat-icon>
+                {{ 'quiz.list.monthlyQuiz' | translate }}
+              </span>
+            }
+            <div class="card-icon-circle">
+              <mat-icon>{{ isMonthly(quiz) ? 'emoji_events' : 'quiz' }}</mat-icon>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h3 class="card-title">{{ getLocalizedTitle(quiz) }}</h3>
+            @if (getLocalizedDescription(quiz)) {
+              <p class="card-description">{{ getLocalizedDescription(quiz) }}</p>
+            }
+          </div>
+
+          <div class="card-footer">
+            <span class="difficulty-chip" [class]="'difficulty-' + quiz.difficulty">
+              {{ 'quiz.difficulty.' + quiz.difficulty | translate }}
+            </span>
+            <span class="question-count">
+              {{ 'quiz.list.questions' | translate:{ count: quiz.questionCount } }}
+            </span>
+            @if (quiz.totalPlays > 0) {
+              <span class="plays-count">
+                <mat-icon class="inline-icon">people</mat-icon>
+                {{ quiz.totalPlays }}
+              </span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  }
+</div>

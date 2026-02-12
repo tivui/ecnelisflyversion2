@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {MatTabsModule} from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-database',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, MatTabsModule, TranslateModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, TranslateModule],
   templateUrl: './database.component.html',
   styleUrl: './database.component.scss'
 })
@@ -17,9 +17,8 @@ export class DatabaseComponent {
     { route: 'zones', label: 'admin.database.zones' },
     { route: 'featured-sound', label: 'admin.database.featuredSound' },
     { route: 'journeys', label: 'admin.database.journeys' },
+    { route: 'quizzes', label: 'admin.database.quizzes' },
   ]);
-
-  activeTab = this.tabs()[0].route;
 
   trackTab = (tab: { route: string; label: string }) => tab.route;
 

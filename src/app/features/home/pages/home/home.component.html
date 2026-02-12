@@ -34,8 +34,29 @@
         </div>
       </a>
 
-      <!-- Secondary cards (scrollable on mobile) -->
+      <!-- Secondary cards (scrollable on mobile, max 3 on desktop) -->
+      <!-- Priority order: Quiz du mois > Son du jour > Zones > Voyages -->
       <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
+        <!-- Monthly Quiz Card -->
+        @if (monthlyQuiz()) {
+          <a routerLink="/quiz/{{ monthlyQuiz()!.id }}" class="hero-card hero-card-quiz">
+            <div class="hero-card-visual">
+              <div class="hero-card-icon">
+                <mat-icon>quiz</mat-icon>
+              </div>
+              <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
+            </div>
+            <div class="hero-card-content">
+              <h3>{{ quizTitle() }}</h3>
+              <p class="hero-card-desc">{{ quizDescription() }}</p>
+              <span class="hero-card-cta">
+                {{ 'home.hero.play' | translate }}
+                <mat-icon>arrow_forward</mat-icon>
+              </span>
+            </div>
+          </a>
+        }
+
         <!-- Sound of the Day Card -->
         @if (dailyFeatured()) {
           <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">

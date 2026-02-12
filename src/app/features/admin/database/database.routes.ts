@@ -34,6 +34,20 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.JourneysComponent,
           ),
       },
+      {
+        path: 'quizzes',
+        loadComponent: () =>
+          import('../pages/quizzes/quiz-admin-list/quiz-admin-list.component').then(
+            (m) => m.QuizAdminListComponent,
+          ),
+      },
+      {
+        path: 'quizzes/:id/questions',
+        loadComponent: () =>
+          import('../pages/quizzes/quiz-questions-editor/quiz-questions-editor.component').then(
+            (m) => m.QuizQuestionsEditorComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
     ],
   },

@@ -1,0 +1,32 @@
+.tab-content {
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.section-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 16px 0 8px;
+  font-weight: 500;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}

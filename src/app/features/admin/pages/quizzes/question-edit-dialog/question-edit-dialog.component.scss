@@ -1,0 +1,54 @@
+.tab-content {
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.section-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 16px 0 8px;
+  font-weight: 500;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.sound-selector {
+  margin-bottom: 8px;
+}
+
+.sound-city {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.choices-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.choice-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .choice-label {
+    flex: 1;
+  }
+}
+
+.explanation-field {
+  margin-top: 16px;
+}
+
+@media (max-width: 500px) {
+  .choice-row {
+    gap: 8px;
+  }
+}
