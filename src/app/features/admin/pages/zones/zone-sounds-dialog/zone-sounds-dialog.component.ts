@@ -16,7 +16,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ZoneService } from '../../../../../core/services/zone.service';
-import { AmplifyService } from '../../../../../core/services/amplify.service';
 import { SoundsService } from '../../../../../core/services/sounds.service';
 import { Zone } from '../../../../../core/models/zone.model';
 import { Sound } from '../../../../../core/models/sound.model';
@@ -51,7 +50,6 @@ export class ZoneSoundsDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ZoneSoundsDialogComponent>);
   private readonly data: DialogData = inject(MAT_DIALOG_DATA);
   private readonly zoneService = inject(ZoneService);
-  private readonly amplifyService = inject(AmplifyService);
   private readonly soundsService = inject(SoundsService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -77,11 +75,8 @@ export class ZoneSoundsDialogComponent implements OnInit {
       const sounds = await this.zoneService.getSoundsForZone(this.zone.id!);
       this.zoneSounds.set(sounds);
 
-      // Load all public sounds for selection
-      const result = await this.amplifyService.client.queries.listSoundsForMap({});
-      const allSounds = (result.data ?? []).map((s: any) =>
-        this.soundsService.map(s)
-      );
+      // Load all public sounds for selection (paginated, no Lambda)
+      const allSounds = await this.soundsService.fetchAllPublicSounds();
       this.allSounds.set(allSounds);
       this.updateFilteredSounds();
     } catch (error) {

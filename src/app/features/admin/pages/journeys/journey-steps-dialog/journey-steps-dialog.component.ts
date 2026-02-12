@@ -126,9 +126,8 @@ export class JourneyStepsDialogComponent implements OnInit {
       }
       this.journeySteps.set(stepsWithSounds);
 
-      // Load all public sounds for the "add" section
-      const allResult = await this.amplifyService.client.queries.listSoundsForMap({});
-      const allSounds = (allResult.data ?? []).map((s: any) => this.soundsService.map(s));
+      // Load all public sounds for the "add" section (paginated, no Lambda)
+      const allSounds = await this.soundsService.fetchAllPublicSounds();
       this.allSounds.set(allSounds);
       this.updateFilteredSounds();
     } catch (error) {

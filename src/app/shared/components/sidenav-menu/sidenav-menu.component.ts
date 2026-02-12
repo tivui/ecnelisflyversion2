@@ -108,7 +108,11 @@ export class SidenavMenuComponent {
       soundCity: daily.soundCity ?? '',
       soundCategory: daily.soundCategory ?? '',
       soundId: daily.soundId ?? '',
+      soundTeasing: daily.teasing ?? '',
     });
+    if (daily.teasing_i18n) {
+      params.set('soundTeasingI18n', JSON.stringify(daily.teasing_i18n));
+    }
     window.location.href = `/mapfly?${params.toString()}`;
   }
 
