@@ -1122,5 +1122,9 @@
       "button": "Installer",
       "dismiss": "Fermer"
     }
+  },
+  "update": {
+    "available": "Une nouvelle version est disponible",
+    "reload": "Recharger"
   }
 }
