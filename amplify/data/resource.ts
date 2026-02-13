@@ -7,6 +7,7 @@ import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
 import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/resource';
 import { pickMonthlyQuiz } from '../functions/pick-monthly-quiz/resource';
 import { pickMonthlyArticle } from '../functions/pick-monthly-article/resource';
+import { pickMonthlyZone } from '../functions/pick-monthly-zone/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 
@@ -152,12 +153,19 @@ const schema = a
         center: a.json(),
         defaultZoom: a.integer().default(12),
         coverImage: a.string(),
+        coverImagePosition: a.string().default('center'),
+        coverImageZoom: a.integer().default(100),
+        ambientSound: a.string(),
+        ambientSoundLabel: a.string(),
+        icon: a.string().default('terrain'),
+        timelineEnabled: a.boolean().default(false),
         color: a.string().default('#1976d2'),
         isPublic: a.boolean().default(true),
         sortOrder: a.integer().default(0),
         createdBy: a.id(),
 
         zoneSounds: a.hasMany('ZoneSound', 'zoneId'),
+        monthlyZones: a.hasMany('MonthlyZone', 'zoneId'),
       })
       .secondaryIndexes((index) => [
         index('slug').queryField('getZoneBySlug'),
@@ -496,6 +504,35 @@ const schema = a
         allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
+    // ============ MONTHLY ZONE ============
+
+    MonthlyZone: a
+      .model({
+        id: a.id().required(),
+        zoneId: a.id().required(),
+        zone: a.belongsTo('Zone', 'zoneId'),
+        month: a.string().required(),
+        active: a.boolean().default(true),
+        // Denormalized zone fields for fast reads
+        zoneName: a.string(),
+        zoneName_i18n: a.json(),
+        zoneDescription: a.string(),
+        zoneDescription_i18n: a.json(),
+        zoneSlug: a.string(),
+        zoneCoverImage: a.string(),
+        zoneIcon: a.string(),
+        zoneColor: a.string(),
+      })
+      .secondaryIndexes((index) => [
+        index('month').queryField('getMonthlyZoneByMonth'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
     // ============ IMPORT ============
 
     ImportJob: a
@@ -597,6 +634,7 @@ const schema = a
     allow.resource(pickDailyFeaturedSound),
     allow.resource(pickMonthlyQuiz),
     allow.resource(pickMonthlyArticle),
+    allow.resource(pickMonthlyZone),
     allow.resource(startImport),
     allow.resource(processImport),
   ]);

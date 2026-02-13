@@ -3,7 +3,12 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(powershell -command:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(node -e:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(set:*)",
+      "Bash(cmd /c \"cd /d c:\\\\Users\\\\Asus\\\\Documents\\\\Projets\\\\ECNELISFLY\\\\V2\\\\ecnelisflyversion2 && set NODE_OPTIONS=--max-old-space-size=4096 && npx ng build 2>&1\")",
+      "Bash(cmd /c \"cd /d c:\\\\Users\\\\Asus\\\\Documents\\\\Projets\\\\ECNELISFLY\\\\V2\\\\ecnelisflyversion2 && set NODE_OPTIONS=--max-old-space-size=4096 && npx ng build\")"
     ]
   }
 }

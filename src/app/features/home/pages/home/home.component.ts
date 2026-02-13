@@ -1,6 +1,6 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, signal, computed, NgZone, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -9,11 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppUserService } from '../../../../core/services/app-user.service';
 import { AppUser } from '../../../../core/models/app-user.model';
 import { ZoneService } from '../../../../core/services/zone.service';
-import { Zone } from '../../../../core/models/zone.model';
+import { MonthlyZone } from '../../../../core/models/zone.model';
 import { FeaturedSoundService } from '../../../../core/services/featured-sound.service';
 import { DailyFeaturedSound } from '../../../../core/models/featured-sound.model';
-import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
-import { SoundJourney } from '../../../../core/models/sound-journey.model';
 import { QuizService } from '../../../quiz/services/quiz.service';
 import { Quiz } from '../../../quiz/models/quiz.model';
 import { ArticleService } from '../../../articles/services/article.service';
@@ -40,12 +38,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly appUserService = inject(AppUserService);
   private readonly zoneService = inject(ZoneService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
-  private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly quizService = inject(QuizService);
   private readonly articleService = inject(ArticleService);
   private readonly translate = inject(TranslateService);
-  private readonly router = inject(Router);
-  private readonly ngZone = inject(NgZone);
 
   @ViewChild('secondaryScroll') secondaryScrollEl?: ElementRef<HTMLElement>;
   @ViewChild('heroVideo') heroVideoEl?: ElementRef<HTMLVideoElement>;
@@ -69,37 +64,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
     initialValue: null,
   });
 
-  zones = signal<Zone[]>([]);
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
-  journeys = signal<SoundJourney[]>([]);
   monthlyQuiz = signal<Quiz | null>(null);
   latestArticle = signal<SoundArticle | null>(null);
+  monthlyZone = signal<MonthlyZone | null>(null);
 
-  /** Max 3 secondary cards on desktop (map is always primary = 4 total).
-   *  Priority: quiz du mois > son du jour > zones > journeys.
-   *  Mobile: no limit, all cards appear in the scroll. */
-  private readonly MAX_DESKTOP_SECONDARY = 3;
+  /** Exactly 3 secondary cards (map always primary = 4 total).
+   *  Available: Son du jour, Quiz du mois, Terroir du mois, Article du mois.
+   *  If all 4 are available, randomly exclude one. */
 
-  desktopSecondaryCards = computed(() => {
-    const cards: { type: string; data?: any }[] = [];
-    if (this.monthlyQuiz()) cards.push({ type: 'quiz', data: this.monthlyQuiz() });
-    if (this.dailyFeatured()) cards.push({ type: 'featured', data: this.dailyFeatured() });
-    if (this.latestArticle() && cards.length < this.MAX_DESKTOP_SECONDARY) cards.push({ type: 'article', data: this.latestArticle() });
-    if (cards.length < this.MAX_DESKTOP_SECONDARY) cards.push({ type: 'zones' });
-    for (const j of this.journeys()) {
-      if (cards.length >= this.MAX_DESKTOP_SECONDARY) break;
-      cards.push({ type: 'journey', data: j });
-    }
-    return cards;
-  });
+  /** Which card types to show (set once after data loads) */
+  visibleCardTypes = signal<Set<string>>(new Set());
 
   secondaryCardIndices = computed(() => {
-    let count = 1; // Zones card is always present
-    if (this.monthlyQuiz()) count++;
-    if (this.dailyFeatured()) count++;
-    if (this.latestArticle()) count++;
-    count += this.journeys().length;
-    return Array.from({ length: count }, (_, i) => i);
+    return Array.from({ length: this.visibleCardTypes().size }, (_, i) => i);
   });
 
   private currentLang = toSignal(
@@ -118,27 +96,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   });
 
   async ngOnInit() {
-    const [zonesResult, dailyResult, journeysResult, monthlyQuizResult, articleResult] = await Promise.allSettled([
-      this.zoneService.listZones(),
+    const [dailyResult, monthlyQuizResult, articleResult, monthlyZoneResult] = await Promise.allSettled([
       this.featuredSoundService.getTodayFeatured(),
-      this.soundJourneyService.listPublicJourneys(),
       this.quizService.getMonthlyQuiz(),
       this.articleService.getLatestPublishedArticle(),
+      this.zoneService.getMonthlyZone(),
     ]);
-
-    if (zonesResult.status === 'fulfilled') {
-      const publicZones = zonesResult.value
-        .filter((z: Zone) => z.isPublic)
-        .sort((a: Zone, b: Zone) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-      this.zones.set(publicZones);
-    }
 
     if (dailyResult.status === 'fulfilled') {
       this.dailyFeatured.set(dailyResult.value);
-    }
-
-    if (journeysResult.status === 'fulfilled') {
-      this.journeys.set(journeysResult.value);
     }
 
     if (monthlyQuizResult.status === 'fulfilled' && monthlyQuizResult.value) {
@@ -148,6 +114,25 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (articleResult.status === 'fulfilled' && articleResult.value) {
       this.latestArticle.set(articleResult.value);
     }
+
+    if (monthlyZoneResult.status === 'fulfilled' && monthlyZoneResult.value) {
+      this.monthlyZone.set(monthlyZoneResult.value);
+    }
+
+    // Build the set of available card types, then randomly pick 3 if more are available
+    const available: string[] = [];
+    if (this.dailyFeatured()) available.push('featured');
+    if (this.monthlyQuiz()) available.push('quiz');
+    if (this.monthlyZone()) available.push('monthlyZone');
+    if (this.latestArticle()) available.push('article');
+
+    if (available.length > 3) {
+      // Featured (pos 4) and monthlyZone (pos 3) are fixed — only exclude quiz or article
+      const excludable = available.filter(t => t !== 'featured' && t !== 'monthlyZone');
+      const toExclude = excludable[Math.floor(Math.random() * excludable.length)];
+      available.splice(available.indexOf(toExclude), 1);
+    }
+    this.visibleCardTypes.set(new Set(available));
 
     setTimeout(() => {
       if (this.secondaryScrollEl) {
@@ -172,30 +157,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       // Safety net: retry when video data is ready (slow connections)
       video.addEventListener('canplay', () => video.play().catch(() => {}), { once: true });
     }
-  }
-
-  journeyName(journey: SoundJourney): string {
-    const lang = this.currentLang();
-    if (journey.name_i18n && journey.name_i18n[lang]) {
-      return journey.name_i18n[lang];
-    }
-    return journey.name;
-  }
-
-  journeyDescription(journey: SoundJourney): string {
-    const lang = this.currentLang();
-    if (journey.description_i18n && journey.description_i18n[lang]) {
-      return journey.description_i18n[lang];
-    }
-    return journey.description ?? '';
-  }
-
-  goToJourney(journey: SoundJourney) {
-    const params = new URLSearchParams({
-      journeyMode: 'true',
-      journeyId: journey.id!,
-    });
-    window.location.href = `/mapfly?${params.toString()}`;
   }
 
   onSecondaryScroll(event: Event) {
@@ -253,6 +214,29 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (article.description_i18n && article.description_i18n[lang]) return article.description_i18n[lang];
     return article.description ?? '';
   });
+
+  monthlyZoneName = computed(() => {
+    const mz = this.monthlyZone();
+    if (!mz) return '';
+    const lang = this.currentLang();
+    if (mz.zoneName_i18n && mz.zoneName_i18n[lang]) return mz.zoneName_i18n[lang];
+    return mz.zoneName ?? '';
+  });
+
+  monthlyZoneDescription = computed(() => {
+    const mz = this.monthlyZone();
+    if (!mz) return '';
+    const lang = this.currentLang();
+    if (mz.zoneDescription_i18n && mz.zoneDescription_i18n[lang]) return mz.zoneDescription_i18n[lang];
+    return mz.zoneDescription ?? '';
+  });
+
+  goToMonthlyZone() {
+    const mz = this.monthlyZone();
+    if (!mz?.zoneId) return;
+    const params = new URLSearchParams({ zoneId: mz.zoneId });
+    window.location.href = `/mapfly?${params.toString()}`;
+  }
 
   goToFeaturedSound() {
     const daily = this.dailyFeatured();

@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
+import { getUrl, uploadData } from 'aws-amplify/storage';
+import { Observable } from 'rxjs';
 import { AmplifyService } from './amplify.service';
-import { Zone, ZoneSound, ZonePolygon, ZoneCenter } from '../models/zone.model';
+import { Zone, ZoneSound, ZonePolygon, ZoneCenter, MonthlyZone } from '../models/zone.model';
 import { Sound } from '../models/sound.model';
 import { SoundsService } from './sounds.service';
+import { generateUniqueFilename } from './filename.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +34,12 @@ export class ZoneService {
       center: raw.center ? JSON.parse(raw.center) : undefined,
       defaultZoom: raw.defaultZoom,
       coverImage: raw.coverImage,
+      coverImagePosition: raw.coverImagePosition,
+      coverImageZoom: raw.coverImageZoom,
+      ambientSound: raw.ambientSound,
+      ambientSoundLabel: raw.ambientSoundLabel,
+      icon: raw.icon,
+      timelineEnabled: raw.timelineEnabled,
       color: raw.color,
       isPublic: raw.isPublic,
       sortOrder: raw.sortOrder,
@@ -101,6 +110,12 @@ export class ZoneService {
       center: zone.center ? JSON.stringify(zone.center) : undefined,
       defaultZoom: zone.defaultZoom ?? 12,
       coverImage: zone.coverImage,
+      coverImagePosition: zone.coverImagePosition ?? 'center',
+      coverImageZoom: zone.coverImageZoom ?? 100,
+      ambientSound: zone.ambientSound,
+      ambientSoundLabel: zone.ambientSoundLabel,
+      icon: zone.icon ?? 'terrain',
+      timelineEnabled: zone.timelineEnabled ?? false,
       color: zone.color ?? '#1976d2',
       isPublic: zone.isPublic ?? true,
       sortOrder: zone.sortOrder ?? 0,
@@ -134,6 +149,17 @@ export class ZoneService {
       input['defaultZoom'] = updates.defaultZoom;
     if (updates.coverImage !== undefined)
       input['coverImage'] = updates.coverImage;
+    if (updates.coverImagePosition !== undefined)
+      input['coverImagePosition'] = updates.coverImagePosition;
+    if (updates.coverImageZoom !== undefined)
+      input['coverImageZoom'] = updates.coverImageZoom;
+    if (updates.ambientSound !== undefined)
+      input['ambientSound'] = updates.ambientSound;
+    if (updates.ambientSoundLabel !== undefined)
+      input['ambientSoundLabel'] = updates.ambientSoundLabel;
+    if (updates.icon !== undefined) input['icon'] = updates.icon;
+    if (updates.timelineEnabled !== undefined)
+      input['timelineEnabled'] = updates.timelineEnabled;
     if (updates.color !== undefined) input['color'] = updates.color;
     if (updates.isPublic !== undefined) input['isPublic'] = updates.isPublic;
     if (updates.sortOrder !== undefined) input['sortOrder'] = updates.sortOrder;
@@ -239,6 +265,41 @@ export class ZoneService {
     return (result.data ?? []).map((s: any) => this.soundsService.map(s));
   }
 
+  // ============ MONTHLY ZONE ============
+
+  async getMonthlyZone(): Promise<MonthlyZone | null> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const result = await (
+      this.client.models.MonthlyZone as any
+    ).getMonthlyZoneByMonth({ month });
+
+    if (result.errors?.length) {
+      console.error('Error getting monthly zone:', result.errors);
+      return null;
+    }
+
+    const actives = (result.data ?? []).filter((m: any) => m.active);
+    if (actives.length === 0) return null;
+
+    const raw = actives[0];
+    return {
+      id: raw.id,
+      zoneId: raw.zoneId,
+      month: raw.month,
+      active: raw.active,
+      zoneName: raw.zoneName,
+      zoneName_i18n: raw.zoneName_i18n ? JSON.parse(raw.zoneName_i18n) : undefined,
+      zoneDescription: raw.zoneDescription,
+      zoneDescription_i18n: raw.zoneDescription_i18n ? JSON.parse(raw.zoneDescription_i18n) : undefined,
+      zoneSlug: raw.zoneSlug,
+      zoneCoverImage: raw.zoneCoverImage,
+      zoneIcon: raw.zoneIcon,
+      zoneColor: raw.zoneColor,
+    };
+  }
+
   // ============ UTILITIES ============
 
   generateSlug(name: string): string {
@@ -264,5 +325,112 @@ export class ZoneService {
       lat: latSum / coords.length,
       lng: lngSum / coords.length,
     };
+  }
+
+  // ============ ZONE FILE STORAGE ============
+
+  /**
+   * Upload a zone cover image to S3
+   * @returns Object with progress$ observable and result promise containing the S3 key
+   */
+  uploadZoneImage(
+    file: File
+  ): { progress$: Observable<number>; result: Promise<{ key: string }> } {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let progressObserver: any;
+    const progress$ = new Observable<number>((observer) => {
+      progressObserver = observer;
+    });
+
+    const sanitized = generateUniqueFilename(file.name);
+    const key = `zones/images/${sanitized}`;
+
+    const uploadTask = uploadData({
+      path: key,
+      data: file,
+      options: {
+        contentType: file.type,
+        onProgress: ({ transferredBytes, totalBytes }) => {
+          if (totalBytes && progressObserver) {
+            progressObserver.next(
+              Math.round((transferredBytes / totalBytes) * 100)
+            );
+          }
+        },
+      },
+    });
+
+    const result = uploadTask.result
+      .then(() => ({ key }))
+      .finally(() => progressObserver?.complete());
+
+    return { progress$, result };
+  }
+
+  /**
+   * Upload a zone ambient sound to S3
+   * @returns Object with progress$ observable and result promise containing the S3 key
+   */
+  uploadZoneAmbientSound(
+    file: File
+  ): { progress$: Observable<number>; result: Promise<{ key: string }> } {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let progressObserver: any;
+    const progress$ = new Observable<number>((observer) => {
+      progressObserver = observer;
+    });
+
+    const sanitized = generateUniqueFilename(file.name);
+    const key = `zones/ambient/${sanitized}`;
+
+    const uploadTask = uploadData({
+      path: key,
+      data: file,
+      options: {
+        contentType: file.type,
+        onProgress: ({ transferredBytes, totalBytes }) => {
+          if (totalBytes && progressObserver) {
+            progressObserver.next(
+              Math.round((transferredBytes / totalBytes) * 100)
+            );
+          }
+        },
+      },
+    });
+
+    const result = uploadTask.result
+      .then(() => ({ key }))
+      .finally(() => progressObserver?.complete());
+
+    return { progress$, result };
+  }
+
+  /**
+   * Get a presigned URL for a zone file (image or ambient sound)
+   */
+  async getZoneFileUrl(key: string): Promise<string> {
+    const { url } = await getUrl({ path: key });
+    return url.toString();
+  }
+
+  // ============ GEOMETRY UTILITIES ============
+
+  /**
+   * Test if a point (lat, lng) is inside a polygon using ray-casting algorithm
+   */
+  isPointInPolygon(lat: number, lng: number, polygon: number[][][]): boolean {
+    const ring = polygon[0]; // outer ring: [[lng, lat], ...]
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = [ring[i][1], ring[i][0]]; // lat, lng
+      const [xj, yj] = [ring[j][1], ring[j][0]];
+      if (
+        yi > lng !== yj > lng &&
+        lat < ((xj - xi) * (lng - yi)) / (yj - yi) + xi
+      ) {
+        inside = !inside;
+      }
+    }
+    return inside;
   }
 }

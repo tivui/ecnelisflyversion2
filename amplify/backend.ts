@@ -9,6 +9,7 @@ import { deleteSoundFile } from './functions/delete-sound-file/resource';
 import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/resource';
 import { pickMonthlyQuiz } from './functions/pick-monthly-quiz/resource';
 import { pickMonthlyArticle } from './functions/pick-monthly-article/resource';
+import { pickMonthlyZone } from './functions/pick-monthly-zone/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
 
@@ -20,6 +21,7 @@ const backend = defineBackend({
   pickDailyFeaturedSound,
   pickMonthlyQuiz,
   pickMonthlyArticle,
+  pickMonthlyZone,
   startImport,
   processImport,
 });

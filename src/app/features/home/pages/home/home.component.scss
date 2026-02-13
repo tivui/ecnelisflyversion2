@@ -5,12 +5,11 @@ $primary-blue: #1976d2;
 $primary-indigo: #3f51b5;
 $primary-violet: #7e57c2;
 $logo-orange: #F5A623;
-$gradient-blue: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);       // Card 1 — bleu pur
-$gradient-quiz: linear-gradient(135deg, #1f2f6e 0%, #4a62c6 100%);      // Card 2 — bleu-indigo
-$gradient-featured: linear-gradient(135deg, #283593 0%, #5c6bc0 100%);  // Card 3 — indigo
-$gradient-indigo: linear-gradient(135deg, #2d2485 0%, #7558c2 100%);    // Card 4 — indigo-violet (zones)
-$gradient-journey: linear-gradient(135deg, #303f9f 0%, #5e6abf 100%);
-$gradient-article: linear-gradient(135deg, #3d2e1a 0%, #8b6f47 100%);
+// Position-based gradients: blue → indigo → violet (left to right)
+$gradient-pos-1: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);  // Pos 1 — bleu pur (map, toujours)
+$gradient-pos-2: linear-gradient(135deg, #1f2f6e 0%, #4a62c6 100%);  // Pos 2 — bleu-indigo
+$gradient-pos-3: linear-gradient(135deg, #283593 0%, #5c6bc0 100%);  // Pos 3 — indigo
+$gradient-pos-4: linear-gradient(135deg, #2d2485 0%, #7558c2 100%);  // Pos 4 — indigo-violet
 $accent-article: #8b6f47;
 $accent-article-light: #c4a882;
 
@@ -259,7 +258,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 // --- Per-card visual: gradient + noise grain + floating orbs ---
 .hero-card-map {
   .hero-card-visual {
-    background: $noise-texture repeat, $gradient-blue;
+    background: $noise-texture repeat, $gradient-pos-1;
     background-blend-mode: overlay, normal;
 
     &::before {
@@ -271,52 +270,12 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 }
 
-.hero-card-zones {
-  .hero-card-visual {
-    background: $noise-texture repeat, $gradient-indigo;
-    background-blend-mode: overlay, normal;
-
-    &::before {
-      background:
-        radial-gradient(circle 85px at 80% 20%, rgba(130, 100, 210, 0.30) 0%, transparent 100%),
-        radial-gradient(circle 60px at 15% 75%, rgba(105, 75, 190, 0.24) 0%, transparent 100%),
-        radial-gradient(circle 45px at 40% 5%, rgba(170, 150, 225, 0.16) 0%, transparent 100%);
-    }
-  }
-}
-
-.hero-card-featured {
-  .hero-card-visual {
-    background: $noise-texture repeat, $gradient-featured;
-    background-blend-mode: overlay, normal;
-
-    &::before {
-      background:
-        radial-gradient(circle 80px at 20% 80%, rgba(92, 107, 192, 0.26) 0%, transparent 100%),
-        radial-gradient(circle 70px at 80% 20%, rgba(121, 134, 203, 0.28) 0%, transparent 100%),
-        radial-gradient(circle 45px at 45% 45%, rgba(159, 168, 218, 0.16) 0%, transparent 100%);
-    }
-  }
-}
-
-.hero-card-journey {
-  .hero-card-visual {
-    background: $noise-texture repeat, $gradient-journey;
-    background-blend-mode: overlay, normal;
-
-    &::before {
-      background:
-        radial-gradient(circle 85px at 15% 30%, rgba(121, 134, 203, 0.28) 0%, transparent 100%),
-        radial-gradient(circle 65px at 80% 70%, rgba(94, 106, 191, 0.26) 0%, transparent 100%),
-        radial-gradient(circle 45px at 55% 10%, rgba(159, 168, 218, 0.18) 0%, transparent 100%);
-    }
-  }
-}
-
-.hero-card-quiz {
-  .hero-card-visual {
-    background: $noise-texture repeat, $gradient-quiz;
-    background-blend-mode: overlay, normal;
+// Position-based visuals for secondary cards (gradient + orbs)
+// Quel que soit le type de card, le gradient dépend de sa position dans la grille
+.hero-cards-secondary {
+  > .hero-card:nth-child(1) .hero-card-visual {
+    background: $noise-texture repeat, $gradient-pos-2 !important;
+    background-blend-mode: overlay, normal !important;
 
     &::before {
       background:
@@ -325,18 +284,28 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
         radial-gradient(circle 45px at 50% 5%, rgba(130, 145, 215, 0.16) 0%, transparent 100%);
     }
   }
-}
 
-.hero-card-article {
-  .hero-card-visual {
-    background: $noise-texture repeat, $gradient-article;
-    background-blend-mode: overlay, normal;
+  > .hero-card:nth-child(2) .hero-card-visual {
+    background: $noise-texture repeat, $gradient-pos-3 !important;
+    background-blend-mode: overlay, normal !important;
 
     &::before {
       background:
-        radial-gradient(circle 85px at 80% 20%, rgba(194, 65, 12, 0.28) 0%, transparent 100%),
-        radial-gradient(circle 60px at 15% 75%, rgba(220, 100, 50, 0.24) 0%, transparent 100%),
-        radial-gradient(circle 45px at 40% 5%, rgba(250, 160, 100, 0.16) 0%, transparent 100%);
+        radial-gradient(circle 80px at 20% 80%, rgba(92, 107, 192, 0.26) 0%, transparent 100%),
+        radial-gradient(circle 70px at 80% 20%, rgba(121, 134, 203, 0.28) 0%, transparent 100%),
+        radial-gradient(circle 45px at 45% 45%, rgba(159, 168, 218, 0.16) 0%, transparent 100%);
+    }
+  }
+
+  > .hero-card:nth-child(3) .hero-card-visual {
+    background: $noise-texture repeat, $gradient-pos-4 !important;
+    background-blend-mode: overlay, normal !important;
+
+    &::before {
+      background:
+        radial-gradient(circle 85px at 80% 20%, rgba(130, 100, 210, 0.30) 0%, transparent 100%),
+        radial-gradient(circle 60px at 15% 75%, rgba(105, 75, 190, 0.24) 0%, transparent 100%),
+        radial-gradient(circle 45px at 40% 5%, rgba(170, 150, 225, 0.16) 0%, transparent 100%);
     }
   }
 }
@@ -593,6 +562,16 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   }
 }
 
+.hero-card-monthly-zone {
+  .hero-card-content {
+    border-left: 3px solid rgba(#b07c10, 0.4);
+  }
+  .hero-card-cta {
+    color: #b07c10;
+    :host-context(body.dark-theme) & { color: #fbbf24; }
+  }
+}
+
 .article-badge {
   position: absolute;
   top: 12px;
@@ -656,6 +635,29 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   letter-spacing: 1px;
   color: #fff;
   z-index: 1;
+}
+
+.monthly-zone-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  z-index: 1;
+
+  @media (max-width: 700px) {
+    top: 8px;
+    right: 8px;
+    padding: 3px 10px;
+    font-size: 0.62rem;
+  }
 }
 
 // =====================
@@ -1101,7 +1103,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     .featured-badge,
     .journey-badge,
     .quiz-badge,
-    .article-badge {
+    .article-badge,
+    .monthly-zone-badge {
       position: absolute;
       top: 8px;
       left: 10px;
@@ -1192,7 +1195,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-zones .hero-card-cta {
-      color: #fbbf24 !important; // amber accent
+      color: #fbbf24 !important; // gold accent
     }
 
     .hero-card-journey .hero-card-cta {
@@ -1205,6 +1208,10 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
     .hero-card-article .hero-card-cta {
       color: $accent-article-light !important; // coral accent
+    }
+
+    .hero-card-monthly-zone .hero-card-cta {
+      color: #fbbf24 !important; // gold accent
     }
 
     // Colored left accent bar per card type (vertical, like desktop border-left)
@@ -1265,6 +1272,18 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       width: 4px;
       border-radius: 0 4px 4px 0;
       background: linear-gradient(180deg, $accent-article, $accent-article-light);
+      z-index: 3;
+    }
+
+    .hero-card-monthly-zone::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      left: 0;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: linear-gradient(180deg, #b07c10, #fbbf24);
       z-index: 3;
     }
 

@@ -119,6 +119,239 @@ mat-slide-toggle {
   margin-top: 16px;
 }
 
+// =====================
+// Media Tab
+// =====================
+.media-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.media-section {
+  h4 {
+    margin: 0 0 4px;
+    font-weight: 600;
+    color: #333;
+
+    :host-context(body.dark-theme) & {
+      color: #ddd;
+    }
+  }
+}
+
+.media-hint {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: #888;
+
+  :host-context(body.dark-theme) & {
+    color: #777;
+  }
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #bbb;
+  }
+
+  span {
+    font-size: 0.85rem;
+    color: #999;
+  }
+
+  &:hover {
+    border-color: #1976d2;
+    background: rgba(25, 118, 210, 0.04);
+
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+
+  :host-context(body.dark-theme) & {
+    border-color: #555;
+
+    mat-icon {
+      color: #666;
+    }
+
+    span {
+      color: #777;
+    }
+
+    &:hover {
+      border-color: #64b5f6;
+      background: rgba(100, 181, 246, 0.06);
+
+      mat-icon {
+        color: #64b5f6;
+      }
+    }
+  }
+}
+
+.media-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+
+  :host-context(body.dark-theme) & {
+    border-color: #444;
+  }
+}
+
+.image-preview {
+  img {
+    display: block;
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    transition: transform 0.15s ease;
+    transform-origin: center;
+  }
+}
+
+.audio-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+
+  audio {
+    flex: 1;
+    height: 36px;
+  }
+
+  &.audio-loading {
+    justify-content: center;
+    padding: 16px;
+  }
+
+  :host-context(body.dark-theme) & {
+    background: #1e1e2e;
+  }
+}
+
+.remove-media-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: #fff !important;
+  width: 32px;
+  height: 32px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .audio-preview & {
+    position: relative;
+  }
+}
+
+.image-draggable {
+  cursor: grab;
+  user-select: none;
+  position: relative;
+
+  &.dragging {
+    cursor: grabbing;
+  }
+
+  img {
+    pointer-events: none;
+  }
+}
+
+.drag-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .dragging & {
+    opacity: 0;
+  }
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+
+  .zoom-label {
+    font-size: 12px;
+    min-width: 36px;
+    text-align: center;
+    color: #666;
+    font-variant-numeric: tabular-nums;
+
+    :host-context(body.dark-theme) & {
+      color: #aaa;
+    }
+  }
+
+  button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .zoom-reset {
+    margin-left: 4px;
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
 // Ensure Leaflet renders properly inside the dialog
 ::ng-deep {
   .map-container {
@@ -148,6 +381,19 @@ mat-slide-toggle {
     .leaflet-pane {
       z-index: 1;
     }
+  }
+}
+
+.icon-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  .material-icons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
   }
 }
 

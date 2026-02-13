@@ -57,6 +57,92 @@
     </button>
   }
 
+  <!-- Zone (Terroir) cinematic entry overlay -->
+  @if (zoneOverlayVisible()) {
+    <div class="zone-entry-overlay" [class.fading-out]="zoneOverlayFading()">
+      <div class="zone-entry-content">
+        <div class="zone-entry-icon" [style.background]="zoneOverlayGradient()">
+          <span class="material-icons">{{ zoneOverlayIcon() }}</span>
+        </div>
+        <h2 class="zone-entry-title">{{ zoneOverlayTitle() }}</h2>
+        @if (zoneOverlayDescription()) {
+          <p class="zone-entry-subtitle">{{ zoneOverlayDescription() }}</p>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Zone ambient sound control -->
+  @if (hasAmbientSound() && !zoneOverlayVisible()) {
+    <div class="ambient-control-group" [class.muted]="isAmbientMuted()">
+      @if (ambientSoundLabel()) {
+        <div class="ambient-label" [class.expanded]="ambientLabelExpanded()" (click)="ambientLabelExpanded.set(!ambientLabelExpanded())">
+          <span class="material-icons ambient-label-icon">music_note</span>
+          <span class="ambient-label-text">{{ ambientSoundLabel() }}</span>
+        </div>
+      }
+      <button
+        class="ambient-control"
+        (click)="toggleAmbient()"
+        [class.muted]="isAmbientMuted()"
+      >
+        <span class="material-icons">{{ isAmbientMuted() ? 'volume_off' : 'volume_up' }}</span>
+      </button>
+    </div>
+  }
+
+  <!-- Zone timeline toggle button -->
+  @if (timelineEnabled() && !zoneOverlayVisible() && !timelineVisible()) {
+    <button class="timeline-toggle-btn" (click)="showTimeline()">
+      <span class="material-icons">schedule</span>
+    </button>
+  }
+
+  <!-- Zone timeline bar -->
+  @if (timelineVisible()) {
+    <div class="timeline-bar">
+      <button class="timeline-close" (click)="hideTimeline()">
+        <span class="material-icons">close</span>
+      </button>
+      <button class="timeline-play" (click)="playTimeline()" [class.playing]="timelinePlaying()">
+        <span class="material-icons">{{ timelinePlaying() ? 'pause' : 'play_arrow' }}</span>
+      </button>
+      <div class="timeline-slider-wrapper">
+        <input
+          type="range"
+          class="timeline-slider"
+          [min]="timelineMin()"
+          [max]="timelineMax()"
+          [value]="timelineCurrent()"
+          (input)="onTimelineChange($event)"
+        />
+        <span class="timeline-label">{{ timelineLabel() }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Zone seasonal filter -->
+  @if (timelineEnabled() && !zoneOverlayVisible() && timelineMarkerMap.length > 0) {
+    <div class="season-filter">
+      <button class="season-btn" [class.active]="zoneSeasonFilter() === 'spring'" (click)="toggleSeasonFilter('spring')">
+        <span class="season-icon">🌱</span>
+        <span class="season-label">{{ 'mapfly.zone.spring' | translate }}</span>
+      </button>
+      <button class="season-btn" [class.active]="zoneSeasonFilter() === 'summer'" (click)="toggleSeasonFilter('summer')">
+        <span class="season-icon">☀️</span>
+        <span class="season-label">{{ 'mapfly.zone.summer' | translate }}</span>
+      </button>
+      <button class="season-btn" [class.active]="zoneSeasonFilter() === 'autumn'" (click)="toggleSeasonFilter('autumn')">
+        <span class="season-icon">🍂</span>
+        <span class="season-label">{{ 'mapfly.zone.autumn' | translate }}</span>
+      </button>
+      <button class="season-btn" [class.active]="zoneSeasonFilter() === 'winter'" (click)="toggleSeasonFilter('winter')">
+        <span class="season-icon">❄️</span>
+        <span class="season-label">{{ 'mapfly.zone.winter' | translate }}</span>
+      </button>
+    </div>
+  }
+
   <!-- Category filter banner -->
   @if (isCategoryMode() && !isEmptyResults() && !isLoading()) {
     <div class="category-banner" [style.--cat-color]="categoryFilterColor()">

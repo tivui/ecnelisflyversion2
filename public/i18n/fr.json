@@ -27,7 +27,8 @@
       "monthlyQuiz": "Quiz du mois",
       "play": "Jouer",
       "newArticle": "Nouvel Article",
-      "readArticle": "Lire"
+      "readArticle": "Lire",
+      "monthlyZone": "Terroir du mois"
     },
     "zones": {
       "title": "Explorer par terroirs",
@@ -478,6 +479,7 @@
         "slugHint": "Identifiant unique pour l'URL",
         "description": "Description",
         "color": "Couleur",
+        "icon": "Icône",
         "defaultZoom": "Zoom par défaut",
         "sortOrder": "Ordre d'affichage",
         "isPublic": "Terroir public",
@@ -505,7 +507,21 @@
         "formInvalid": "Veuillez remplir tous les champs requis",
         "createSuccess": "Terroir créé avec succès",
         "updateSuccess": "Terroir mis à jour avec succès",
-        "saveError": "Erreur lors de l'enregistrement"
+        "saveError": "Erreur lors de l'enregistrement",
+        "tabMedia": "Média",
+        "coverImage": "Image de couverture",
+        "coverImageHint": "Format paysage recommandé (1200×600)",
+        "ambientSound": "Son d'ambiance",
+        "ambientSoundHint": "Boucle audio représentative du terroir (30s-2min)",
+        "ambientSoundLabel": "Titre du son d'ambiance",
+        "ambientSoundLabelHint": "Ex: Gave de Pau, Cloches de Pau...",
+        "timelineEnabled": "Activer le mode timeline",
+        "uploadImage": "Déposer ou cliquer pour ajouter une image",
+        "uploadAudio": "Déposer ou cliquer pour ajouter un audio",
+        "uploadError": "Erreur lors de l'upload",
+        "imagePosition": "Cadrage",
+        "dragToFrame": "Glisser pour cadrer",
+        "options": "Options"
       },
       "sounds": {
         "title": "Sons du terroir \"{{name}}\"",
@@ -521,7 +537,9 @@
         "addSuccess": "Son ajouté au terroir",
         "addError": "Erreur lors de l'ajout",
         "removeSuccess": "Son retiré du terroir",
-        "removeError": "Erreur lors du retrait"
+        "removeError": "Erreur lors du retrait",
+        "insidePolygon": "sons dans ce terroir",
+        "showNearby": "Afficher aussi les sons proches"
       }
     },
     "journeys": {
@@ -795,7 +813,16 @@
       "showInfo": "Voir les informations",
       "close": "Fermer le terroir",
       "noDescription": "Aucune description disponible pour ce terroir.",
-      "exploreZone": "Explorer ce terroir"
+      "exploreZone": "Explorer ce terroir",
+      "ambientOn": "Ambiance activée",
+      "ambientOff": "Ambiance désactivée",
+      "enteringTerroir": "Bienvenue dans ce terroir",
+      "soundSingular": "son",
+      "soundPlural": "sons",
+      "spring": "Printemps",
+      "summer": "Été",
+      "autumn": "Automne",
+      "winter": "Hiver"
     },
     "featured": {
       "badge": "Son du jour",

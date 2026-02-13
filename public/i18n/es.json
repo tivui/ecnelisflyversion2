@@ -27,7 +27,8 @@
       "monthlyQuiz": "Quiz del mes",
       "play": "Jugar",
       "newArticle": "Nuevo Artículo",
-      "readArticle": "Leer"
+      "readArticle": "Leer",
+      "monthlyZone": "Terruño del mes"
     },
     "zones": {
       "title": "Explorar por terruños",
@@ -461,6 +462,7 @@
         "slugHint": "Identificador único para la URL",
         "description": "Descripción",
         "color": "Color",
+        "icon": "Icono",
         "defaultZoom": "Zoom predeterminado",
         "sortOrder": "Orden de visualización",
         "isPublic": "Terruño público",
@@ -488,7 +490,21 @@
         "formInvalid": "Por favor completa todos los campos requeridos",
         "createSuccess": "Terruño creado con éxito",
         "updateSuccess": "Terruño actualizado con éxito",
-        "saveError": "Error al guardar el terruño"
+        "saveError": "Error al guardar el terruño",
+        "tabMedia": "Media",
+        "coverImage": "Imagen de portada",
+        "coverImageHint": "Formato paisaje recomendado (1200×600)",
+        "ambientSound": "Sonido ambiental",
+        "ambientSoundHint": "Bucle de audio representativo (30s-2min)",
+        "ambientSoundLabel": "Título del sonido ambiental",
+        "ambientSoundLabelHint": "Ej: Río de Pau, Campanas de Pau...",
+        "timelineEnabled": "Activar modo línea de tiempo",
+        "uploadImage": "Soltar o hacer clic para agregar una imagen",
+        "uploadAudio": "Soltar o hacer clic para agregar audio",
+        "uploadError": "Error de carga",
+        "imagePosition": "Encuadre",
+        "dragToFrame": "Deslizar para encuadrar",
+        "options": "Opciones"
       },
       "sounds": {
         "title": "Sonidos en el terruño \"{{name}}\"",
@@ -504,7 +520,9 @@
         "addSuccess": "Sonido agregado al terruño",
         "addError": "Error al agregar el sonido",
         "removeSuccess": "Sonido eliminado del terruño",
-        "removeError": "Error al eliminar el sonido"
+        "removeError": "Error al eliminar el sonido",
+        "insidePolygon": "sonidos en este terruño",
+        "showNearby": "Mostrar también sonidos cercanos"
       }
     },
     "journeys": {
@@ -779,7 +797,16 @@
       "showInfo": "Ver información",
       "close": "Cerrar terruño",
       "noDescription": "No hay descripción disponible para este terruño.",
-      "exploreZone": "Explorar este terruño"
+      "exploreZone": "Explorar este terruño",
+      "ambientOn": "Ambiente activado",
+      "ambientOff": "Ambiente desactivado",
+      "enteringTerroir": "Bienvenido a este terruño",
+      "soundSingular": "sonido",
+      "soundPlural": "sonidos",
+      "spring": "Primavera",
+      "summer": "Verano",
+      "autumn": "Otoño",
+      "winter": "Invierno"
     },
     "featured": {
       "badge": "Sonido del día",

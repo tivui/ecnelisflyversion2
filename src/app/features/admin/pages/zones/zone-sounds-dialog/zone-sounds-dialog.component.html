@@ -41,6 +41,19 @@
       <div class="section">
         <h3>{{ 'admin.zones.sounds.add' | translate }}</h3>
 
+        <div class="geo-filter-bar">
+          <span class="geo-count">
+            {{ insidePolygonCount() }} {{ 'admin.zones.sounds.insidePolygon' | translate }}
+          </span>
+          <mat-slide-toggle
+            [checked]="showNearby()"
+            (change)="toggleShowNearby()"
+            labelPosition="before"
+          >
+            {{ 'admin.zones.sounds.showNearby' | translate }}
+          </mat-slide-toggle>
+        </div>
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'admin.zones.sounds.search' | translate }}</mat-label>
           <input

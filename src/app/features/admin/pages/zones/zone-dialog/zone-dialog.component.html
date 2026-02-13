@@ -31,6 +31,20 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.zones.dialog.icon' | translate }}</mat-label>
+              <mat-select formControlName="icon">
+                @for (ic of availableIcons; track ic.value) {
+                  <mat-option [value]="ic.value">
+                    <span class="icon-option">
+                      <span class="material-icons">{{ ic.value }}</span>
+                      {{ ic.label }}
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
               <mat-label>{{ 'admin.zones.dialog.defaultZoom' | translate }}</mat-label>
               <input matInput type="number" formControlName="defaultZoom" min="1" max="20" />
             </mat-form-field>
@@ -82,6 +96,142 @@
             <textarea matInput formControlName="description_es" rows="2"></textarea>
           </mat-form-field>
         </form>
+      </div>
+    </mat-tab>
+
+    <!-- Media Tab -->
+    <mat-tab [label]="'admin.zones.dialog.tabMedia' | translate">
+      <div class="tab-content media-tab">
+        <!-- Cover Image -->
+        <div class="media-section">
+          <h4>{{ 'admin.zones.dialog.coverImage' | translate }}</h4>
+          <p class="media-hint">{{ 'admin.zones.dialog.coverImageHint' | translate }}</p>
+
+          @if (coverImagePreviewUrl()) {
+            <div
+              class="media-preview image-preview image-draggable"
+              [class.dragging]="isDraggingImage()"
+              (mousedown)="onImageDragStart($event)"
+              (mousemove)="onImageDragMove($event)"
+              (mouseup)="onImageDragEnd()"
+              (mouseleave)="onImageDragEnd()"
+              (touchstart)="onImageTouchStart($event)"
+              (touchmove)="onImageTouchMove($event)"
+              (touchend)="onImageDragEnd()"
+              (wheel)="onImageWheel($event)"
+            >
+              <img
+                [src]="coverImagePreviewUrl()"
+                alt="Cover"
+                [style.object-position]="'center ' + coverImagePosition()"
+                [style.transform]="'scale(' + coverImageZoom() / 100 + ')'"
+                draggable="false"
+              />
+              <button mat-icon-button class="remove-media-btn" (click)="removeCoverImage(); $event.stopPropagation()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <div class="drag-hint">
+                <mat-icon>open_with</mat-icon>
+                <span>{{ 'admin.zones.dialog.dragToFrame' | translate }}</span>
+              </div>
+            </div>
+            <div class="zoom-controls">
+              <button mat-icon-button (click)="zoomOut()" [disabled]="coverImageZoom() <= 100">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="zoom-label">{{ coverImageZoom() }}%</span>
+              <button mat-icon-button (click)="zoomIn()" [disabled]="coverImageZoom() >= 200">
+                <mat-icon>add</mat-icon>
+              </button>
+              @if (coverImageZoom() > 100) {
+                <button mat-icon-button (click)="resetZoom()" class="zoom-reset">
+                  <mat-icon>restart_alt</mat-icon>
+                </button>
+              }
+            </div>
+          } @else {
+            <div
+              class="drop-zone"
+              (click)="coverImageInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropImage($event)"
+            >
+              <mat-icon>image</mat-icon>
+              <span>{{ 'admin.zones.dialog.uploadImage' | translate }}</span>
+            </div>
+          }
+
+          <input
+            #coverImageInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            (change)="onCoverImageSelected($event)"
+          />
+
+          @if (imageUploadProgress() > 0 && imageUploadProgress() < 100) {
+            <mat-progress-bar mode="determinate" [value]="imageUploadProgress()"></mat-progress-bar>
+          }
+        </div>
+
+        <!-- Ambient Sound -->
+        <div class="media-section">
+          <h4>{{ 'admin.zones.dialog.ambientSound' | translate }}</h4>
+          <p class="media-hint">{{ 'admin.zones.dialog.ambientSoundHint' | translate }}</p>
+
+          @if (ambientSoundPreviewUrl()) {
+            <div class="media-preview audio-preview">
+              <audio controls preload="metadata" [src]="ambientSoundPreviewUrl()"></audio>
+              <button mat-icon-button class="remove-media-btn" (click)="removeAmbientSound()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          } @else if (ambientSoundKey()) {
+            <div class="media-preview audio-preview audio-loading">
+              <mat-spinner diameter="24"></mat-spinner>
+            </div>
+          } @else {
+            <div
+              class="drop-zone"
+              (click)="ambientSoundInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropAudio($event)"
+            >
+              <mat-icon>music_note</mat-icon>
+              <span>{{ 'admin.zones.dialog.uploadAudio' | translate }}</span>
+            </div>
+          }
+
+          <input
+            #ambientSoundInput
+            type="file"
+            accept="audio/mpeg,audio/wav,audio/ogg,audio/aac,audio/mp4"
+            hidden
+            (change)="onAmbientSoundSelected($event)"
+          />
+
+          @if (audioUploadProgress() > 0 && audioUploadProgress() < 100) {
+            <mat-progress-bar mode="determinate" [value]="audioUploadProgress()"></mat-progress-bar>
+          }
+
+          <form [formGroup]="form">
+            <mat-form-field appearance="outline" class="full-width" style="margin-top: 12px;">
+              <mat-label>{{ 'admin.zones.dialog.ambientSoundLabel' | translate }}</mat-label>
+              <input matInput formControlName="ambientSoundLabel" />
+              <mat-hint>{{ 'admin.zones.dialog.ambientSoundLabelHint' | translate }}</mat-hint>
+            </mat-form-field>
+          </form>
+        </div>
+
+        <!-- Options -->
+        <div class="media-section">
+          <h4>{{ 'admin.zones.dialog.options' | translate }}</h4>
+          <form [formGroup]="form">
+            <mat-slide-toggle formControlName="timelineEnabled">
+              {{ 'admin.zones.dialog.timelineEnabled' | translate }}
+            </mat-slide-toggle>
+          </form>
+        </div>
       </div>
     </mat-tab>
 
