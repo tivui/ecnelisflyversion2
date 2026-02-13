@@ -6,6 +6,7 @@ import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
 import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/resource';
 import { pickMonthlyQuiz } from '../functions/pick-monthly-quiz/resource';
+import { pickMonthlyArticle } from '../functions/pick-monthly-article/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 
@@ -417,6 +418,7 @@ const schema = a
         updatedAt: a.datetime(),
 
         blocks: a.hasMany('ArticleBlock', 'articleId'),
+        monthlyArticles: a.hasMany('MonthlyArticle', 'articleId'),
       })
       .secondaryIndexes((index) => [
         index('slug').queryField('getArticleBySlug'),
@@ -460,6 +462,32 @@ const schema = a
         index('articleId')
           .sortKeys(['order'])
           .queryField('listBlocksByArticle'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    MonthlyArticle: a
+      .model({
+        id: a.id().required(),
+        articleId: a.id().required(),
+        article: a.belongsTo('SoundArticle', 'articleId'),
+        month: a.string().required(),
+        active: a.boolean().default(true),
+        // Denormalized article fields for fast reads
+        articleTitle: a.string(),
+        articleTitle_i18n: a.json(),
+        articleSlug: a.string(),
+        articleCoverImageKey: a.string(),
+        articleAuthorName: a.string(),
+        articleDescription: a.string(),
+        articleDescription_i18n: a.json(),
+      })
+      .secondaryIndexes((index) => [
+        index('month').queryField('getMonthlyArticleByMonth'),
       ])
       .authorization((allow) => [
         allow.publicApiKey().to(['read']),
@@ -568,6 +596,7 @@ const schema = a
     allow.resource(listSoundsByZone),
     allow.resource(pickDailyFeaturedSound),
     allow.resource(pickMonthlyQuiz),
+    allow.resource(pickMonthlyArticle),
     allow.resource(startImport),
     allow.resource(processImport),
   ]);
