@@ -24,7 +24,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';
 
@@ -49,7 +51,9 @@ interface DialogData {
     MatSlideToggleModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatTabsModule,
+    MatSelectModule,
     TranslateModule,
   ],
   templateUrl: './zone-dialog.component.html',
@@ -65,7 +69,7 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
     if (element) {
       this.mapContainerElement = element;
       // Initialize map when the container becomes available and tab is active
-      if (this.selectedTabIndex() === 2 && !this.mapInitialized) {
+      if (this.selectedTabIndex() === 3 && !this.mapInitialized) {
         this.tryInitMap();
       }
     }
@@ -101,6 +105,46 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
 
   polygon = signal<ZonePolygon | null>(null);
 
+  // Available Material Icons for zone selection
+  readonly availableIcons = [
+    { value: 'terrain', label: 'Montagne' },
+    { value: 'waves', label: 'Mer / Océan' },
+    { value: 'forest', label: 'Forêt' },
+    { value: 'location_city', label: 'Ville' },
+    { value: 'church', label: 'Patrimoine' },
+    { value: 'agriculture', label: 'Campagne' },
+    { value: 'park', label: 'Parc / Jardin' },
+    { value: 'water', label: 'Rivière / Lac' },
+    { value: 'landscape', label: 'Paysage' },
+    { value: 'volcano', label: 'Volcan' },
+    { value: 'sailing', label: 'Navigation' },
+    { value: 'castle', label: 'Château' },
+    { value: 'temple_buddhist', label: 'Temple' },
+    { value: 'festival', label: 'Festival' },
+    { value: 'music_note', label: 'Musique' },
+    { value: 'local_florist', label: 'Fleurs' },
+    { value: 'eco', label: 'Nature / Eco' },
+    { value: 'hiking', label: 'Randonnée' },
+    { value: 'beach_access', label: 'Plage' },
+    { value: 'wb_sunny', label: 'Soleil' },
+  ];
+
+  // Media signals
+  coverImagePosition = signal('50%'); // vertical % for object-position
+  coverImageKey = signal<string | null>(null);
+  coverImagePreviewUrl = signal<string | null>(null);
+  ambientSoundKey = signal<string | null>(null);
+  ambientSoundPreviewUrl = signal<string | null>(null);
+  imageUploadProgress = signal(0);
+  audioUploadProgress = signal(0);
+
+  // Image drag-to-frame + zoom
+  isDraggingImage = signal(false);
+  coverImageZoom = signal(100); // percentage: 100 = no zoom, 150 = 1.5x
+  private dragStartY = 0;
+  private dragStartPercent = 50;
+
+
   ngOnInit() {
     this.isEditMode.set(!!this.data.zone);
 
@@ -115,13 +159,41 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
       description_es: [this.data.zone?.description_i18n?.['es'] ?? ''],
       slug: [this.data.zone?.slug ?? '', Validators.required],
       color: [this.data.zone?.color ?? '#1976d2', Validators.required],
+      icon: [this.data.zone?.icon ?? 'terrain'],
       defaultZoom: [this.data.zone?.defaultZoom ?? 12],
       isPublic: [this.data.zone?.isPublic ?? true],
       sortOrder: [this.data.zone?.sortOrder ?? 0],
+      timelineEnabled: [this.data.zone?.timelineEnabled ?? false],
+      ambientSoundLabel: [this.data.zone?.ambientSoundLabel ?? ''],
     });
 
     if (this.data.zone?.polygon) {
       this.polygon.set(this.data.zone.polygon);
+    }
+
+    // Load existing media previews
+    if (this.data.zone?.coverImagePosition) {
+      // Migrate old keyword values to percentage
+      const pos = this.data.zone.coverImagePosition;
+      if (pos === 'top') this.coverImagePosition.set('0%');
+      else if (pos === 'bottom') this.coverImagePosition.set('100%');
+      else if (pos === 'center') this.coverImagePosition.set('50%');
+      else this.coverImagePosition.set(pos);
+    }
+    if (this.data.zone?.coverImageZoom) {
+      this.coverImageZoom.set(this.data.zone.coverImageZoom);
+    }
+    if (this.data.zone?.coverImage) {
+      this.coverImageKey.set(this.data.zone.coverImage);
+      this.zoneService
+        .getZoneFileUrl(this.data.zone.coverImage)
+        .then((url) => this.coverImagePreviewUrl.set(url));
+    }
+    if (this.data.zone?.ambientSound) {
+      this.ambientSoundKey.set(this.data.zone.ambientSound);
+      this.zoneService
+        .getZoneFileUrl(this.data.zone.ambientSound)
+        .then((url) => this.ambientSoundPreviewUrl.set(url));
     }
 
     // Auto-generate slug from name
@@ -140,8 +212,8 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   onTabChange(index: number) {
     this.selectedTabIndex.set(index);
 
-    // If map tab is selected (index 2), initialize or refresh the map
-    if (index === 2) {
+    // If map tab is selected (index 3 after adding Media tab), initialize or refresh the map
+    if (index === 3) {
       this.cdr.detectChanges();
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
@@ -598,6 +670,162 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.editingMode();
   }
 
+  // ============ MEDIA UPLOAD METHODS ============
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDropImage(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      this.uploadCoverImage(file);
+    }
+  }
+
+  onDropAudio(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('audio/')) {
+      this.uploadAmbientSound(file);
+    }
+  }
+
+  onCoverImageSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.uploadCoverImage(file);
+  }
+
+  onAmbientSoundSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.uploadAmbientSound(file);
+  }
+
+  private uploadCoverImage(file: File) {
+    this.imageUploadProgress.set(1);
+    const { progress$, result } = this.zoneService.uploadZoneImage(file);
+
+    progress$.subscribe((p) => this.imageUploadProgress.set(p));
+
+    result
+      .then(async ({ key }) => {
+        this.coverImageKey.set(key);
+        const url = await this.zoneService.getZoneFileUrl(key);
+        this.coverImagePreviewUrl.set(url);
+        this.imageUploadProgress.set(100);
+      })
+      .catch((err) => {
+        console.error('Image upload error:', err);
+        this.snackBar.open(
+          this.translate.instant('admin.zones.dialog.uploadError'),
+          '',
+          { duration: 3000 }
+        );
+        this.imageUploadProgress.set(0);
+      });
+  }
+
+  private uploadAmbientSound(file: File) {
+    this.audioUploadProgress.set(1);
+    const { progress$, result } = this.zoneService.uploadZoneAmbientSound(file);
+
+    progress$.subscribe((p) => this.audioUploadProgress.set(p));
+
+    result
+      .then(async ({ key }) => {
+        this.ambientSoundKey.set(key);
+        const url = await this.zoneService.getZoneFileUrl(key);
+        this.ambientSoundPreviewUrl.set(url);
+        this.audioUploadProgress.set(100);
+      })
+      .catch((err) => {
+        console.error('Audio upload error:', err);
+        this.snackBar.open(
+          this.translate.instant('admin.zones.dialog.uploadError'),
+          '',
+          { duration: 3000 }
+        );
+        this.audioUploadProgress.set(0);
+      });
+  }
+
+  removeCoverImage() {
+    this.coverImageKey.set(null);
+    this.coverImagePreviewUrl.set(null);
+    this.imageUploadProgress.set(0);
+  }
+
+  removeAmbientSound() {
+    this.ambientSoundKey.set(null);
+    this.ambientSoundPreviewUrl.set(null);
+    this.audioUploadProgress.set(0);
+  }
+
+  // --- Image drag-to-frame ---
+  onImageDragStart(event: MouseEvent) {
+    event.preventDefault();
+    this.isDraggingImage.set(true);
+    this.dragStartY = event.clientY;
+    this.dragStartPercent = parseFloat(this.coverImagePosition()) || 50;
+  }
+
+  onImageTouchStart(event: TouchEvent) {
+    this.isDraggingImage.set(true);
+    this.dragStartY = event.touches[0].clientY;
+    this.dragStartPercent = parseFloat(this.coverImagePosition()) || 50;
+  }
+
+  onImageDragMove(event: MouseEvent) {
+    if (!this.isDraggingImage()) return;
+    event.preventDefault();
+    this.updateDragPosition(event.clientY);
+  }
+
+  onImageTouchMove(event: TouchEvent) {
+    if (!this.isDraggingImage()) return;
+    this.updateDragPosition(event.touches[0].clientY);
+  }
+
+  onImageDragEnd() {
+    this.isDraggingImage.set(false);
+  }
+
+  onImageWheel(event: WheelEvent) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -5 : 5;
+    this.adjustZoom(delta);
+  }
+
+  zoomIn() {
+    this.adjustZoom(10);
+  }
+
+  zoomOut() {
+    this.adjustZoom(-10);
+  }
+
+  resetZoom() {
+    this.coverImageZoom.set(100);
+  }
+
+  private adjustZoom(delta: number) {
+    const current = this.coverImageZoom();
+    const newZoom = Math.min(200, Math.max(100, current + delta));
+    this.coverImageZoom.set(newZoom);
+  }
+
+  private updateDragPosition(clientY: number) {
+    const delta = clientY - this.dragStartY;
+    // Convert px delta to %, scaled for 200px preview height
+    const percentDelta = (delta / 200) * 100;
+    const newPercent = Math.min(100, Math.max(0, this.dragStartPercent + percentDelta));
+    this.coverImagePosition.set(`${Math.round(newPercent)}%`);
+  }
+
   async save() {
     if (!this.form.valid) {
       this.snackBar.open(
@@ -646,7 +874,14 @@ export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
         polygon: this.polygon()!,
         center: this.zoneService.calculateCenter(this.polygon()!),
         defaultZoom: formValue.defaultZoom,
+        coverImage: this.coverImageKey() ?? undefined,
+        coverImagePosition: this.coverImagePosition(),
+        coverImageZoom: this.coverImageZoom(),
+        ambientSound: this.ambientSoundKey() ?? undefined,
+        ambientSoundLabel: formValue.ambientSoundLabel || undefined,
+        timelineEnabled: formValue.timelineEnabled,
         color: formValue.color,
+        icon: formValue.icon || 'terrain',
         isPublic: formValue.isPublic,
         sortOrder: formValue.sortOrder,
       };

@@ -1022,7 +1022,7 @@ body.dark-theme .leaflet-popup-tip {
   z-index: 600 !important;
 }
 
-/* Zone Title Control */
+/* Zone Title Control — Premium Badge */
 .zone-title-control {
   pointer-events: auto;
 }
@@ -1030,58 +1030,131 @@ body.dark-theme .leaflet-popup-tip {
 .zone-title-content {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 28px;
   color: white;
   font-family: 'Inter', system-ui, sans-serif;
-  max-width: 300px;
+  max-width: 320px;
+  backdrop-filter: blur(12px);
+  animation: badge-slide-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+
+  body.dark-theme & {
+    background: rgba(20, 20, 35, 0.75);
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 0 0 1px rgba(176, 124, 16, 0.15);
+    border: 1px solid rgba(176, 124, 16, 0.2);
+  }
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 0 0 1px rgba(176, 124, 16, 0.1);
+    border: 1px solid rgba(176, 124, 16, 0.15);
+    color: #1a1a2e;
+  }
+}
+
+@keyframes badge-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zone-title-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(176, 124, 16, 0.3);
+
+  .material-icons {
+    font-size: 18px;
+    color: #fff;
+  }
 }
 
 .zone-title-text {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.01em;
 }
 
 .zone-info-btn {
-  background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: white;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
+
+  body.dark-theme & {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  body.light-theme & {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.5);
+  }
 
   .material-icons {
     font-size: 16px;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    body.dark-theme & {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    body.light-theme & {
+      background: rgba(0, 0, 0, 0.1);
+      color: rgba(0, 0, 0, 0.8);
+    }
   }
 }
 
 @media (max-width: 480px) {
   .zone-title-content {
-    padding: 8px 12px;
-    max-width: 200px;
+    padding: 6px 12px 6px 6px;
+    max-width: 220px;
+  }
+
+  .zone-title-icon {
+    width: 28px;
+    height: 28px;
+
+    .material-icons {
+      font-size: 16px;
+    }
   }
 
   .zone-title-text {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
-/* Zone Info Modal */
+/* Zone Info Modal — Premium */
 .zone-info-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1091,12 +1164,12 @@ body.dark-theme .leaflet-popup-tip {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.25s ease, backdrop-filter 0.25s ease;
   backdrop-filter: blur(0px);
 
   &.visible {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
 
     .zone-info-modal {
       opacity: 1;
@@ -1117,26 +1190,65 @@ body.dark-theme .leaflet-popup-tip {
 
 .zone-info-modal {
   width: 100%;
-  max-width: 420px;
-  border-radius: 16px;
+  max-width: 440px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   opacity: 0;
   transform: scale(0.95) translateY(20px);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Inter', system-ui, sans-serif;
 
-  /* Light theme */
   body.light-theme & {
     background: #ffffff;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(0, 0, 0, 0.04);
   }
 
-  /* Dark theme */
   body.dark-theme & {
-    background: #1e1e2e;
+    background: #1a1a2e;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 }
 
+/* Hero image header (when cover image exists) */
+.zone-modal-hero {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .zone-modal-hero-gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .zone-modal-hero-title {
+    position: absolute;
+    bottom: 16px;
+    left: 24px;
+    right: 60px;
+    z-index: 2;
+  }
+
+  .zone-modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+  }
+}
+
+/* Color-only header (fallback when no cover image) */
 .zone-modal-header {
   display: flex;
   align-items: center;
@@ -1150,23 +1262,25 @@ body.dark-theme .leaflet-popup-tip {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 0%, transparent 40%);
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 40%);
     pointer-events: none;
   }
 }
 
 .zone-modal-title {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 700;
   z-index: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .zone-modal-close-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   width: 32px;
   height: 32px;
@@ -1175,33 +1289,33 @@ body.dark-theme .leaflet-popup-tip {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   z-index: 1;
 
   .material-icons {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.4);
   }
 }
 
 .zone-modal-content {
-  padding: 24px;
+  padding: 20px 24px;
 
   body.light-theme & {
     color: #333;
   }
 
   body.dark-theme & {
-    color: #e0e0e0;
+    color: #d0d0e0;
   }
 }
 
 .zone-modal-description {
   margin: 0 0 16px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.7;
   text-align: justify;
 }
@@ -1211,14 +1325,7 @@ body.dark-theme .leaflet-popup-tip {
   font-size: 0.95rem;
   font-style: italic;
   text-align: center;
-
-  body.light-theme & {
-    color: #888;
-  }
-
-  body.dark-theme & {
-    color: #888;
-  }
+  color: #888;
 }
 
 .zone-modal-translate-btn {
@@ -1247,17 +1354,17 @@ body.dark-theme .leaflet-popup-tip {
   }
 
   body.dark-theme & {
-    background-color: #2d3748;
+    background-color: rgba(255, 255, 255, 0.06);
     color: #90caf9;
 
     &:hover {
-      background-color: #3d4a5c;
+      background-color: rgba(255, 255, 255, 0.1);
     }
   }
 }
 
 .zone-modal-footer {
-  padding: 16px 24px 24px;
+  padding: 12px 24px 24px;
   display: flex;
   justify-content: center;
 }
@@ -1266,7 +1373,7 @@ body.dark-theme .leaflet-popup-tip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 12px 28px;
   border-radius: 25px;
   border: none;
   color: white;
@@ -1274,7 +1381,7 @@ body.dark-theme .leaflet-popup-tip {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--zone-color, #1976d2) 40%, transparent);
 
   .material-icons {
     font-size: 20px;
@@ -1282,7 +1389,7 @@ body.dark-theme .leaflet-popup-tip {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--zone-color, #1976d2) 50%, transparent);
     filter: brightness(1.1);
   }
 
@@ -1304,20 +1411,24 @@ body.dark-theme .leaflet-popup-tip {
     margin-bottom: -12px;
   }
 
+  .zone-modal-hero {
+    height: 150px;
+  }
+
   .zone-modal-header {
     padding: 16px 20px;
   }
 
   .zone-modal-title {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .zone-modal-content {
-    padding: 20px;
+    padding: 16px 20px;
   }
 
   .zone-modal-description {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .zone-modal-footer {

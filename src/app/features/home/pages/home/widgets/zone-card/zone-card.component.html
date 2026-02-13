@@ -1,11 +1,11 @@
 <a class="zone-card" [routerLink]="['/mapfly']" [queryParams]="{ zoneId: zone().id }">
   <div class="zone-card-inner">
-    <!-- Zone visual with color accent -->
-    <div class="zone-visual" [style.background]="'linear-gradient(135deg, ' + zoneColor() + ' 0%, ' + zoneColor() + '99 100%)'">
-      <div class="zone-pattern"></div>
-      @if (zone().coverImage) {
-        <img [src]="zone().coverImage" [alt]="localizedName()" class="zone-cover" />
+    <!-- Zone visual -->
+    <div class="zone-visual" [style.background-color]="zoneColor()">
+      @if (coverImageUrl()) {
+        <img [src]="coverImageUrl()" [alt]="localizedName()" class="zone-cover" [style.object-position]="'center ' + coverPosition()" [style.transform]="'scale(' + coverZoom() + ')'" />
       }
+      <div class="zone-overlay"></div>
     </div>
 
     <!-- Zone info -->
@@ -22,7 +22,7 @@
       </span>
     </div>
 
-    <!-- Color accent bar -->
-    <div class="zone-accent" [style.background-color]="zoneColor()"></div>
+    <!-- Zone color accent bar -->
+    <div class="zone-accent" [style.background]="'linear-gradient(90deg, ' + zoneColor() + ', transparent)'"></div>
   </div>
 </a>

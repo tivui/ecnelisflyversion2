@@ -37,6 +37,7 @@ import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
 import { LikeService } from '../../../../core/services/like.service';
+import { AmbientAudioService } from '../../../../core/services/ambient-audio.service';
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 
 @Component({
@@ -60,6 +61,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly zoneService = inject(ZoneService);
   private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly likeService = inject(LikeService);
+  private readonly ambientAudio = inject(AmbientAudioService);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -88,6 +90,36 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public totalJourneySteps = signal(0);
   public journeyColor = signal('#1976d2');
   public journeyName = signal('');
+
+  // Zone (Terroir) cinematic entry
+  public zoneOverlayVisible = signal(false);
+  public zoneOverlayFading = signal(false);
+  public zoneOverlayTitle = signal('');
+  public zoneOverlayDescription = signal('');
+  public zoneOverlayCoverUrl = signal<string | null>(null);
+  public zoneOverlayGradient = signal('linear-gradient(135deg, #5c3d0a, #b07c10)');
+  public zoneOverlayIcon = signal('terrain');
+  public hasAmbientSound = signal(false);
+  public isAmbientMuted = signal(false);
+  public ambientSoundLabel = signal('');
+  public ambientLabelExpanded = signal(false);
+  private zonePolygonGlowLayer: L.Polygon | null = null;
+
+  // Timeline mode
+  public timelineEnabled = signal(false);
+  public timelineVisible = signal(false);
+  public timelineMin = signal(0);       // earliest timestamp
+  public timelineMax = signal(0);       // latest timestamp
+  public timelineCurrent = signal(0);   // current cursor timestamp
+  public timelinePlaying = signal(false);
+  public timelineLabel = signal('');
+  public timelineMarkerMap: { date: Date; marker: L.Marker }[] = [];
+  private timelineInterval: ReturnType<typeof setInterval> | null = null;
+
+  // Zone stats
+  public zoneSoundCount = signal(0);
+  public zoneSeasonFilter = signal<string | null>(null); // 'spring' | 'summer' | 'autumn' | 'winter' | null
+  private zoneSounds: Sound[] = [];
 
   // Empty state
   public isEmptyResults = signal(false);
@@ -415,6 +447,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // If zoneId is provided, load only zone sounds
       if (zoneId) {
         sounds = await this.zoneService.getSoundsForZone(zoneId);
+        this.zoneSounds = sounds;
+        this.zoneSoundCount.set(sounds.length);
         console.log('Zone sounds loaded:', sounds.length);
       } else {
         // Load all sounds (normal mode)
@@ -587,6 +621,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
           case 'transportfly':
             this.fg9.addLayer(m);
             break;
+        }
+
+        // Store timeline mapping for zone mode
+        if (zoneId && s.recordDateTime) {
+          const d = s.recordDateTime instanceof Date ? s.recordDateTime : new Date(s.recordDateTime);
+          if (!isNaN(d.getTime())) {
+            this.timelineMarkerMap.push({ date: d, marker: m });
+          }
         }
 
         // --- Popup logic ---
@@ -824,6 +866,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // --- Add cluster to map ---
       this.map.addLayer(this.markersCluster);
 
+      // --- Initialize timeline if zone has it enabled ---
+      if (zoneId && this.timelineMarkerMap.length > 0) {
+        this.initTimeline();
+      }
+
       // --- Fit bounds when filtering by category ---
       if ((category || secondaryCategory) && sounds.length > 0) {
         const bounds = this.markersCluster.getBounds();
@@ -982,22 +1029,125 @@ export class MapflyComponent implements OnInit, OnDestroy {
     return { [allGroupName]: Object.fromEntries(overlayEntries) };
   }
 
-  // --- Zone management ---
+  // --- Zone management (cinematic entry) ---
   private async loadZone(zoneId: string) {
     try {
-      // Clear any existing zone before loading new one (don't reset view)
+      // Clear any existing zone before loading new one
       if (this.zonePolygonLayer || this.zoneMaskLayer || this.zoneTitleControl) {
         this.clearZoneVisuals(false);
       }
 
       const zone = await this.zoneService.getZoneById(zoneId);
-      if (zone) {
-        this.currentZone.set(zone);
-        this.displayZoneOnMap(zone);
+      if (!zone) return;
+
+      this.currentZone.set(zone);
+
+      const lang = this.currentUserLanguage;
+      const title = zone.name_i18n?.[lang] ?? zone.name;
+      const description = zone.description_i18n?.[lang] ?? zone.description ?? '';
+      const color = zone.color ?? '#b07c10';
+
+      // Setup overlay signals
+      this.zoneOverlayTitle.set(title);
+      this.zoneOverlayDescription.set(description);
+      this.zoneOverlayGradient.set(
+        `linear-gradient(135deg, ${this.darkenColor(color)} 0%, ${color} 100%)`
+      );
+      this.zoneOverlayIcon.set(zone.icon ?? 'terrain');
+
+      // Resolve cover image URL (used in zone info modal)
+      if (zone.coverImage) {
+        this.zoneService
+          .getZoneFileUrl(zone.coverImage)
+          .then((url) => this.zoneOverlayCoverUrl.set(url))
+          .catch(() => this.zoneOverlayCoverUrl.set(null));
+      } else {
+        this.zoneOverlayCoverUrl.set(null);
       }
+
+      // Check ambient sound — start early during cinematic for immersive fade-in
+      this.hasAmbientSound.set(!!zone.ambientSound);
+      this.ambientSoundLabel.set(zone.ambientSoundLabel ?? '');
+      if (zone.ambientSound) {
+        this.isAmbientMuted.set(this.ambientAudio.isUserMuted());
+        this.zoneService
+          .getZoneFileUrl(zone.ambientSound)
+          .then((url) => this.ambientAudio.play(url, 4000))
+          .catch(() => console.warn('Failed to load ambient sound'));
+      }
+
+      // ===== CINEMATIC ENTRY SEQUENCE =====
+
+      // t=0: Show overlay
+      this.zoneOverlayVisible.set(true);
+      this.zoneOverlayFading.set(false);
+
+      // t=1500ms: Start fly-in from world to continent
+      setTimeout(() => {
+        if (!this.map) return;
+        this.map.setView([30, 10], 3, { animate: false }); // World view
+        this.map.flyTo(
+          zone.center ? [zone.center.lat, zone.center.lng] : [46.6, 1.9],
+          6,
+          { duration: 2, easeLinearity: 0.4 }
+        );
+      }, 1500);
+
+      // t=3500ms: Switch base layer to satellite
+      setTimeout(() => {
+        if (!this.map) return;
+        if (this.map.hasLayer(this.esri)) {
+          this.map.removeLayer(this.esri);
+          this.map.addLayer(this.mapbox);
+        }
+      }, 3500);
+
+      // t=4000ms: Fly to zone level
+      setTimeout(() => {
+        if (!this.map || !zone.center) return;
+        this.map.flyTo(
+          [zone.center.lat, zone.center.lng],
+          zone.defaultZoom ?? 12,
+          { duration: 2, easeLinearity: 0.3 }
+        );
+      }, 4000);
+
+      // t=6000ms: Reveal — hide overlay, show zone visuals
+      setTimeout(() => {
+        this.zoneOverlayFading.set(true);
+
+        // t=6600ms: Remove overlay, display zone polygon + mask + title
+        setTimeout(() => {
+          this.zoneOverlayVisible.set(false);
+          this.zoneOverlayFading.set(false);
+          this.displayZoneOnMap(zone);
+        }, 600);
+      }, 6000);
+
     } catch (error) {
       console.error('Error loading zone:', error);
+      // Fallback: hide overlay if error
+      this.zoneOverlayVisible.set(false);
     }
+  }
+
+  /**
+   * Darken a hex color for gradient start
+   */
+  private darkenColor(hex: string): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const factor = 0.4;
+    return `#${Math.round(r * factor).toString(16).padStart(2, '0')}${Math.round(g * factor).toString(16).padStart(2, '0')}${Math.round(b * factor).toString(16).padStart(2, '0')}`;
+  }
+
+  /**
+   * Toggle ambient sound from the map control
+   */
+  public toggleAmbient() {
+    this.ambientAudio.toggleMute();
+    this.isAmbientMuted.set(this.ambientAudio.isUserMuted());
   }
 
   private displayZoneOnMap(zone: Zone) {
@@ -1006,57 +1156,211 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const color = zone.color ?? '#1976d2';
     const coords = zone.polygon.coordinates[0].map((c) => L.latLng(c[1], c[0]));
 
-    // Create zone polygon border
-    this.zonePolygonLayer = L.polygon(coords, {
+    // Premium polygon: outer glow layer (wider, blurred effect)
+    this.zonePolygonGlowLayer = L.polygon(coords, {
       color,
-      weight: 3,
+      weight: 8,
       fillOpacity: 0,
-      dashArray: '10, 5',
+      opacity: 0,
+      lineCap: 'round',
+      lineJoin: 'round',
+      className: 'zone-polygon-glow',
     }).addTo(this.map);
 
-    // Create mask outside the zone (gray overlay)
-    this.createZoneMask(coords, color);
+    // Premium polygon: main border (crisp dashed line)
+    this.zonePolygonLayer = L.polygon(coords, {
+      color: '#fff',
+      weight: 2,
+      fillOpacity: 0,
+      dashArray: '8, 6',
+      opacity: 0,
+      className: 'zone-polygon-main',
+    }).addTo(this.map);
+
+    // Animate polygon appearance
+    let opacity = 0;
+    const fadeIn = setInterval(() => {
+      opacity += 0.04;
+      if (opacity >= 1) {
+        opacity = 1;
+        clearInterval(fadeIn);
+      }
+      this.zonePolygonGlowLayer?.setStyle({ opacity: opacity * 0.5 });
+      this.zonePolygonLayer?.setStyle({ opacity });
+    }, 40);
+
+    // Create mask outside the zone with animated opacity
+    this.createZoneMaskAnimated(coords, color);
+
+    // Note: cover image activation moved to URL resolution callback (avoids race condition)
 
     // Add zone title control
     this.addZoneTitleControl(zone);
 
-    // Fit map to zone bounds
-    const bounds = this.zonePolygonLayer.getBounds();
-    this.map.fitBounds(bounds, { padding: [50, 50] });
+    // Setup popup audio ducking (auto-mute ambient when popup sound plays)
+    this.setupPopupAudioDucking();
   }
 
-  private createZoneMask(zoneCoords: L.LatLng[], color: string) {
-    // Create a large rectangle covering the world
-    const worldBounds: L.LatLngTuple[] = [
-      [-90, -180],
-      [-90, 180],
-      [90, 180],
-      [90, -180],
-      [-90, -180],
-    ];
+  private popupAudioPlayHandler: ((e: Event) => void) | null = null;
+  private popupAudioPauseHandler: ((e: Event) => void) | null = null;
+  private popupFadeTimer: ReturnType<typeof setInterval> | null = null;
+  private fadingOutAudio: HTMLAudioElement | null = null;
 
-    // Create polygon with hole (the zone area)
+  private clearPopupFade(): void {
+    if (this.popupFadeTimer) {
+      clearInterval(this.popupFadeTimer);
+      this.popupFadeTimer = null;
+    }
+  }
+
+  private setupPopupAudioDucking() {
+    // Remove previous listeners if any
+    this.removePopupAudioDucking();
+
+    const container = this.map.getContainer();
+
+    this.popupAudioPlayHandler = (e: Event) => {
+      if (!(e.target instanceof HTMLAudioElement)) return;
+      const audio = e.target;
+
+      // Skip if this play was triggered by our fade-out mechanism
+      if (audio === this.fadingOutAudio) return;
+
+      this.clearPopupFade();
+
+      // Smooth fade-in for popup audio
+      audio.volume = 0;
+      const steps = 20;
+      const stepMs = 40; // ~800ms total
+      let step = 0;
+
+      this.popupFadeTimer = setInterval(() => {
+        step++;
+        if (step >= steps || audio.paused) {
+          if (!audio.paused) audio.volume = 1;
+          this.clearPopupFade();
+          return;
+        }
+        // Ease-in curve: gentle start, natural ramp up
+        const progress = step / steps;
+        audio.volume = Math.pow(progress, 2);
+      }, stepMs);
+
+      // Duck ambient simultaneously
+      this.ambientAudio.duck();
+    };
+
+    this.popupAudioPauseHandler = (e: Event) => {
+      if (!(e.target instanceof HTMLAudioElement)) return;
+      const audio = e.target;
+
+      // Skip if this is our own fade-out completing its final pause()
+      if (audio === this.fadingOutAudio) {
+        this.fadingOutAudio = null;
+        this.ambientAudio.unduck();
+        return;
+      }
+
+      this.clearPopupFade();
+
+      // If audio ended naturally or volume is already 0, just unduck
+      if (audio.ended || audio.volume === 0) {
+        this.ambientAudio.unduck();
+        return;
+      }
+
+      // Fade-out: resume playback briefly, lower volume, then truly pause
+      const startVol = audio.volume;
+      this.fadingOutAudio = audio;
+
+      audio.play().then(() => {
+        const steps = 12;
+        const stepMs = 40; // ~500ms total
+        let step = 0;
+
+        this.popupFadeTimer = setInterval(() => {
+          step++;
+          if (step >= steps || !this.fadingOutAudio) {
+            if (this.fadingOutAudio) {
+              this.fadingOutAudio.volume = 0;
+              this.fadingOutAudio.pause(); // triggers pause event, handled by guard above
+            }
+            this.clearPopupFade();
+            return;
+          }
+          // Ease-out curve: fades quickly then tapers off
+          const progress = step / steps;
+          const eased = 1 - Math.pow(1 - progress, 3);
+          audio.volume = Math.max(0, startVol * (1 - eased));
+        }, stepMs);
+      }).catch(() => {
+        this.fadingOutAudio = null;
+        this.ambientAudio.unduck();
+      });
+    };
+
+    container.addEventListener('play', this.popupAudioPlayHandler, true);
+    container.addEventListener('pause', this.popupAudioPauseHandler, true);
+    container.addEventListener('ended', this.popupAudioPauseHandler, true);
+  }
+
+  private removePopupAudioDucking() {
+    this.clearPopupFade();
+    this.fadingOutAudio = null;
+    if (!this.map) return;
+    const container = this.map.getContainer();
+    if (this.popupAudioPlayHandler) {
+      container.removeEventListener('play', this.popupAudioPlayHandler, true);
+    }
+    if (this.popupAudioPauseHandler) {
+      container.removeEventListener('pause', this.popupAudioPauseHandler, true);
+      container.removeEventListener('ended', this.popupAudioPauseHandler, true);
+    }
+    this.popupAudioPlayHandler = null;
+    this.popupAudioPauseHandler = null;
+  }
+
+  private createZoneMaskAnimated(zoneCoords: L.LatLng[], color: string) {
+    const worldBounds: L.LatLngTuple[] = [
+      [-90, -180], [-90, 180], [90, 180], [90, -180], [-90, -180],
+    ];
     const outerRing = worldBounds.map((c) => L.latLng(c[0], c[1]));
-    const innerRing = [...zoneCoords, zoneCoords[0]]; // Close the ring
+    const innerRing = [...zoneCoords, zoneCoords[0]];
 
     this.zoneMaskLayer = L.polygon([outerRing, innerRing], {
       color: 'transparent',
       fillColor: '#000',
-      fillOpacity: 0.4,
+      fillOpacity: 0,
       interactive: false,
     }).addTo(this.map);
+
+    // Animate mask fill opacity from 0 to 0.4
+    let fillOp = 0;
+    const maskFade = setInterval(() => {
+      fillOp += 0.02;
+      if (fillOp >= 0.4) {
+        fillOp = 0.4;
+        clearInterval(maskFade);
+      }
+      this.zoneMaskLayer?.setStyle({ fillOpacity: fillOp });
+    }, 50);
   }
 
   private addZoneTitleControl(zone: Zone) {
     const lang = this.currentUserLanguage;
     const title = zone.name_i18n?.[lang] ?? zone.name;
+    const color = zone.color ?? '#1976d2';
+    const icon = zone.icon ?? 'terrain';
 
     const ZoneTitleControl = L.Control.extend({
       options: { position: 'topleft' as L.ControlPosition },
       onAdd: () => {
         const container = L.DomUtil.create('div', 'zone-title-control');
         container.innerHTML = `
-          <div class="zone-title-content" style="background-color: ${zone.color ?? '#1976d2'}">
+          <div class="zone-title-content" style="--zone-color: ${color}">
+            <span class="zone-title-icon" style="background: ${color}">
+              <span class="material-icons">${icon}</span>
+            </span>
             <span class="zone-title-text">${title}</span>
             <button class="zone-info-btn" title="${this.translate.instant('mapfly.zone.showInfo')}">
               <span class="material-icons">info</span>
@@ -1101,17 +1405,76 @@ export class MapflyComponent implements OnInit, OnDestroy {
       existingModal.remove();
     }
 
+    // Compute zone stats
+    const soundCount = this.zoneSounds.length;
+    const datedSounds = this.zoneSounds.filter(s => s.recordDateTime);
+    const dates = datedSounds.map(s => new Date(s.recordDateTime!).getTime()).sort((a, b) => a - b);
+    const locale = lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US';
+    const dateRangeHtml = dates.length >= 2
+      ? `<span>${new Date(dates[0]).toLocaleDateString(locale, { year: 'numeric', month: 'short' })} — ${new Date(dates[dates.length - 1]).toLocaleDateString(locale, { year: 'numeric', month: 'short' })}</span>`
+      : '';
+
+    // Top categories
+    const catCount: Record<string, number> = {};
+    for (const s of this.zoneSounds) {
+      if (s.category) catCount[s.category] = (catCount[s.category] || 0) + 1;
+    }
+    const topCats = Object.entries(catCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([key, count]) => `<span class="zone-stat-cat"><img src="img/logos/overlays/layer_control_${key}.png" width="18" /> ${this.translate.instant('categories.' + key)} (${count})</span>`)
+      .join('');
+
+    const statsHtml = soundCount > 0 ? `
+      <div class="zone-stats-section">
+        <div class="zone-stat-row">
+          <span class="material-icons zone-stat-icon" style="color: ${color}">graphic_eq</span>
+          <span class="zone-stat-value">${soundCount} ${this.translate.instant(soundCount === 1 ? 'mapfly.zone.soundSingular' : 'mapfly.zone.soundPlural')}</span>
+        </div>
+        ${dateRangeHtml ? `
+        <div class="zone-stat-row">
+          <span class="material-icons zone-stat-icon" style="color: ${color}">date_range</span>
+          ${dateRangeHtml}
+        </div>` : ''}
+        ${topCats ? `
+        <div class="zone-stat-row zone-stat-cats">
+          <span class="material-icons zone-stat-icon" style="color: ${color}">category</span>
+          <div class="zone-stat-cats-list">${topCats}</div>
+        </div>` : ''}
+      </div>
+    ` : '';
+
+    // Cover image for modal hero
+    const coverUrl = this.zoneOverlayCoverUrl();
+    const coverPosition = zone.coverImagePosition ?? 'center';
+    const coverZoom = zone.coverImageZoom ?? 100;
+
+    const heroImageHtml = coverUrl ? `
+      <div class="zone-modal-hero">
+        <img src="${coverUrl}" alt="${title}" style="object-position: center ${coverPosition}; transform: scale(${coverZoom / 100})" />
+        <div class="zone-modal-hero-gradient" style="background: linear-gradient(to top, ${color} 0%, transparent 60%)"></div>
+        <div class="zone-modal-hero-title">
+          <h2 class="zone-modal-title" id="zone-modal-title">${title}</h2>
+        </div>
+        <button class="zone-modal-close-btn" aria-label="Close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    ` : `
+      <div class="zone-modal-header" style="background-color: ${color}">
+        <h2 class="zone-modal-title" id="zone-modal-title">${title}</h2>
+        <button class="zone-modal-close-btn" aria-label="Close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    `;
+
     // Create modal overlay
     const overlay = document.createElement('div');
     overlay.className = 'zone-info-modal-overlay';
     overlay.innerHTML = `
       <div class="zone-info-modal" style="--zone-color: ${color}">
-        <div class="zone-modal-header" style="background-color: ${color}">
-          <h2 class="zone-modal-title" id="zone-modal-title">${title}</h2>
-          <button class="zone-modal-close-btn" aria-label="Close">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
+        ${heroImageHtml}
         <div class="zone-modal-content">
           ${description ? `<p class="zone-modal-description" id="zone-modal-description">${description}</p>` : `<p class="zone-modal-no-description">${this.translate.instant('mapfly.zone.noDescription')}</p>`}
           ${hasTranslation ? `
@@ -1120,6 +1483,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
               <span>${this.translate.instant('common.action.translate')}</span>
             </button>
           ` : ''}
+          ${statsHtml}
         </div>
         <div class="zone-modal-footer">
           <button class="zone-modal-explore-btn" style="background-color: ${color}">
@@ -1194,7 +1558,31 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   private clearZoneVisuals(resetView = true) {
+    // Remove popup audio ducking
+    this.removePopupAudioDucking();
+
+    // Stop ambient sound with fade-out
+    this.ambientAudio.stop();
+    this.hasAmbientSound.set(false);
+    this.ambientSoundLabel.set('');
+
+    // Stop and reset timeline
+    this.stopTimeline();
+    this.timelineEnabled.set(false);
+    this.timelineVisible.set(false);
+    this.timelineMarkerMap = [];
+    this.zoneSounds = [];
+    this.zoneSoundCount.set(0);
+    this.zoneSeasonFilter.set(null);
+
+    // Reset cover image URL
+    this.zoneOverlayCoverUrl.set(null);
+
     // Remove zone layers without navigating (called when URL already changed)
+    if (this.zonePolygonGlowLayer) {
+      this.map.removeLayer(this.zonePolygonGlowLayer);
+      this.zonePolygonGlowLayer = null;
+    }
     if (this.zonePolygonLayer) {
       this.map.removeLayer(this.zonePolygonLayer);
       this.zonePolygonLayer = null;
@@ -1898,6 +2286,161 @@ export class MapflyComponent implements OnInit, OnDestroy {
     }
   }
 
+  // =====================================================
+  // Timeline Mode — time-travel through sounds
+  // =====================================================
+  private initTimeline() {
+    const zone = this.currentZone();
+    if (!zone?.timelineEnabled) return;
+
+    // Sort by date ascending
+    this.timelineMarkerMap.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const minTs = this.timelineMarkerMap[0].date.getTime();
+    const maxTs = this.timelineMarkerMap[this.timelineMarkerMap.length - 1].date.getTime();
+
+    // Need at least 2 distinct dates for a timeline
+    if (minTs === maxTs) return;
+
+    this.timelineMin.set(minTs);
+    this.timelineMax.set(maxTs);
+    this.timelineCurrent.set(maxTs); // Start showing all sounds
+    this.timelineEnabled.set(true);
+    this.updateTimelineLabel(maxTs);
+  }
+
+  public showTimeline() {
+    this.timelineVisible.set(true);
+    // Start with all markers visible (cursor at max)
+    this.timelineCurrent.set(this.timelineMax());
+    this.updateTimelineLabel(this.timelineMax());
+    this.applyTimelineFilter();
+  }
+
+  public hideTimeline() {
+    this.stopTimeline();
+    this.timelineVisible.set(false);
+    // Show all markers again
+    for (const entry of this.timelineMarkerMap) {
+      if (!this.map.hasLayer(entry.marker)) {
+        this.fgAll.addLayer(entry.marker);
+      }
+    }
+  }
+
+  public onTimelineChange(event: Event) {
+    const value = parseInt((event.target as HTMLInputElement).value, 10);
+    this.timelineCurrent.set(value);
+    this.updateTimelineLabel(value);
+    this.applyTimelineFilter();
+  }
+
+  public playTimeline() {
+    if (this.timelinePlaying()) {
+      this.stopTimeline();
+      return;
+    }
+
+    this.timelinePlaying.set(true);
+    // Start from beginning
+    this.timelineCurrent.set(this.timelineMin());
+    this.applyTimelineFilter();
+
+    const range = this.timelineMax() - this.timelineMin();
+    const stepMs = range / 100; // 100 steps
+    const intervalMs = 120; // advance every 120ms → ~12s total
+
+    this.timelineInterval = setInterval(() => {
+      const next = this.timelineCurrent() + stepMs;
+      if (next >= this.timelineMax()) {
+        this.timelineCurrent.set(this.timelineMax());
+        this.updateTimelineLabel(this.timelineMax());
+        this.applyTimelineFilter();
+        this.stopTimeline();
+        return;
+      }
+      this.timelineCurrent.set(next);
+      this.updateTimelineLabel(next);
+      this.applyTimelineFilter();
+    }, intervalMs);
+  }
+
+  private stopTimeline() {
+    this.timelinePlaying.set(false);
+    if (this.timelineInterval) {
+      clearInterval(this.timelineInterval);
+      this.timelineInterval = null;
+    }
+  }
+
+  private applyTimelineFilter() {
+    const cutoff = this.timelineCurrent();
+    for (const entry of this.timelineMarkerMap) {
+      const ts = entry.date.getTime();
+      if (ts <= cutoff) {
+        if (!this.map.hasLayer(entry.marker)) {
+          this.fgAll.addLayer(entry.marker);
+        }
+      } else {
+        if (this.map.hasLayer(entry.marker)) {
+          this.fgAll.removeLayer(entry.marker);
+        }
+      }
+    }
+  }
+
+  private updateTimelineLabel(timestamp: number) {
+    const d = new Date(timestamp);
+    const lang = this.currentUserLanguage;
+    const locale = lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US';
+    this.timelineLabel.set(d.toLocaleDateString(locale, { year: 'numeric', month: 'short' }));
+  }
+
+  // =====================================================
+  // Seasonal Filter — filter sounds by season
+  // =====================================================
+  public toggleSeasonFilter(season: string) {
+    if (this.zoneSeasonFilter() === season) {
+      this.zoneSeasonFilter.set(null);
+      // Show all markers
+      for (const entry of this.timelineMarkerMap) {
+        if (!this.map.hasLayer(entry.marker)) {
+          this.fgAll.addLayer(entry.marker);
+        }
+      }
+      return;
+    }
+
+    this.zoneSeasonFilter.set(season);
+    this.applySeasonFilter(season);
+  }
+
+  private applySeasonFilter(season: string) {
+    for (const entry of this.timelineMarkerMap) {
+      const month = entry.date.getMonth(); // 0-11
+      const inSeason = this.isInSeason(month, season);
+      if (inSeason) {
+        if (!this.map.hasLayer(entry.marker)) {
+          this.fgAll.addLayer(entry.marker);
+        }
+      } else {
+        if (this.map.hasLayer(entry.marker)) {
+          this.fgAll.removeLayer(entry.marker);
+        }
+      }
+    }
+  }
+
+  private isInSeason(month: number, season: string): boolean {
+    switch (season) {
+      case 'spring': return month >= 2 && month <= 4;   // Mar-May
+      case 'summer': return month >= 5 && month <= 7;   // Jun-Aug
+      case 'autumn': return month >= 8 && month <= 10;  // Sep-Nov
+      case 'winter': return month <= 1 || month === 11;  // Dec-Feb
+      default: return true;
+    }
+  }
+
   goToFullMap() {
     window.location.href = '/mapfly';
   }
@@ -1926,6 +2469,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.stopTimeline();
+    this.ambientAudio.destroy();
     this.queryParamsSub?.unsubscribe();
     this.map?.remove();
   }

@@ -19,6 +19,12 @@ export class Zone {
   center?: ZoneCenter;
   defaultZoom?: number;
   coverImage?: string;
+  coverImagePosition?: string;
+  coverImageZoom?: number;
+  ambientSound?: string;
+  ambientSoundLabel?: string;
+  icon?: string;
+  timelineEnabled?: boolean;
   color?: string;
   isPublic?: boolean;
   sortOrder?: number;
@@ -29,6 +35,21 @@ export class Zone {
   constructor(init?: Partial<Zone>) {
     Object.assign(this, init);
   }
+}
+
+export interface MonthlyZone {
+  id: string;
+  zoneId: string;
+  month: string;
+  active: boolean;
+  zoneName?: string;
+  zoneName_i18n?: Record<string, string>;
+  zoneDescription?: string;
+  zoneDescription_i18n?: Record<string, string>;
+  zoneSlug?: string;
+  zoneCoverImage?: string;
+  zoneIcon?: string;
+  zoneColor?: string;
 }
 
 export class ZoneSound {

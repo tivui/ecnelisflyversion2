@@ -13,6 +13,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ZoneService } from '../../../../../core/services/zone.service';
@@ -41,6 +42,7 @@ interface DialogData {
     MatAutocompleteModule,
     MatChipsModule,
     MatTooltipModule,
+    MatSlideToggleModule,
     TranslateModule,
   ],
   templateUrl: './zone-sounds-dialog.component.html',
@@ -60,6 +62,8 @@ export class ZoneSoundsDialogComponent implements OnInit {
   filteredSounds = signal<Sound[]>([]);
   loading = signal(true);
   adding = signal(false);
+  showNearby = signal(false);
+  insidePolygonCount = signal(0);
 
   searchControl = new FormControl('');
 
@@ -99,21 +103,51 @@ export class ZoneSoundsDialogComponent implements OnInit {
       });
   }
 
+  toggleShowNearby() {
+    this.showNearby.update((v) => !v);
+    this.updateFilteredSounds();
+  }
+
   private updateFilteredSounds() {
     const search = (this.searchControl.value ?? '').toLowerCase();
     const existingIds = new Set(this.zoneSounds().map((s) => s.id));
+    const polygon = this.zone.polygon?.coordinates;
 
-    let filtered = this.allSounds().filter((s) => !existingIds.has(s.id));
+    // Start with sounds not already in the zone
+    let available = this.allSounds().filter((s) => !existingIds.has(s.id));
 
+    // Apply geo filter: only sounds inside the polygon (unless showNearby is on)
+    if (polygon && !this.showNearby()) {
+      available = available.filter(
+        (s) =>
+          s.latitude != null &&
+          s.longitude != null &&
+          this.zoneService.isPointInPolygon(s.latitude, s.longitude, polygon)
+      );
+    }
+
+    // Count sounds inside polygon (for display)
+    if (polygon) {
+      const insideCount = this.allSounds().filter(
+        (s) =>
+          !existingIds.has(s.id) &&
+          s.latitude != null &&
+          s.longitude != null &&
+          this.zoneService.isPointInPolygon(s.latitude!, s.longitude!, polygon)
+      ).length;
+      this.insidePolygonCount.set(insideCount);
+    }
+
+    // Apply text search
     if (search) {
-      filtered = filtered.filter(
+      available = available.filter(
         (s) =>
           s.title.toLowerCase().includes(search) ||
           s.city?.toLowerCase().includes(search)
       );
     }
 
-    this.filteredSounds.set(filtered.slice(0, 50)); // Limit for performance
+    this.filteredSounds.set(available.slice(0, 50)); // Limit for performance
   }
 
   async addSound(sound: Sound) {

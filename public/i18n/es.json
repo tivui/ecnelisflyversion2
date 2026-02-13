@@ -15,7 +15,7 @@
       ],
       "exploreMap": "Mapa mundial",
       "exploreMapDesc": "Navega por todos los sonidos geolocalizados en un mapa interactivo",
-      "exploreZones": "Descubrir zonas",
+      "exploreZones": "Descubrir terruños",
       "exploreZonesDesc": "Explora regiones sonoras temáticas y únicas",
       "explore": "Explorar",
       "discover": "Descubrir",
@@ -27,18 +27,19 @@
       "monthlyQuiz": "Quiz del mes",
       "play": "Jugar",
       "newArticle": "Nuevo Artículo",
-      "readArticle": "Leer"
+      "readArticle": "Leer",
+      "monthlyZone": "Terruño del mes"
     },
     "zones": {
-      "title": "Explorar por zonas",
+      "title": "Explorar por terruños",
       "subtitle": "Sumérgete en regiones sonoras únicas",
-      "viewAll": "Ver todas las zonas",
+      "viewAll": "Ver todos los terruños",
       "explore": "Explorar",
-      "noZones": "No hay zonas disponibles por el momento"
+      "noZones": "No hay terruños disponibles por el momento"
     },
     "navigation": {
       "worldMap": "Mapa mundial",
-      "zones": "Zonas"
+      "zones": "Terruños"
     },
     "categories": {
       "title": "Explorar por categoría"
@@ -46,19 +47,19 @@
   },
   "sidenav": {
     "worldMap": "Mapa mundial",
-    "discoverZones": "Descubrir zonas",
+    "discoverZones": "Terruños sonoros",
     "soundOfTheDay": "Sonido del día",
     "soundJourneys": "Viajes sonoros",
-    "soundQuiz": "Quiz sonoro",
-    "soundArticles": "Artículos sonoros"
+    "soundQuiz": "Quiz",
+    "soundArticles": "Artículos"
   },
   "zones": {
-    "title": "Zonas geográficas",
+    "title": "Terruños sonoros",
     "subtitle": "Explora regiones sonoras temáticas",
-    "loading": "Cargando zonas...",
+    "loading": "Cargando terruños...",
     "empty": {
-      "title": "No hay zonas disponibles",
-      "message": "Aún no hay zonas para explorar. ¡Vuelve pronto!",
+      "title": "No hay terruños disponibles",
+      "message": "Aún no hay terruños para explorar. ¡Vuelve pronto!",
       "exploreMap": "Explorar el mapa mundial"
     }
   },
@@ -393,7 +394,7 @@
   "admin": {
     "database": {
       "importSounds": "Importar sonidos",
-      "zones": "Zonas geográficas",
+      "zones": "Terruños sonoros",
       "featuredSound": "Sonido del día",
       "journeys": "Viajes sonoros",
       "quizzes": "Quiz sonoros",
@@ -423,11 +424,11 @@
       "saveSuccess": "Sonido guardado"
     },
     "zones": {
-      "title": "Zonas Geográficas",
-      "create": "Crear zona",
-      "createFirst": "Crear tu primera zona",
-      "noZones": "No hay zonas creadas",
-      "loadError": "Error al cargar las zonas",
+      "title": "Terruños sonoros",
+      "create": "Crear terruño",
+      "createFirst": "Crear tu primer terruño",
+      "noZones": "No hay terruños creados",
+      "loadError": "Error al cargar los terruños",
       "public": "Pública",
       "private": "Privada",
       "table": {
@@ -444,26 +445,27 @@
         "delete": "Eliminar"
       },
       "delete": {
-        "title": "Eliminar zona",
+        "title": "Eliminar terruño",
         "message": "¿Estás seguro de que quieres eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
         "confirm": "Eliminar",
-        "success": "Zona eliminada con éxito",
-        "error": "Error al eliminar la zona"
+        "success": "Terruño eliminado con éxito",
+        "error": "Error al eliminar el terruño"
       },
       "dialog": {
-        "createTitle": "Crear zona",
-        "editTitle": "Editar zona",
+        "createTitle": "Crear terruño",
+        "editTitle": "Editar terruño",
         "tabInfo": "Información",
         "tabTranslations": "Traducciones",
         "tabPolygon": "Polígono",
-        "name": "Nombre de la zona",
+        "name": "Nombre del terruño",
         "slug": "Slug (URL)",
         "slugHint": "Identificador único para la URL",
         "description": "Descripción",
         "color": "Color",
+        "icon": "Icono",
         "defaultZoom": "Zoom predeterminado",
         "sortOrder": "Orden de visualización",
-        "isPublic": "Zona pública",
+        "isPublic": "Terruño público",
         "nameTranslations": "Traducciones del nombre",
         "descriptionTranslations": "Traducciones de la descripción",
         "startDrawing": "Dibujar polígono",
@@ -486,25 +488,41 @@
         "polygonCreated": "Polígono creado con éxito",
         "polygonRequired": "Por favor dibuja un polígono en el mapa",
         "formInvalid": "Por favor completa todos los campos requeridos",
-        "createSuccess": "Zona creada con éxito",
-        "updateSuccess": "Zona actualizada con éxito",
-        "saveError": "Error al guardar la zona"
+        "createSuccess": "Terruño creado con éxito",
+        "updateSuccess": "Terruño actualizado con éxito",
+        "saveError": "Error al guardar el terruño",
+        "tabMedia": "Media",
+        "coverImage": "Imagen de portada",
+        "coverImageHint": "Formato paisaje recomendado (1200×600)",
+        "ambientSound": "Sonido ambiental",
+        "ambientSoundHint": "Bucle de audio representativo (30s-2min)",
+        "ambientSoundLabel": "Título del sonido ambiental",
+        "ambientSoundLabelHint": "Ej: Río de Pau, Campanas de Pau...",
+        "timelineEnabled": "Activar modo línea de tiempo",
+        "uploadImage": "Soltar o hacer clic para agregar una imagen",
+        "uploadAudio": "Soltar o hacer clic para agregar audio",
+        "uploadError": "Error de carga",
+        "imagePosition": "Encuadre",
+        "dragToFrame": "Deslizar para encuadrar",
+        "options": "Opciones"
       },
       "sounds": {
-        "title": "Sonidos en la zona \"{{name}}\"",
-        "current": "Sonidos en la zona",
-        "empty": "No hay sonidos en esta zona",
+        "title": "Sonidos en el terruño \"{{name}}\"",
+        "current": "Sonidos en el terruño",
+        "empty": "No hay sonidos en este terruño",
         "add": "Agregar sonidos",
         "search": "Buscar un sonido",
         "searchPlaceholder": "Título o ubicación...",
         "noResults": "No se encontraron sonidos",
-        "remove": "Quitar de la zona",
-        "addToZone": "Agregar a la zona",
+        "remove": "Quitar del terruño",
+        "addToZone": "Agregar al terruño",
         "loadError": "Error al cargar los sonidos",
-        "addSuccess": "Sonido agregado a la zona",
+        "addSuccess": "Sonido agregado al terruño",
         "addError": "Error al agregar el sonido",
-        "removeSuccess": "Sonido eliminado de la zona",
-        "removeError": "Error al eliminar el sonido"
+        "removeSuccess": "Sonido eliminado del terruño",
+        "removeError": "Error al eliminar el sonido",
+        "insidePolygon": "sonidos en este terruño",
+        "showNearby": "Mostrar también sonidos cercanos"
       }
     },
     "journeys": {
@@ -777,9 +795,18 @@
     },
     "zone": {
       "showInfo": "Ver información",
-      "close": "Cerrar zona",
-      "noDescription": "No hay descripción disponible para esta zona.",
-      "exploreZone": "Explorar esta zona"
+      "close": "Cerrar terruño",
+      "noDescription": "No hay descripción disponible para este terruño.",
+      "exploreZone": "Explorar este terruño",
+      "ambientOn": "Ambiente activado",
+      "ambientOff": "Ambiente desactivado",
+      "enteringTerroir": "Bienvenido a este terruño",
+      "soundSingular": "sonido",
+      "soundPlural": "sonidos",
+      "spring": "Primavera",
+      "summer": "Verano",
+      "autumn": "Otoño",
+      "winter": "Invierno"
     },
     "featured": {
       "badge": "Sonido del día",
