@@ -15,7 +15,7 @@
       ],
       "exploreMap": "Carte mondiale",
       "exploreMapDesc": "Parcourez tous les sons géolocalisés sur une carte interactive",
-      "exploreZones": "Découvrir les zones",
+      "exploreZones": "Découvrir les terroirs",
       "exploreZonesDesc": "Explorez des régions sonores thématiques et uniques",
       "explore": "Explorer",
       "discover": "Découvrir",
@@ -30,15 +30,15 @@
       "readArticle": "Lire"
     },
     "zones": {
-      "title": "Explorer par zones",
+      "title": "Explorer par terroirs",
       "subtitle": "Plongez dans des régions sonores uniques",
-      "viewAll": "Voir toutes les zones",
+      "viewAll": "Voir tous les terroirs",
       "explore": "Explorer",
-      "noZones": "Aucune zone disponible pour le moment"
+      "noZones": "Aucun terroir disponible pour le moment"
     },
     "navigation": {
       "worldMap": "Carte mondiale",
-      "zones": "Zones"
+      "zones": "Terroirs"
     },
     "categories": {
       "title": "Explorer par catégorie"
@@ -46,20 +46,20 @@
   },
   "sidenav": {
     "worldMap": "Carte mondiale",
-    "discoverZones": "Découvrir les zones",
+    "discoverZones": "Terroirs sonores",
     "soundOfTheDay": "Son du jour",
     "soundJourneys": "Voyages sonores",
-    "soundQuiz": "Quiz sonore",
-    "soundArticles": "Articles sonores",
+    "soundQuiz": "Quiz",
+    "soundArticles": "Articles",
     "categories": "Catégories"
   },
   "zones": {
-    "title": "Zones géographiques",
+    "title": "Terroirs sonores",
     "subtitle": "Explorez des régions sonores thématiques",
-    "loading": "Chargement des zones...",
+    "loading": "Chargement des terroirs...",
     "empty": {
-      "title": "Aucune zone disponible",
-      "message": "Il n'y a pas encore de zones à explorer. Revenez bientôt !",
+      "title": "Aucun terroir disponible",
+      "message": "Il n'y a pas encore de terroirs à explorer. Revenez bientôt !",
       "exploreMap": "Explorer la carte mondiale"
     }
   },
@@ -410,7 +410,7 @@
   "admin": {
     "database": {
       "importSounds": "Importer les sons",
-      "zones": "Zones géographiques",
+      "zones": "Terroirs sonores",
       "featuredSound": "Son du jour",
       "journeys": "Voyages sonores",
       "quizzes": "Quiz sonores",
@@ -440,11 +440,11 @@
       "saveSuccess": "Son sauvegardé"
     },
     "zones": {
-      "title": "Zones géographiques",
-      "create": "Créer une zone",
-      "createFirst": "Créer votre première zone",
-      "noZones": "Aucune zone créée",
-      "loadError": "Erreur lors du chargement des zones",
+      "title": "Terroirs sonores",
+      "create": "Créer un terroir",
+      "createFirst": "Créer votre premier terroir",
+      "noZones": "Aucun terroir créé",
+      "loadError": "Erreur lors du chargement des terroirs",
       "public": "Publique",
       "private": "Privée",
       "table": {
@@ -461,26 +461,26 @@
         "delete": "Supprimer"
       },
       "delete": {
-        "title": "Supprimer la zone",
+        "title": "Supprimer le terroir",
         "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
         "confirm": "Supprimer",
-        "success": "Zone supprimée avec succès",
+        "success": "Terroir supprimé avec succès",
         "error": "Erreur lors de la suppression"
       },
       "dialog": {
-        "createTitle": "Créer une zone",
-        "editTitle": "Modifier la zone",
+        "createTitle": "Créer un terroir",
+        "editTitle": "Modifier le terroir",
         "tabInfo": "Informations",
         "tabTranslations": "Traductions",
         "tabPolygon": "Polygone",
-        "name": "Nom de la zone",
+        "name": "Nom du terroir",
         "slug": "Slug (URL)",
         "slugHint": "Identifiant unique pour l'URL",
         "description": "Description",
         "color": "Couleur",
         "defaultZoom": "Zoom par défaut",
         "sortOrder": "Ordre d'affichage",
-        "isPublic": "Zone publique",
+        "isPublic": "Terroir public",
         "nameTranslations": "Traductions du nom",
         "descriptionTranslations": "Traductions de la description",
         "startDrawing": "Dessiner le polygone",
@@ -503,24 +503,24 @@
         "polygonCreated": "Polygone créé avec succès",
         "polygonRequired": "Veuillez dessiner un polygone sur la carte",
         "formInvalid": "Veuillez remplir tous les champs requis",
-        "createSuccess": "Zone créée avec succès",
-        "updateSuccess": "Zone mise à jour avec succès",
+        "createSuccess": "Terroir créé avec succès",
+        "updateSuccess": "Terroir mis à jour avec succès",
         "saveError": "Erreur lors de l'enregistrement"
       },
       "sounds": {
-        "title": "Sons de la zone \"{{name}}\"",
-        "current": "Sons dans la zone",
-        "empty": "Aucun son dans cette zone",
+        "title": "Sons du terroir \"{{name}}\"",
+        "current": "Sons dans le terroir",
+        "empty": "Aucun son dans ce terroir",
         "add": "Ajouter des sons",
         "search": "Rechercher un son",
         "searchPlaceholder": "Titre ou lieu...",
         "noResults": "Aucun son trouvé",
-        "remove": "Retirer de la zone",
-        "addToZone": "Ajouter à la zone",
+        "remove": "Retirer du terroir",
+        "addToZone": "Ajouter au terroir",
         "loadError": "Erreur lors du chargement des sons",
-        "addSuccess": "Son ajouté à la zone",
+        "addSuccess": "Son ajouté au terroir",
         "addError": "Erreur lors de l'ajout",
-        "removeSuccess": "Son retiré de la zone",
+        "removeSuccess": "Son retiré du terroir",
         "removeError": "Erreur lors du retrait"
       }
     },
@@ -793,9 +793,9 @@
     },
     "zone": {
       "showInfo": "Voir les informations",
-      "close": "Fermer la zone",
-      "noDescription": "Aucune description disponible pour cette zone.",
-      "exploreZone": "Explorer cette zone"
+      "close": "Fermer le terroir",
+      "noDescription": "Aucune description disponible pour ce terroir.",
+      "exploreZone": "Explorer ce terroir"
     },
     "featured": {
       "badge": "Son du jour",

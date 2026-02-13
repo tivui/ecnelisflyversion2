@@ -15,7 +15,7 @@
       ],
       "exploreMap": "World Map",
       "exploreMapDesc": "Browse all geolocated sounds on an interactive map",
-      "exploreZones": "Discover Zones",
+      "exploreZones": "Discover Terroirs",
       "exploreZonesDesc": "Explore unique thematic sound regions",
       "explore": "Explore",
       "discover": "Discover",
@@ -30,15 +30,15 @@
       "readArticle": "Read"
     },
     "zones": {
-      "title": "Explore by zones",
+      "title": "Explore by terroirs",
       "subtitle": "Dive into unique sound regions",
-      "viewAll": "View all zones",
+      "viewAll": "View all terroirs",
       "explore": "Explore",
-      "noZones": "No zones available at the moment"
+      "noZones": "No terroirs available at the moment"
     },
     "navigation": {
       "worldMap": "World Map",
-      "zones": "Zones"
+      "zones": "Terroirs"
     },
     "categories": {
       "title": "Explore by category"
@@ -46,20 +46,20 @@
   },
   "sidenav": {
     "worldMap": "World Map",
-    "discoverZones": "Discover Zones",
+    "discoverZones": "Sound Terroirs",
     "soundOfTheDay": "Sound of the Day",
     "soundJourneys": "Sound Journeys",
-    "soundQuiz": "Sound Quiz",
-    "soundArticles": "Sound Articles",
+    "soundQuiz": "Quiz",
+    "soundArticles": "Articles",
     "categories": "Categories"
   },
   "zones": {
-    "title": "Geographic Zones",
+    "title": "Sound Terroirs",
     "subtitle": "Explore thematic sound regions",
-    "loading": "Loading zones...",
+    "loading": "Loading terroirs...",
     "empty": {
-      "title": "No zones available",
-      "message": "There are no zones to explore yet. Check back soon!",
+      "title": "No terroirs available",
+      "message": "There are no terroirs to explore yet. Check back soon!",
       "exploreMap": "Explore the world map"
     }
   },
@@ -409,7 +409,7 @@
   "admin": {
     "database": {
       "importSounds": "Import sounds",
-      "zones": "Geographic zones",
+      "zones": "Sound Terroirs",
       "featuredSound": "Sound of the Day",
       "journeys": "Sound Journeys",
       "quizzes": "Sound Quizzes",
@@ -439,11 +439,11 @@
       "saveSuccess": "Sound saved"
     },
     "zones": {
-      "title": "Geographic Zones",
-      "create": "Create zone",
-      "createFirst": "Create your first zone",
-      "noZones": "No zones created",
-      "loadError": "Error loading zones",
+      "title": "Sound Terroirs",
+      "create": "Create terroir",
+      "createFirst": "Create your first terroir",
+      "noZones": "No terroirs created",
+      "loadError": "Error loading terroirs",
       "public": "Public",
       "private": "Private",
       "table": {
@@ -460,26 +460,26 @@
         "delete": "Delete"
       },
       "delete": {
-        "title": "Delete zone",
+        "title": "Delete terroir",
         "message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
         "confirm": "Delete",
-        "success": "Zone deleted successfully",
-        "error": "Error deleting zone"
+        "success": "Terroir deleted successfully",
+        "error": "Error deleting terroir"
       },
       "dialog": {
-        "createTitle": "Create zone",
-        "editTitle": "Edit zone",
+        "createTitle": "Create terroir",
+        "editTitle": "Edit terroir",
         "tabInfo": "Information",
         "tabTranslations": "Translations",
         "tabPolygon": "Polygon",
-        "name": "Zone name",
+        "name": "Terroir name",
         "slug": "Slug (URL)",
         "slugHint": "Unique identifier for URL",
         "description": "Description",
         "color": "Color",
         "defaultZoom": "Default zoom",
         "sortOrder": "Display order",
-        "isPublic": "Public zone",
+        "isPublic": "Public terroir",
         "nameTranslations": "Name translations",
         "descriptionTranslations": "Description translations",
         "startDrawing": "Draw polygon",
@@ -502,24 +502,24 @@
         "polygonCreated": "Polygon created successfully",
         "polygonRequired": "Please draw a polygon on the map",
         "formInvalid": "Please fill in all required fields",
-        "createSuccess": "Zone created successfully",
-        "updateSuccess": "Zone updated successfully",
-        "saveError": "Error saving zone"
+        "createSuccess": "Terroir created successfully",
+        "updateSuccess": "Terroir updated successfully",
+        "saveError": "Error saving terroir"
       },
       "sounds": {
-        "title": "Sounds in zone \"{{name}}\"",
-        "current": "Sounds in zone",
-        "empty": "No sounds in this zone",
+        "title": "Sounds in terroir \"{{name}}\"",
+        "current": "Sounds in terroir",
+        "empty": "No sounds in this terroir",
         "add": "Add sounds",
         "search": "Search for a sound",
         "searchPlaceholder": "Title or location...",
         "noResults": "No sounds found",
-        "remove": "Remove from zone",
-        "addToZone": "Add to zone",
+        "remove": "Remove from terroir",
+        "addToZone": "Add to terroir",
         "loadError": "Error loading sounds",
-        "addSuccess": "Sound added to zone",
+        "addSuccess": "Sound added to terroir",
         "addError": "Error adding sound",
-        "removeSuccess": "Sound removed from zone",
+        "removeSuccess": "Sound removed from terroir",
         "removeError": "Error removing sound"
       }
     },
@@ -792,9 +792,9 @@
     },
     "zone": {
       "showInfo": "Show information",
-      "close": "Close zone",
-      "noDescription": "No description available for this zone.",
-      "exploreZone": "Explore this zone"
+      "close": "Close terroir",
+      "noDescription": "No description available for this terroir.",
+      "exploreZone": "Explore this terroir"
     },
     "featured": {
       "badge": "Sound of the day",
