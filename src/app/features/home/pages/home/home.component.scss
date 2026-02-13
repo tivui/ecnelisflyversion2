@@ -555,21 +555,21 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
 .hero-card-zones {
   .hero-card-content {
-    border-left: 3px solid rgba(#00897b, 0.4);
+    border-left: 3px solid rgba(#b07c10, 0.4);
   }
   .hero-card-cta {
-    color: #00897b;
-    :host-context(body.dark-theme) & { color: #80cbc4; }
+    color: #b07c10;
+    :host-context(body.dark-theme) & { color: #fbbf24; }
   }
 }
 
 .hero-card-journey {
   .hero-card-content {
-    border-left: 3px solid rgba(#c88c14, 0.4);
+    border-left: 3px solid rgba(#0097a7, 0.4);
   }
   .hero-card-cta {
-    color: #b07c10;
-    :host-context(body.dark-theme) & { color: #fbbf24; }
+    color: #0097a7;
+    :host-context(body.dark-theme) & { color: #4dd0e1; }
   }
 }
 
@@ -1192,11 +1192,11 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     }
 
     .hero-card-zones .hero-card-cta {
-      color: #80cbc4 !important; // teal accent
+      color: #fbbf24 !important; // amber accent
     }
 
     .hero-card-journey .hero-card-cta {
-      color: #fbbf24 !important; // amber accent
+      color: #4dd0e1 !important; // cyan accent
     }
 
     .hero-card-quiz .hero-card-cta {
@@ -1228,7 +1228,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       left: 0;
       width: 4px;
       border-radius: 0 4px 4px 0;
-      background: linear-gradient(180deg, #00897b, #80cbc4);
+      background: linear-gradient(180deg, #b07c10, #fbbf24);
       z-index: 3;
     }
 
@@ -1240,7 +1240,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
       left: 0;
       width: 4px;
       border-radius: 0 4px 4px 0;
-      background: linear-gradient(180deg, #b07c10, #fbbf24);
+      background: linear-gradient(180deg, #0097a7, #4dd0e1);
       z-index: 3;
     }
 

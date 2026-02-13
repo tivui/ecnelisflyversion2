@@ -1,8 +1,8 @@
 // =====================
 // Variables
 // =====================
-$accent: #b07c10;
-$accent-light: #fbbf24;
+$accent: #0097a7;
+$accent-light: #4dd0e1;
 $primary-blue: #1976d2;
 $primary-indigo: #3f51b5;
 
@@ -55,8 +55,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: linear-gradient(135deg, #5c3d0a, #b07c10);
-  box-shadow: 0 4px 16px rgba(#5c3d0a, 0.25), 0 0 0 3px rgba($accent, 0.2);
+  background: linear-gradient(135deg, #004d5e, #0097a7);
+  box-shadow: 0 4px 16px rgba(#004d5e, 0.25), 0 0 0 3px rgba($accent, 0.2);
 
   mat-icon {
     font-size: 28px;
@@ -202,7 +202,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: $noise-texture repeat, linear-gradient(135deg, #5c3d0a 0%, #b07c10 100%);
+  background: $noise-texture repeat, linear-gradient(135deg, #004d5e 0%, #0097a7 100%);
   background-blend-mode: overlay, normal;
 
   // Floating orbs
@@ -211,9 +211,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle 60px at 15% 30%, rgba(176, 124, 16, 0.28) 0%, transparent 100%),
-      radial-gradient(circle 45px at 85% 65%, rgba(251, 191, 36, 0.22) 0%, transparent 100%),
-      radial-gradient(circle 30px at 50% 5%, rgba(253, 224, 140, 0.14) 0%, transparent 100%);
+      radial-gradient(circle 60px at 15% 30%, rgba(0, 151, 167, 0.28) 0%, transparent 100%),
+      radial-gradient(circle 45px at 85% 65%, rgba(77, 208, 225, 0.22) 0%, transparent 100%),
+      radial-gradient(circle 30px at 50% 5%, rgba(128, 222, 234, 0.14) 0%, transparent 100%);
     z-index: 0;
   }
 
