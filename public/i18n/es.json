@@ -1079,5 +1079,9 @@
       "button": "Instalar",
       "dismiss": "Cerrar"
     }
+  },
+  "update": {
+    "available": "Una nueva versión está disponible",
+    "reload": "Recargar"
   }
 }

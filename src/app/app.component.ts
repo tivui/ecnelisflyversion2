@@ -34,6 +34,7 @@ import { AuthService } from './core/services/auth.service';
 import { DOCUMENT } from '@angular/common'; // required for fullscreen
 import { PwaInstallBannerComponent } from './shared/components/pwa-install-banner/pwa-install-banner.component';
 import { UserAvatarComponent } from './shared/components/user-avatar/user-avatar.component';
+import { AppUpdateService } from './core/services/app-update.service';
 
 @Component({
   selector: 'app-root',
@@ -71,6 +72,7 @@ export class AppComponent implements OnInit {
   private readonly amplifyI18n = inject(AmplifyI18nService);
   private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
+  private readonly appUpdateService = inject(AppUpdateService);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
@@ -177,6 +179,9 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // 🔄 Listen for app updates (Service Worker)
+    this.appUpdateService.init();
+
     // 1️⃣ Try to load user from backend (if authenticated)
     const appUser = await this.appUserService.loadCurrentUser();
 
