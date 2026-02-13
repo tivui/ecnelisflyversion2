@@ -1,0 +1,237 @@
+$emerald: #0d7c51;
+$emerald-light: #66bb6a;
+
+.quiz-results-container {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background: #f5f7fa;
+
+  :host-context(body.dark-theme) & {
+    background: #1c1c2a;
+  }
+}
+
+.center-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// =====================
+// Score
+// =====================
+.score-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.stars-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.star-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+
+  &.filled {
+    color: #ffc107;
+    animation: starBounce 0.5s ease forwards;
+  }
+
+  &.empty {
+    color: #ccc;
+
+    :host-context(body.dark-theme) & {
+      color: #555;
+    }
+  }
+}
+
+@for $i from 1 through 3 {
+  .star-icon:nth-child(#{$i}) {
+    animation-delay: #{($i - 1) * 0.2}s;
+  }
+}
+
+@keyframes starBounce {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.score-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: $emerald;
+  line-height: 1;
+
+  :host-context(body.dark-theme) & {
+    color: $emerald-light;
+  }
+}
+
+.score-max {
+  font-size: 1.1rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.quiz-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+  color: #444;
+
+  :host-context(body.dark-theme) & {
+    color: #ccc;
+  }
+}
+
+// =====================
+// Guest Banner
+// =====================
+.guest-banner {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background: rgba(255, 152, 0, 0.08);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+
+  mat-icon {
+    color: #ff9800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+  }
+}
+
+// =====================
+// Leaderboard
+// =====================
+.leaderboard-section {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 24px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: $emerald;
+
+    :host-context(body.dark-theme) & {
+      color: $emerald-light;
+    }
+  }
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: #2a2a3e;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  &.top-3 {
+    border-left: 3px solid $emerald;
+  }
+}
+
+.rank {
+  font-weight: 700;
+  width: 24px;
+  text-align: center;
+  color: $emerald;
+
+  :host-context(body.dark-theme) & {
+    color: $emerald-light;
+  }
+}
+
+.player-name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-score {
+  font-weight: 600;
+  color: $emerald;
+
+  :host-context(body.dark-theme) & {
+    color: $emerald-light;
+  }
+}
+
+.player-stars {
+  display: flex;
+  gap: 1px;
+}
+
+.mini-star {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+
+  &.filled {
+    color: #ffc107;
+  }
+
+  &:not(.filled) {
+    color: #ccc;
+  }
+}
+
+// =====================
+// Actions
+// =====================
+.actions-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+
+    button {
+      width: 100%;
+    }
+  }
+}

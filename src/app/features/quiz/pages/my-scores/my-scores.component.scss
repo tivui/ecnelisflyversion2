@@ -1,0 +1,149 @@
+$emerald: #0d7c51;
+$emerald-light: #66bb6a;
+
+.my-scores-container {
+  min-height: calc(100vh - 64px);
+  padding: 24px;
+  background: #f5f7fa;
+
+  :host-context(body.dark-theme) & {
+    background: #1c1c2a;
+  }
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 24px;
+  justify-content: center;
+  color: $emerald;
+
+  :host-context(body.dark-theme) & {
+    color: $emerald-light;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #999;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 20px;
+  }
+}
+
+.scores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.score-card {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  :host-context(body.dark-theme) & {
+    background: #2a2a3e;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.score-card-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.score-quiz-info {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .score-date {
+    font-size: 0.8rem;
+    color: #888;
+  }
+}
+
+.score-result {
+  text-align: right;
+  white-space: nowrap;
+
+  .score-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $emerald;
+
+    :host-context(body.dark-theme) & {
+      color: $emerald-light;
+    }
+  }
+
+  .score-max {
+    font-size: 0.85rem;
+    color: #888;
+  }
+}
+
+.score-card-stars {
+  display: flex;
+  gap: 1px;
+  margin-left: 12px;
+}
+
+.star {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+
+  &.filled {
+    color: #ffc107;
+  }
+
+  &:not(.filled) {
+    color: #ccc;
+  }
+}

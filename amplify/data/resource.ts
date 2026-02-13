@@ -5,6 +5,8 @@ import { listSoundsForMap } from '../functions/list-sounds-for-map/resource';
 import { deleteSoundFile } from '../functions/delete-sound-file/resource';
 import { listSoundsByZone } from '../functions/list-sounds-by-zone/resource';
 import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/resource';
+import { pickMonthlyQuiz } from '../functions/pick-monthly-quiz/resource';
+import { pickMonthlyArticle } from '../functions/pick-monthly-article/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 
@@ -17,6 +19,24 @@ const schema = a
     Theme: a.enum(['light', 'dark']),
     LicenseType: a.enum(['READ_ONLY', 'PUBLIC_DOMAIN', 'CC_BY', 'CC_BY_NC']),
     ImportJobStatus: a.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED']),
+    QuizDifficulty: a.enum(['easy', 'medium', 'hard']),
+    QuizStatus: a.enum(['draft', 'published', 'archived']),
+    QuestionType: a.enum([
+      'listen_identify',
+      'listen_choose_category',
+      'listen_choose_location',
+      'odd_one_out',
+      'true_false',
+    ]),
+    ArticleStatus: a.enum(['draft', 'published', 'archived']),
+    ArticleBlockType: a.enum([
+      'heading',
+      'paragraph',
+      'sound',
+      'image',
+      'quote',
+      'callout',
+    ]),
 
     User: a
       .model({
@@ -44,6 +64,7 @@ const schema = a
         avatarStyle: a.string(),
         avatarSeed: a.string(),
         avatarBgColor: a.string(),
+        avatarOptions: a.string(),
       })
       .secondaryIndexes((index) => [
         index('cognitoSub').queryField('getUserByCognitoSub'),
@@ -267,6 +288,216 @@ const schema = a
         allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
+    // ============ QUIZ ============
+
+    Quiz: a
+      .model({
+        id: a.id().required(),
+        title: a.string().required(),
+        title_i18n: a.json(),
+        description: a.string(),
+        description_i18n: a.json(),
+        difficulty: a.ref('QuizDifficulty').required(),
+        category: a.string(),
+        imageKey: a.string(),
+        status: a.ref('QuizStatus').required(),
+        questionCount: a.integer().default(0),
+        totalPlays: a.integer().default(0),
+        createdAt: a.datetime(),
+        updatedAt: a.datetime(),
+
+        questions: a.hasMany('QuizQuestion', 'quizId'),
+        attempts: a.hasMany('QuizAttempt', 'quizId'),
+        monthlyQuizzes: a.hasMany('MonthlyQuiz', 'quizId'),
+      })
+      .secondaryIndexes((index) => [
+        index('status').queryField('listQuizzesByStatus'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    QuizQuestion: a
+      .model({
+        id: a.id().required(),
+        quizId: a.id().required(),
+        quiz: a.belongsTo('Quiz', 'quizId'),
+        order: a.integer().required(),
+        type: a.ref('QuestionType').required(),
+        prompt: a.string().required(),
+        prompt_i18n: a.json(),
+        soundId: a.id(),
+        choices: a.json().required(),
+        explanation: a.string(),
+        explanation_i18n: a.json(),
+        timeLimitOverride: a.integer(),
+      })
+      .secondaryIndexes((index) => [
+        index('quizId')
+          .sortKeys(['order'])
+          .queryField('listQuestionsByQuiz'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    QuizAttempt: a
+      .model({
+        id: a.id().required(),
+        quizId: a.id().required(),
+        quiz: a.belongsTo('Quiz', 'quizId'),
+        userId: a.id().required(),
+        username: a.string(),
+        avatarStyle: a.string(),
+        avatarSeed: a.string(),
+        avatarBgColor: a.string(),
+        score: a.integer().required(),
+        maxScore: a.integer().required(),
+        stars: a.integer().default(0),
+        answers: a.json(),
+        completedAt: a.datetime(),
+      })
+      .secondaryIndexes((index) => [
+        index('quizId')
+          .sortKeys(['score'])
+          .queryField('listAttemptsByQuizAndScore'),
+        index('userId')
+          .sortKeys(['completedAt'])
+          .queryField('listAttemptsByUser'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['create', 'read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    MonthlyQuiz: a
+      .model({
+        id: a.id().required(),
+        quizId: a.id().required(),
+        quiz: a.belongsTo('Quiz', 'quizId'),
+        month: a.string().required(),
+        active: a.boolean().default(true),
+      })
+      .secondaryIndexes((index) => [
+        index('month').queryField('getMonthlyQuizByMonth'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    // ============ ARTICLES ============
+
+    SoundArticle: a
+      .model({
+        id: a.id().required(),
+        title: a.string().required(),
+        title_i18n: a.json(),
+        description: a.string(),
+        description_i18n: a.json(),
+        slug: a.string().required(),
+        coverImageKey: a.string(),
+        tags: a.json(),
+        status: a.ref('ArticleStatus').required(),
+        authorName: a.string(),
+        readingTimeMinutes: a.integer(),
+        blockCount: a.integer().default(0),
+        publishedAt: a.datetime(),
+        sortOrder: a.integer().default(0),
+        createdAt: a.datetime(),
+        updatedAt: a.datetime(),
+
+        blocks: a.hasMany('ArticleBlock', 'articleId'),
+        monthlyArticles: a.hasMany('MonthlyArticle', 'articleId'),
+      })
+      .secondaryIndexes((index) => [
+        index('slug').queryField('getArticleBySlug'),
+        index('status').queryField('listArticlesByStatus'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    ArticleBlock: a
+      .model({
+        id: a.id().required(),
+        articleId: a.id().required(),
+        article: a.belongsTo('SoundArticle', 'articleId'),
+        order: a.integer().required(),
+        type: a.ref('ArticleBlockType').required(),
+
+        // Text content (heading, paragraph, quote, callout)
+        content: a.string(),
+        content_i18n: a.json(),
+
+        // Sound media
+        soundId: a.id(),
+        soundCaption: a.string(),
+        soundCaption_i18n: a.json(),
+
+        // Image media
+        imageKey: a.string(),
+        imageAlt: a.string(),
+        imageAlt_i18n: a.json(),
+        imageCaption: a.string(),
+        imageCaption_i18n: a.json(),
+
+        // Style options (JSON: { level?, align?, size? })
+        settings: a.json(),
+      })
+      .secondaryIndexes((index) => [
+        index('articleId')
+          .sortKeys(['order'])
+          .queryField('listBlocksByArticle'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    MonthlyArticle: a
+      .model({
+        id: a.id().required(),
+        articleId: a.id().required(),
+        article: a.belongsTo('SoundArticle', 'articleId'),
+        month: a.string().required(),
+        active: a.boolean().default(true),
+        // Denormalized article fields for fast reads
+        articleTitle: a.string(),
+        articleTitle_i18n: a.json(),
+        articleSlug: a.string(),
+        articleCoverImageKey: a.string(),
+        articleAuthorName: a.string(),
+        articleDescription: a.string(),
+        articleDescription_i18n: a.json(),
+      })
+      .secondaryIndexes((index) => [
+        index('month').queryField('getMonthlyArticleByMonth'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
+    // ============ IMPORT ============
+
     ImportJob: a
       .model({
         id: a.id().required(),
@@ -364,6 +595,8 @@ const schema = a
     allow.resource(deleteSoundFile),
     allow.resource(listSoundsByZone),
     allow.resource(pickDailyFeaturedSound),
+    allow.resource(pickMonthlyQuiz),
+    allow.resource(pickMonthlyArticle),
     allow.resource(startImport),
     allow.resource(processImport),
   ]);

@@ -1,0 +1,44 @@
+<div class="my-scores-container">
+  <h1 class="page-title">
+    <mat-icon>emoji_events</mat-icon>
+    {{ 'quiz.myScores.title' | translate }}
+  </h1>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (entries().length === 0) {
+    <div class="empty-state">
+      <mat-icon>emoji_events</mat-icon>
+      <p>{{ 'quiz.myScores.empty' | translate }}</p>
+      <button mat-raised-button color="primary" routerLink="/quiz">
+        {{ 'quiz.myScores.browseQuizzes' | translate }}
+      </button>
+    </div>
+  } @else {
+    <div class="scores-list">
+      @for (entry of entries(); track entry.attempt.id) {
+        <div class="score-card" (click)="goToReview(entry)">
+          <div class="score-card-main">
+            <div class="score-quiz-info">
+              <h3>{{ getLocalizedTitle(entry.quiz) }}</h3>
+              <span class="score-date">{{ formatDate(entry.attempt.completedAt) }}</span>
+            </div>
+            <div class="score-result">
+              <span class="score-value">{{ entry.attempt.score }}</span>
+              <span class="score-max">/ {{ entry.attempt.maxScore }}</span>
+            </div>
+          </div>
+          <div class="score-card-stars">
+            @for (s of [0,1,2]; track s) {
+              <mat-icon class="star" [class.filled]="s < entry.attempt.stars">
+                {{ s < entry.attempt.stars ? 'star' : 'star_border' }}
+              </mat-icon>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

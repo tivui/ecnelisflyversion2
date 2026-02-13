@@ -81,6 +81,18 @@ export class SidenavMenuComponent {
       route: '/journeys',
       queryParams: {},
     },
+    {
+      icon: 'quiz',
+      labelKey: 'sidenav.soundQuiz',
+      route: '/quiz',
+      queryParams: {},
+    },
+    {
+      icon: 'menu_book',
+      labelKey: 'sidenav.soundArticles',
+      route: '/articles',
+      queryParams: {},
+    },
   ];
 
   private async loadDailyFeatured() {

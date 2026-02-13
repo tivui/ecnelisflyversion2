@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -17,6 +17,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatIconModule } from '@angular/material/icon';
 import { LangChangeEvent, TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppUserService } from '../../../../../core/services/app-user.service';
 import { AppUser, Theme } from '../../../../../core/models/app-user.model';
@@ -46,6 +48,8 @@ import esLocale from 'i18n-iso-countries/langs/es.json';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatTooltipModule,
+    MatTabsModule,
+    MatIconModule,
     UserAvatarComponent,
   ],
   templateUrl: './account.component.html',
@@ -61,11 +65,23 @@ export class AccountComponent implements OnInit {
   public appUser = signal<AppUser | null>(null);
   public saving = signal(false);
 
+  // Tabs
+  activeTab = signal(0);
+
   // Avatar
   selectedAvatarStyle = signal<string>('initials');
   selectedAvatarSeed = signal<string>('');
   selectedAvatarBgColor = signal<string>('1976d2');
+  selectedAvatarOptions = signal<Record<string, string>>({});
   avatarDirty = signal(false);
+
+  currentStyleDimensions = computed(() =>
+    this.avatarService.getStyleDimensions(this.selectedAvatarStyle()),
+  );
+
+  hasCustomOptions = computed(() =>
+    this.currentStyleDimensions().length > 0,
+  );
 
   public languages: Language[] = ['fr', 'en', 'es'];
   public themes: Theme[] = ['light', 'dark'];
@@ -111,6 +127,7 @@ export class AccountComponent implements OnInit {
         this.selectedAvatarStyle.set(user.avatarStyle ?? 'initials');
         this.selectedAvatarSeed.set(user.avatarSeed ?? user.username ?? '');
         this.selectedAvatarBgColor.set(user.avatarBgColor ?? '1976d2');
+        this.selectedAvatarOptions.set(user.avatarOptions ?? {});
       }
     });
 
@@ -171,6 +188,7 @@ export class AccountComponent implements OnInit {
 
   selectAvatarStyle(style: string) {
     this.selectedAvatarStyle.set(style);
+    this.selectedAvatarOptions.set({});
     this.avatarDirty.set(true);
     // Show variation gallery for this style
     this.variationSeeds.set(this.avatarService.getVariationSeeds());
@@ -189,6 +207,35 @@ export class AccountComponent implements OnInit {
 
   selectAvatarBgColor(hex: string) {
     this.selectedAvatarBgColor.set(hex);
+    this.avatarDirty.set(true);
+  }
+
+  onTabChange(index: number) {
+    this.activeTab.set(index);
+  }
+
+  regenerateSeeds() {
+    const seeds: string[] = [];
+    for (let i = 0; i < 16; i++) {
+      seeds.push(this.generateRandomSeed());
+    }
+    this.variationSeeds.set(seeds);
+  }
+
+  private generateRandomSeed(): string {
+    return 'xxxxxxxx-xxxx'.replace(/x/g, () =>
+      Math.floor(Math.random() * 16).toString(16),
+    );
+  }
+
+  selectOption(key: string, value: string) {
+    const current = this.selectedAvatarOptions();
+    if (current[key] === value) {
+      const { [key]: _, ...rest } = current;
+      this.selectedAvatarOptions.set(rest);
+    } else {
+      this.selectedAvatarOptions.set({ ...current, [key]: value });
+    }
     this.avatarDirty.set(true);
   }
 
@@ -228,6 +275,9 @@ export class AccountComponent implements OnInit {
         avatarStyle: this.selectedAvatarStyle(),
         avatarSeed: this.selectedAvatarSeed(),
         avatarBgColor: this.selectedAvatarBgColor(),
+        avatarOptions: Object.keys(this.selectedAvatarOptions()).length > 0
+          ? this.selectedAvatarOptions()
+          : null,
       });
 
       if (updatedUser) {

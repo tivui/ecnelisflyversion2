@@ -1,0 +1,106 @@
+<div class="quiz-admin-container">
+  <div class="header">
+    <h2>{{ 'admin.quiz.title' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.quiz.create' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (quizzes().length === 0) {
+    <div class="empty-state">
+      <mat-icon>quiz</mat-icon>
+      <p>{{ 'admin.quiz.noQuizzes' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        {{ 'admin.quiz.createFirst' | translate }}
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="quizzes()" class="quiz-table">
+      <!-- Title Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.title' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">
+          {{ getLocalizedTitle(quiz) }}
+        </td>
+      </ng-container>
+
+      <!-- Difficulty Column -->
+      <ng-container matColumnDef="difficulty">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.difficulty' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">
+          <mat-chip [class]="'difficulty-' + quiz.difficulty">
+            {{ 'quiz.difficulty.' + quiz.difficulty | translate }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.status' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">
+          <mat-chip [class]="'status-' + quiz.status">
+            {{ 'admin.quiz.status.' + quiz.status | translate }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Question Count Column -->
+      <ng-container matColumnDef="questionCount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.questions' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">{{ quiz.questionCount ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Total Plays Column -->
+      <ng-container matColumnDef="totalPlays">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.plays' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">{{ quiz.totalPlays ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let quiz">
+          <div class="actions">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.quiz.actions.questions' | translate"
+              (click)="openQuestions(quiz)"
+            >
+              <mat-icon>list</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.quiz.actions.monthly' | translate"
+              (click)="setAsMonthly(quiz)"
+            >
+              <mat-icon>star</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.quiz.actions.edit' | translate"
+              (click)="openEditDialog(quiz)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'admin.quiz.actions.delete' | translate"
+              (click)="deleteQuiz(quiz)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>

@@ -1,0 +1,149 @@
+<h2 mat-dialog-title>
+  {{ (isEditMode() ? 'admin.quiz.questions.editTitle' : 'admin.quiz.questions.createTitle') | translate }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-tab-group animationDuration="200ms">
+      <!-- Main tab -->
+      <mat-tab [label]="'admin.quiz.dialog.tabs.general' | translate">
+        <div class="tab-content">
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.questions.typeLabel' | translate }}</mat-label>
+            <mat-select formControlName="type">
+              @for (t of questionTypes; track t) {
+                <mat-option [value]="t">{{ 'admin.quiz.questions.type.' + t | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.questions.prompt' | translate }}</mat-label>
+            <textarea matInput formControlName="prompt" rows="2"></textarea>
+          </mat-form-field>
+
+          <!-- Sound selector -->
+          <div class="sound-selector">
+            <mat-form-field class="full-width">
+              <mat-label>{{ 'admin.quiz.questions.sound' | translate }}</mat-label>
+              <input
+                matInput
+                [formControl]="soundSearchControl"
+                [matAutocomplete]="soundAuto"
+              />
+              @if (selectedSound()) {
+                <button matSuffix mat-icon-button (click)="clearSound()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+              <mat-autocomplete #soundAuto="matAutocomplete">
+                @for (sound of filteredSounds(); track sound.id) {
+                  <mat-option [value]="sound.title" (onSelectionChange)="selectSound(sound)">
+                    {{ sound.title }}
+                    @if (sound.city) {
+                      <span class="sound-city"> - {{ sound.city }}</span>
+                    }
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <!-- Choices -->
+          <p class="section-label">{{ 'admin.quiz.questions.choicesLabel' | translate }}</p>
+          <div formArrayName="choices" class="choices-container">
+            @for (choice of choicesArray.controls; track $index; let i = $index) {
+              <div class="choice-row" [formGroupName]="i">
+                <mat-form-field class="choice-label">
+                  <mat-label>{{ 'admin.quiz.questions.choiceLabel' | translate }} {{ i + 1 }}</mat-label>
+                  <input matInput formControlName="label" />
+                </mat-form-field>
+                <mat-slide-toggle
+                  formControlName="isCorrect"
+                  [matTooltip]="'admin.quiz.questions.correctAnswer' | translate"
+                  color="primary"
+                ></mat-slide-toggle>
+                @if (choicesArray.length > 2) {
+                  <button mat-icon-button color="warn" (click)="removeChoice(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          @if (choicesArray.length < 6) {
+            <button mat-button color="primary" (click)="addChoiceRow()">
+              <mat-icon>add</mat-icon>
+              {{ 'admin.quiz.questions.addChoice' | translate }}
+            </button>
+          }
+
+          <!-- Explanation -->
+          <mat-form-field class="full-width explanation-field">
+            <mat-label>{{ 'admin.quiz.questions.explanation' | translate }}</mat-label>
+            <textarea matInput formControlName="explanation" rows="2"></textarea>
+          </mat-form-field>
+
+          <!-- Time override -->
+          <mat-form-field>
+            <mat-label>{{ 'admin.quiz.questions.timeOverride' | translate }}</mat-label>
+            <input matInput type="number" formControlName="timeLimitOverride" />
+            <span matSuffix>s</span>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- Translations tab -->
+      <mat-tab [label]="'admin.quiz.dialog.tabs.translations' | translate">
+        <div class="tab-content">
+          <p class="section-label">{{ 'admin.quiz.questions.prompt' | translate }} (i18n)</p>
+          <mat-form-field class="full-width">
+            <mat-label>FR</mat-label>
+            <input matInput formControlName="prompt_fr" />
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>EN</mat-label>
+            <input matInput formControlName="prompt_en" />
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>ES</mat-label>
+            <input matInput formControlName="prompt_es" />
+          </mat-form-field>
+
+          <p class="section-label">{{ 'admin.quiz.questions.explanation' | translate }} (i18n)</p>
+          <mat-form-field class="full-width">
+            <mat-label>FR</mat-label>
+            <textarea matInput formControlName="explanation_fr" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>EN</mat-label>
+            <textarea matInput formControlName="explanation_en" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>ES</mat-label>
+            <textarea matInput formControlName="explanation_es" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="form.invalid || saving()"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ (isEditMode() ? 'common.action.save' : 'admin.quiz.questions.add') | translate }}
+    }
+  </button>
+</mat-dialog-actions>

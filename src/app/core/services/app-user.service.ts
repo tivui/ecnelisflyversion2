@@ -138,6 +138,9 @@ export class AppUserService {
         avatarStyle: userRecord.avatarStyle,
         avatarSeed: userRecord.avatarSeed,
         avatarBgColor: userRecord.avatarBgColor,
+        avatarOptions: userRecord.avatarOptions
+          ? JSON.parse(userRecord.avatarOptions as string)
+          : null,
       };
 
       this._currentUser.next(appUser);
@@ -212,14 +215,18 @@ export class AppUserService {
     avatarStyle?: string | null;
     avatarSeed?: string | null;
     avatarBgColor?: string | null;
+    avatarOptions?: Record<string, string> | null;
   }): Promise<AppUser | null> {
     const current = this._currentUser.value;
     if (!current) return null;
 
     try {
+      // Separate avatarOptions — persisted separately to avoid AppSync auth issues
+      const { avatarOptions, ...otherFields } = fields;
+
       const updated = await this.amplifyService.client.models.User.update({
         id: current.id,
-        ...fields,
+        ...otherFields,
       });
 
       if (!updated.data) {
@@ -227,6 +234,18 @@ export class AppUserService {
           `Failed to update profile for user ${current.id}`,
         );
         return current;
+      }
+
+      // Try persisting avatarOptions separately (fails silently if field not deployed)
+      if (avatarOptions !== undefined) {
+        try {
+          await this.amplifyService.client.models.User.update({
+            id: current.id,
+            avatarOptions: avatarOptions ? JSON.stringify(avatarOptions) : null,
+          });
+        } catch {
+          // Field may not be deployed yet — avatar options will only persist in memory
+        }
       }
 
       const d = updated.data;
@@ -242,6 +261,9 @@ export class AppUserService {
         avatarStyle: d.avatarStyle,
         avatarSeed: d.avatarSeed,
         avatarBgColor: d.avatarBgColor,
+        avatarOptions: avatarOptions !== undefined
+          ? (avatarOptions ?? null)
+          : current.avatarOptions ?? null,
       };
 
       this._currentUser.next(appUser);

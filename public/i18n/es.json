@@ -23,7 +23,11 @@
       "listen": "Escuchar",
       "soundJourney": "Viaje sonoro",
       "startJourney": "Comenzar el viaje",
-      "discoverJourneys": "Descubrir viajes"
+      "discoverJourneys": "Descubrir viajes",
+      "monthlyQuiz": "Quiz del mes",
+      "play": "Jugar",
+      "newArticle": "Nuevo Artículo",
+      "readArticle": "Leer"
     },
     "zones": {
       "title": "Explorar por zonas",
@@ -44,7 +48,9 @@
     "worldMap": "Mapa mundial",
     "discoverZones": "Descubrir zonas",
     "soundOfTheDay": "Sonido del día",
-    "soundJourneys": "Viajes sonoros"
+    "soundJourneys": "Viajes sonoros",
+    "soundQuiz": "Quiz sonoro",
+    "soundArticles": "Artículos sonoros"
   },
   "zones": {
     "title": "Zonas geográficas",
@@ -65,6 +71,75 @@
       "title": "No hay viajes disponibles",
       "message": "Aún no hay viajes sonoros para explorar. ¡Vuelve pronto!",
       "exploreMap": "Explorar el mapa mundial"
+    }
+  },
+  "quiz": {
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    },
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "archived": "Archivado"
+    },
+    "type": {
+      "listen_identify": "Escuchar e identificar",
+      "listen_choose_category": "Escuchar y elegir categoría",
+      "listen_choose_location": "Escuchar y adivinar el lugar",
+      "odd_one_out": "Encontrar el intruso",
+      "true_false": "Verdadero o falso"
+    },
+    "list": {
+      "title": "Quiz sonoros",
+      "empty": "No hay quiz disponibles por el momento",
+      "monthlyQuiz": "Quiz del mes",
+      "questions": "{{count}} preguntas"
+    },
+    "lobby": {
+      "start": "Comenzar el quiz",
+      "questions": "{{count}} preguntas",
+      "bestScore": "Mejor puntuación",
+      "topPlayers": "Mejores jugadores",
+      "guestNotice": "Inicia sesión para guardar tu puntuación"
+    },
+    "play": {
+      "getReady": "¡Prepárate!",
+      "calculating": "Calculando puntuación..."
+    },
+    "results": {
+      "leaderboard": "Clasificación",
+      "review": "Revisar respuestas",
+      "replay": "Jugar de nuevo",
+      "backToList": "Volver a los quiz",
+      "guestWarning": "Tu puntuación no fue guardada",
+      "loginToSave": "Inicia sesión para guardar tus puntuaciones"
+    },
+    "review": {
+      "title": "Revisión de respuestas",
+      "backToResults": "Volver a resultados"
+    },
+    "myScores": {
+      "title": "Mis puntuaciones",
+      "empty": "Aún no has jugado ningún quiz",
+      "browseQuizzes": "Descubrir los quiz"
+    }
+  },
+  "articles": {
+    "list": {
+      "title": "Artículos Sonoros",
+      "empty": "No hay artículos disponibles por el momento.",
+      "readingTime": "{{count}} min de lectura",
+      "readMore": "Leer más"
+    },
+    "detail": {
+      "back": "Volver a los artículos",
+      "share": "Compartir",
+      "shareSuccess": "¡Enlace copiado!",
+      "tableOfContents": "Índice",
+      "by": "Por",
+      "published": "Publicado el"
     }
   },
   "common": {
@@ -173,6 +248,10 @@
   },
   "account": {
     "title": "Configuración del cuento",
+    "tabs": {
+      "profile": "Perfil",
+      "avatar": "Avatar"
+    },
     "username": "Nombre de usuario",
     "email": "Correo electrónico",
     "firstName": "Nombre",
@@ -186,7 +265,22 @@
       "seed": "Semilla del avatar",
       "chooseStyle": "Elegir un estilo",
       "chooseVariation": "Elegir una variación",
-      "chooseColor": "Color de fondo"
+      "chooseColor": "Color de fondo",
+      "regenerate": "Generar nuevas variaciones",
+      "options": {
+        "eyes": "Ojos",
+        "mouth": "Boca",
+        "hair": "Cabello",
+        "clothes": "Ropa",
+        "face": "Cara",
+        "body": "Cuerpo",
+        "skinColor": "Color de piel",
+        "hairColor": "Color de cabello",
+        "clothesColor": "Color de ropa",
+        "clothingColor": "Color de ropa",
+        "baseColor": "Color base",
+        "backgroundColor": "Color de fondo"
+      }
     }
   },
   "sound": {
@@ -301,7 +395,9 @@
       "importSounds": "Importar sonidos",
       "zones": "Zonas geográficas",
       "featuredSound": "Sonido del día",
-      "journeys": "Viajes sonoros"
+      "journeys": "Viajes sonoros",
+      "quizzes": "Quiz sonoros",
+      "articles": "Artículos"
     },
     "featuredSound": {
       "title": "Sonido del día",
@@ -481,6 +577,189 @@
         "storyDefault": "Texto por defecto",
         "storySaved": "Historia guardada",
         "storyError": "Error al guardar la historia"
+      }
+    },
+    "quiz": {
+      "title": "Quiz sonoros",
+      "create": "Nuevo quiz",
+      "createFirst": "Crear tu primer quiz",
+      "noQuizzes": "No hay quiz creados",
+      "loadError": "Error al cargar los quiz",
+      "monthlySet": "Quiz del mes definido con éxito",
+      "table": {
+        "title": "Título",
+        "difficulty": "Dificultad",
+        "status": "Estado",
+        "questions": "Preguntas",
+        "plays": "Partidas",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "questions": "Preguntas",
+        "monthly": "Quiz del mes",
+        "edit": "Editar",
+        "delete": "Eliminar"
+      },
+      "status": {
+        "draft": "Borrador",
+        "published": "Publicado",
+        "archived": "Archivado"
+      },
+      "delete": {
+        "title": "Eliminar quiz",
+        "message": "¿Estás seguro de que quieres eliminar el quiz \"{{name}}\"? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "success": "Quiz eliminado con éxito",
+        "error": "Error al eliminar el quiz"
+      },
+      "dialog": {
+        "createTitle": "Crear quiz",
+        "editTitle": "Editar quiz",
+        "tabs": {
+          "general": "General",
+          "translations": "Traducciones"
+        },
+        "titleLabel": "Título del quiz",
+        "description": "Descripción",
+        "difficulty": "Dificultad",
+        "category": "Categoría",
+        "status": "Estado",
+        "createSuccess": "Quiz creado con éxito",
+        "updateSuccess": "Quiz actualizado con éxito",
+        "saveError": "Error al guardar el quiz"
+      },
+      "questions": {
+        "title": "Preguntas del quiz",
+        "createTitle": "Agregar pregunta",
+        "editTitle": "Editar pregunta",
+        "add": "Agregar pregunta",
+        "addFirst": "Agregar tu primera pregunta",
+        "empty": "No hay preguntas en este quiz",
+        "typeLabel": "Tipo de pregunta",
+        "type": {
+          "listen_identify": "Escuchar e identificar",
+          "listen_choose_category": "Escuchar y elegir categoría",
+          "listen_choose_location": "Escuchar y adivinar el lugar",
+          "odd_one_out": "Encontrar el intruso",
+          "true_false": "Verdadero o falso"
+        },
+        "prompt": "Enunciado",
+        "sound": "Sonido asociado",
+        "choicesLabel": "Opciones",
+        "choiceLabel": "Opción",
+        "correctAnswer": "Respuesta correcta",
+        "explanation": "Explicación",
+        "timeOverride": "Tiempo personalizado",
+        "addChoice": "Agregar opción",
+        "choices": "opciones",
+        "delete": {
+          "title": "Eliminar pregunta",
+          "message": "¿Estás seguro de que quieres eliminar esta pregunta?",
+          "confirm": "Eliminar",
+          "success": "Pregunta eliminada"
+        },
+        "createSuccess": "Pregunta creada con éxito",
+        "updateSuccess": "Pregunta actualizada con éxito",
+        "saveError": "Error al guardar la pregunta"
+      }
+    },
+    "articles": {
+      "list": {
+        "title": "Artículos Sonoros",
+        "new": "Nuevo artículo",
+        "empty": "No hay artículos. ¡Crea el primero!",
+        "columns": {
+          "title": "Título",
+          "status": "Estado",
+          "tags": "Tags",
+          "blocks": "Bloques",
+          "readingTime": "Lectura",
+          "published": "Publicado",
+          "actions": "Acciones"
+        }
+      },
+      "editor": {
+        "back": "Volver a la lista",
+        "settings": "Configuración",
+        "preview": "Vista previa",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "addBlock": "Agregar bloque",
+        "blocks": {
+          "heading": "Título",
+          "paragraph": "Párrafo",
+          "sound": "Sonido",
+          "image": "Imagen",
+          "quote": "Cita",
+          "callout": "Recuadro",
+          "listBullet": "Lista con viñetas",
+          "listOrdered": "Lista numerada",
+          "separator": "Separador"
+        },
+        "emptyBlocks": "Comienza agregando un bloque arriba."
+      },
+      "settings": {
+        "title": "Configuración del artículo",
+        "general": "General",
+        "translations": "Traducciones",
+        "media": "Medios & Tags",
+        "fields": {
+          "title": "Título",
+          "description": "Descripción / Resumen",
+          "slug": "Slug (URL)",
+          "author": "Nombre del autor",
+          "status": "Estado",
+          "sortOrder": "Orden",
+          "readingTime": "Tiempo de lectura (min)",
+          "coverImage": "Imagen de portada",
+          "tags": "Tags",
+          "addTag": "Agregar un tag..."
+        }
+      },
+      "block": {
+        "edit": "Editar bloque",
+        "delete": {
+          "title": "Eliminar bloque",
+          "message": "¿Quieres eliminar este bloque?",
+          "confirm": "Eliminar",
+          "success": "Bloque eliminado"
+        },
+        "fields": {
+          "content": "Contenido",
+          "level": "Nivel de título",
+          "align": "Alineación",
+          "size": "Tamaño de visualización",
+          "imageWidth": "Ancho de imagen",
+          "separatorStyle": "Estilo de separador",
+          "listItems": "Elementos de la lista",
+          "listItemsPlaceholder": "Un elemento por línea",
+          "sound": "Sonido",
+          "soundCaption": "Leyenda del sonido",
+          "image": "Imagen",
+          "imageAlt": "Texto alternativo",
+          "imageCaption": "Leyenda de la imagen",
+          "attribution": "Atribución",
+          "attributionPlaceholder": "Autor o fuente de la cita"
+        },
+        "duplicate": {
+          "action": "Duplicar bloque",
+          "success": "Bloque duplicado"
+        }
+      },
+      "status": {
+        "draft": "Borrador",
+        "published": "Publicado",
+        "archived": "Archivado"
+      },
+      "save": {
+        "success": "Artículo guardado",
+        "error": "Error al guardar el artículo"
+      },
+      "delete": {
+        "title": "Eliminar artículo",
+        "message": "Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "success": "Artículo eliminado"
       }
     }
   },

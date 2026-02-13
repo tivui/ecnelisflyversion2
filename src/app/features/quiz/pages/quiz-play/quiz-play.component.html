@@ -1,0 +1,100 @@
+<div class="quiz-play-container">
+  <!-- Loading -->
+  @if (gameState() === 'loading') {
+    <div class="center-state">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  }
+
+  <!-- Countdown -->
+  @if (gameState() === 'countdown') {
+    <div class="center-state countdown-state">
+      <div class="countdown-number" [class.pulse]="true">
+        {{ countdownValue() }}
+      </div>
+      <p class="countdown-label">{{ 'quiz.play.getReady' | translate }}</p>
+    </div>
+  }
+
+  <!-- Playing / Feedback -->
+  @if (gameState() === 'playing' || gameState() === 'feedback') {
+    <!-- Progress bar -->
+    <div class="quiz-progress">
+      <span class="progress-label">
+        {{ currentIndex() + 1 }} / {{ questions().length }}
+      </span>
+      <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-bar" [class.timer-warn]="timerPercent() < 25" [class.timer-caution]="timerPercent() < 50 && timerPercent() >= 25">
+      <div class="timer-fill" [style.width.%]="timerPercent()"></div>
+    </div>
+
+    <!-- Question -->
+    @if (currentQuestion(); as q) {
+      <div class="question-section">
+        <!-- Sound play button -->
+        @if (q.soundId) {
+          <button
+            class="play-sound-btn"
+            mat-fab
+            (click)="toggleAudio()"
+          >
+            <mat-icon>{{ isPlaying() ? 'pause' : 'play_arrow' }}</mat-icon>
+          </button>
+        }
+
+        <h2 class="question-prompt">{{ getLocalizedPrompt() }}</h2>
+
+        <!-- Score so far -->
+        <div class="score-display">
+          <mat-icon>emoji_events</mat-icon>
+          <span>{{ totalScore() }}</span>
+        </div>
+      </div>
+
+      <!-- Choices -->
+      <div class="choices-grid" [class.two-choices]="q.choices.length === 2">
+        @for (choice of q.choices; track $index; let i = $index) {
+          <button
+            class="choice-btn"
+            [class.correct]="gameState() === 'feedback' && choice.isCorrect"
+            [class.wrong]="gameState() === 'feedback' && lastChosenIndex() === i && !choice.isCorrect"
+            [class.selected]="lastChosenIndex() === i"
+            [class.disabled]="gameState() === 'feedback'"
+            (click)="selectAnswer(i)"
+            [disabled]="gameState() === 'feedback'"
+          >
+            @if (q.type === 'odd_one_out' && choice.soundId) {
+              <mat-icon class="choice-play-icon">play_circle</mat-icon>
+            }
+            <span class="choice-label">{{ getLocalizedChoice(choice) }}</span>
+            @if (gameState() === 'feedback' && choice.isCorrect) {
+              <mat-icon class="choice-result-icon correct-icon">check_circle</mat-icon>
+            }
+            @if (gameState() === 'feedback' && lastChosenIndex() === i && !choice.isCorrect) {
+              <mat-icon class="choice-result-icon wrong-icon">cancel</mat-icon>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Feedback explanation -->
+      @if (gameState() === 'feedback' && q.explanation) {
+        <div class="feedback-explanation">
+          <mat-icon>lightbulb</mat-icon>
+          <span>{{ q.explanation }}</span>
+        </div>
+      }
+    }
+  }
+
+  <!-- Finished (brief transition state before navigation) -->
+  @if (gameState() === 'finished') {
+    <div class="center-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>{{ 'quiz.play.calculating' | translate }}</p>
+    </div>
+  }
+</div>

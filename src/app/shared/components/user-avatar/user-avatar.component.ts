@@ -34,6 +34,7 @@ export class UserAvatarComponent {
   avatarStyle = input<string | null | undefined>(null);
   avatarSeed = input<string | null | undefined>(null);
   avatarBgColor = input<string | null | undefined>(null);
+  avatarOptions = input<Record<string, string> | null | undefined>(null);
   size = input<string>('32px');
 
   avatarUri = computed(() =>
@@ -42,6 +43,7 @@ export class UserAvatarComponent {
       this.avatarSeed(),
       this.username(),
       this.avatarBgColor(),
+      this.avatarOptions(),
     ),
   );
 }

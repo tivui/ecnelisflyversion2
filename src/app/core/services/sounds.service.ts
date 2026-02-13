@@ -94,6 +94,19 @@ export class SoundsService {
   }
 
   /**
+   * Get a single Sound by its ID
+   */
+  async getSoundById(id: string): Promise<Sound | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (this.amplifyService.client.models.Sound as any).get({ id });
+    if (result.errors?.length) {
+      console.error('Error getting sound:', result.errors);
+      return null;
+    }
+    return result.data ? this.map(result.data) : null;
+  }
+
+  /**
    * Get a presigned URL for a Sound's audio file
    * @param sound Sound object
    */

@@ -1,0 +1,69 @@
+<div class="article-list-container">
+  <!-- Hero header -->
+  <div class="list-hero">
+    <div class="hero-icon-wrap">
+      <mat-icon>menu_book</mat-icon>
+    </div>
+    <h1 class="page-title">{{ 'articles.list.title' | translate }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (articles().length === 0) {
+    <div class="empty-state">
+      <mat-icon>menu_book</mat-icon>
+      <p>{{ 'articles.list.empty' | translate }}</p>
+    </div>
+  } @else {
+    <div class="articles-grid">
+      @for (article of articles(); track article.id) {
+        <button class="article-card" (click)="goToArticle(article)">
+          <!-- Card visual -->
+          <div class="card-visual" [class.has-cover]="getCoverUrl(article)">
+            @if (getCoverUrl(article)) {
+              <img [src]="getCoverUrl(article)" [alt]="getLocalizedTitle(article)" class="cover-img" />
+            } @else {
+              <div class="card-icon-circle">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+            }
+          </div>
+
+          <!-- Card body -->
+          <div class="card-body">
+            <h3 class="card-title">{{ getLocalizedTitle(article) }}</h3>
+            @if (getLocalizedDescription(article)) {
+              <p class="card-description">{{ getLocalizedDescription(article) }}</p>
+            }
+          </div>
+
+          <!-- Tags -->
+          @if (article.tags && article.tags.length > 0) {
+            <div class="card-tags">
+              @for (tag of article.tags.slice(0, 3); track tag) {
+                <span class="tag-chip">{{ tag }}</span>
+              }
+            </div>
+          }
+
+          <!-- Card footer -->
+          <div class="card-footer">
+            @if (article.readingTimeMinutes) {
+              <span class="reading-time">
+                {{ 'articles.list.readingTime' | translate:{ count: article.readingTimeMinutes } }}
+              </span>
+            }
+            @if (article.authorName) {
+              <span class="author">{{ article.authorName }}</span>
+            }
+            @if (article.publishedAt) {
+              <span class="date">{{ formatDate(article.publishedAt) }}</span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  }
+</div>

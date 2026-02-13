@@ -1,0 +1,244 @@
+<!-- Preview toolbar -->
+<div class="preview-toolbar">
+  <div class="toolbar-left">
+    <mat-icon class="preview-icon">visibility</mat-icon>
+    <span class="preview-label">{{ 'admin.articles.editor.preview' | translate }}</span>
+  </div>
+
+  <div class="lang-switcher">
+    @for (lang of languages; track lang) {
+      <button
+        mat-button
+        [class.active]="previewLang() === lang"
+        (click)="setPreviewLang(lang)"
+      >
+        {{ lang | uppercase }}
+      </button>
+    }
+  </div>
+
+  <button mat-icon-button class="close-btn" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<!-- Preview content -->
+<div class="preview-scroll" mat-dialog-content>
+  @if (loadingMedia()) {
+    <div class="loading-container">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  }
+
+  <div class="article-detail-preview" [class.loading]="loadingMedia()">
+    <!-- Cover image -->
+    @if (coverUrl()) {
+      <div class="cover-wrapper">
+        <img [src]="coverUrl()" [alt]="getLocalizedArticleTitle()" class="cover-image" />
+      </div>
+    }
+
+    <!-- Article layout -->
+    <div class="article-layout">
+      <!-- Desktop: TOC sidebar -->
+      @if (headings().length > 0) {
+        <aside class="toc-sidebar">
+          <h4 class="toc-title">{{ 'articles.detail.tableOfContents' | translate }}</h4>
+          <nav class="toc-nav">
+            @for (heading of headings(); track heading.id) {
+              <a
+                class="toc-link"
+                [class.toc-level-2]="heading.level === 2"
+                [class.toc-level-3]="heading.level === 3"
+                (click)="scrollToBlock(heading.id)"
+              >
+                {{ heading.text }}
+              </a>
+            }
+          </nav>
+        </aside>
+      }
+
+      <!-- Main content -->
+      <article class="article-main">
+        <!-- Article header -->
+        <header class="article-header">
+          <h1 class="article-title">{{ getLocalizedArticleTitle() }}</h1>
+
+          <div class="article-meta">
+            @if (article().authorName) {
+              <span class="meta-author">
+                {{ 'articles.detail.by' | translate }} {{ article().authorName }}
+              </span>
+            }
+            @if (article().publishedAt) {
+              <span class="meta-date">{{ article().publishedAt | date:'longDate' }}</span>
+            }
+            @if (article().readingTimeMinutes) {
+              <span class="meta-reading">
+                {{ 'articles.list.readingTime' | translate:{ count: article().readingTimeMinutes } }}
+              </span>
+            }
+          </div>
+
+          @if (article().tags && article().tags.length > 0) {
+            <div class="article-tags">
+              @for (tag of article().tags; track tag) {
+                <span class="tag-chip">{{ tag }}</span>
+              }
+            </div>
+          }
+
+          @if (getLocalizedArticleDescription()) {
+            <p class="article-chapeau">{{ getLocalizedArticleDescription() }}</p>
+          }
+        </header>
+
+        <!-- Blocks -->
+        <div class="article-body">
+          @for (block of blocks(); track block.id) {
+            <div [id]="'preview-block-' + block.id" class="article-block" [class]="'block-type-' + block.type">
+
+              <!-- SEPARATOR -->
+              @if (isSeparator(block)) {
+                <div class="block-separator">
+                  @if (block.settings?.variant === 'separator-dots') {
+                    <span class="separator-dots">...</span>
+                  } @else if (block.settings?.variant === 'separator-ornament') {
+                    <div class="separator-ornament"><span></span><span></span><span></span></div>
+                  } @else {
+                    <hr class="separator-line" />
+                  }
+                </div>
+              }
+
+              <!-- LIST -->
+              @else if (isList(block)) {
+                @if (block.settings?.variant === 'list-ordered') {
+                  <ol class="block-list">
+                    @for (item of getListItems(block); track $index) {
+                      <li>{{ item }}</li>
+                    }
+                  </ol>
+                } @else {
+                  <ul class="block-list">
+                    @for (item of getListItems(block); track $index) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                }
+              }
+
+              <!-- HEADING -->
+              @else if (block.type === 'heading') {
+                @switch (block.settings?.level) {
+                  @case (1) {
+                    <h1 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h1>
+                  }
+                  @case (3) {
+                    <h3 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h3>
+                  }
+                  @default {
+                    <h2 class="block-heading" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</h2>
+                  }
+                }
+              }
+
+              <!-- PARAGRAPH -->
+              @else if (block.type === 'paragraph') {
+                @if (isRichText(block)) {
+                  <div class="block-paragraph rich-content" [style]="getTextAlignStyle(block)" [innerHTML]="getLocalizedContent(block) | safeHtml"></div>
+                } @else {
+                  <p class="block-paragraph" [style]="getTextAlignStyle(block)">{{ getLocalizedContent(block) }}</p>
+                }
+              }
+
+              <!-- QUOTE -->
+              @else if (block.type === 'quote') {
+                <blockquote class="block-quote" [style]="getTextAlignStyle(block)">
+                  @if (isRichText(block)) {
+                    <div class="rich-content" [innerHTML]="getLocalizedContent(block) | safeHtml"></div>
+                  } @else {
+                    <p>{{ getLocalizedContent(block) }}</p>
+                  }
+                  @if (getAttribution(block)) {
+                    <cite class="block-attribution">— {{ getAttribution(block) }}</cite>
+                  }
+                </blockquote>
+              }
+
+              <!-- CALLOUT -->
+              @else if (block.type === 'callout') {
+                <div class="block-callout">
+                  <mat-icon>info_outline</mat-icon>
+                  <p>{{ getLocalizedContent(block) }}</p>
+                </div>
+              }
+
+              <!-- SOUND -->
+              @else if (block.type === 'sound' && soundPlayers()[block.id]) {
+                <div class="block-sound-player">
+                  <button
+                    class="play-btn"
+                    (click)="togglePlay(block.id)"
+                  >
+                    <mat-icon>{{ soundPlayers()[block.id].playing ? 'pause' : 'play_arrow' }}</mat-icon>
+                  </button>
+
+                  <div class="player-body">
+                    @if (getLocalizedCaption(block)) {
+                      <span class="player-caption">{{ getLocalizedCaption(block) }}</span>
+                    }
+                    <div class="progress-bar" (click)="seekSound(block.id, $event)">
+                      <div
+                        class="progress-fill"
+                        [style.width.%]="getProgress(block.id)"
+                      ></div>
+                    </div>
+                    <div class="player-time">
+                      <span>{{ formatTime(soundPlayers()[block.id].progress) }}</span>
+                      <span>{{ formatTime(soundPlayers()[block.id].duration) }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- IMAGE -->
+              @else if (block.type === 'image' && getImageUrl(block.id)) {
+                <figure
+                  class="block-figure"
+                  [class]="getImageAlignClass(block)"
+                  [style]="getImageWidthStyle(block)"
+                >
+                  <img
+                    [src]="getImageUrl(block.id)"
+                    [alt]="getLocalizedAlt(block)"
+                    class="block-image"
+                  />
+                  @if (getLocalizedCaption(block)) {
+                    <figcaption>{{ getLocalizedCaption(block) }}</figcaption>
+                  }
+                </figure>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- End mark -->
+        @if (blocks().length > 0) {
+          <div class="article-end-mark">
+            <span></span><span></span><span></span>
+          </div>
+        }
+
+        <!-- Empty blocks -->
+        @if (blocks().length === 0) {
+          <div class="empty-preview">
+            <mat-icon>article</mat-icon>
+            <p>{{ 'admin.articles.editor.emptyBlocks' | translate }}</p>
+          </div>
+        }
+      </article>
+    </div>
+  </div>
+</div>

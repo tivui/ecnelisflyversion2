@@ -1,0 +1,100 @@
+<h2 mat-dialog-title>
+  {{ (isEditMode() ? 'admin.quiz.dialog.editTitle' : 'admin.quiz.dialog.createTitle') | translate }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-tab-group animationDuration="200ms">
+      <!-- General tab -->
+      <mat-tab [label]="'admin.quiz.dialog.tabs.general' | translate">
+        <div class="tab-content">
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.dialog.titleLabel' | translate }}</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.dialog.description' | translate }}</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field>
+              <mat-label>{{ 'admin.quiz.dialog.difficulty' | translate }}</mat-label>
+              <mat-select formControlName="difficulty">
+                @for (d of difficulties; track d) {
+                  <mat-option [value]="d">{{ 'quiz.difficulty.' + d | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ 'admin.quiz.dialog.status' | translate }}</mat-label>
+              <mat-select formControlName="status">
+                @for (s of statuses; track s) {
+                  <mat-option [value]="s">{{ 'admin.quiz.status.' + s | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.dialog.category' | translate }}</mat-label>
+            <input matInput formControlName="category" />
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- Translations tab -->
+      <mat-tab [label]="'admin.quiz.dialog.tabs.translations' | translate">
+        <div class="tab-content">
+          <p class="section-label">{{ 'admin.quiz.dialog.titleLabel' | translate }} (i18n)</p>
+          <mat-form-field class="full-width">
+            <mat-label>FR</mat-label>
+            <input matInput formControlName="title_fr" />
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>EN</mat-label>
+            <input matInput formControlName="title_en" />
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>ES</mat-label>
+            <input matInput formControlName="title_es" />
+          </mat-form-field>
+
+          <p class="section-label">{{ 'admin.quiz.dialog.description' | translate }} (i18n)</p>
+          <mat-form-field class="full-width">
+            <mat-label>FR</mat-label>
+            <textarea matInput formControlName="description_fr" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>EN</mat-label>
+            <textarea matInput formControlName="description_en" rows="2"></textarea>
+          </mat-form-field>
+          <mat-form-field class="full-width">
+            <mat-label>ES</mat-label>
+            <textarea matInput formControlName="description_es" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="form.invalid || saving()"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ (isEditMode() ? 'common.action.save' : 'admin.quiz.create') | translate }}
+    }
+  </button>
+</mat-dialog-actions>

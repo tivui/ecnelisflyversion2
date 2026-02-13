@@ -1,121 +1,92 @@
-.categories-page {
+// =====================
+// Variables
+// =====================
+$accent: #ff9800;
+$primary-blue: #1976d2;
+$primary-indigo: #3f51b5;
+
+// =====================
+// Container
+// =====================
+.categories-list-container {
   min-height: calc(100vh - 64px);
-  background: #f8f9fa;
-
-  :host-context(body.dark-theme) & {
-    background: #0d0d1a;
-  }
-}
-
-// =====================
-// Header
-// =====================
-.categories-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
   padding: 24px;
-  background: linear-gradient(135deg, #1e3a5f 0%, #1976d2 100%);
-  color: #fff;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba($primary-blue, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 88% 18%, rgba($primary-indigo, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #f8f9fc 0%, #f2f4f8 100%);
 
   :host-context(body.dark-theme) & {
-    background: linear-gradient(135deg, #0d1f3c 0%, #1565c0 100%);
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(#64b5f6, 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 45% at 88% 18%, rgba(#7986cb, 0.03) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0d1a 0%, #111124 100%);
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
     padding: 16px;
   }
 }
 
-.back-link {
+// =====================
+// Hero header
+// =====================
+.list-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+
+  @media (max-width: 700px) {
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+}
+
+.hero-icon-wrap {
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  color: #fff;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e65100, #ff9800);
+  box-shadow: 0 4px 16px rgba(#e65100, 0.25), 0 0 0 3px rgba($accent, 0.2);
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #fff;
   }
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-}
+  @media (max-width: 700px) {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
 
-.header-content {
-  flex: 1;
-
-  h1 {
-    margin: 0 0 8px;
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    @media (max-width: 600px) {
-      font-size: 1.4rem;
-    }
-  }
-
-  .header-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #ff9800;
-    flex-shrink: 0;
-    box-shadow:
-      0 0 6px rgba(#ff9800, 0.6),
-      0 0 14px rgba(#ff9800, 0.3);
-    outline: 2px solid rgba(#ff9800, 0.25);
-    outline-offset: 2px;
-    animation: dot-glow-cat 3s ease-in-out infinite;
-  }
-
-  @keyframes dot-glow-cat {
-    0%, 100% {
-      box-shadow:
-        0 0 6px rgba(#ff9800, 0.6),
-        0 0 14px rgba(#ff9800, 0.3);
-    }
-    50% {
-      box-shadow:
-        0 0 8px rgba(#ff9800, 0.8),
-        0 0 20px rgba(#ff9800, 0.4);
-    }
-  }
-
-  p {
-    margin: 0;
-    font-size: 1rem;
-    opacity: 0.9;
-    padding-left: 20px;
-
-    @media (max-width: 600px) {
-      font-size: 0.9rem;
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
     }
   }
 }
 
-// =====================
-// Content
-// =====================
-.categories-content {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a2e;
+  text-align: center;
 
-  @media (max-width: 600px) {
-    padding: 16px;
+  :host-context(body.dark-theme) & {
+    color: #e8e8f0;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 1.2rem;
   }
 }
 
@@ -125,9 +96,11 @@
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
 
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
     grid-template-columns: 1fr;
     gap: 16px;
   }

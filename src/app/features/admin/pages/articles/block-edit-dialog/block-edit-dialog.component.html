@@ -1,0 +1,363 @@
+<h2 mat-dialog-title>{{ getDialogTitle() }}</h2>
+
+<mat-dialog-content>
+  <mat-tab-group animationDuration="200ms" (selectedIndexChange)="onTabChange($event)">
+    <!-- General Tab -->
+    <mat-tab [label]="'admin.articles.settings.general' | translate">
+      <form [formGroup]="form" class="form-content">
+
+        <!-- HEADING: content + level -->
+        @if (isTypeHeading()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.content' | translate }}</mat-label>
+            <input matInput formControlName="content" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.articles.block.fields.level' | translate }}</mat-label>
+            <mat-select formControlName="level">
+              @for (level of headingLevels; track level.value) {
+                <mat-option [value]="level.value">{{ level.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        <!-- PARAGRAPH / QUOTE: rich text editor -->
+        @if (isRichTextBlock()) {
+          <div class="rich-text-section">
+            <label class="rich-label">{{ 'admin.articles.block.fields.content' | translate }}</label>
+            <div class="rich-toolbar">
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'bold')" matTooltip="Bold">
+                <mat-icon>format_bold</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'italic')" matTooltip="Italic">
+                <mat-icon>format_italic</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'underline')" matTooltip="Underline">
+                <mat-icon>format_underlined</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'strikeThrough')" matTooltip="Strikethrough">
+                <mat-icon>strikethrough_s</mat-icon>
+              </button>
+              <span class="toolbar-divider"></span>
+              <button mat-icon-button type="button" (mousedown)="insertLink($event)" matTooltip="Link">
+                <mat-icon>link</mat-icon>
+              </button>
+              <span class="toolbar-divider"></span>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'removeFormat')" matTooltip="Clear">
+                <mat-icon>format_clear</mat-icon>
+              </button>
+            </div>
+            <div
+              #mainEditor
+              class="rich-editor"
+              contenteditable="true"
+              (input)="onRichTextInput($event, 'content')"
+            ></div>
+          </div>
+        }
+
+        <!-- CALLOUT: plain textarea -->
+        @if (blockType() === 'callout' && !isSeparator() && !isList()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.content' | translate }}</mat-label>
+            <textarea matInput formControlName="content" rows="8"></textarea>
+          </mat-form-field>
+        }
+
+        <!-- SEPARATOR: style picker -->
+        @if (isSeparator()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.separatorStyle' | translate }}</mat-label>
+            <mat-select formControlName="separatorStyle">
+              @for (s of separatorStyles; track s.value) {
+                <mat-option [value]="s.value">{{ s.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        <!-- QUOTE: attribution -->
+        @if (isTypeQuote()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.attribution' | translate }}</mat-label>
+            <input matInput formControlName="attribution" [placeholder]="'admin.articles.block.fields.attributionPlaceholder' | translate" />
+          </mat-form-field>
+        }
+
+        <!-- TEXT ALIGNMENT (paragraph, quote, heading) -->
+        @if (hasAlignOption()) {
+          <div class="align-selector">
+            <label class="rich-label">{{ 'admin.articles.block.fields.align' | translate }}</label>
+            <div class="align-buttons">
+              @for (a of alignments; track a.value) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  [class.active]="form.get('align')?.value === a.value"
+                  (click)="form.get('align')?.setValue(a.value)"
+                  [matTooltip]="a.label"
+                >
+                  <mat-icon>{{ a.icon }}</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- LIST: one item per line -->
+        @if (isList()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.listItems' | translate }}</mat-label>
+            <textarea matInput formControlName="content" rows="8" [placeholder]="'admin.articles.block.fields.listItemsPlaceholder' | translate"></textarea>
+          </mat-form-field>
+        }
+
+        <!-- SOUND: autocomplete + caption -->
+        @if (isTypeSound()) {
+          <div class="sound-search-section">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'admin.articles.block.fields.sound' | translate }}</mat-label>
+              <input
+                matInput
+                [formControl]="soundSearchControl"
+                [matAutocomplete]="soundAuto"
+              />
+              @if (selectedSound()) {
+                <button mat-icon-button matSuffix (click)="clearSound()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+              <mat-autocomplete #soundAuto="matAutocomplete">
+                @for (sound of filteredSounds(); track sound.id) {
+                  <mat-option [value]="sound.title" (onSelectionChange)="selectSound(sound)">
+                    {{ sound.title }}
+                    @if (sound.city) {
+                      <span class="sound-city"> — {{ sound.city }}</span>
+                    }
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            @if (selectedSound()) {
+              <div class="selected-sound-info">
+                <mat-icon>music_note</mat-icon>
+                <span>{{ selectedSound()!.title }}</span>
+                @if (selectedSound()!.city) {
+                  <span class="sound-city">— {{ selectedSound()!.city }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.soundCaption' | translate }}</mat-label>
+            <input matInput formControlName="soundCaption" />
+          </mat-form-field>
+        }
+
+        <!-- IMAGE: upload + alt + caption + size + align -->
+        @if (isTypeImage()) {
+          <div class="image-upload-section">
+            @if (imagePreviewUrl()) {
+              <img [src]="imagePreviewUrl()" alt="Preview" class="image-preview" />
+            }
+
+            <div class="upload-row">
+              <button mat-stroked-button (click)="imageInput.click()" [disabled]="uploadingImage()">
+                <mat-icon>upload</mat-icon>
+                {{ 'admin.articles.block.fields.image' | translate }}
+              </button>
+              <input
+                #imageInput
+                type="file"
+                accept="image/*"
+                hidden
+                (change)="onImageFileSelected($event)"
+              />
+              @if (uploadingImage()) {
+                <mat-spinner diameter="24"></mat-spinner>
+              }
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.imageAlt' | translate }}</mat-label>
+            <input matInput formControlName="imageAlt" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'admin.articles.block.fields.imageCaption' | translate }}</mat-label>
+            <input matInput formControlName="imageCaption" />
+          </mat-form-field>
+
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.articles.block.fields.imageWidth' | translate }}</mat-label>
+              <mat-select formControlName="imageWidth">
+                @for (s of imageSizes; track s.value) {
+                  <mat-option [value]="s.value">{{ s.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.articles.block.fields.align' | translate }}</mat-label>
+              <mat-select formControlName="align">
+                @for (a of alignments; track a.value) {
+                  <mat-option [value]="a.value">{{ a.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+      </form>
+    </mat-tab>
+
+    <!-- Translations Tab -->
+    <mat-tab [label]="'admin.articles.settings.translations' | translate">
+      <form [formGroup]="form" class="form-content">
+
+        <!-- Text blocks i18n -->
+        @if (isTypeText()) {
+          <h4>{{ 'admin.articles.block.fields.content' | translate }}</h4>
+
+          @if (isRichTextBlock()) {
+            <!-- Rich text toolbar for translations -->
+            <div class="rich-toolbar mini">
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'bold')">
+                <mat-icon>format_bold</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'italic')">
+                <mat-icon>format_italic</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'underline')">
+                <mat-icon>format_underlined</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'strikeThrough')">
+                <mat-icon>strikethrough_s</mat-icon>
+              </button>
+              <span class="toolbar-divider"></span>
+              <button mat-icon-button type="button" (mousedown)="insertLink($event)">
+                <mat-icon>link</mat-icon>
+              </button>
+              <span class="toolbar-divider"></span>
+              <button mat-icon-button type="button" (mousedown)="execCommand($event, 'removeFormat')">
+                <mat-icon>format_clear</mat-icon>
+              </button>
+            </div>
+
+            <div class="translation-group">
+              <label class="rich-label">FR</label>
+              <div #editorFr class="rich-editor mini" contenteditable="true"
+                (input)="onRichTextInput($event, 'content_fr')"></div>
+            </div>
+            <div class="translation-group">
+              <label class="rich-label">EN</label>
+              <div #editorEn class="rich-editor mini" contenteditable="true"
+                (input)="onRichTextInput($event, 'content_en')"></div>
+            </div>
+            <div class="translation-group">
+              <label class="rich-label">ES</label>
+              <div #editorEs class="rich-editor mini" contenteditable="true"
+                (input)="onRichTextInput($event, 'content_es')"></div>
+            </div>
+          } @else {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>FR</mat-label>
+              @if (isTypeHeading()) {
+                <input matInput formControlName="content_fr" />
+              } @else {
+                <textarea matInput formControlName="content_fr" rows="4"></textarea>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>EN</mat-label>
+              @if (isTypeHeading()) {
+                <input matInput formControlName="content_en" />
+              } @else {
+                <textarea matInput formControlName="content_en" rows="4"></textarea>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>ES</mat-label>
+              @if (isTypeHeading()) {
+                <input matInput formControlName="content_es" />
+              } @else {
+                <textarea matInput formControlName="content_es" rows="4"></textarea>
+              }
+            </mat-form-field>
+          }
+        }
+
+        <!-- Sound caption i18n -->
+        @if (isTypeSound()) {
+          <h4>{{ 'admin.articles.block.fields.soundCaption' | translate }}</h4>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>FR</mat-label>
+            <input matInput formControlName="soundCaption_fr" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>EN</mat-label>
+            <input matInput formControlName="soundCaption_en" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>ES</mat-label>
+            <input matInput formControlName="soundCaption_es" />
+          </mat-form-field>
+        }
+
+        <!-- Image alt + caption i18n -->
+        @if (isTypeImage()) {
+          <h4>{{ 'admin.articles.block.fields.imageAlt' | translate }}</h4>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>FR</mat-label>
+            <input matInput formControlName="imageAlt_fr" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>EN</mat-label>
+            <input matInput formControlName="imageAlt_en" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>ES</mat-label>
+            <input matInput formControlName="imageAlt_es" />
+          </mat-form-field>
+
+          <h4>{{ 'admin.articles.block.fields.imageCaption' | translate }}</h4>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>FR</mat-label>
+            <input matInput formControlName="imageCaption_fr" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>EN</mat-label>
+            <input matInput formControlName="imageCaption_en" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>ES</mat-label>
+            <input matInput formControlName="imageCaption_es" />
+          </mat-form-field>
+        }
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">
+    {{ 'common.action.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="saving()"
+  >
+    @if (saving()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ 'common.action.save' | translate }}
+    }
+  </button>
+</mat-dialog-actions>

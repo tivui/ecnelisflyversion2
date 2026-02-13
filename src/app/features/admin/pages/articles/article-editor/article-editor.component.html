@@ -1,0 +1,130 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (article()) {
+  <div class="editor-container">
+    <!-- Top bar -->
+    <div class="editor-topbar">
+      <div class="topbar-left">
+        <button mat-icon-button (click)="goBack()" [matTooltip]="'admin.articles.editor.back' | translate">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2 class="article-title">{{ article()!.title }}</h2>
+        <span class="status-badge" [class]="'status-' + article()!.status">
+          {{ 'admin.articles.status.' + article()!.status | translate }}
+        </span>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Language switcher -->
+        <div class="lang-switcher">
+          @for (lang of languages; track lang) {
+            <button
+              mat-button
+              [class.active]="activeLang() === lang"
+              (click)="setActiveLang(lang)"
+            >
+              {{ lang | uppercase }}
+            </button>
+          }
+        </div>
+
+        <button mat-stroked-button (click)="openSettingsDialog()">
+          <mat-icon>settings</mat-icon>
+          {{ 'admin.articles.editor.settings' | translate }}
+        </button>
+
+        <button mat-stroked-button class="preview-btn" (click)="openPreview()">
+          <mat-icon>visibility</mat-icon>
+          {{ 'admin.articles.editor.preview' | translate }}
+        </button>
+
+        <button
+          mat-raised-button
+          [color]="article()!.status === 'published' ? 'warn' : 'primary'"
+          (click)="togglePublish()"
+        >
+          <mat-icon>{{ article()!.status === 'published' ? 'unpublished' : 'publish' }}</mat-icon>
+          {{ (article()!.status === 'published' ? 'admin.articles.editor.unpublish' : 'admin.articles.editor.publish') | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Block palette -->
+    <div class="block-palette">
+      <span class="palette-label">{{ 'admin.articles.editor.addBlock' | translate }}</span>
+      @for (bt of blockTypes; track $index) {
+        <button
+          mat-stroked-button
+          class="palette-btn"
+          (click)="openAddBlockDialog(bt.type, bt.variant)"
+          [matTooltip]="bt.labelKey | translate"
+        >
+          <mat-icon>{{ bt.icon }}</mat-icon>
+          <span class="btn-label">{{ bt.labelKey | translate }}</span>
+        </button>
+      }
+    </div>
+
+    <!-- Blocks list -->
+    @if (blocks().length === 0) {
+      <div class="empty-blocks">
+        <mat-icon>article</mat-icon>
+        <p>{{ 'admin.articles.editor.emptyBlocks' | translate }}</p>
+      </div>
+    } @else {
+      <div
+        cdkDropList
+        (cdkDropListDropped)="onDrop($event)"
+        class="blocks-list"
+      >
+        @for (block of blocks(); track block.id) {
+          <div class="block-item" cdkDrag>
+            <div class="block-drag-handle" cdkDragHandle>
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+
+            <div class="block-content" (click)="openEditBlockDialog(block)">
+              <div class="block-header">
+                <mat-icon class="block-type-icon">{{ getBlockIcon(block.type, block.settings?.variant) }}</mat-icon>
+                <span class="block-type-label">{{ getBlockTypeLabel(block.type, block.settings?.variant) }}</span>
+                @if (block.type === 'heading') {
+                  <span class="heading-level">{{ getHeadingLevel(block) }}</span>
+                }
+              </div>
+              <div class="block-preview">
+                {{ getBlockPreview(block) }}
+              </div>
+            </div>
+
+            <div class="block-actions">
+              <button
+                mat-icon-button
+                [matTooltip]="'admin.articles.block.edit' | translate"
+                (click)="openEditBlockDialog(block); $event.stopPropagation()"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                [matTooltip]="'admin.articles.block.duplicate.action' | translate"
+                (click)="duplicateBlock(block); $event.stopPropagation()"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                [matTooltip]="'admin.articles.block.delete.confirm' | translate"
+                (click)="deleteBlock(block); $event.stopPropagation()"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

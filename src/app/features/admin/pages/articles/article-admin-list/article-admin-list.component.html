@@ -1,0 +1,116 @@
+<div class="article-admin-container">
+  <div class="header">
+    <h2>{{ 'admin.articles.list.title' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="createArticle()">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.articles.list.new' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (articles().length === 0) {
+    <div class="empty-state">
+      <mat-icon>menu_book</mat-icon>
+      <p>{{ 'admin.articles.list.empty' | translate }}</p>
+      <button mat-raised-button color="primary" (click)="createArticle()">
+        {{ 'admin.articles.list.new' | translate }}
+      </button>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="articles()" class="article-table">
+      <!-- Title Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.title' | translate }}</th>
+        <td mat-cell *matCellDef="let article">
+          {{ getLocalizedTitle(article) }}
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.status' | translate }}</th>
+        <td mat-cell *matCellDef="let article">
+          <mat-chip [class]="'status-' + article.status">
+            {{ 'admin.articles.status.' + article.status | translate }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Tags Column -->
+      <ng-container matColumnDef="tags">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.tags' | translate }}</th>
+        <td mat-cell *matCellDef="let article">
+          <div class="tags-cell">
+            @for (tag of article.tags?.slice(0, 3); track tag) {
+              <mat-chip class="tag-chip">{{ tag }}</mat-chip>
+            }
+            @if (article.tags?.length > 3) {
+              <span class="more-tags">+{{ article.tags.length - 3 }}</span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Block Count Column -->
+      <ng-container matColumnDef="blockCount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.blocks' | translate }}</th>
+        <td mat-cell *matCellDef="let article">{{ article.blockCount ?? 0 }}</td>
+      </ng-container>
+
+      <!-- Reading Time Column -->
+      <ng-container matColumnDef="readingTime">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.readingTime' | translate }}</th>
+        <td mat-cell *matCellDef="let article">
+          @if (article.readingTimeMinutes) {
+            {{ article.readingTimeMinutes }} min
+          } @else {
+            —
+          }
+        </td>
+      </ng-container>
+
+      <!-- Published At Column -->
+      <ng-container matColumnDef="publishedAt">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.published' | translate }}</th>
+        <td mat-cell *matCellDef="let article">{{ formatDate(article.publishedAt) }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.articles.list.columns.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let article">
+          <div class="actions">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.articles.editor.back' | translate"
+              (click)="openEditor(article)"
+            >
+              <mat-icon>edit_note</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.articles.settings.title' | translate"
+              (click)="openSettings(article)"
+            >
+              <mat-icon>settings</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'admin.articles.delete.confirm' | translate"
+              (click)="deleteArticle(article)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  }
+</div>

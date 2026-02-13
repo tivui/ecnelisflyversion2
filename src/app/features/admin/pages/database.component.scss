@@ -8,12 +8,24 @@
   .form-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 16px; // espace entre tabs et contenu
+    gap: 16px;
     padding: 16px;
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1200px;
+
+    :host-context(body.dark-theme) & {
+      background: #1a1a2c;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
   }
 
   nav[mat-tab-nav-bar] {
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+    :host-context(body.dark-theme) & {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
   }
 }
-

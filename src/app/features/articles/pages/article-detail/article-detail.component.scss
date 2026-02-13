@@ -1,0 +1,718 @@
+$accent-article: #8b6f47;
+$accent-article-light: #c4a882;
+$font-serif: 'Merriweather', Georgia, serif;
+$font-sans: 'Inter', 'Roboto', sans-serif;
+
+// =====================
+// Reading progress bar — gradient (keeps dark support)
+// =====================
+.reading-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, $accent-article, $accent-article-light);
+  z-index: 100;
+  transition: width 0.15s linear;
+}
+
+// =====================
+// Container — always light (editorial reading experience)
+// =====================
+.article-detail-container {
+  min-height: calc(100vh - 64px);
+  background: #fafafa;
+  color: #1a1a2e;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+}
+
+// =====================
+// Top bar — keeps dark support for navigation coherence
+// =====================
+.article-topbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(250, 250, 250, 0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(13, 13, 26, 0.88);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.topbar-spacer { flex: 1; }
+.share-btn { font-size: 0.85rem; }
+
+// =====================
+// Cover — full bleed with cinematic gradient overlay
+// =====================
+.cover-wrapper {
+  position: relative;
+  width: 100%;
+  max-height: 480px;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.15) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  @media (max-width: 700px) {
+    max-height: 260px;
+  }
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+// =====================
+// Layout (sidebar + main)
+// =====================
+.article-layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  gap: 48px;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    padding: 24px 16px 40px;
+    gap: 24px;
+  }
+}
+
+// =====================
+// TOC Sidebar — refined
+// =====================
+.toc-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  align-self: flex-start;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.toc-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: $accent-article;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba($accent-article, 0.2);
+}
+
+.toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toc-link {
+  font-size: 0.82rem;
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  padding-left: 12px;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+
+  &:hover {
+    color: $accent-article;
+    border-left-color: $accent-article;
+    padding-left: 14px;
+  }
+
+  &.toc-level-2 {
+    padding-left: 12px;
+  }
+
+  &.toc-level-3 {
+    padding-left: 24px;
+    font-size: 0.78rem;
+  }
+}
+
+// =====================
+// Main content
+// =====================
+.article-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 680px;
+  font-family: $font-serif;
+}
+
+// =====================
+// Article header — dramatic
+// =====================
+.article-header {
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.article-title {
+  font-family: $font-sans;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  margin: 0 0 20px;
+  color: #1a1a2e;
+
+  @media (max-width: 700px) {
+    font-size: 1.8rem;
+  }
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 16px;
+
+  .meta-author {
+    font-weight: 600;
+    color: #444;
+  }
+
+  .meta-date {
+    &::before {
+      content: '\00b7';
+      margin: 0 10px;
+      color: #ccc;
+    }
+  }
+
+  .meta-reading {
+    color: $accent-article;
+    font-weight: 500;
+
+    &::before {
+      content: '\00b7';
+      margin: 0 10px;
+      color: #ccc;
+    }
+  }
+}
+
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tag-chip {
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba($accent-article, 0.08);
+  color: $accent-article;
+  letter-spacing: 0.3px;
+}
+
+.article-chapeau {
+  font-family: $font-serif;
+  font-size: 1.15rem;
+  color: #444;
+  line-height: 1.75;
+  font-style: italic;
+  margin: 0;
+  padding-left: 20px;
+  border-left: 3px solid $accent-article;
+}
+
+// =====================
+// Article body
+// =====================
+.article-body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (max-width: 700px) {
+    gap: 24px;
+  }
+}
+
+// =====================
+// Block entrance animation
+// =====================
+@keyframes fadeInBlock {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.article-block {
+  animation: fadeInBlock 0.5s ease-out both;
+}
+
+@for $i from 1 through 12 {
+  .article-block:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.05}s;
+  }
+}
+
+// =====================
+// Headings — with accent decorations
+// =====================
+.block-heading {
+  font-family: $font-sans;
+  margin: 0;
+  color: #1a1a2e;
+  scroll-margin-top: 80px;
+  letter-spacing: -0.02em;
+}
+
+h1.block-heading {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+h2.block-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba($accent-article, 0.2);
+}
+
+h3.block-heading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: $accent-article;
+}
+
+// =====================
+// Paragraph
+// =====================
+.block-paragraph {
+  margin: 0;
+  font-family: $font-serif;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: #2d2d2d;
+  white-space: pre-wrap;
+
+  @media (max-width: 700px) {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+}
+
+// Drop cap — dramatic lettrine
+.article-body .block-type-paragraph:first-child .block-paragraph::first-letter {
+  font-family: $font-serif;
+  font-size: 3.6em;
+  font-weight: 700;
+  float: left;
+  line-height: 0.78;
+  margin-right: 10px;
+  margin-top: 5px;
+  color: $accent-article;
+}
+
+// Rich text content
+.rich-content {
+  white-space: normal;
+
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  strike, s {
+    text-decoration: line-through;
+    text-decoration-color: rgba(0, 0, 0, 0.4);
+  }
+
+  u {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba($accent-article, 0.4);
+  }
+
+  a {
+    color: $accent-article;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: all 0.15s ease;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+      color: darken($accent-article, 10%);
+    }
+  }
+}
+
+// =====================
+// Quote — with large decorative quotation mark
+// =====================
+.block-quote {
+  position: relative;
+  margin: 8px 0;
+  padding: 28px 28px 24px 40px;
+  border-left: 4px solid $accent-article;
+  background: rgba($accent-article, 0.03);
+  border-radius: 0 16px 16px 0;
+
+  &::before {
+    content: '\201C';
+    position: absolute;
+    top: -6px;
+    left: 12px;
+    font-family: Georgia, serif;
+    font-size: 4rem;
+    line-height: 1;
+    color: rgba($accent-article, 0.15);
+    pointer-events: none;
+  }
+
+  p, .rich-content {
+    margin: 0;
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.75;
+    color: #3a3a3a;
+  }
+
+  .block-attribution {
+    display: block;
+    margin-top: 12px;
+    font-family: $font-sans;
+    font-style: normal;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: $accent-article;
+  }
+}
+
+// =====================
+// Callout — with accent icon bubble
+// =====================
+.block-callout {
+  display: flex;
+  gap: 14px;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, rgba($accent-article, 0.05) 0%, rgba($accent-article, 0.02) 100%);
+  border: 1px solid rgba($accent-article, 0.12);
+  border-radius: 16px;
+
+  mat-icon {
+    color: #fff;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    background: $accent-article;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #3a3a3a;
+  }
+}
+
+// =====================
+// Sound player — premium
+// =====================
+.block-sound-player {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba($accent-article, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba($accent-article, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: rgba($accent-article, 0.2);
+    box-shadow: 0 4px 16px rgba($accent-article, 0.08);
+  }
+}
+
+.play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, $accent-article 0%, darken($accent-article, 8%) 100%);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba($accent-article, 0.3);
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px rgba($accent-article, 0.4);
+  }
+
+  mat-icon {
+    font-size: 26px;
+  }
+}
+
+.player-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-caption {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-bar {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, $accent-article, $accent-article-light);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
+.player-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #999;
+  margin-top: 4px;
+}
+
+// =====================
+// Image — elegant with shadow
+// =====================
+.block-figure {
+  margin: 8px 0;
+
+  &.align-left { margin-right: auto; }
+  &.align-center { margin-left: auto; margin-right: auto; }
+  &.align-right { margin-left: auto; }
+}
+
+.block-image {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.block-figure figcaption {
+  font-size: 0.82rem;
+  color: #888;
+  text-align: center;
+  margin-top: 10px;
+  font-style: italic;
+  font-family: $font-sans;
+  letter-spacing: 0.2px;
+}
+
+// =====================
+// Separators — refined
+// =====================
+.block-separator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.separator-line {
+  width: 60%;
+  height: 0;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.separator-dots {
+  font-size: 1.6rem;
+  letter-spacing: 0.8em;
+  color: $accent-article;
+  text-align: center;
+}
+
+.separator-ornament {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $accent-article;
+
+    &:nth-child(2) {
+      width: 9px;
+      height: 9px;
+    }
+  }
+}
+
+// =====================
+// Lists — custom markers
+// =====================
+.block-list {
+  margin: 0;
+  padding-left: 32px;
+  font-family: $font-serif;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: #2d2d2d;
+
+  li {
+    margin-bottom: 8px;
+    padding-left: 4px;
+    &:last-child { margin-bottom: 0; }
+  }
+
+  @media (max-width: 700px) {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+}
+
+ul.block-list {
+  list-style: none;
+
+  li {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 0.65em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: $accent-article;
+    }
+  }
+}
+
+ol.block-list {
+  list-style: none;
+  counter-reset: article-counter;
+
+  li {
+    position: relative;
+    counter-increment: article-counter;
+    padding-left: 6px;
+
+    &::before {
+      content: counter(article-counter);
+      position: absolute;
+      left: -28px;
+      top: 0.2em;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font-sans;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      background: $accent-article;
+      border-radius: 50%;
+    }
+  }
+}
+
+// =====================
+// Article end mark
+// =====================
+.article-end-mark {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 0 16px;
+
+  span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba($accent-article, 0.3);
+
+    &:nth-child(2) {
+      width: 9px;
+      height: 9px;
+      background: $accent-article;
+    }
+  }
+}

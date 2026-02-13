@@ -17,6 +17,7 @@ export interface AppUser {
   avatarStyle?: string | null;
   avatarSeed?: string | null;
   avatarBgColor?: string | null;
+  avatarOptions?: Record<string, string> | null;
 }
 export { Language };
 

@@ -1,11 +1,14 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { storage } from './storage/resource';
 import { deleteSoundFile } from './functions/delete-sound-file/resource';
 import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/resource';
+import { pickMonthlyQuiz } from './functions/pick-monthly-quiz/resource';
+import { pickMonthlyArticle } from './functions/pick-monthly-article/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
 
@@ -15,9 +18,21 @@ const backend = defineBackend({
   storage,
   deleteSoundFile,
   pickDailyFeaturedSound,
+  pickMonthlyQuiz,
+  pickMonthlyArticle,
   startImport,
   processImport,
 });
+
+// TODO: Configurer SES quand le domaine ecnelisfly.com sera rattaché
+// const { cfnUserPool } = backend.auth.resources.cfnResources;
+// const region = Stack.of(backend.auth.resources.userPool).region;
+// const accountId = Stack.of(backend.auth.resources.userPool).account;
+// cfnUserPool.emailConfiguration = {
+//   emailSendingAccount: 'DEVELOPER',
+//   sourceArn: `arn:aws:ses:${region}:${accountId}:identity/noreply@ecnelisfly.com`,
+//   from: 'Ecnelis FLY <noreply@ecnelisfly.com>',
+// };
 
 // ➡ Ajouter le data source Amazon Translate
 const translateDataSource = backend.data.addHttpDataSource(

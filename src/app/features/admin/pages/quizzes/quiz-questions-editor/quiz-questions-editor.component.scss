@@ -1,0 +1,182 @@
+.questions-editor-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  h2 {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #999;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 20px;
+  }
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.question-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  :host-context(body.dark-theme) & {
+    background: #2a2a3e;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #999;
+  display: flex;
+  align-items: center;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.question-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.question-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.question-number {
+  font-weight: 600;
+  color: #0d7c51;
+  font-size: 0.9rem;
+}
+
+.type-chip {
+  font-size: 0.7rem;
+  min-height: 24px;
+  padding: 0 8px;
+}
+
+.question-prompt {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.question-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.inline-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
+
+.time-override {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.question-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+// CDK drag drop styles
+.cdk-drag-preview {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (max-width: 700px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .header-left {
+    h2 {
+      font-size: 1rem;
+    }
+  }
+
+  .question-card {
+    padding: 10px 12px;
+  }
+}

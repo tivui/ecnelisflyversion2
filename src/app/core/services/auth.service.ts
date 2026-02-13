@@ -4,6 +4,7 @@ import {
   signOut,
   getCurrentUser,
   fetchAuthSession,
+  fetchUserAttributes,
 } from 'aws-amplify/auth';
 
 export interface CurrentUser {
@@ -34,10 +35,22 @@ export class AuthService {
     try {
       const { username, userId, signInDetails } = await getCurrentUser();
 
+      // For email/password users, loginId is the email.
+      // For OAuth users (Google), loginId is undefined — fetch from user attributes.
+      let email = signInDetails?.loginId;
+      if (!email) {
+        try {
+          const attrs = await fetchUserAttributes();
+          email = attrs.email;
+        } catch {
+          // Attributes not available — continue without email
+        }
+      }
+
       const currentUser: CurrentUser = {
         sub: userId,
         username,
-        email: signInDetails?.loginId,
+        email,
       };
 
       this._user.set(currentUser);
