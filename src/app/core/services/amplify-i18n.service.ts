@@ -27,6 +27,8 @@ export class AmplifyI18nService {
       'Please confirm your Password': 'Please confirm your password',
       'Forgot your password?': 'Forgot your password?',
       'Forgot Password?': 'Forgot your password?',
+      'Sign In with Google': 'Sign in with Google',
+      'or': 'or',
     },
     fr: {
       'Sign In': 'Se connecter',
@@ -40,6 +42,8 @@ export class AmplifyI18nService {
       'Please confirm your Password': 'Confirmez votre mot de passe',
       'Forgot your password?': 'Mot de passe oublié ?',
       'Forgot Password?': 'Mot de passe oublié ?',
+      'Sign In with Google': 'Se connecter avec Google',
+      'or': 'ou',
     },
     es: {
       'Sign In': 'Iniciar sesión',
@@ -53,6 +57,8 @@ export class AmplifyI18nService {
       'Please confirm your Password': 'Confirma tu contraseña',
       'Forgot your password?': '¿Has olvidado tu contraseña?',
       'Forgot Password?': '¿Has olvidado tu contraseña?',
+      'Sign In with Google': 'Iniciar sesión con Google',
+      'or': 'o',
     },
   };
 

@@ -1,11 +1,36 @@
 /* Centrage vertical/ horizontal de la mire de connexion */
 .login-container {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: calc(100vh - 64px); // hauteur totale - toolbar
+  padding: 24px 16px;
 }
 
-.content {
-  padding: 2rem;
-  text-align: center;
+.login-branding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.login-title {
+  margin: 12px 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1a2e;
+
+  :host-context(body.dark-theme) & {
+    color: #f0f0f0;
+  }
 }

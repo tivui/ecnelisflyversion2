@@ -1,5 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
@@ -22,6 +23,16 @@ const backend = defineBackend({
   startImport,
   processImport,
 });
+
+// TODO: Configurer SES quand le domaine ecnelisfly.com sera rattaché
+// const { cfnUserPool } = backend.auth.resources.cfnResources;
+// const region = Stack.of(backend.auth.resources.userPool).region;
+// const accountId = Stack.of(backend.auth.resources.userPool).account;
+// cfnUserPool.emailConfiguration = {
+//   emailSendingAccount: 'DEVELOPER',
+//   sourceArn: `arn:aws:ses:${region}:${accountId}:identity/noreply@ecnelisfly.com`,
+//   from: 'Ecnelis FLY <noreply@ecnelisfly.com>',
+// };
 
 // ➡ Ajouter le data source Amazon Translate
 const translateDataSource = backend.data.addHttpDataSource(

@@ -1,5 +1,14 @@
 <div class="login-container">
+  <div class="login-branding">
+    <img
+      src="img/logos/logo_blue_orange_left_round.png"
+      alt="Ecnelis FLY"
+      class="login-logo"
+    />
+    <h1 class="login-title">Ecnelis FLY</h1>
+  </div>
+
   @if (authenticatorVisible()) {
-    <amplify-authenticator></amplify-authenticator>
+    <amplify-authenticator [socialProviders]="['google']"></amplify-authenticator>
   }
 </div>
