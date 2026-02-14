@@ -34,12 +34,18 @@
         </div>
       </a>
 
-      <!-- Secondary cards: 3 of 4 max — Son du jour always centered (pos 3) for visual focus -->
+      <!-- Secondary cards: 2x2 grid on mobile, 3-card row on desktop -->
       <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
         @for (cardType of orderedSecondaryCards(); track cardType) {
           @switch (cardType) {
             @case ('quiz') {
-              <a routerLink="/quiz/{{ monthlyQuiz()!.id }}" class="hero-card hero-card-quiz">
+              <a class="hero-card hero-card-quiz"
+                [class.long-pressed]="longPressedCard() === 'quiz'"
+                (pointerdown)="onCardPointerDown('quiz', $event)"
+                (pointerup)="onCardPointerUp('quiz')"
+                (pointerleave)="onCardPointerUp('quiz')"
+                (click)="!isMobileGrid() && navigateToCard('quiz')"
+                [routerLink]="isMobileGrid() ? null : '/quiz/' + monthlyQuiz()!.id">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>{{ monthlyQuiz()!.icon || 'quiz' }}</mat-icon>
@@ -57,7 +63,13 @@
               </a>
             }
             @case ('article') {
-              <a routerLink="/articles/{{ latestArticle()!.slug }}" class="hero-card hero-card-article">
+              <a class="hero-card hero-card-article"
+                [class.long-pressed]="longPressedCard() === 'article'"
+                (pointerdown)="onCardPointerDown('article', $event)"
+                (pointerup)="onCardPointerUp('article')"
+                (pointerleave)="onCardPointerUp('article')"
+                (click)="!isMobileGrid() && navigateToCard('article')"
+                [routerLink]="isMobileGrid() ? null : '/articles/' + latestArticle()!.slug">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>menu_book</mat-icon>
@@ -75,7 +87,13 @@
               </a>
             }
             @case ('monthlyZone') {
-              <a (click)="goToMonthlyZone()" class="hero-card hero-card-monthly-zone" [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'">
+              <a class="hero-card hero-card-monthly-zone"
+                [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'"
+                [class.long-pressed]="longPressedCard() === 'monthlyZone'"
+                (pointerdown)="onCardPointerDown('monthlyZone', $event)"
+                (pointerup)="onCardPointerUp('monthlyZone')"
+                (pointerleave)="onCardPointerUp('monthlyZone')"
+                (click)="!isMobileGrid() && goToMonthlyZone()">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
@@ -92,8 +110,36 @@
                 </div>
               </a>
             }
+            @case ('monthlyJourney') {
+              <a class="hero-card hero-card-journey"
+                [class.long-pressed]="longPressedCard() === 'monthlyJourney'"
+                (pointerdown)="onCardPointerDown('monthlyJourney', $event)"
+                (pointerup)="onCardPointerUp('monthlyJourney')"
+                (pointerleave)="onCardPointerUp('monthlyJourney')"
+                (click)="!isMobileGrid() && goToMonthlyJourney()">
+                <div class="hero-card-visual">
+                  <div class="hero-card-icon">
+                    <mat-icon>route</mat-icon>
+                  </div>
+                  <span class="journey-badge">{{ 'home.hero.monthlyJourney' | translate }}</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3>{{ monthlyJourneyName() }}</h3>
+                  <p class="hero-card-desc">{{ monthlyJourneyDescription() }}</p>
+                  <span class="hero-card-cta">
+                    {{ 'home.hero.startJourney' | translate }}
+                    <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </a>
+            }
             @case ('featured') {
-              <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
+              <a class="hero-card hero-card-featured"
+                [class.long-pressed]="longPressedCard() === 'featured'"
+                (pointerdown)="onCardPointerDown('featured', $event)"
+                (pointerup)="onCardPointerUp('featured')"
+                (pointerleave)="onCardPointerUp('featured')"
+                (click)="!isMobileGrid() && goToFeaturedSound()">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>headphones</mat-icon>
@@ -114,7 +160,7 @@
         }
       </div>
 
-      <!-- Scroll dots -->
+      <!-- Scroll dots (desktop horizontal scroll only) -->
       <div class="scroll-dots" aria-hidden="true">
         @for (i of secondaryCardIndices(); track i) {
           <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>

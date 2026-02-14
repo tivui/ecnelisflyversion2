@@ -12,6 +12,7 @@ npx ng serve          # Dev server (localhost:4200)
 ```
 
 Warnings pre-existants a ignorer : budget bundle, duplicate Material theming, CommonJS modules (leaflet, qrcode, etc.).
+Budget `anyComponentStyle` : `maximumError: 55kb` dans `angular.json` (augmente de 50kb pour mapfly.component.scss).
 
 ## Architecture
 
@@ -41,6 +42,7 @@ Design system : spectre blue -> indigo -> violet avec accents distincts par sect
 |------|------------------------|-------------|
 | Map | `#1976d2` / `#90caf9` | blue |
 | Featured (Son du jour) | `#6a3de8` / `#b388ff` | violet `#7c4dff` |
+| Journey (Voyages sonores) | `#5c6a8a` / `#a0b0cc` | slate-indigo `#5c6a8a` |
 | Quiz | `#0d7c51` / `#66bb6a` | emerald |
 | Article | `#8b6f47` / `#c4a882` | terre |
 | Monthly Zone (Terroir) | `#b07c10` / `#fbbf24` | amber |
@@ -64,12 +66,13 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 ### Home (`features/home/pages/home/`)
 
-- **Desktop** : hero cards en grille (map + 3 secondary), Swiper carousel categories
+- **Desktop base** : hero cards en grille (map + 3 secondary visible, 4eme cachee), Swiper carousel categories
+- **Desktop XL** (`@media min-width: 1920px`) : layout hero map pleine largeur + 4 secondary cards en ligne (voir section dediee)
 - **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) :
   - Container : `height: calc(100dvh - 64px)`, flex column
   - Hero card Map : full-width, `clamp(140px, 30dvh, 240px)`
-  - Secondary cards : scroll horizontal snap (`scroll-snap-type: x mandatory`)
-  - Carousel categories : `position: sticky; bottom: 0` avec glassmorphism
+  - Secondary cards : **grille 2x2** (`display: grid; grid-template-columns: 1fr 1fr; gap: 10px`)
+  - Carousel categories : `position: sticky; bottom: 0` avec glassmorphism indigo-tinted
   - Pastilles : grille pyramide 4+5, style premium (border neutre, pas de glow)
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
@@ -82,23 +85,94 @@ Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee
 - Desktop : `.hero-cards-secondary` utilise `display: contents`, donc les cards individuelles sont ciblees via `nth-child` pour le reveal
 - Mobile : accent line `.hero-content::after` a aussi son reveal dedie
 
-#### Gradients positionnels des secondary cards (desktop)
+#### Gradients positionnels des secondary cards (desktop uniquement)
 
-Les gradients dependent de la **position** dans la grille (pas du type de card) :
+Les gradients dependent de la **position** dans la grille (pas du type de card). **Scopés dans `@media (min-width: 701px)`** pour ne pas fuiter sur mobile :
 
 | Position | Gradient | Description |
 |----------|----------|-------------|
 | nth-child(1) | `$gradient-pos-2` (`#1f2f6e -> #4a62c6`) | Bleu-indigo |
 | nth-child(2) | Custom (`#292b8c -> #6760c1`) | Indigo-violet doux (casse la linearite) |
 | nth-child(3) | `$gradient-pos-3` (`#283593 -> #5c6bc0`) | Indigo |
+| nth-child(4) | `$gradient-pos-4` (`#2d2485 -> #7558c2`) | Indigo-violet (XL uniquement) |
 
 #### Ordering des secondary cards
 
-- 4 types possibles : `featured`, `quiz`, `monthlyZone`, `article`
-- Si 4 disponibles : on exclut aleatoirement `quiz` ou `article` (jamais `featured` ni `monthlyZone`)
-- **Son du jour (`featured`) toujours en position centrale** (nth-child(2), le gradient violet doux) pour guidage visuel inconscient
-- Les cards flanquantes (positions 1 et 3) sont melangees aleatoirement
+- **5 types dans le pool** : `featured`, `quiz`, `monthlyZone`, `monthlyJourney`, `article`
+- `featured` est toujours inclus si disponible (jamais exclu)
+- **Desktop (4 cards preparees)** : pool de {quiz, monthlyZone, monthlyJourney, article}, on en tire 3 au hasard (Fisher-Yates shuffle) + featured = 4 cards. CSS cache la 4eme sur desktop normal (`@media min-width: 701px and max-width: 1919px`), affiche les 4 en XL (`>=1920px`). Featured toujours en position 2
+- **Mobile (4 cards)** : pool de {quiz, monthlyZone, monthlyJourney, article}, on en tire 3 au hasard. Featured en 2e position dans la grille 2x2
+- Si `featured` absent : les cards disponibles remplissent les positions sans contrainte
 - Logique dans `orderedSecondaryCards` signal, template via `@for` + `@switch`
+
+#### Grille mobile 2x2 (secondary cards)
+
+Design Material/Android sobre — tuiles propres sans fond lourd :
+
+**Structure d'une tuile :**
+```
+┌─ accent top bar (3px, gradient $primary-indigo → accent) ─┐
+│ [header row: icon circle + badge label]                    │
+│ Titre du contenu (1 ligne, ellipsis)                       │
+│ Description (masquee, visible au long-press)               │
+│                                          Action →          │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Surfaces harmonisees (fil bleu-indigo) :**
+- Light : `background: linear-gradient(145deg, #fff 60%, rgba($primary-indigo, 0.03) 100%)`, `border: rgba($primary-indigo, 0.10)`, `box-shadow: rgba($primary-indigo, 0.08)`
+- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.92) 40%, rgba($primary-indigo, 0.08) 100%)`, `border: rgba(#5c6bc0, 0.12)`, `box-shadow: rgba(0,0,20,0.35)`
+
+**Header row :** fond teinte indigo (`rgba($primary-indigo, 0.03)` light / `0.18` dark), negative margin bleed (`margin: -14px -12px 0`)
+
+**Icon circles :** 36px, fond teinte accent a 12% (light) / 18-22% (dark), border accent, box-shadow glow en dark
+
+**Badges :** pills `rgba($primary-indigo, 0.06)` light / `rgba(#5c6bc0, 0.20)` dark, micro-border, texte accent
+
+**Featured card distinction :** border violet `rgba(#7c4dff, 0.12)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
+
+**Accent top bars :** gradient `$primary-indigo → accent color`, 2.5px light / 3px dark avec `brightness(1.2)` + glow en dark
+
+#### Long Press mobile
+
+- **Tap** (< 400ms) : navigation normale
+- **Long press** (>= 400ms) : description apparait en fondu, retour haptique (`navigator.vibrate(10)`), auto-dismiss 3s
+- **Signals** : `longPressedCard: signal<string | null>(null)`, `isMobileGrid: signal<boolean>`
+- **Events template** : `(pointerdown)` / `(pointerup)` / `(pointerleave)` sur chaque card
+- **CSS** : `.hero-card.long-pressed` → `.hero-card-desc { max-height: 60px; opacity: 1 }`
+- Les `routerLink` des cards quiz/article sont conditionnels (`[routerLink]="isMobileGrid() ? null : ..."`) pour eviter navigation pendant long-press
+
+#### Carte mondiale mobile (hero card map)
+
+**Light :**
+- Video wash : gradient bleu sur toute la surface (`rgba(200,220,255,0.22) → 0.06`)
+- Orbs lumineux bleus, shimmer bleu-teinte
+- Bottom gradient : indigo profond (`rgba(15,25,60,0.72)`)
+- Accent bar top : 2.5px gradient `$primary-blue → $primary-indigo → #5c6bc0`
+- CTA : `rgba($primary-blue, 0.25)` + border blue
+- Shadow 3 couches (dont bottom spread `rgba($primary-indigo, 0.08)` pour transition douce vers grille)
+
+**Dark :**
+- Video wash quasi transparent (`rgba(15,20,40,0.10)`)
+- Orbs indigo discrets, shimmer indigo
+- Bottom gradient : `rgba(12,14,32,0.82)` indigo-deep
+- Accent bar top : 3px gradient blue→indigo + `brightness(1.2)` + glow
+- Border : `rgba(#5c6bc0, 0.18)` + shadow indigo glow
+- CTA : `rgba($primary-indigo, 0.30)` + border `rgba(#5c6bc0, 0.30)`
+
+#### Footer carousel mobile
+
+**Light :**
+- Background : gradient indigo-tinted glass (`rgba(248,249,255,0.95) → rgba(255,255,255,0.94)`)
+- Accent line : `$primary-blue → $primary-indigo → $logo-orange`
+- Header : icon `$primary-indigo` opacity 0.6, titre `#3949ab` opacity 0.6
+- Chips : indigo-tinted glass (`carousel-categories.component.scss`)
+
+**Dark :**
+- Background : gradient indigo profond (`rgba(16,18,36,0.94) → rgba(20,22,44,0.96)`)
+- Accent line : indigo gradient + `brightness(1.1)` + glow
+- Header : icon `#7986cb` opacity 0.8, titre `#9fa8da` opacity 0.75
+- Chips : indigo-tinted glass, border `rgba(92,107,192,0.18)`, label `#e8eaf6`
 
 #### Description cards desktop
 
@@ -106,12 +180,55 @@ Les gradients dependent de la **position** dans la grille (pas du type de card) 
 - `margin-bottom: 1.4em` sur `.hero-card-desc` (desktop only) pour creer un espace d'une ligne vide entre le texte et le CTA
 - `.hero-card-cta` a `margin-top: auto` pour etre pousse en bas de la card
 
+### Voyages sonores (`features/journeys/`)
+
+#### Palette Slate-Indigo
+
+| Role | Valeur | Usage |
+|------|--------|-------|
+| `$accent` | `#5c6a8a` | Accent principal light |
+| `$accent-light` | `#a0b0cc` | Accent dark mode |
+| `$accent-dark` | `#2e3548` | Extremite sombre des gradients |
+| Gradient card | `#2e3548 -> #5c6a8a` | Visual des cards |
+| Border-left light | `rgba(#5c6a8a, 0.35)` | Bordure card |
+| Border-left dark | `rgba(#a0b0cc, 0.3)` | Bordure card dark |
+
+#### Liste des voyages (`journeys-list`)
+
+- Hero icon + journey cards + random card : tous en palette slate-indigo
+- Pas de message "Aucun voyage disponible" : le random card est toujours visible, la grille ne s'affiche que si `journeys().length > 0`
+
+#### Voyage aleatoire (`random-journey-sheet`)
+
+- MatBottomSheet ouvert depuis la journeys-list
+- Slider pour nombre de sons (1-10), chips pour filtre categorie
+- Couleurs inline : header/slider/bouton en slate-indigo (`#2e3548`, `#5c6a8a`, `#a0b0cc`)
+- `softenColor(hex)` : adoucit les couleurs vives de categorie pour les popups/indicateurs sur la carte (mix 55% original + 45% dark base `#1e1e2e`)
+- Couleur par defaut (toutes categories) : `#5c6a8a`
+- Stocke les sons dans `EphemeralJourneyService` puis navigue vers `/mapfly?ephemeralJourney=true`
+
+#### EphemeralJourneyService (`core/services/ephemeral-journey.service.ts`)
+
+- Service pour transmettre les donnees de voyage aleatoire entre composants
+- Methodes : `set(sounds, name, color)`, `get()`, `hasData()`, `clear()`
+- Utilise par `random-journey-sheet` (ecriture) et `mapfly` (lecture)
+
 ### Mapfly (`features/map/pages/mapfly/`)
 
 - `ViewEncapsulation.None` (styles globaux pour popups Leaflet)
 - **Featured mode** : animation cinematique fly-in, overlay violet, popup avec header violet
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
+
+#### Journey mode - popups et stepper
+
+- **Popup header** : gradient d'opacite premium (`linear-gradient(180deg, ${color} 0%, ${color}cc 100%)`)
+- **Popup contenu** : inclut `shortStory` et liens externes (`url`, `urlTitle`, `secondaryUrl`, `secondaryUrlTitle`)
+- **Stepper** (indicateur d'etapes) : dots horizontaux enveloppes dans `.journey-stepper-scroll-wrap` avec fleches de navigation (chevrons gauche/droite)
+- **Scrollbar** : masquee (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`), remplacee par les fleches visibles
+- **Scroll desktop** : evenement `wheel` converti en scroll horizontal + clic fleches (80px smooth)
+- **Visibilite fleches** : `updateArrows()` masque les fleches aux extremites du scroll
+- **Bouton "Terminer"** (derniere etape) : navigue vers `/journeys` (liste des voyages sonores)
 
 ### Welcome / Goodbye Overlay (`app.component`)
 
@@ -230,8 +347,24 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 
 - Dark theme : toujours via `:host-context(body.dark-theme) &` (pas de media query)
 - Mobile portrait : `@media (max-width: 700px) and (orientation: portrait)`
+- Desktop only : `@media (min-width: 701px)` pour scoper les styles desktop (eviter fuite sur mobile)
 - Texture grain : variable `$noise-texture` (SVG feTurbulence inline)
 - Animations d'entree : `@keyframes fadeInUp`, `@keyframes slideUpBar`
+- **Fil bleu-indigo** : `$primary-indigo` (`#3f51b5`) utilise comme fil conducteur dans les surfaces, borders, shadows, accents de tous les composants mobile (home cards, map, footer, chips) pour creer une coherence visuelle premium
+
+## Couleurs adoucies par categorie (voyages sonores)
+
+`softenColor()` applique un mix 55% couleur originale + 45% base sombre pour les popups/indicateurs de voyage sur la carte :
+
+| Categorie | Couleur vive | Couleur adoucie |
+|-----------|-------------|-----------------|
+| ambiancefly | `#3AE27A` | `~#2d8a56` (vert sauge) |
+| animalfly | `#FF54F9` | `~#9c3ca7` (prune) |
+| foodfly | `#E8A849` | `~#8d6c3a` (bronze) |
+| humanfly | `#FFC1F7` | `~#9c7ba7` (orchidee) |
+| musicfly | `#D60101` | `~#872114` (bordeaux) |
+| naturalfly | `#39AFF7` | `~#2d73a7` (azur profond) |
+| Toutes | — | `#5c6a8a` (slate-indigo) |
 
 ## Fichiers temporaires a ignorer
 

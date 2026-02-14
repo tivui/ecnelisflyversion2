@@ -8,6 +8,7 @@ import { pickDailyFeaturedSound } from '../functions/pick-daily-featured-sound/r
 import { pickMonthlyQuiz } from '../functions/pick-monthly-quiz/resource';
 import { pickMonthlyArticle } from '../functions/pick-monthly-article/resource';
 import { pickMonthlyZone } from '../functions/pick-monthly-zone/resource';
+import { pickMonthlyJourney } from '../functions/pick-monthly-journey/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 
@@ -261,6 +262,7 @@ const schema = a
         createdBy: a.id(),
 
         journeySteps: a.hasMany('SoundJourneyStep', 'journeyId'),
+        monthlyJourneys: a.hasMany('MonthlyJourney', 'journeyId'),
       })
       .secondaryIndexes((index) => [
         index('slug').queryField('getJourneyBySlug'),
@@ -534,6 +536,34 @@ const schema = a
         allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
+    // ============ MONTHLY JOURNEY ============
+
+    MonthlyJourney: a
+      .model({
+        id: a.id().required(),
+        journeyId: a.id().required(),
+        journey: a.belongsTo('SoundJourney', 'journeyId'),
+        month: a.string().required(),
+        active: a.boolean().default(true),
+        // Denormalized journey fields for fast reads
+        journeyName: a.string(),
+        journeyName_i18n: a.json(),
+        journeyDescription: a.string(),
+        journeyDescription_i18n: a.json(),
+        journeySlug: a.string(),
+        journeyColor: a.string(),
+        journeyCoverImage: a.string(),
+      })
+      .secondaryIndexes((index) => [
+        index('month').queryField('getMonthlyJourneyByMonth'),
+      ])
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
     // ============ IMPORT ============
 
     ImportJob: a
@@ -636,6 +666,7 @@ const schema = a
     allow.resource(pickMonthlyQuiz),
     allow.resource(pickMonthlyArticle),
     allow.resource(pickMonthlyZone),
+    allow.resource(pickMonthlyJourney),
     allow.resource(startImport),
     allow.resource(processImport),
   ]);

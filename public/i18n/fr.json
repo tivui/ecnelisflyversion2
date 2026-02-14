@@ -32,7 +32,8 @@
       "play": "Jouer",
       "newArticle": "Nouvel Article",
       "readArticle": "Lire",
-      "monthlyZone": "Terroir du mois"
+      "monthlyZone": "Terroir du mois",
+      "monthlyJourney": "Voyage du mois"
     },
     "zones": {
       "title": "Explorer par terroirs",

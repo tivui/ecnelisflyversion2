@@ -32,7 +32,8 @@
       "play": "Jugar",
       "newArticle": "Nuevo Artículo",
       "readArticle": "Leer",
-      "monthlyZone": "Terruño del mes"
+      "monthlyZone": "Terruño del mes",
+      "monthlyJourney": "Viaje del mes"
     },
     "zones": {
       "title": "Explorar por terruños",
