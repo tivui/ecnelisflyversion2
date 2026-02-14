@@ -116,9 +116,7 @@
   }
 }
 
-// =====================
-// Featured Pulse Circle on Map
-// =====================
+// Featured & Journey Pulse Circles
 :host ::ng-deep .featured-pulse-circle {
   animation: map-pulse 2s ease-out infinite;
 }
@@ -293,9 +291,6 @@
   animation: featured-title-glow 3s ease-in-out infinite;
 }
 
-// =====================
-// Journey Pulse Circle on Map
-// =====================
 :host ::ng-deep .journey-pulse-circle {
   animation: map-pulse 2s ease-out infinite;
 }
@@ -358,9 +353,7 @@
   }
 }
 
-// =====================
 // Journey Stepper Control
-// =====================
 .journey-stepper-control {
   pointer-events: auto;
 }
@@ -441,13 +434,49 @@
   }
 }
 
+.journey-stepper-scroll-wrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.stepper-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+  flex-shrink: 0;
+
+  .material-icons { font-size: 16px; }
+
+  body.light-theme & {
+    background: rgba(0,0,0,0.06);
+    color: #666;
+    &:hover { background: rgba(0,0,0,0.12); }
+  }
+  body.dark-theme & {
+    background: rgba(255,255,255,0.08);
+    color: #aaa;
+    &:hover { background: rgba(255,255,255,0.16); }
+  }
+}
+
 .journey-stepper-dots {
   display: flex;
   align-items: center;
-  gap: 0;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 4px 6px;
+  padding: 4px 2px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .journey-step-dot {
@@ -532,9 +561,7 @@
   }
 }
 
-// =====================
 // Featured Popup Styles
-// =====================
 .featured-popup-header {
   margin: -8px -8px 8px -8px;
   padding: 10px 14px;
@@ -558,12 +585,10 @@
   letter-spacing: 0.5px;
 }
 
-// =====================
 // Journey Popup Styles
-// =====================
 .journey-popup-header {
   margin: -8px -8px 8px -8px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 6px 6px 0 0;
   color: #fff;
   display: flex;

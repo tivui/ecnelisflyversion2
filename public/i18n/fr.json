@@ -77,6 +77,18 @@
       "title": "Aucun voyage disponible",
       "message": "Il n'y a pas encore de voyages sonores à explorer. Revenez bientôt !",
       "exploreMap": "Explorer la carte mondiale"
+    },
+    "random": {
+      "title": "Voyage aléatoire",
+      "description": "Créez votre propre aventure sonore éphémère",
+      "configure": "Configurer",
+      "journeyName": "Voyage aléatoire",
+      "soundCount": "Nombre de sons",
+      "category": "Catégorie",
+      "allCategories": "Toutes",
+      "launch": "Lancer le voyage",
+      "loading": "Préparation du voyage...",
+      "notEnough": "Pas assez de sons disponibles pour cette sélection"
     }
   },
   "quiz": {

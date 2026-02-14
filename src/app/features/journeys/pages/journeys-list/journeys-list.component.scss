@@ -1,8 +1,9 @@
 // =====================
 // Variables
 // =====================
-$accent: #0097a7;
-$accent-light: #4dd0e1;
+$accent: #5c6a8a;
+$accent-light: #a0b0cc;
+$accent-dark: #2e3548;
 $primary-blue: #1976d2;
 $primary-indigo: #3f51b5;
 
@@ -55,8 +56,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: linear-gradient(135deg, #004d5e, #0097a7);
-  box-shadow: 0 4px 16px rgba(#004d5e, 0.25), 0 0 0 3px rgba($accent, 0.2);
+  background: linear-gradient(135deg, $accent-dark, $accent);
+  box-shadow: 0 4px 16px rgba($accent-dark, 0.25), 0 0 0 3px rgba($accent, 0.2);
 
   mat-icon {
     font-size: 28px;
@@ -103,34 +104,6 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   padding: 60px;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60px 20px;
-  text-align: center;
-
-  mat-icon {
-    font-size: 56px;
-    width: 56px;
-    height: 56px;
-    color: #bbb;
-    margin-bottom: 16px;
-
-    :host-context(body.dark-theme) & {
-      color: #555;
-    }
-  }
-
-  p {
-    color: #888;
-    font-size: 0.95rem;
-
-    :host-context(body.dark-theme) & {
-      color: #777;
-    }
-  }
-}
 
 // =====================
 // Grid
@@ -202,7 +175,7 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: $noise-texture repeat, linear-gradient(135deg, #004d5e 0%, #0097a7 100%);
+  background: $noise-texture repeat, linear-gradient(135deg, $accent-dark 0%, $accent 100%);
   background-blend-mode: overlay, normal;
 
   // Floating orbs
@@ -211,9 +184,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle 60px at 15% 30%, rgba(0, 151, 167, 0.28) 0%, transparent 100%),
-      radial-gradient(circle 45px at 85% 65%, rgba(77, 208, 225, 0.22) 0%, transparent 100%),
-      radial-gradient(circle 30px at 50% 5%, rgba(128, 222, 234, 0.14) 0%, transparent 100%);
+      radial-gradient(circle 60px at 15% 30%, rgba($accent, 0.28) 0%, transparent 100%),
+      radial-gradient(circle 45px at 85% 65%, rgba($accent-light, 0.22) 0%, transparent 100%),
+      radial-gradient(circle 30px at 50% 5%, rgba($accent-light, 0.14) 0%, transparent 100%);
     z-index: 0;
   }
 
@@ -304,6 +277,120 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 }
 
 .journey-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $accent;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  :host-context(body.dark-theme) & {
+    color: $accent-light;
+  }
+}
+
+// =====================
+// Random Journey Card
+// =====================
+.random-journey-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 6px rgba(0, 0, 0, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-left: 3px solid rgba($accent, 0.35);
+  max-width: 960px;
+  margin: 0 auto 24px;
+
+  :host-context(body.dark-theme) & {
+    background: rgba(30, 30, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: #eee;
+    border-left: 3px solid rgba($accent-light, 0.3);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    :host-context(body.dark-theme) & {
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-icon-circle {
+      transform: scale(1.08);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  @media (max-width: 700px) {
+    margin-bottom: 16px;
+  }
+}
+
+.random-card-visual {
+  position: relative;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: $noise-texture repeat, linear-gradient(135deg, $accent-dark 0%, $accent 100%);
+  background-blend-mode: overlay, normal;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle 60px at 20% 40%, rgba($accent, 0.3) 0%, transparent 100%),
+      radial-gradient(circle 40px at 80% 60%, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.08) 43%,
+      rgba(255, 255, 255, 0.16) 50%,
+      rgba(255, 255, 255, 0.08) 57%,
+      transparent 70%
+    );
+    z-index: 0;
+  }
+
+  .card-icon-circle {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  @media (max-width: 700px) {
+    height: 68px;
+  }
+}
+
+.random-cta {
   display: inline-flex;
   align-items: center;
   gap: 5px;

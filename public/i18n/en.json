@@ -77,6 +77,18 @@
       "title": "No journeys available",
       "message": "There are no sound journeys to explore yet. Check back soon!",
       "exploreMap": "Explore the world map"
+    },
+    "random": {
+      "title": "Random journey",
+      "description": "Create your own ephemeral sound adventure",
+      "configure": "Configure",
+      "journeyName": "Random journey",
+      "soundCount": "Number of sounds",
+      "category": "Category",
+      "allCategories": "All",
+      "launch": "Start journey",
+      "loading": "Preparing journey...",
+      "notEnough": "Not enough sounds available for this selection"
     }
   },
   "quiz": {
