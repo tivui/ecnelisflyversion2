@@ -1732,7 +1732,8 @@
       }
     }
 
-    &:active::after {
+    // Show tooltip on first tap (class toggled by JS)
+    &.tooltip-visible::after {
       opacity: 1;
       transform: translateX(-50%) scale(1);
     }

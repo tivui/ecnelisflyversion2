@@ -142,6 +142,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public hasWeekSounds = signal(false);
   public hasMonthSounds = signal(false);
   public normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[] = [];
+  // Mobile tooltip: first tap reveals label, second tap activates filter
+  public timeFilterTooltip = signal<string | null>(null);
+  private timeFilterTooltipTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly categoryColors: Record<string, string> = {
     ambiancefly: '#3AE27A',
@@ -2447,6 +2450,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
     });
     this.hasWeekSounds.set(weekCount > 0);
     this.hasMonthSounds.set(monthCount > 0);
+  }
+
+  public onTimeFilterClick(filter: 'all' | 'latest10' | 'week' | 'month'): void {
+    const isMobile = window.matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
+    if (isMobile && this.timeFilterTooltip() !== filter) {
+      // First tap on mobile: show tooltip only
+      this.timeFilterTooltip.set(filter);
+      if (this.timeFilterTooltipTimer) clearTimeout(this.timeFilterTooltipTimer);
+      this.timeFilterTooltipTimer = setTimeout(() => this.timeFilterTooltip.set(null), 3000);
+      return;
+    }
+    // Second tap (tooltip already visible) or desktop: activate filter
+    this.timeFilterTooltip.set(null);
+    if (this.timeFilterTooltipTimer) { clearTimeout(this.timeFilterTooltipTimer); this.timeFilterTooltipTimer = null; }
+    this.toggleTimeFilter(filter);
   }
 
   public toggleTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {

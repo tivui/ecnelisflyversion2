@@ -162,24 +162,24 @@
   <!-- Time-based filter (normal mode only) -->
   @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0) {
     <div class="time-filter">
-      <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" [attr.data-label]="'mapfly.timeFilter.all' | translate" (click)="toggleTimeFilter('all')">
+      <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" [class.tooltip-visible]="timeFilterTooltip() === 'all'" [attr.data-label]="'mapfly.timeFilter.all' | translate" (click)="onTimeFilterClick('all')">
         <span class="material-icons time-filter-icon">public</span>
         <span class="time-filter-label">{{ 'mapfly.timeFilter.all' | translate }}</span>
         <span class="time-filter-count">{{ timeFilterCounts().all }}</span>
       </button>
-      <button class="time-filter-chip" [class.active]="timeFilter() === 'latest10'" [attr.data-label]="'mapfly.timeFilter.latest10' | translate" (click)="toggleTimeFilter('latest10')">
+      <button class="time-filter-chip" [class.active]="timeFilter() === 'latest10'" [class.tooltip-visible]="timeFilterTooltip() === 'latest10'" [attr.data-label]="'mapfly.timeFilter.latest10' | translate" (click)="onTimeFilterClick('latest10')">
         <span class="material-icons time-filter-icon">new_releases</span>
         <span class="time-filter-label">{{ 'mapfly.timeFilter.latest10' | translate }}</span>
       </button>
       @if (hasWeekSounds()) {
-        <button class="time-filter-chip" [class.active]="timeFilter() === 'week'" [attr.data-label]="'mapfly.timeFilter.week' | translate" (click)="toggleTimeFilter('week')">
+        <button class="time-filter-chip" [class.active]="timeFilter() === 'week'" [class.tooltip-visible]="timeFilterTooltip() === 'week'" [attr.data-label]="'mapfly.timeFilter.week' | translate" (click)="onTimeFilterClick('week')">
           <span class="material-icons time-filter-icon">date_range</span>
           <span class="time-filter-label">{{ 'mapfly.timeFilter.week' | translate }}</span>
           <span class="time-filter-count">{{ timeFilterCounts().week }}</span>
         </button>
       }
       @if (hasMonthSounds()) {
-        <button class="time-filter-chip" [class.active]="timeFilter() === 'month'" [attr.data-label]="'mapfly.timeFilter.month' | translate" (click)="toggleTimeFilter('month')">
+        <button class="time-filter-chip" [class.active]="timeFilter() === 'month'" [class.tooltip-visible]="timeFilterTooltip() === 'month'" [attr.data-label]="'mapfly.timeFilter.month' | translate" (click)="onTimeFilterClick('month')">
           <span class="material-icons time-filter-icon">calendar_month</span>
           <span class="time-filter-label">{{ 'mapfly.timeFilter.month' | translate }}</span>
           <span class="time-filter-count">{{ timeFilterCounts().month }}</span>

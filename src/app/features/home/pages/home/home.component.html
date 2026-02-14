@@ -41,10 +41,7 @@
             @case ('quiz') {
               <a class="hero-card hero-card-quiz"
                 [class.long-pressed]="longPressedCard() === 'quiz'"
-                (pointerdown)="onCardPointerDown('quiz', $event)"
-                (pointerup)="onCardPointerUp('quiz')"
-                (pointerleave)="onCardPointerUp('quiz')"
-                (click)="!isMobileGrid() && navigateToCard('quiz')"
+                (click)="onCardClick('quiz')"
                 [routerLink]="isMobileGrid() ? null : '/quiz/' + monthlyQuiz()!.id">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
@@ -55,7 +52,7 @@
                 <div class="hero-card-content">
                   <h3>{{ quizTitle() }}</h3>
                   <p class="hero-card-desc">{{ quizDescription() }}</p>
-                  <span class="hero-card-cta">
+                  <span class="hero-card-cta" (click)="onCardCtaClick('quiz', $event)">
                     {{ 'home.hero.play' | translate }}
                     <mat-icon>arrow_forward</mat-icon>
                   </span>
@@ -65,10 +62,7 @@
             @case ('article') {
               <a class="hero-card hero-card-article"
                 [class.long-pressed]="longPressedCard() === 'article'"
-                (pointerdown)="onCardPointerDown('article', $event)"
-                (pointerup)="onCardPointerUp('article')"
-                (pointerleave)="onCardPointerUp('article')"
-                (click)="!isMobileGrid() && navigateToCard('article')"
+                (click)="onCardClick('article')"
                 [routerLink]="isMobileGrid() ? null : '/articles/' + latestArticle()!.slug">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
@@ -79,7 +73,7 @@
                 <div class="hero-card-content">
                   <h3>{{ articleTitle() }}</h3>
                   <p class="hero-card-desc">{{ articleDescription() }}</p>
-                  <span class="hero-card-cta">
+                  <span class="hero-card-cta" (click)="onCardCtaClick('article', $event)">
                     {{ 'home.hero.readArticle' | translate }}
                     <mat-icon>arrow_forward</mat-icon>
                   </span>
@@ -90,10 +84,7 @@
               <a class="hero-card hero-card-monthly-zone"
                 [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'"
                 [class.long-pressed]="longPressedCard() === 'monthlyZone'"
-                (pointerdown)="onCardPointerDown('monthlyZone', $event)"
-                (pointerup)="onCardPointerUp('monthlyZone')"
-                (pointerleave)="onCardPointerUp('monthlyZone')"
-                (click)="!isMobileGrid() && goToMonthlyZone()">
+                (click)="onCardClick('monthlyZone')">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
@@ -103,7 +94,7 @@
                 <div class="hero-card-content">
                   <h3>{{ monthlyZoneName() }}</h3>
                   <p class="hero-card-desc">{{ monthlyZoneDescription() }}</p>
-                  <span class="hero-card-cta">
+                  <span class="hero-card-cta" (click)="onCardCtaClick('monthlyZone', $event)">
                     {{ 'home.hero.explore' | translate }}
                     <mat-icon>arrow_forward</mat-icon>
                   </span>
@@ -113,10 +104,7 @@
             @case ('monthlyJourney') {
               <a class="hero-card hero-card-journey"
                 [class.long-pressed]="longPressedCard() === 'monthlyJourney'"
-                (pointerdown)="onCardPointerDown('monthlyJourney', $event)"
-                (pointerup)="onCardPointerUp('monthlyJourney')"
-                (pointerleave)="onCardPointerUp('monthlyJourney')"
-                (click)="!isMobileGrid() && goToMonthlyJourney()">
+                (click)="onCardClick('monthlyJourney')">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>route</mat-icon>
@@ -126,7 +114,7 @@
                 <div class="hero-card-content">
                   <h3>{{ monthlyJourneyName() }}</h3>
                   <p class="hero-card-desc">{{ monthlyJourneyDescription() }}</p>
-                  <span class="hero-card-cta">
+                  <span class="hero-card-cta" (click)="onCardCtaClick('monthlyJourney', $event)">
                     {{ 'home.hero.startJourney' | translate }}
                     <mat-icon>arrow_forward</mat-icon>
                   </span>
@@ -136,10 +124,7 @@
             @case ('featured') {
               <a class="hero-card hero-card-featured"
                 [class.long-pressed]="longPressedCard() === 'featured'"
-                (pointerdown)="onCardPointerDown('featured', $event)"
-                (pointerup)="onCardPointerUp('featured')"
-                (pointerleave)="onCardPointerUp('featured')"
-                (click)="!isMobileGrid() && goToFeaturedSound()">
+                (click)="onCardClick('featured')">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
                     <mat-icon>headphones</mat-icon>
@@ -149,7 +134,7 @@
                 <div class="hero-card-content">
                   <h3>{{ dailyFeatured()!.soundTitle }}</h3>
                   <p class="hero-card-desc">{{ teasingText() }}</p>
-                  <span class="hero-card-cta">
+                  <span class="hero-card-cta" (click)="onCardCtaClick('featured', $event)">
                     {{ 'home.hero.listen' | translate }}
                     <mat-icon>arrow_forward</mat-icon>
                   </span>
