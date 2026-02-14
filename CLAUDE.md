@@ -179,6 +179,53 @@ Chaque quiz peut avoir une icone Material associee, configurable par l'admin. Me
 
 - Cle `admin.quiz.dialog.icon` : FR "Icone", EN "Icon", ES "Icono"
 
+## Filtre temporel carte mondiale (Time Filter)
+
+### Principe
+
+Filtrage 100% client-side des markers sur la carte mondiale (mode normal uniquement). Permet de voir les 10 derniers sons, ceux de la semaine, ou du mois. Les chips "Semaine" et "Mois" n'apparaissent que si des sons correspondants existent.
+
+### Pipeline de donnees
+
+- `createdAt` (auto-genere par Amplify/DynamoDB) inclus dans la query GraphQL `ListSoundsForMapWithAppUser`
+- Mappe dans `Sound.createdAt` (type `Date`) via `sounds.service.ts`
+- Aucun changement backend : la Lambda retourne deja `...sound` (spread de tous les champs)
+
+### Architecture markers (point critique)
+
+Les markers sont ajoutes dans **deux couches** simultanement : `fgAll` (master group) ET un subgroup categorie (`fg1`-`fg9`). Tous sont enfants de `markersCluster` (L.markerClusterGroup). Pour masquer un marker, il faut utiliser `markersCluster.removeLayer()` / `addLayer()` directement — retirer de `fgAll` seul ne suffit pas car le marker reste visible via le subgroup categorie.
+
+### Variable shadowing (piege connu)
+
+Dans la boucle de creation des markers, `const category: CategoryKey = s.category!` shadows le `category` des route params. Le flag `isNormalMode` doit etre calcule **avant** la boucle for pour eviter ce piege.
+
+### Signals
+
+```typescript
+timeFilter: signal<'all' | 'latest10' | 'week' | 'month'>('all')
+timeFilterCounts: signal<{ all, latest10, week, month }>
+hasWeekSounds: signal<boolean>
+hasMonthSounds: signal<boolean>
+normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[]
+```
+
+### Methodes cles
+
+- `computeTimeFilterCounts()` : calcule compteurs et determine visibilite des chips conditionnels
+- `toggleTimeFilter(filter)` : toggle (re-clic = retour a 'all'), meme pattern que le filtre saisonnier
+- `applyTimeFilter(filter)` : `markersCluster.removeLayer/addLayer` + `flyToBounds` vers markers visibles
+
+### UI
+
+- **Desktop** : chips glassmorphism avec icone + label + compteur, `left: 58px` (apres boutons zoom)
+- **Mobile portrait** : icons-only compactes, tooltip au press (`:active::after` avec `attr(data-label)`)
+- **Dark/light** : fond opaque sur chips actifs (`rgba(21,101,192,0.85)`, texte blanc) pour lisibilite sur fond satellite
+- **Condition d'affichage** : mode normal uniquement (`!zoneId && !category && !secondaryCategory && !userId`)
+
+### i18n
+
+Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
+
 ## Conventions SCSS
 
 - Dark theme : toujours via `:host-context(body.dark-theme) &` (pas de media query)

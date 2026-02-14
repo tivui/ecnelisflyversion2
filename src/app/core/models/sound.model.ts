@@ -43,6 +43,7 @@ export class Sound {
   hashtags?: string;
 
   likesCount?: number;
+  createdAt?: Date;
 
   constructor(init?: Partial<Sound>) {
     Object.assign(this, init);

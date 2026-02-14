@@ -827,6 +827,12 @@
       "next": "Siguiente",
       "finish": "Terminar",
       "step": "Etapa"
+    },
+    "timeFilter": {
+      "all": "Todos",
+      "latest10": "10 recientes",
+      "week": "Semana",
+      "month": "Mes"
     }
   },
   "categories": {

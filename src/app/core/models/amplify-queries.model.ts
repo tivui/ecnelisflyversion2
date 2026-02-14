@@ -28,6 +28,7 @@ export const ListSoundsForMapWithAppUser = /* GraphQL */ `
       urlTitle
       hashtags
       likesCount
+      createdAt
     }
   }
 `;

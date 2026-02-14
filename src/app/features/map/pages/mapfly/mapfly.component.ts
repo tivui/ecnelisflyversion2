@@ -132,6 +132,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public categoryFilterOverlay = signal('');
   public categorySoundCount = signal(0);
 
+  // Time-based filter (normal mode only)
+  public timeFilter = signal<'all' | 'latest10' | 'week' | 'month'>('all');
+  public timeFilterCounts = signal<{ all: number; latest10: number; week: number; month: number }>({
+    all: 0, latest10: 0, week: 0, month: 0,
+  });
+  public hasWeekSounds = signal(false);
+  public hasMonthSounds = signal(false);
+  public normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[] = [];
+
   private readonly categoryColors: Record<string, string> = {
     ambiancefly: '#3AE27A',
     animalfly: '#FF54F9',
@@ -543,6 +552,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // FeatureGroup pour recherche (invisible)
       const fgSearch = L.featureGroup().addTo(this.map);
 
+      const isNormalMode = !zoneId && !category && !secondaryCategory && !userId;
+
       for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
         const catTronquee = s.secondaryCategory
           ? s.secondaryCategory.slice(0, -3)
@@ -628,6 +639,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
           const d = s.recordDateTime instanceof Date ? s.recordDateTime : new Date(s.recordDateTime);
           if (!isNaN(d.getTime())) {
             this.timelineMarkerMap.push({ date: d, marker: m });
+          }
+        }
+
+        // Store createdAt mapping for normal mode time filter
+        if (isNormalMode && s.createdAt) {
+          const ca = s.createdAt instanceof Date ? s.createdAt : new Date(s.createdAt as any);
+          if (!isNaN(ca.getTime())) {
+            this.normalModeMarkerMap.push({ createdAt: ca, marker: m });
           }
         }
 
@@ -869,6 +888,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // --- Initialize timeline if zone has it enabled ---
       if (zoneId && this.timelineMarkerMap.length > 0) {
         this.initTimeline();
+      }
+
+      // --- Compute time filter counts (normal mode only) ---
+      if (isNormalMode) {
+        this.computeTimeFilterCounts();
       }
 
       // --- Fit bounds when filtering by category ---
@@ -2283,6 +2307,92 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const container = (this.journeyStepperControl as any)._container;
     if (container?.__updateStepper) {
       container.__updateStepper(this.currentJourneyStep());
+    }
+  }
+
+  // =====================================================
+  // Time-Based Filter — normal mode only
+  // =====================================================
+  private computeTimeFilterCounts(): void {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const all = this.normalModeMarkerMap.length;
+    const weekCount = this.normalModeMarkerMap.filter(e => e.createdAt >= oneWeekAgo).length;
+    const monthCount = this.normalModeMarkerMap.filter(e => e.createdAt >= oneMonthAgo).length;
+
+    this.timeFilterCounts.set({
+      all,
+      latest10: Math.min(10, all),
+      week: weekCount,
+      month: monthCount,
+    });
+    this.hasWeekSounds.set(weekCount > 0);
+    this.hasMonthSounds.set(monthCount > 0);
+  }
+
+  public toggleTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {
+    if (this.timeFilter() === filter && filter !== 'all') {
+      this.timeFilter.set('all');
+      this.applyTimeFilter('all');
+      return;
+    }
+    this.timeFilter.set(filter);
+    this.applyTimeFilter(filter);
+  }
+
+  private applyTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {
+    if (filter === 'all') {
+      for (const entry of this.normalModeMarkerMap) {
+        if (!this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.addLayer(entry.marker);
+        }
+      }
+      return;
+    }
+
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    let passingSet: Set<L.Marker>;
+
+    if (filter === 'latest10') {
+      const sorted = [...this.normalModeMarkerMap].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      );
+      passingSet = new Set(sorted.slice(0, 10).map(e => e.marker));
+    } else if (filter === 'week') {
+      passingSet = new Set(
+        this.normalModeMarkerMap.filter(e => e.createdAt >= oneWeekAgo).map(e => e.marker)
+      );
+    } else {
+      passingSet = new Set(
+        this.normalModeMarkerMap.filter(e => e.createdAt >= oneMonthAgo).map(e => e.marker)
+      );
+    }
+
+    for (const entry of this.normalModeMarkerMap) {
+      if (passingSet.has(entry.marker)) {
+        if (!this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.addLayer(entry.marker);
+        }
+      } else {
+        if (this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.removeLayer(entry.marker);
+        }
+      }
+    }
+
+    // Fly to bounds of visible markers
+    if (passingSet.size > 0) {
+      const bounds = L.latLngBounds(
+        Array.from(passingSet).map(m => m.getLatLng())
+      );
+      if (bounds.isValid()) {
+        this.map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 15, duration: 1.2 });
+      }
     }
   }
 

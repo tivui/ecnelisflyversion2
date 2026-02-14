@@ -854,6 +854,12 @@
       "count": "{{count}} sounds",
       "countOne": "1 sound",
       "lonely": "A lone wolf... waiting for friends!"
+    },
+    "timeFilter": {
+      "all": "All",
+      "latest10": "Latest 10",
+      "week": "This week",
+      "month": "This month"
     }
   },
   "categories": {

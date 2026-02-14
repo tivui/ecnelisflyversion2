@@ -855,6 +855,12 @@
       "count": "{{count}} sons",
       "countOne": "1 son",
       "lonely": "Un peu seul... il attend de la compagnie !"
+    },
+    "timeFilter": {
+      "all": "Tous",
+      "latest10": "10 derniers",
+      "week": "Semaine",
+      "month": "Mois"
     }
   },
   "categories": {
