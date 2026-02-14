@@ -23,6 +23,7 @@ export interface Quiz {
   difficulty: QuizDifficulty;
   category?: string;
   imageKey?: string;
+  icon?: string;
   status: QuizStatus;
   questionCount: number;
   totalPlays: number;

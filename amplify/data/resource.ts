@@ -308,6 +308,7 @@ const schema = a
         difficulty: a.ref('QuizDifficulty').required(),
         category: a.string(),
         imageKey: a.string(),
+        icon: a.string(),
         status: a.ref('QuizStatus').required(),
         questionCount: a.integer().default(0),
         totalPlays: a.integer().default(0),

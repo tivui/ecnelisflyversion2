@@ -41,6 +41,7 @@ export class QuizService {
       difficulty: raw.difficulty as QuizDifficulty,
       category: raw.category ?? undefined,
       imageKey: raw.imageKey ?? undefined,
+      icon: raw.icon ?? undefined,
       status: raw.status as QuizStatus,
       questionCount: raw.questionCount ?? 0,
       totalPlays: raw.totalPlays ?? 0,
@@ -165,6 +166,7 @@ export class QuizService {
     difficulty: QuizDifficulty;
     category?: string;
     imageKey?: string;
+    icon?: string;
     status: QuizStatus;
   }): Promise<Quiz> {
     const result = await this.client.models.Quiz.create({
@@ -180,6 +182,7 @@ export class QuizService {
       difficulty: data.difficulty,
       category: data.category,
       imageKey: data.imageKey,
+      icon: data.icon,
       status: data.status,
       questionCount: 0,
       totalPlays: 0,
@@ -201,6 +204,7 @@ export class QuizService {
       difficulty: QuizDifficulty;
       category: string;
       imageKey: string;
+      icon: string;
       status: QuizStatus;
       questionCount: number;
       totalPlays: number;
@@ -219,6 +223,7 @@ export class QuizService {
       input['difficulty'] = updates.difficulty;
     if (updates.category !== undefined) input['category'] = updates.category;
     if (updates.imageKey !== undefined) input['imageKey'] = updates.imageKey;
+    if (updates.icon !== undefined) input['icon'] = updates.icon;
     if (updates.status !== undefined) input['status'] = updates.status;
     if (updates.questionCount !== undefined)
       input['questionCount'] = updates.questionCount;

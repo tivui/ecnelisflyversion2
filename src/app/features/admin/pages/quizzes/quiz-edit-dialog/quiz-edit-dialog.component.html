@@ -42,6 +42,20 @@
             <mat-label>{{ 'admin.quiz.dialog.category' | translate }}</mat-label>
             <input matInput formControlName="category" />
           </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>{{ 'admin.quiz.dialog.icon' | translate }}</mat-label>
+            <mat-select formControlName="icon">
+              @for (ic of availableIcons; track ic.value) {
+                <mat-option [value]="ic.value">
+                  <span class="icon-option">
+                    <mat-icon>{{ ic.value }}</mat-icon>
+                    {{ ic.label }}
+                  </span>
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
       </mat-tab>
 

@@ -645,6 +645,7 @@
         "description": "Descripción",
         "difficulty": "Dificultad",
         "category": "Categoría",
+        "icon": "Icono",
         "status": "Estado",
         "createSuccess": "Quiz creado con éxito",
         "updateSuccess": "Quiz actualizado con éxito",

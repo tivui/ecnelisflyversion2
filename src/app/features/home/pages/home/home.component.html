@@ -42,7 +42,7 @@
               <a routerLink="/quiz/{{ monthlyQuiz()!.id }}" class="hero-card hero-card-quiz">
                 <div class="hero-card-visual">
                   <div class="hero-card-icon">
-                    <mat-icon>quiz</mat-icon>
+                    <mat-icon>{{ monthlyQuiz()!.icon || 'quiz' }}</mat-icon>
                   </div>
                   <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
                 </div>
