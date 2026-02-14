@@ -180,6 +180,53 @@ Design Material/Android sobre — tuiles propres sans fond lourd :
 - `margin-bottom: 1.4em` sur `.hero-card-desc` (desktop only) pour creer un espace d'une ligne vide entre le texte et le CTA
 - `.hero-card-cta` a `margin-top: auto` pour etre pousse en bas de la card
 
+#### Desktop XL (`@media min-width: 1920px`)
+
+Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile, desktop normal).
+
+**Architecture breakpoints :**
+- Mobile : `max-width: 700px, orientation: portrait`
+- Desktop normal : `min-width: 701px` (gradients, reveal) + `min-width: 701px and max-width: 1919px` (cache 4eme card)
+- Desktop XL : `min-width: 1920px` (layout hero + polish)
+
+**Layout :**
+- `.hero-actions` : `flex-wrap: wrap; max-width: 1400px; margin: 0 auto; gap: 20px`
+- Carte Map : `width: 100%` pleine largeur hero au-dessus des secondary cards
+- Secondary cards : `display: flex; gap: 24px` — 4 cards `flex: 1 1 0` sans max-width rigide
+
+**Carte Map hero (sans video) :**
+- Video cachee en XL (`.map-card-video { display: none !important }`) — performances
+- Gradient premium `$gradient-pos-1` + noise texture + 4 orbs flottants
+- Icon glassmorphism 80px (`rgba(255,255,255,0.15)`, backdrop-filter blur)
+- Content overlay en bas : gradient `rgba(15,25,60,0.72)` → transparent
+- CTA pill compact : glassmorphism blanc, `align-self: flex-start`, `width: fit-content`
+- `min-height: 280px`, `border-radius: 22px`
+- Accent top bar : gradient `$primary-blue → $primary-indigo → $primary-violet`, 3px
+
+**Secondary cards :**
+- Visual gradient compact : `height: 90px` (icone + badge)
+- `border-left: none !important` (accent top bar suffit, pas de double accent)
+- CTA pills : `width: fit-content; align-self: flex-start`, accent color par type
+- `display: flex !important` (force l'affichage meme si un autre media query cache)
+
+**CTA accent par type de card :**
+
+| Card | CTA background/border (light) | CTA color (light) |
+|------|------------------------------|-------------------|
+| Featured | `rgba(#7c4dff, 0.10)` / `0.18` | `#6a3de8` |
+| Journey | `rgba(#5c6a8a, 0.10)` / `0.18` | `#5c6a8a` |
+| Article | `rgba($accent-article, 0.10)` / `0.18` | `$accent-article` |
+| Quiz | `rgba(#0d7c51, 0.10)` / `0.18` | `#0d7c51` |
+| Monthly Zone | `rgba(#b07c10, 0.10)` / `0.18` | `#b07c10` |
+
+**Accent top bars (secondary cards) :** gradient `$primary-indigo → accent color → accent-light` par type.
+
+**Featured distinction :** `border-color: rgba(#7c4dff, 0.14)` + `box-shadow` violet glow + `inset 0 0 0 1px rgba(#7c4dff, 0.04)`
+
+**Hero title compacte :** logo 64px (au lieu de 80px), margins reduits, padding-top: 0
+
+**Carousel section :** separateur gradient renforce (`$primary-blue → $primary-indigo → $primary-violet`), icon/titre colores indigo
+
 ### Voyages sonores (`features/journeys/`)
 
 #### Palette Slate-Indigo
@@ -348,6 +395,8 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 - Dark theme : toujours via `:host-context(body.dark-theme) &` (pas de media query)
 - Mobile portrait : `@media (max-width: 700px) and (orientation: portrait)`
 - Desktop only : `@media (min-width: 701px)` pour scoper les styles desktop (eviter fuite sur mobile)
+- Desktop XL only : `@media (min-width: 1920px)` pour les grands ecrans (ne pas toucher aux autres formats)
+- Non-XL desktop : `@media (min-width: 701px) and (max-width: 1919px)` pour cacher des elements XL-only
 - Texture grain : variable `$noise-texture` (SVG feTurbulence inline)
 - Animations d'entree : `@keyframes fadeInUp`, `@keyframes slideUpBar`
 - **Fil bleu-indigo** : `$primary-indigo` (`#3f51b5`) utilise comme fil conducteur dans les surfaces, borders, shadows, accents de tous les composants mobile (home cards, map, footer, chips) pour creer une coherence visuelle premium
