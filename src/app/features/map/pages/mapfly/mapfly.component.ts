@@ -39,6 +39,7 @@ import { SoundJourneyService } from '../../../../core/services/sound-journey.ser
 import { LikeService } from '../../../../core/services/like.service';
 import { AmbientAudioService } from '../../../../core/services/ambient-audio.service';
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
+import { EphemeralJourneyService } from '../../../../core/services/ephemeral-journey.service';
 
 @Component({
   selector: 'app-mapfly',
@@ -62,6 +63,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly likeService = inject(LikeService);
   private readonly ambientAudio = inject(AmbientAudioService);
+  private readonly ephemeralJourneyService = inject(EphemeralJourneyService);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -131,6 +133,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public categoryFilterColor = signal('');
   public categoryFilterOverlay = signal('');
   public categorySoundCount = signal(0);
+
+  // Time-based filter (normal mode only)
+  public timeFilter = signal<'all' | 'latest10' | 'week' | 'month'>('all');
+  public timeFilterCounts = signal<{ all: number; latest10: number; week: number; month: number }>({
+    all: 0, latest10: 0, week: 0, month: 0,
+  });
+  public hasWeekSounds = signal(false);
+  public hasMonthSounds = signal(false);
+  public normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[] = [];
 
   private readonly categoryColors: Record<string, string> = {
     ambiancefly: '#3AE27A',
@@ -239,6 +250,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
     if (journeyMode && journeyId) {
       this.isJourneyMode.set(true);
       this.initJourneyMode(journeyId);
+      return;
+    }
+
+    // Ephemeral journey mode (random)
+    const ephemeralJourney = params.get('ephemeralJourney') === 'true';
+    if (ephemeralJourney) {
+      this.isJourneyMode.set(true);
+      this.initEphemeralJourneyMode();
       return;
     }
 
@@ -543,6 +562,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // FeatureGroup pour recherche (invisible)
       const fgSearch = L.featureGroup().addTo(this.map);
 
+      const isNormalMode = !zoneId && !category && !secondaryCategory && !userId;
+
       for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
         const catTronquee = s.secondaryCategory
           ? s.secondaryCategory.slice(0, -3)
@@ -628,6 +649,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
           const d = s.recordDateTime instanceof Date ? s.recordDateTime : new Date(s.recordDateTime);
           if (!isNaN(d.getTime())) {
             this.timelineMarkerMap.push({ date: d, marker: m });
+          }
+        }
+
+        // Store createdAt mapping for normal mode time filter
+        if (isNormalMode && s.createdAt) {
+          const ca = s.createdAt instanceof Date ? s.createdAt : new Date(s.createdAt as any);
+          if (!isNaN(ca.getTime())) {
+            this.normalModeMarkerMap.push({ createdAt: ca, marker: m });
           }
         }
 
@@ -869,6 +898,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // --- Initialize timeline if zone has it enabled ---
       if (zoneId && this.timelineMarkerMap.length > 0) {
         this.initTimeline();
+      }
+
+      // --- Compute time filter counts (normal mode only) ---
+      if (isNormalMode) {
+        this.computeTimeFilterCounts();
       }
 
       // --- Fit bounds when filtering by category ---
@@ -1905,6 +1939,50 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   // =====================================================
+  // Ephemeral Journey Mode — random journey (not persisted)
+  // =====================================================
+  private async initEphemeralJourneyMode() {
+    if (!this.ephemeralJourneyService.hasData()) {
+      this.goToFullMap();
+      return;
+    }
+
+    // Create map (same cinematic start as regular journey)
+    this.map = L.map('mapfly', {
+      center: L.latLng(30, 2.5),
+      zoom: 3,
+      attributionControl: false,
+      zoomControl: false,
+    });
+    this.esri.addTo(this.map);
+
+    // Set journey signals from ephemeral data
+    const sounds = this.ephemeralJourneyService.sounds();
+    this.journeyColor.set(this.ephemeralJourneyService.color());
+    this.journeyName.set(this.ephemeralJourneyService.name());
+
+    // Create pseudo-steps
+    this.journeySteps = sounds.map((s, i) => ({
+      id: `ephemeral-${i}`,
+      journeyId: 'ephemeral',
+      soundId: s.id!,
+      stepOrder: i,
+    } as SoundJourneyStep));
+    this.journeySounds = sounds;
+    this.totalJourneySteps.set(sounds.length);
+
+    // Clean up ephemeral data
+    this.ephemeralJourneyService.clear();
+
+    // Show overlay + stepper + fly (same as regular journey)
+    this.journeyOverlayVisible.set(true);
+    this.createJourneyStepperControl();
+    setTimeout(() => {
+      this.flyToJourneyStep(0);
+    }, 1800);
+  }
+
+  // =====================================================
   // Journey Mode — multi-step cinematic journey
   // =====================================================
   private async initJourneyMode(journeyId: string) {
@@ -2044,7 +2122,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     marker.bindPopup(`
       <div class="popup-container journey-popup">
-        <div class="journey-popup-header" style="background-color: ${color};">
+        <div class="journey-popup-header" style="background: linear-gradient(180deg, ${color} 0%, ${color}cc 100%);">
           <span class="journey-step-badge">${stepLabel}</span>
           <div class="popup-header-row">
             <b class="journey-popup-title">${title}</b>
@@ -2055,6 +2133,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
+        ${sound.shortStory ? `<p class="popup-shortstory">${sound.shortStory}</p>` : ''}
+        <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
         <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
           <source src="${url}" type="${mimeType}">
@@ -2069,6 +2149,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
     // Popup open logic
     marker.on('popupopen', () => {
       // Record info
+      // External links
+      const linksEl = document.getElementById(`journey-links-${stepIndex}`);
+      if (linksEl) {
+        const links: string[] = [];
+        if (sound.url) {
+          const text = sound.urlTitle?.trim() || sound.url;
+          links.push(`<a href="${sound.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+        }
+        if (sound.secondaryUrl) {
+          const text = sound.secondaryUrlTitle?.trim() || sound.secondaryUrl;
+          links.push(`<a href="${sound.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+        }
+        if (links.length) linksEl.innerHTML = links.join(' | ');
+      }
+
       const recordInfoEl = document.getElementById(`journey-record-info-${stepIndex}`);
       if (recordInfoEl && sound.user?.username) {
         const flagImg = sound.user.country
@@ -2123,7 +2218,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       if (finishBtn) {
         finishBtn.addEventListener('click', () => {
           marker.closePopup();
-          this.goToFullMap();
+          this.router.navigate(['/journeys']);
         });
       }
     });
@@ -2226,11 +2321,57 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 <span class="material-icons">close</span>
               </button>
             </div>
-            <div class="journey-stepper-dots">
-              ${dotsHtml}
+            <div class="journey-stepper-scroll-wrap">
+              <button class="stepper-arrow stepper-arrow-left" aria-label="Scroll left">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <div class="journey-stepper-dots">
+                ${dotsHtml}
+              </div>
+              <button class="stepper-arrow stepper-arrow-right" aria-label="Scroll right">
+                <span class="material-icons">chevron_right</span>
+              </button>
             </div>
           </div>
         `;
+
+        // Scroll arrows logic
+        const dotsRow = container.querySelector('.journey-stepper-dots') as HTMLElement;
+        const arrowL = container.querySelector('.stepper-arrow-left') as HTMLElement;
+        const arrowR = container.querySelector('.stepper-arrow-right') as HTMLElement;
+
+        const updateArrows = () => {
+          if (!dotsRow) return;
+          const canScroll = dotsRow.scrollWidth > dotsRow.clientWidth + 2;
+          if (arrowL) arrowL.style.display = canScroll && dotsRow.scrollLeft > 2 ? '' : 'none';
+          if (arrowR) arrowR.style.display = canScroll && dotsRow.scrollLeft < dotsRow.scrollWidth - dotsRow.clientWidth - 2 ? '' : 'none';
+        };
+
+        if (arrowL) {
+          L.DomEvent.on(arrowL, 'click', (e: Event) => {
+            L.DomEvent.stopPropagation(e);
+            dotsRow.scrollBy({ left: -80, behavior: 'smooth' });
+          });
+        }
+        if (arrowR) {
+          L.DomEvent.on(arrowR, 'click', (e: Event) => {
+            L.DomEvent.stopPropagation(e);
+            dotsRow.scrollBy({ left: 80, behavior: 'smooth' });
+          });
+        }
+
+        if (dotsRow) {
+          dotsRow.addEventListener('scroll', updateArrows);
+          // Wheel → horizontal scroll
+          L.DomEvent.on(dotsRow, 'wheel', (e: Event) => {
+            const we = e as WheelEvent;
+            if (dotsRow.scrollWidth > dotsRow.clientWidth) {
+              we.preventDefault();
+              dotsRow.scrollLeft += we.deltaY;
+            }
+          });
+        }
+        setTimeout(updateArrows, 100);
 
         // Handle dot clicks
         const dots = container.querySelectorAll('.journey-step-dot');
@@ -2283,6 +2424,92 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const container = (this.journeyStepperControl as any)._container;
     if (container?.__updateStepper) {
       container.__updateStepper(this.currentJourneyStep());
+    }
+  }
+
+  // =====================================================
+  // Time-Based Filter — normal mode only
+  // =====================================================
+  private computeTimeFilterCounts(): void {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const all = this.normalModeMarkerMap.length;
+    const weekCount = this.normalModeMarkerMap.filter(e => e.createdAt >= oneWeekAgo).length;
+    const monthCount = this.normalModeMarkerMap.filter(e => e.createdAt >= oneMonthAgo).length;
+
+    this.timeFilterCounts.set({
+      all,
+      latest10: Math.min(10, all),
+      week: weekCount,
+      month: monthCount,
+    });
+    this.hasWeekSounds.set(weekCount > 0);
+    this.hasMonthSounds.set(monthCount > 0);
+  }
+
+  public toggleTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {
+    if (this.timeFilter() === filter && filter !== 'all') {
+      this.timeFilter.set('all');
+      this.applyTimeFilter('all');
+      return;
+    }
+    this.timeFilter.set(filter);
+    this.applyTimeFilter(filter);
+  }
+
+  private applyTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {
+    if (filter === 'all') {
+      for (const entry of this.normalModeMarkerMap) {
+        if (!this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.addLayer(entry.marker);
+        }
+      }
+      return;
+    }
+
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    let passingSet: Set<L.Marker>;
+
+    if (filter === 'latest10') {
+      const sorted = [...this.normalModeMarkerMap].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      );
+      passingSet = new Set(sorted.slice(0, 10).map(e => e.marker));
+    } else if (filter === 'week') {
+      passingSet = new Set(
+        this.normalModeMarkerMap.filter(e => e.createdAt >= oneWeekAgo).map(e => e.marker)
+      );
+    } else {
+      passingSet = new Set(
+        this.normalModeMarkerMap.filter(e => e.createdAt >= oneMonthAgo).map(e => e.marker)
+      );
+    }
+
+    for (const entry of this.normalModeMarkerMap) {
+      if (passingSet.has(entry.marker)) {
+        if (!this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.addLayer(entry.marker);
+        }
+      } else {
+        if (this.markersCluster.hasLayer(entry.marker)) {
+          this.markersCluster.removeLayer(entry.marker);
+        }
+      }
+    }
+
+    // Fly to bounds of visible markers
+    if (passingSet.size > 0) {
+      const bounds = L.latLngBounds(
+        Array.from(passingSet).map(m => m.getLatLng())
+      );
+      if (bounds.isValid()) {
+        this.map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 15, duration: 1.2 });
+      }
     }
   }
 

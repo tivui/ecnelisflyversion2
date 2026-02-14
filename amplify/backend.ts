@@ -10,6 +10,7 @@ import { pickDailyFeaturedSound } from './functions/pick-daily-featured-sound/re
 import { pickMonthlyQuiz } from './functions/pick-monthly-quiz/resource';
 import { pickMonthlyArticle } from './functions/pick-monthly-article/resource';
 import { pickMonthlyZone } from './functions/pick-monthly-zone/resource';
+import { pickMonthlyJourney } from './functions/pick-monthly-journey/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
 
@@ -22,6 +23,7 @@ const backend = defineBackend({
   pickMonthlyQuiz,
   pickMonthlyArticle,
   pickMonthlyZone,
+  pickMonthlyJourney,
   startImport,
   processImport,
 });

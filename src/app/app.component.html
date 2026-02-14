@@ -149,9 +149,24 @@
 @if (welcomeVisible()) {
   <div class="welcome-overlay" [class.fade-out]="welcomeFadingOut()">
     <div class="welcome-card">
-      <h1 class="welcome-text">
-        {{ 'home.welcome' | translate: { name: welcomeUsername() } }}
-      </h1>
+      <img src="/img/logos/logo_blue_orange_left_round.png" alt="" class="welcome-logo" />
+      <p class="welcome-greeting">{{ 'home.welcomeGreeting' | translate }}</p>
+      <div class="welcome-divider"></div>
+      <h1 class="welcome-name">{{ welcomeUsername() }}</h1>
+      <p class="welcome-subtitle">{{ 'home.welcomeSubtitle' | translate }}</p>
+    </div>
+  </div>
+}
+
+<!-- Goodbye overlay on logout -->
+@if (goodbyeVisible()) {
+  <div class="welcome-overlay goodbye-overlay" [class.fade-out]="goodbyeFadingOut()">
+    <div class="welcome-card goodbye-card">
+      <img src="/img/logos/logo_blue_orange_left_round.png" alt="" class="welcome-logo" />
+      <p class="welcome-greeting">{{ 'home.goodbyeGreeting' | translate }}</p>
+      <div class="welcome-divider"></div>
+      <h1 class="welcome-name">{{ goodbyeUsername() }}</h1>
+      <p class="welcome-subtitle">{{ 'home.goodbyeSubtitle' | translate }}</p>
     </div>
   </div>
 }

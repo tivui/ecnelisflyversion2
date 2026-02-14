@@ -96,8 +96,10 @@
 }
 
 // =====================
-// Welcome Overlay
+// Welcome Overlay — Premium
 // =====================
+$welcome-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
 .welcome-overlay {
   position: fixed;
   inset: 0;
@@ -105,9 +107,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  animation: welcome-overlay-in 0.4s ease-out;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: welcome-overlay-in 0.5s ease-out;
   transition: opacity 1s ease;
 
   &.fade-out {
@@ -120,59 +123,162 @@
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 48px 64px;
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 20px;
-  box-shadow: 0 16px 48px rgba(25, 118, 210, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: welcome-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 52px 64px 44px;
+  min-width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 24px 64px rgba(25, 118, 210, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  animation: welcome-card-in 0.6s $welcome-ease both;
 
-  // Logo watermark in background
+  // Subtle radial glow behind card
   &::before {
     content: '';
     position: absolute;
-    width: 200px;
-    height: 200px;
-    background: url('/img/logos/logo_blue_orange_left_round.png') no-repeat center / contain;
-    opacity: 0.06;
+    inset: -40%;
+    background:
+      radial-gradient(ellipse 50% 50% at 30% 20%, rgba(#1976d2, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 70% 80%, rgba(#7e57c2, 0.04) 0%, transparent 60%);
     pointer-events: none;
+    z-index: 0;
   }
 
   :host-context(body.dark-theme) & {
-    background: rgba(28, 28, 42, 0.97);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: rgba(22, 22, 38, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.5),
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
     &::before {
-      opacity: 0.08;
+      background:
+        radial-gradient(ellipse 50% 50% at 30% 20%, rgba(#64b5f6, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 70% 80%, rgba(#b39ddb, 0.04) 0%, transparent 60%);
     }
   }
 
   @media (max-width: 480px) {
-    padding: 36px 28px;
-    margin: 0 16px;
+    padding: 36px 32px 28px;
+    min-width: 0;
+    width: calc(100% - 40px);
+    max-width: 340px;
+    border-radius: 20px;
   }
 }
 
-.welcome-text {
+.welcome-logo {
   position: relative;
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 600;
-  text-align: center;
-  letter-spacing: 0.3px;
-  color: #1a1a2e;
-  animation: welcome-text-in 0.5s ease-out 0.1s both;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 16px rgba(25, 118, 210, 0.2));
+  animation: welcome-logo-in 0.6s $welcome-ease 0.1s both;
 
   :host-context(body.dark-theme) & {
-    color: #f0f0f5;
+    filter: drop-shadow(0 4px 20px rgba(100, 181, 246, 0.25));
   }
 
   @media (max-width: 480px) {
-    font-size: 1.2rem;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 16px;
   }
 }
 
+.welcome-greeting {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #888;
+  animation: welcome-fade-in 0.5s $welcome-ease 0.2s both;
+
+  :host-context(body.dark-theme) & {
+    color: #999;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
+}
+
+.welcome-divider {
+  position: relative;
+  z-index: 1;
+  width: 64px;
+  height: 2px;
+  margin: 16px 0 18px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #1976d2, #F5A623);
+  animation: welcome-divider-in 0.6s $welcome-ease 0.3s both;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(90deg, #64b5f6, #FFD180);
+  }
+
+  @media (max-width: 480px) {
+    width: 52px;
+    margin: 14px 0 16px;
+  }
+}
+
+.welcome-name {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #F5A623 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: welcome-name-in 0.6s $welcome-ease 0.35s both;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(135deg, #e8ecff 0%, #82b1ff 50%, #FFD180 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+  }
+}
+
+.welcome-subtitle {
+  position: relative;
+  z-index: 1;
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #999;
+  letter-spacing: 0.2px;
+  animation: welcome-fade-in 0.5s $welcome-ease 0.5s both;
+
+  :host-context(body.dark-theme) & {
+    color: #777;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+}
+
+// --- Welcome animations ---
 @keyframes welcome-overlay-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -181,7 +287,7 @@
 @keyframes welcome-card-in {
   from {
     opacity: 0;
-    transform: scale(0.92) translateY(16px);
+    transform: scale(0.94) translateY(20px);
   }
   to {
     opacity: 1;
@@ -189,10 +295,43 @@
   }
 }
 
-@keyframes welcome-text-in {
+@keyframes welcome-logo-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: scale(0.6) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes welcome-divider-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes welcome-name-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes welcome-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;

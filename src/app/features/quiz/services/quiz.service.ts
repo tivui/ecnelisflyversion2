@@ -41,6 +41,7 @@ export class QuizService {
       difficulty: raw.difficulty as QuizDifficulty,
       category: raw.category ?? undefined,
       imageKey: raw.imageKey ?? undefined,
+      icon: raw.icon ?? undefined,
       status: raw.status as QuizStatus,
       questionCount: raw.questionCount ?? 0,
       totalPlays: raw.totalPlays ?? 0,
@@ -116,10 +117,9 @@ export class QuizService {
 
   async getSoundFilename(soundId: string): Promise<string | null> {
     try {
-      const result = await this.client.models.Sound.get(
+      const result = await (this.client.models.Sound.get as any)(
         { id: soundId },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { selectionSet: ['id', 'filename'] } as any,
+        { selectionSet: ['id', 'filename'], authMode: 'apiKey' },
       );
       return result.data?.filename ?? null;
     } catch {
@@ -141,7 +141,7 @@ export class QuizService {
   async listPublishedQuizzes(): Promise<Quiz[]> {
     const result = await (
       this.client.models.Quiz.listQuizzesByStatus as any
-    )({ status: 'published' });
+    )({ status: 'published' }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error listing published quizzes:', result.errors);
       throw new Error('Failed to list published quizzes');
@@ -150,7 +150,7 @@ export class QuizService {
   }
 
   async getQuiz(id: string): Promise<Quiz | null> {
-    const result = await this.client.models.Quiz.get({ id });
+    const result = await (this.client.models.Quiz.get as any)({ id }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting quiz:', result.errors);
       throw new Error('Failed to get quiz');
@@ -166,6 +166,7 @@ export class QuizService {
     difficulty: QuizDifficulty;
     category?: string;
     imageKey?: string;
+    icon?: string;
     status: QuizStatus;
   }): Promise<Quiz> {
     const result = await this.client.models.Quiz.create({
@@ -181,6 +182,7 @@ export class QuizService {
       difficulty: data.difficulty,
       category: data.category,
       imageKey: data.imageKey,
+      icon: data.icon,
       status: data.status,
       questionCount: 0,
       totalPlays: 0,
@@ -202,6 +204,7 @@ export class QuizService {
       difficulty: QuizDifficulty;
       category: string;
       imageKey: string;
+      icon: string;
       status: QuizStatus;
       questionCount: number;
       totalPlays: number;
@@ -220,6 +223,7 @@ export class QuizService {
       input['difficulty'] = updates.difficulty;
     if (updates.category !== undefined) input['category'] = updates.category;
     if (updates.imageKey !== undefined) input['imageKey'] = updates.imageKey;
+    if (updates.icon !== undefined) input['icon'] = updates.icon;
     if (updates.status !== undefined) input['status'] = updates.status;
     if (updates.questionCount !== undefined)
       input['questionCount'] = updates.questionCount;
@@ -253,7 +257,7 @@ export class QuizService {
   async getQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
     const result = await (
       this.client.models.QuizQuestion.listQuestionsByQuiz as any
-    )({ quizId });
+    )({ quizId }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error listing questions:', result.errors);
       throw new Error('Failed to list questions');
@@ -405,7 +409,7 @@ export class QuizService {
   }
 
   async getAttempt(id: string): Promise<QuizAttempt | null> {
-    const result = await this.client.models.QuizAttempt.get({ id });
+    const result = await (this.client.models.QuizAttempt.get as any)({ id }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting attempt:', result.errors);
       throw new Error('Failed to get attempt');
@@ -423,7 +427,7 @@ export class QuizService {
       quizId,
       sortDirection: 'DESC',
       limit,
-    });
+    }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting leaderboard:', result.errors);
       throw new Error('Failed to get leaderboard');
@@ -464,7 +468,7 @@ export class QuizService {
 
     const result = await (
       this.client.models.MonthlyQuiz.getMonthlyQuizByMonth as any
-    )({ month });
+    )({ month }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting monthly quiz:', result.errors);
       return null;

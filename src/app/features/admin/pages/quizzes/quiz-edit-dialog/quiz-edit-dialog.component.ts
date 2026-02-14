@@ -59,6 +59,25 @@ export class QuizEditDialogComponent implements OnInit {
   difficulties: QuizDifficulty[] = ['easy', 'medium', 'hard'];
   statuses: QuizStatus[] = ['draft', 'published', 'archived'];
 
+  readonly availableIcons = [
+    { value: 'quiz', label: 'Quiz' },
+    { value: 'music_note', label: 'Musique' },
+    { value: 'headphones', label: 'Ecoute' },
+    { value: 'graphic_eq', label: 'Son / Audio' },
+    { value: 'public', label: 'Monde' },
+    { value: 'terrain', label: 'Nature' },
+    { value: 'forest', label: 'Foret' },
+    { value: 'waves', label: 'Mer / Ocean' },
+    { value: 'pets', label: 'Animaux' },
+    { value: 'location_city', label: 'Ville' },
+    { value: 'church', label: 'Patrimoine' },
+    { value: 'festival', label: 'Festival' },
+    { value: 'emoji_events', label: 'Trophee' },
+    { value: 'star', label: 'Etoile' },
+    { value: 'explore', label: 'Explorer' },
+    { value: 'psychology', label: 'Reflexion' },
+  ];
+
   ngOnInit() {
     this.isEditMode.set(!!this.data.quiz);
 
@@ -73,6 +92,7 @@ export class QuizEditDialogComponent implements OnInit {
       description_es: [this.data.quiz?.description_i18n?.['es'] ?? ''],
       difficulty: [this.data.quiz?.difficulty ?? 'medium', Validators.required],
       category: [this.data.quiz?.category ?? ''],
+      icon: [this.data.quiz?.icon ?? 'quiz'],
       status: [this.data.quiz?.status ?? 'draft', Validators.required],
     });
   }
@@ -103,6 +123,7 @@ export class QuizEditDialogComponent implements OnInit {
           Object.keys(description_i18n).length > 0 ? description_i18n : undefined,
         difficulty: v.difficulty as QuizDifficulty,
         category: v.category || undefined,
+        icon: v.icon || undefined,
         status: v.status as QuizStatus,
       };
 

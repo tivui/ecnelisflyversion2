@@ -7,16 +7,30 @@
     <h1 class="page-title">{{ 'journeys.title' | translate }}</h1>
   </div>
 
+  <!-- Random journey card (always visible) -->
+  <div class="random-journey-card" matRipple (click)="openRandomJourney()">
+    <div class="random-card-visual">
+      <div class="card-icon-circle">
+        <mat-icon>shuffle</mat-icon>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{{ 'journeys.random.title' | translate }}</h3>
+      <p class="card-description">{{ 'journeys.random.description' | translate }}</p>
+    </div>
+    <div class="card-footer">
+      <span class="random-cta">
+        {{ 'journeys.random.configure' | translate }}
+        <mat-icon>arrow_forward</mat-icon>
+      </span>
+    </div>
+  </div>
+
   @if (loading()) {
     <div class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
     </div>
-  } @else if (journeys().length === 0) {
-    <div class="empty-state">
-      <mat-icon>route</mat-icon>
-      <p>{{ 'journeys.empty.title' | translate }}</p>
-    </div>
-  } @else {
+  } @else if (journeys().length > 0) {
     <div class="journeys-grid">
       @for (journey of journeys(); track journey.id) {
         <div class="journey-card" matRipple (click)="goToJourney(journey)">

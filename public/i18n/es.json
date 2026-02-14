@@ -1,6 +1,10 @@
 {
   "home": {
     "welcome": "Bienvenido {{name}}",
+    "welcomeGreeting": "Bienvenido",
+    "welcomeSubtitle": "Encantado de verte de nuevo",
+    "goodbyeGreeting": "Hasta luego",
+    "goodbyeSubtitle": "Nos vemos pronto en Ecnelis Fly",
     "hero": {
       "title": "Explora los sonidos del mundo",
       "subtitle": "La experiencia sonora geolocalizada.",
@@ -28,7 +32,8 @@
       "play": "Jugar",
       "newArticle": "Nuevo Artículo",
       "readArticle": "Leer",
-      "monthlyZone": "Terruño del mes"
+      "monthlyZone": "Terruño del mes",
+      "monthlyJourney": "Viaje del mes"
     },
     "zones": {
       "title": "Explorar por terruños",
@@ -72,6 +77,18 @@
       "title": "No hay viajes disponibles",
       "message": "Aún no hay viajes sonoros para explorar. ¡Vuelve pronto!",
       "exploreMap": "Explorar el mapa mundial"
+    },
+    "random": {
+      "title": "Viaje aleatorio",
+      "description": "Crea tu propia aventura sonora efímera",
+      "configure": "Configurar",
+      "journeyName": "Viaje aleatorio",
+      "soundCount": "Número de sonidos",
+      "category": "Categoría",
+      "allCategories": "Todos",
+      "launch": "Iniciar viaje",
+      "loading": "Preparando viaje...",
+      "notEnough": "No hay suficientes sonidos disponibles para esta selección"
     }
   },
   "quiz": {
@@ -641,6 +658,7 @@
         "description": "Descripción",
         "difficulty": "Dificultad",
         "category": "Categoría",
+        "icon": "Icono",
         "status": "Estado",
         "createSuccess": "Quiz creado con éxito",
         "updateSuccess": "Quiz actualizado con éxito",
@@ -822,6 +840,12 @@
       "next": "Siguiente",
       "finish": "Terminar",
       "step": "Etapa"
+    },
+    "timeFilter": {
+      "all": "Todos",
+      "latest10": "10 recientes",
+      "week": "Semana",
+      "month": "Mes"
     }
   },
   "categories": {

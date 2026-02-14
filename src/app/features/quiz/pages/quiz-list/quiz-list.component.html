@@ -29,7 +29,7 @@
               </span>
             }
             <div class="card-icon-circle">
-              <mat-icon>{{ isMonthly(quiz) ? 'emoji_events' : 'quiz' }}</mat-icon>
+              <mat-icon>{{ quiz.icon || (isMonthly(quiz) ? 'emoji_events' : 'quiz') }}</mat-icon>
             </div>
           </div>
 

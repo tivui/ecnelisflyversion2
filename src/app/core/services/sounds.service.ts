@@ -47,6 +47,7 @@ export class SoundsService {
       secondaryUrlTitle: raw.secondaryUrlTitle,
       hashtags: raw.hashtags,
       likesCount: raw.likesCount ?? 0,
+      createdAt: raw.createdAt ? new Date(raw.createdAt) : undefined,
     });
   }
 

@@ -4,6 +4,7 @@ import { AmplifyService } from './amplify.service';
 import {
   SoundJourney,
   SoundJourneyStep,
+  MonthlyJourney,
 } from '../models/sound-journey.model';
 
 @Injectable({
@@ -287,6 +288,40 @@ export class SoundJourneyService {
         (a: SoundJourneyStep, b: SoundJourneyStep) =>
           a.stepOrder - b.stepOrder,
       );
+  }
+
+  // ── Monthly Journey ─────────────────────────────────
+
+  async getMonthlyJourney(): Promise<MonthlyJourney | null> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const result = await (
+      this.client.models.MonthlyJourney as any
+    ).getMonthlyJourneyByMonth({ month }, { authMode: 'apiKey' });
+
+    if (result.errors?.length) {
+      console.error('Error getting monthly journey:', result.errors);
+      return null;
+    }
+
+    const actives = (result.data ?? []).filter((m: any) => m.active);
+    if (actives.length === 0) return null;
+
+    const raw = actives[0];
+    return new MonthlyJourney({
+      id: raw.id,
+      journeyId: raw.journeyId,
+      month: raw.month,
+      active: raw.active,
+      journeyName: raw.journeyName,
+      journeyName_i18n: raw.journeyName_i18n ? JSON.parse(raw.journeyName_i18n) : undefined,
+      journeyDescription: raw.journeyDescription,
+      journeyDescription_i18n: raw.journeyDescription_i18n ? JSON.parse(raw.journeyDescription_i18n) : undefined,
+      journeySlug: raw.journeySlug,
+      journeyColor: raw.journeyColor,
+      journeyCoverImage: raw.journeyCoverImage,
+    });
   }
 
   // ── Utilities ────────────────────────────────────────

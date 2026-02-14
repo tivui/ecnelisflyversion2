@@ -18,6 +18,24 @@ export class SoundJourney {
   }
 }
 
+export class MonthlyJourney {
+  id?: string;
+  journeyId!: string;
+  month!: string;
+  active?: boolean;
+  journeyName?: string;
+  journeyName_i18n?: Record<string, string>;
+  journeyDescription?: string;
+  journeyDescription_i18n?: Record<string, string>;
+  journeySlug?: string;
+  journeyColor?: string;
+  journeyCoverImage?: string;
+
+  constructor(init?: Partial<MonthlyJourney>) {
+    Object.assign(this, init);
+  }
+}
+
 export class SoundJourneyStep {
   id?: string;
   journeyId!: string;

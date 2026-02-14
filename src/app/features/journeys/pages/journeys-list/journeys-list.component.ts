@@ -6,9 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
 import { SoundJourney } from '../../../../core/models/sound-journey.model';
+import { RandomJourneySheetComponent } from './random-journey-sheet/random-journey-sheet.component';
 
 @Component({
   selector: 'app-journeys-list',
@@ -21,6 +23,7 @@ import { SoundJourney } from '../../../../core/models/sound-journey.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatRippleModule,
+    MatBottomSheetModule,
   ],
   templateUrl: './journeys-list.component.html',
   styleUrl: './journeys-list.component.scss',
@@ -28,6 +31,7 @@ import { SoundJourney } from '../../../../core/models/sound-journey.model';
 export class JourneysListComponent implements OnInit {
   private readonly journeyService = inject(SoundJourneyService);
   private readonly translate = inject(TranslateService);
+  private readonly bottomSheet = inject(MatBottomSheet);
 
   journeys = signal<SoundJourney[]>([]);
   loading = signal(true);
@@ -70,5 +74,11 @@ export class JourneysListComponent implements OnInit {
       journeyId: journey.id ?? '',
     });
     window.location.href = `/mapfly?${params.toString()}`;
+  }
+
+  openRandomJourney() {
+    this.bottomSheet.open(RandomJourneySheetComponent, {
+      panelClass: 'random-journey-sheet-panel',
+    });
   }
 }

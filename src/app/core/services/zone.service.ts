@@ -63,12 +63,12 @@ export class ZoneService {
   // ============ ZONE CRUD ============
 
   async listZones(): Promise<Zone[]> {
-    const result = await this.client.models.Zone.list();
+    const result = await (this.client.models.Zone.list as any)({ authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error listing zones:', result.errors);
       throw new Error('Failed to list zones');
     }
-    return (result.data ?? []).map((z) => this.mapZone(z));
+    return (result.data ?? []).map((z: any) => this.mapZone(z));
   }
 
   async listPublicZones(): Promise<Zone[]> {
@@ -79,7 +79,7 @@ export class ZoneService {
   }
 
   async getZoneById(id: string): Promise<Zone | null> {
-    const result = await this.client.models.Zone.get({ id });
+    const result = await (this.client.models.Zone.get as any)({ id }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting zone:', result.errors);
       throw new Error('Failed to get zone');
@@ -88,7 +88,7 @@ export class ZoneService {
   }
 
   async getZoneBySlug(slug: string): Promise<Zone | null> {
-    const result = await this.client.models.Zone.getZoneBySlug({ slug });
+    const result = await (this.client.models.Zone.getZoneBySlug as any)({ slug }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error getting zone by slug:', result.errors);
       throw new Error('Failed to get zone by slug');
@@ -191,9 +191,7 @@ export class ZoneService {
   async listZoneSoundsByZone(zoneId: string): Promise<ZoneSound[]> {
     const result = await (
       this.client.models.ZoneSound.listZoneSoundsByZone as any
-    )({
-      zoneId,
-    });
+    )({ zoneId }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error listing zone sounds:', result.errors);
       throw new Error('Failed to list zone sounds');
@@ -204,9 +202,7 @@ export class ZoneService {
   async listZoneSoundsBySound(soundId: string): Promise<ZoneSound[]> {
     const result = await (
       this.client.models.ZoneSound.listZoneSoundsBySound as any
-    )({
-      soundId,
-    });
+    )({ soundId }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error listing zone sounds by sound:', result.errors);
       throw new Error('Failed to list zone sounds by sound');
@@ -257,7 +253,7 @@ export class ZoneService {
   // ============ SOUNDS FOR ZONE (via Lambda) ============
 
   async getSoundsForZone(zoneId: string): Promise<Sound[]> {
-    const result = await this.client.queries.listSoundsByZone({ zoneId });
+    const result = await (this.client.queries.listSoundsByZone as any)({ zoneId }, { authMode: 'apiKey' });
     if (result.errors?.length) {
       console.error('Error fetching sounds for zone:', result.errors);
       throw new Error('Failed to fetch sounds for zone');
@@ -273,7 +269,7 @@ export class ZoneService {
 
     const result = await (
       this.client.models.MonthlyZone as any
-    ).getMonthlyZoneByMonth({ month });
+    ).getMonthlyZoneByMonth({ month }, { authMode: 'apiKey' });
 
     if (result.errors?.length) {
       console.error('Error getting monthly zone:', result.errors);
