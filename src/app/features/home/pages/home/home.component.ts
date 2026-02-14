@@ -55,11 +55,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   dataLoaded = signal(false);
   isMobileGrid = signal(false);
 
-  // Long press
+  // Tap-to-reveal (mobile grid tiles)
   longPressedCard = signal<string | null>(null);
-  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
-  private longPressFired = false;
-  private longPressDismissTimer: ReturnType<typeof setTimeout> | null = null;
+  private revealDismissTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly subtitleIndex = Math.floor(Math.random() * 7);
   randomSubtitle = computed(() => {
@@ -355,38 +353,36 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     window.location.href = `/mapfly?${params.toString()}`;
   }
 
-  // --- Long press handling (mobile grid tiles) ---
+  // --- Tap-to-reveal handling (mobile grid tiles) ---
 
-  onCardPointerDown(cardType: string, event: Event) {
-    if (!this.isMobileGrid()) return;
-    event.preventDefault();
-    this.longPressFired = false;
-    if (this.longPressDismissTimer) {
-      clearTimeout(this.longPressDismissTimer);
-      this.longPressDismissTimer = null;
+  onCardClick(cardType: string): void {
+    if (!this.isMobileGrid()) {
+      this.navigateToCard(cardType);
+      return;
     }
-    this.longPressTimer = setTimeout(() => {
-      this.longPressFired = true;
-      this.longPressedCard.set(cardType);
-      // Haptic feedback if supported
-      if (navigator.vibrate) navigator.vibrate(10);
-      // Auto-dismiss after 3s
-      this.longPressDismissTimer = setTimeout(() => this.longPressedCard.set(null), 3000);
-    }, 400);
+    // Mobile: already revealed → navigate
+    if (this.longPressedCard() === cardType) {
+      this.clearReveal();
+      this.navigateToCard(cardType);
+      return;
+    }
+    // Mobile: reveal description
+    this.longPressedCard.set(cardType);
+    if (navigator.vibrate) navigator.vibrate(10);
+    if (this.revealDismissTimer) clearTimeout(this.revealDismissTimer);
+    this.revealDismissTimer = setTimeout(() => this.longPressedCard.set(null), 3000);
   }
 
-  onCardPointerUp(cardType: string) {
-    if (!this.isMobileGrid()) return;
-    if (this.longPressTimer) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
-    }
-    if (!this.longPressFired) {
-      // Short tap → navigate
-      this.longPressedCard.set(null);
-      this.navigateToCard(cardType);
-    }
-    // If long press was fired, keep overlay visible (auto-dismiss handles it)
+  onCardCtaClick(cardType: string, event: Event): void {
+    if (!this.isMobileGrid()) return; // Desktop: let click bubble to card/routerLink
+    event.stopPropagation();
+    this.clearReveal();
+    this.navigateToCard(cardType);
+  }
+
+  private clearReveal(): void {
+    this.longPressedCard.set(null);
+    if (this.revealDismissTimer) { clearTimeout(this.revealDismissTimer); this.revealDismissTimer = null; }
   }
 
   navigateToCard(cardType: string) {
@@ -414,7 +410,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.longPressTimer) clearTimeout(this.longPressTimer);
-    if (this.longPressDismissTimer) clearTimeout(this.longPressDismissTimer);
+    if (this.revealDismissTimer) clearTimeout(this.revealDismissTimer);
   }
 }
