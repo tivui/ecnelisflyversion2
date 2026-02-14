@@ -1,6 +1,10 @@
 {
   "home": {
     "welcome": "Bienvenido {{name}}",
+    "welcomeGreeting": "Bienvenido",
+    "welcomeSubtitle": "Encantado de verte de nuevo",
+    "goodbyeGreeting": "Hasta luego",
+    "goodbyeSubtitle": "Nos vemos pronto en Ecnelis Fly",
     "hero": {
       "title": "Explora los sonidos del mundo",
       "subtitle": "La experiencia sonora geolocalizada.",

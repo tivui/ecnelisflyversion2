@@ -48,6 +48,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   shimmerX = signal('-200%');
   hasScrolled = signal(false);
   activeCardIndex = signal(0);
+  dataLoaded = signal(false);
 
   private readonly subtitleIndex = Math.floor(Math.random() * 7);
   randomSubtitle = computed(() => {
@@ -76,8 +77,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   /** Which card types to show (set once after data loads) */
   visibleCardTypes = signal<Set<string>>(new Set());
 
+  /** Ordered secondary cards: featured always centered for visual focus */
+  orderedSecondaryCards = signal<string[]>([]);
+
   secondaryCardIndices = computed(() => {
-    return Array.from({ length: this.visibleCardTypes().size }, (_, i) => i);
+    return Array.from({ length: this.orderedSecondaryCards().length }, (_, i) => i);
   });
 
   private currentLang = toSignal(
@@ -133,6 +137,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
       available.splice(available.indexOf(toExclude), 1);
     }
     this.visibleCardTypes.set(new Set(available));
+
+    // Order: featured (Son du jour) always in center position (pos 3) for visual focus
+    const nonFeatured = available.filter(t => t !== 'featured');
+    const hasFeatured = available.includes('featured');
+    if (hasFeatured && nonFeatured.length >= 2) {
+      // Shuffle the flanking cards randomly
+      if (Math.random() > 0.5) {
+        [nonFeatured[0], nonFeatured[1]] = [nonFeatured[1], nonFeatured[0]];
+      }
+      this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1]]);
+    } else if (hasFeatured) {
+      this.orderedSecondaryCards.set([...nonFeatured, 'featured']);
+    } else {
+      this.orderedSecondaryCards.set(nonFeatured);
+    }
+
+    this.dataLoaded.set(true);
 
     setTimeout(() => {
       if (this.secondaryScrollEl) {

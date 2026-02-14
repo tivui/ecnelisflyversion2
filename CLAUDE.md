@@ -35,14 +35,15 @@ Design system : spectre blue -> indigo -> violet avec accents distincts par sect
 | `$primary-violet` | `#7e57c2` | Accent secondaire |
 | `$logo-orange` | `#F5A623` | Logo |
 
-### Gradients des hero cards
+### Accents CTA et border-left par type de card
 
-| Card | Gradient | Accent CTA (light/dark) | Border-left |
-|------|----------|------------------------|-------------|
-| Map | `#1e3a5f -> #1976d2` | `#1976d2` / `#90caf9` | blue |
-| Featured (Son du jour) | `#283593 -> #5c6bc0` | `#6a3de8` / `#b388ff` | violet `#7c4dff` |
-| Zones | `#1a237e -> #3f51b5` | `#00897b` / `#80cbc4` | teal |
-| Journey (Voyager) | `#303f9f -> #5e6abf` | `#b07c10` / `#fbbf24` | amber |
+| Card | Accent CTA (light/dark) | Border-left |
+|------|------------------------|-------------|
+| Map | `#1976d2` / `#90caf9` | blue |
+| Featured (Son du jour) | `#6a3de8` / `#b388ff` | violet `#7c4dff` |
+| Quiz | `#0d7c51` / `#66bb6a` | emerald |
+| Article | `#8b6f47` / `#c4a882` | terre |
+| Monthly Zone (Terroir) | `#b07c10` / `#fbbf24` | amber |
 
 ### Couleur "Featured" (Son du jour) - coherence cross-app
 
@@ -63,7 +64,7 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 ### Home (`features/home/pages/home/`)
 
-- **Desktop** : hero cards en grille, Swiper carousel categories
+- **Desktop** : hero cards en grille (map + 3 secondary), Swiper carousel categories
 - **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) :
   - Container : `height: calc(100dvh - 64px)`, flex column
   - Hero card Map : full-width, `clamp(140px, 30dvh, 240px)`
@@ -72,6 +73,38 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
   - Pastilles : grille pyramide 4+5, style premium (border neutre, pas de glow)
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
+
+#### Orchestrated Reveal (chargement)
+
+Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee quand `dataLoaded()` passe a `true` (classe `.ready` sur `.home-container`). Easing : `cubic-bezier(0.22, 1, 0.36, 1)`.
+
+- Stagger : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> secondary cards (0.33-0.49s) -> dots (0.45s) -> carousel (0.5s)
+- Desktop : `.hero-cards-secondary` utilise `display: contents`, donc les cards individuelles sont ciblees via `nth-child` pour le reveal
+- Mobile : accent line `.hero-content::after` a aussi son reveal dedie
+
+#### Gradients positionnels des secondary cards (desktop)
+
+Les gradients dependent de la **position** dans la grille (pas du type de card) :
+
+| Position | Gradient | Description |
+|----------|----------|-------------|
+| nth-child(1) | `$gradient-pos-2` (`#1f2f6e -> #4a62c6`) | Bleu-indigo |
+| nth-child(2) | Custom (`#292b8c -> #6760c1`) | Indigo-violet doux (casse la linearite) |
+| nth-child(3) | `$gradient-pos-3` (`#283593 -> #5c6bc0`) | Indigo |
+
+#### Ordering des secondary cards
+
+- 4 types possibles : `featured`, `quiz`, `monthlyZone`, `article`
+- Si 4 disponibles : on exclut aleatoirement `quiz` ou `article` (jamais `featured` ni `monthlyZone`)
+- **Son du jour (`featured`) toujours en position centrale** (nth-child(2), le gradient violet doux) pour guidage visuel inconscient
+- Les cards flanquantes (positions 1 et 3) sont melangees aleatoirement
+- Logique dans `orderedSecondaryCards` signal, template via `@for` + `@switch`
+
+#### Description cards desktop
+
+- `-webkit-line-clamp: 3` (max 3 lignes de texte)
+- `margin-bottom: 1.4em` sur `.hero-card-desc` (desktop only) pour creer un espace d'une ligne vide entre le texte et le CTA
+- `.hero-card-cta` a `margin-top: auto` pour etre pousse en bas de la card
 
 ### Mapfly (`features/map/pages/mapfly/`)
 

@@ -1,4 +1,4 @@
-<div class="home-container">
+<div class="home-container" [class.ready]="dataLoaded()">
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
@@ -34,86 +34,83 @@
         </div>
       </a>
 
-      <!-- Secondary cards: 3 of 4 max — positions fixes : pos2=quiz/article, pos3=terroir, pos4=son du jour -->
+      <!-- Secondary cards: 3 of 4 max — Son du jour always centered (pos 3) for visual focus -->
       <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
-        <!-- Monthly Quiz Card (position 2) -->
-        @if (visibleCardTypes().has('quiz') && monthlyQuiz()) {
-          <a routerLink="/quiz/{{ monthlyQuiz()!.id }}" class="hero-card hero-card-quiz">
-            <div class="hero-card-visual">
-              <div class="hero-card-icon">
-                <mat-icon>quiz</mat-icon>
-              </div>
-              <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
-            </div>
-            <div class="hero-card-content">
-              <h3>{{ quizTitle() }}</h3>
-              <p class="hero-card-desc">{{ quizDescription() }}</p>
-              <span class="hero-card-cta">
-                {{ 'home.hero.play' | translate }}
-                <mat-icon>arrow_forward</mat-icon>
-              </span>
-            </div>
-          </a>
-        }
-
-        <!-- Latest Article Card (position 2 fallback if no quiz) -->
-        @if (visibleCardTypes().has('article') && latestArticle()) {
-          <a routerLink="/articles/{{ latestArticle()!.slug }}" class="hero-card hero-card-article">
-            <div class="hero-card-visual">
-              <div class="hero-card-icon">
-                <mat-icon>menu_book</mat-icon>
-              </div>
-              <span class="article-badge">{{ 'home.hero.newArticle' | translate }}</span>
-            </div>
-            <div class="hero-card-content">
-              <h3>{{ articleTitle() }}</h3>
-              <p class="hero-card-desc">{{ articleDescription() }}</p>
-              <span class="hero-card-cta">
-                {{ 'home.hero.readArticle' | translate }}
-                <mat-icon>arrow_forward</mat-icon>
-              </span>
-            </div>
-          </a>
-        }
-
-        <!-- Monthly Zone Card (Terroir du mois) — always position 3 -->
-        @if (visibleCardTypes().has('monthlyZone') && monthlyZone()) {
-          <a (click)="goToMonthlyZone()" class="hero-card hero-card-monthly-zone" [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'">
-            <div class="hero-card-visual">
-              <div class="hero-card-icon">
-                <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
-              </div>
-              <span class="monthly-zone-badge">{{ 'home.hero.monthlyZone' | translate }}</span>
-            </div>
-            <div class="hero-card-content">
-              <h3>{{ monthlyZoneName() }}</h3>
-              <p class="hero-card-desc">{{ monthlyZoneDescription() }}</p>
-              <span class="hero-card-cta">
-                {{ 'home.hero.explore' | translate }}
-                <mat-icon>arrow_forward</mat-icon>
-              </span>
-            </div>
-          </a>
-        }
-
-        <!-- Sound of the Day Card — always position 4 -->
-        @if (visibleCardTypes().has('featured') && dailyFeatured()) {
-          <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
-            <div class="hero-card-visual">
-              <div class="hero-card-icon">
-                <mat-icon>headphones</mat-icon>
-              </div>
-              <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
-            </div>
-            <div class="hero-card-content">
-              <h3>{{ dailyFeatured()!.soundTitle }}</h3>
-              <p class="hero-card-desc">{{ teasingText() }}</p>
-              <span class="hero-card-cta">
-                {{ 'home.hero.listen' | translate }}
-                <mat-icon>arrow_forward</mat-icon>
-              </span>
-            </div>
-          </a>
+        @for (cardType of orderedSecondaryCards(); track cardType) {
+          @switch (cardType) {
+            @case ('quiz') {
+              <a routerLink="/quiz/{{ monthlyQuiz()!.id }}" class="hero-card hero-card-quiz">
+                <div class="hero-card-visual">
+                  <div class="hero-card-icon">
+                    <mat-icon>quiz</mat-icon>
+                  </div>
+                  <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3>{{ quizTitle() }}</h3>
+                  <p class="hero-card-desc">{{ quizDescription() }}</p>
+                  <span class="hero-card-cta">
+                    {{ 'home.hero.play' | translate }}
+                    <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </a>
+            }
+            @case ('article') {
+              <a routerLink="/articles/{{ latestArticle()!.slug }}" class="hero-card hero-card-article">
+                <div class="hero-card-visual">
+                  <div class="hero-card-icon">
+                    <mat-icon>menu_book</mat-icon>
+                  </div>
+                  <span class="article-badge">{{ 'home.hero.newArticle' | translate }}</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3>{{ articleTitle() }}</h3>
+                  <p class="hero-card-desc">{{ articleDescription() }}</p>
+                  <span class="hero-card-cta">
+                    {{ 'home.hero.readArticle' | translate }}
+                    <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </a>
+            }
+            @case ('monthlyZone') {
+              <a (click)="goToMonthlyZone()" class="hero-card hero-card-monthly-zone" [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'">
+                <div class="hero-card-visual">
+                  <div class="hero-card-icon">
+                    <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
+                  </div>
+                  <span class="monthly-zone-badge">{{ 'home.hero.monthlyZone' | translate }}</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3>{{ monthlyZoneName() }}</h3>
+                  <p class="hero-card-desc">{{ monthlyZoneDescription() }}</p>
+                  <span class="hero-card-cta">
+                    {{ 'home.hero.explore' | translate }}
+                    <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </a>
+            }
+            @case ('featured') {
+              <a (click)="goToFeaturedSound()" class="hero-card hero-card-featured">
+                <div class="hero-card-visual">
+                  <div class="hero-card-icon">
+                    <mat-icon>headphones</mat-icon>
+                  </div>
+                  <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3>{{ dailyFeatured()!.soundTitle }}</h3>
+                  <p class="hero-card-desc">{{ teasingText() }}</p>
+                  <span class="hero-card-cta">
+                    {{ 'home.hero.listen' | translate }}
+                    <mat-icon>arrow_forward</mat-icon>
+                  </span>
+                </div>
+              </a>
+            }
+          }
         }
       </div>
 

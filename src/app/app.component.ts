@@ -82,11 +82,15 @@ export class AppComponent implements OnInit {
   public isHomePage = signal(false);
   public isCategoryMapPage = signal(false);
 
-  // ==================== WELCOME OVERLAY ====================
+  // ==================== WELCOME / GOODBYE OVERLAY ====================
   public welcomeVisible = signal(false);
   public welcomeFadingOut = signal(false);
   public welcomeUsername = signal('');
   public welcomeFlag = signal('');
+
+  public goodbyeVisible = signal(false);
+  public goodbyeFadingOut = signal(false);
+  public goodbyeUsername = signal('');
 
   private showWelcomeOverlay(username: string, country?: string) {
     this.welcomeUsername.set(username);
@@ -98,6 +102,15 @@ export class AppComponent implements OnInit {
     setTimeout(() => this.welcomeFadingOut.set(true), 2500);
     // Remove from DOM after fade animation
     setTimeout(() => this.welcomeVisible.set(false), 3500);
+  }
+
+  private showGoodbyeOverlay(username: string) {
+    this.goodbyeUsername.set(username);
+    this.goodbyeVisible.set(true);
+    this.goodbyeFadingOut.set(false);
+
+    setTimeout(() => this.goodbyeFadingOut.set(true), 2000);
+    setTimeout(() => this.goodbyeVisible.set(false), 3000);
   }
 
   // ==================== FULLSCREEN ====================
@@ -243,12 +256,17 @@ export class AppComponent implements OnInit {
           break;
         }
 
-        case 'signedOut':
+        case 'signedOut': {
+          const previousUsername = this.appUserService.currentUser?.username ?? '';
           this.appUserService.clearCurrentUser();
 
-          // Navigation forcée vers /login
           this.router.navigate(['/home'], { replaceUrl: true });
+
+          if (previousUsername) {
+            this.showGoodbyeOverlay(previousUsername);
+          }
           break;
+        }
       }
     });
 
