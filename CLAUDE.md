@@ -113,6 +113,43 @@ Les gradients dependent de la **position** dans la grille (pas du type de card) 
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
 
+### Welcome / Goodbye Overlay (`app.component`)
+
+- **Design premium** : logo (avec drop-shadow halo) → greeting uppercase (letter-spacing 2.5px) → divider gradient bleu→orange (scaleX animation) → nom en gradient text → subtitle discret
+- **Animations stagger** : card (0s) → logo (0.1s) → greeting (0.2s) → divider (0.3s) → nom (0.35s) → subtitle (0.5s)
+- **Easing** : `cubic-bezier(0.22, 1, 0.36, 1)`
+- **Light/Dark** : fond `rgba(255,255,255,0.95)` / `rgba(22,22,38,0.95)`, gradient text adapte
+- **Responsive** : `@media (max-width: 480px)` paddings reduits, typo adaptee
+- **Timing** : Welcome 2.5s visible + 1s fade, Goodbye 2s visible + 1s fade
+- **Signals** : `welcomeVisible`, `welcomeFadingOut`, `welcomeUsername`, `goodbyeVisible`, `goodbyeFadingOut`, `goodbyeUsername`
+- **i18n** : `home.welcomeGreeting/welcomeSubtitle/goodbyeGreeting/goodbyeSubtitle` (FR/EN/ES)
+- **Goodbye** : capture le username via `appUserService.currentUser` AVANT `clearCurrentUser()`
+
+## Politique d'acces public (mode deconnecte)
+
+### Principe
+
+Toutes les lectures de contenu sont publiques (`authMode: 'apiKey'`). L'ecriture (scores, sons, compte) requiert l'authentification Cognito (`userPool`).
+
+### Services corriges pour acces public
+
+Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonctionner en mode deconnecte :
+
+| Service | Methodes avec `apiKey` |
+|---------|----------------------|
+| `featured-sound.service.ts` | `getTodayFeatured()` |
+| `article.service.ts` | `listPublishedArticles()`, `getArticleBySlug()` |
+| `quiz.service.ts` | `listPublishedQuizzes()`, `getQuiz()`, `getQuizQuestions()`, `getMonthlyQuiz()`, `getSoundFilename()`, `getLeaderboard()`, `getAttempt()` |
+| `zone.service.ts` | `listZones()`, `getZoneById()`, `getZoneBySlug()`, `getMonthlyZone()`, `listZoneSoundsByZone()`, `listZoneSoundsBySound()`, `getSoundsForZone()` |
+| `sound-journey.service.ts` | `listPublicJourneys()`, `getJourney()`, `listSteps()` |
+
+### Quiz en mode deconnecte
+
+- L'utilisateur peut jouer sans se connecter
+- `quiz-play.component.ts` : `finishQuiz()` verifie `isAuthenticated()` — si guest, navigue vers `/quiz/:id/results/local` avec state local
+- L'enregistrement du score (`submitAttempt`) requiert l'authentification
+- Le schema `QuizAttempt` n'autorise `create` que pour `authenticated`
+
 ## Conventions SCSS
 
 - Dark theme : toujours via `:host-context(body.dark-theme) &` (pas de media query)
