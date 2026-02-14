@@ -150,6 +150,35 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 - L'enregistrement du score (`submitAttempt`) requiert l'authentification
 - Le schema `QuizAttempt` n'autorise `create` que pour `authenticated`
 
+## Icone customisable par quiz
+
+### Principe
+
+Chaque quiz peut avoir une icone Material associee, configurable par l'admin. Meme pattern que les zones (`zone-dialog`).
+
+### Schema & modele
+
+- `amplify/data/resource.ts` : champ `icon: a.string()` sur le modele `Quiz`
+- `quiz.model.ts` : `icon?: string` dans l'interface `Quiz`
+- `quiz.service.ts` : `mapQuiz()` mappe `icon`, `createQuiz()` et `updateQuiz()` transmettent le champ
+
+### Admin dialog (`quiz-edit-dialog`)
+
+- Tableau `availableIcons` : 16 icones adaptees (quiz, music_note, headphones, graphic_eq, public, terrain, forest, waves, pets, location_city, church, festival, emoji_events, star, explore, psychology)
+- `mat-select` avec preview Material icon + label dans l'onglet General
+- Form control `icon` avec defaut `'quiz'`
+- Style `.icon-option` : inline-flex, gap 8px, icone 20px
+
+### Templates publics (fallback)
+
+- `quiz-list.component.html` : `quiz.icon || (isMonthly(quiz) ? 'emoji_events' : 'quiz')`
+- `quiz-lobby.component.html` : `quiz()!.icon || 'quiz'`
+- `home.component.html` : `monthlyQuiz()!.icon || 'quiz'`
+
+### i18n
+
+- Cle `admin.quiz.dialog.icon` : FR "Icone", EN "Icon", ES "Icono"
+
 ## Conventions SCSS
 
 - Dark theme : toujours via `:host-context(body.dark-theme) &` (pas de media query)
