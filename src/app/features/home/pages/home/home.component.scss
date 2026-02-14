@@ -142,17 +142,23 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     animation: none;
     opacity: 1;
 
+    // Cascade fallback: opacity 1 ensures cards visible even if animation fill fails.
+    // backwards fill keeps them hidden during stagger delay.
+    > .hero-card {
+      opacity: 1;
+    }
+
     > .hero-card:nth-child(1) {
-      animation: fadeInUp 0.6s $reveal-ease 0.33s both;
+      animation: fadeInUp 0.6s $reveal-ease 0.33s backwards;
     }
     > .hero-card:nth-child(2) {
-      animation: fadeInUp 0.6s $reveal-ease 0.41s both;
+      animation: fadeInUp 0.6s $reveal-ease 0.41s backwards;
     }
     > .hero-card:nth-child(3) {
-      animation: fadeInUp 0.6s $reveal-ease 0.49s both;
+      animation: fadeInUp 0.6s $reveal-ease 0.49s backwards;
     }
     > .hero-card:nth-child(4) {
-      animation: fadeInUp 0.6s $reveal-ease 0.57s both;
+      animation: fadeInUp 0.6s $reveal-ease 0.57s backwards;
     }
   }
 }
