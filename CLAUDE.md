@@ -69,10 +69,10 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 - **Desktop base** : hero cards en grille (map + 3 secondary visible, 4eme cachee), Swiper carousel categories
 - **Desktop XL** (`@media min-width: 1920px`) : layout hero map pleine largeur + 4 secondary cards en ligne (voir section dediee)
 - **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) :
-  - Container : `height: calc(100dvh - 64px)`, flex column
+  - Container : `height: calc(100dvh - 48px - 56px - 14px - env(safe-area-inset-bottom, 0px))`, flex column
   - Hero card Map : full-width, `clamp(140px, 30dvh, 240px)`
   - Secondary cards : **grille 2x2** (`display: grid; grid-template-columns: 1fr 1fr; gap: 10px`)
-  - Carousel categories : `position: sticky; bottom: 0` avec glassmorphism indigo-tinted
+  - Carousel categories : glassmorphism indigo-tinted, `flex: 0 0 auto`
   - Pastilles : grille pyramide 4+5, style premium (border neutre, pas de glow)
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
@@ -107,31 +107,55 @@ Les gradients dependent de la **position** dans la grille (pas du type de card).
 
 #### Grille mobile 2x2 (secondary cards)
 
-Design Material/Android sobre — tuiles propres sans fond lourd :
+Design "Light Vibrant" — surfaces blanches pures, accents forts, hierarchie claire :
 
 **Structure d'une tuile :**
 ```
 ┌─ accent top bar (3px, gradient $primary-indigo → accent) ─┐
 │ [header row: icon circle + badge label]                    │
 │ Titre du contenu (1 ligne, ellipsis)                       │
-│ Description (masquee, visible au long-press)               │
-│                                          Action →          │
+│ Description (2 lignes, visible)                            │
+│                                          Action →  (pill)  │
 └────────────────────────────────────────────────────────────┘
 ```
 
-**Surfaces harmonisees (fil bleu-indigo) :**
-- Light : `background: linear-gradient(145deg, #fff 60%, rgba($primary-indigo, 0.03) 100%)`, `border: rgba($primary-indigo, 0.10)`, `box-shadow: rgba($primary-indigo, 0.08)`
-- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.92) 40%, rgba($primary-indigo, 0.08) 100%)`, `border: rgba(#5c6bc0, 0.12)`, `box-shadow: rgba(0,0,20,0.35)`
+**Surfaces (Light Vibrant) :**
+- Light : `background: #FFFFFF`, `border: 1px solid rgba(0, 0, 0, 0.08)`, `box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.09)`
+- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.94) 40%, rgba($primary-indigo, 0.10) 100%)`, `border: rgba(#5c6bc0, 0.16)`, `box-shadow: rgba(0,0,20,0.40)`
 
-**Header row :** fond teinte indigo (`rgba($primary-indigo, 0.03)` light / `0.18` dark), negative margin bleed (`margin: -14px -12px 0`)
+**Background page :** `#F7F8FA` light (neutre propre) / gradients indigo dark
 
-**Icon circles :** 36px, fond teinte accent a 12% (light) / 18-22% (dark), border accent, box-shadow glow en dark
+**Header row :** `transparent` light (blanc pur de la card, structure par border-bottom `rgba(0,0,0,0.06)` uniquement) / gradient indigo `0.18` dark. Negative margin bleed (`margin: -14px -12px 0`)
 
-**Badges :** pills `rgba($primary-indigo, 0.06)` light / `rgba(#5c6bc0, 0.20)` dark, micro-border, texte accent
+**Icon circles :** 36px, fond teinte accent a 14% (light) / 18-22% (dark), border accent 28% (light), box-shadow glow en dark. Couleurs icones assombries en light pour contraste
 
-**Featured card distinction :** border violet `rgba(#7c4dff, 0.12)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
+**Badges :** pills `rgba($primary-indigo, 0.08)` + micro-border light / `rgba(#5c6bc0, 0.20)` dark, texte accent
 
-**Accent top bars :** gradient `$primary-indigo → accent color`, 2.5px light / 3px dark avec `brightness(1.2)` + glow en dark
+**Titres :** `color: #111827`, `font-weight: 800`, `font-size: 1rem` light / `#e8eaf6` dark
+
+**Descriptions :** `color: #6B7280`, `font-size: 0.72rem`, visible (2 lignes) light / `#9fa4be` dark
+
+**Spacing content :** `gap: 6px` entre titre, description et CTA
+
+**CTA pills :** `padding: 5px 14px`, `border-radius: 8px`, `font-weight: 700` avec couleurs d'accent saturees par card :
+
+| Card | CTA bg (light) | CTA border (light) | CTA color (light) |
+|------|---------------|--------------------|--------------------|
+| Featured | `rgba(#7c4dff, 0.16)` | `rgba(#7c4dff, 0.24)` | `#5a2dd0` |
+| Journey | `rgba(#5c6a8a, 0.16)` | `rgba(#5c6a8a, 0.24)` | `#3d4e6e` |
+| Article | `rgba($accent-article, 0.16)` | `rgba($accent-article, 0.24)` | `#5e4a30` |
+| Quiz | `rgba(#0d7c51, 0.16)` | `rgba(#0d7c51, 0.24)` | `#0a6340` |
+| Monthly Zone | `rgba(#b07c10, 0.16)` | `rgba(#b07c10, 0.24)` | `#7a580a` |
+
+Dark mode CTAs : `background: none; border: none` (texte accent uniquement)
+
+**Featured card distinction :** border violet `rgba(#7c4dff, 0.22)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
+
+**Accent top bars :** gradient `$primary-indigo → accent color`, 3px. Dark: `brightness(1.2)` + glow
+
+#### CTA labels home (i18n)
+
+Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Decoller", EN "Take off", ES "Despegar" (court, on-brand "FLY"). La page voyages complete (`journeys.startJourney`) garde "Commencer le voyage" (plus de place).
 
 #### Long Press mobile
 
@@ -149,7 +173,7 @@ Design Material/Android sobre — tuiles propres sans fond lourd :
 - Orbs lumineux bleus, shimmer bleu-teinte
 - Bottom gradient : indigo profond (`rgba(15,25,60,0.72)`)
 - Accent bar top : 2.5px gradient `$primary-blue → $primary-indigo → #5c6bc0`
-- CTA : `rgba($primary-blue, 0.25)` + border blue
+- CTA "Explorer" : glassmorphism `rgba(255,255,255,0.22)` + border `rgba(255,255,255,0.35)` + double shadow (`rgba(0,0,0,0.15)` + `rgba(255,255,255,0.08)`)
 - Shadow 3 couches (dont bottom spread `rgba($primary-indigo, 0.08)` pour transition douce vers grille)
 
 **Dark :**
@@ -389,6 +413,34 @@ normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[]
 ### i18n
 
 Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
+
+## Navigation mobile (bottom nav + sidenav)
+
+### Bottom nav (`app.component`)
+
+- **Position** : `position: fixed` **en dehors** de `<mat-sidenav-container>` (evite `overflow: hidden` du container Angular Material)
+- **Condition** : `@if (isMobilePortrait() && !sidenavOpened())` — masquee quand sidenav ouverte ou en desktop
+- **z-index** : `100` (en dessous du CDK overlay container a `1000`, donc sous les dialogs/bottom-sheets)
+- **Hauteur** : `56px` + `padding-bottom: env(safe-area-inset-bottom)`
+- **Couleurs inactives** : `#555` light / `#777` dark
+- **Couleurs actives** : `#1976d2` light / `#90caf9` dark
+- **Content padding** : `mat-sidenav-content { padding-bottom: calc(56px + env(safe-area-inset-bottom)) }` en mobile portrait
+
+### Sidenav mobile
+
+- **Position** : `'end'` (droite) en mobile portrait, `'start'` (gauche) en desktop — `[position]="isMobilePortrait() ? 'end' : 'start'"`
+- **Plein ecran** : `width: 100vw; max-width: 100vw; box-shadow: none` en mobile portrait
+- **Desktop** : `width: 320px; max-width: 85vw`
+
+### Pages avec elements fixes en bas (compatibilite bottom nav)
+
+- **Quiz lobby** : `.start-section { bottom: 56px }` en mobile portrait
+- **Mapfly timeline bar** : `bottom: 70px` en mobile portrait (au-dessus du nav de 56px + marge)
+
+### Leaflet dark mode (map.scss)
+
+- **Layers control container** : `body.dark-theme .leaflet-control-layers { background: rgba(14, 14, 28, 0.92) }`
+- **Layers toggle icon** : SVG blanc data URI remplacant le sprite Leaflet sombre (invisible sur fond dark)
 
 ## Conventions SCSS
 
