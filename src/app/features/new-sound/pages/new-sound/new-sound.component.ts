@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnDestroy, HostListener, ViewChild, AfterViewInit, Renderer2, effect } from '@angular/core';
+import { Component, inject, signal, OnDestroy, OnInit, HostListener, ViewChild, AfterViewInit, Renderer2, effect } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -16,7 +16,9 @@ import { map } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { SoundUploadStepComponent } from './widgets/sound-upload-step/sound-upload-step.component';
 import {
@@ -28,6 +30,9 @@ import { SoundDataMetaStepComponent } from "./widgets/sound-data-meta-step/sound
 import { SoundDataInfoStepComponent } from "./widgets/sound-data-info-step/sound-data-info-step.component";
 import { ConfirmationStepComponent } from "./widgets/confirmation-step/confirmation-step.component";
 import { StorageService } from '../../../../core/services/storage.service';
+import { QuotaService } from '../../../../core/services/quota.service';
+import { AppUserService } from '../../../../core/services/app-user.service';
+import { QuotaInfo } from '../../../../core/models/quota.model';
 
 @Component({
   selector: 'app-new-sound',
@@ -39,6 +44,7 @@ import { StorageService } from '../../../../core/services/storage.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     AsyncPipe,
     TranslateModule,
     SoundUploadStepComponent,
@@ -51,9 +57,12 @@ import { StorageService } from '../../../../core/services/storage.service';
   templateUrl: './new-sound.component.html',
   styleUrl: './new-sound.component.scss',
 })
-export class NewSoundComponent implements OnDestroy, AfterViewInit {
+export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   private _formBuilder = inject(FormBuilder);
   private storageService = inject(StorageService);
+  private quotaService = inject(QuotaService);
+  private appUserService = inject(AppUserService);
+  private router = inject(Router);
   private renderer = inject(Renderer2);
 
   @ViewChild(MatStepper) stepper!: MatStepper;
@@ -65,6 +74,11 @@ export class NewSoundComponent implements OnDestroy, AfterViewInit {
   readonly selectedPlace = signal<PlaceSelection | null>(null);
 
   readonly highlightedSteps = signal<number[]>([]);
+
+  // Quota
+  readonly quotaExceeded = signal(false);
+  readonly quotaLoading = signal(true);
+  readonly quotaInfo = signal<QuotaInfo | null>(null);
 
   private stepperReady = false;
 
@@ -101,6 +115,25 @@ export class NewSoundComponent implements OnDestroy, AfterViewInit {
         this.updateStepHeaderStyles(highlighted);
       }
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const user = this.appUserService.currentUser;
+      if (user?.id) {
+        const quota = await this.quotaService.getUserQuota(user.id);
+        this.quotaInfo.set(quota);
+        this.quotaExceeded.set(!quota.canUpload);
+      }
+    } catch (error) {
+      console.error('[NewSound] Failed to check quota:', error);
+    } finally {
+      this.quotaLoading.set(false);
+    }
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
   ngAfterViewInit(): void {

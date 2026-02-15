@@ -221,6 +221,10 @@
     "userNotFound": "User not found",
     "refresh": "Refresh",
     "audioError": "Audio playback error",
+    "tabs": {
+      "stats": "Statistics",
+      "sounds": "My Sounds"
+    },
     "table": {
       "title": "Title",
       "category": "Category",
@@ -258,8 +262,17 @@
     },
     "status": {
       "private": "Private",
-      "public_to_be_approved": "Pending",
-      "public": "Public"
+      "public_to_be_approved": "Pending review",
+      "public": "Public",
+      "pendingTooltip": "Your sound will be publicly visible after review by a moderator"
+    },
+    "stats": {
+      "totalSounds": "Total sounds",
+      "publicSounds": "Public sounds",
+      "totalLikes": "Total likes",
+      "categoryDistribution": "Category distribution",
+      "statusBreakdown": "Sound statuses",
+      "monthlyActivity": "Monthly activity"
     },
     "admin": {
       "showAll": "Show all sounds",
@@ -452,7 +465,45 @@
       "featuredSound": "Sound of the Day",
       "journeys": "Sound Journeys",
       "quizzes": "Sound Quizzes",
-      "articles": "Articles"
+      "articles": "Articles",
+      "tabs": {
+        "dashboard": "Dashboard"
+      }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalSounds": "Total sounds",
+      "totalUsers": "Users",
+      "publicSounds": "Public sounds",
+      "pendingSounds": "Pending",
+      "newThisMonth": "New this month",
+      "byCategory": "Sounds by category",
+      "uploadsOverTime": "Uploads over time",
+      "statusDistribution": "Status distribution",
+      "topContributors": "Top contributors",
+      "topCities": "Most active cities",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveAll": "Approve all",
+      "approved": "Sound approved",
+      "rejected": "Sound rejected",
+      "approveError": "Failed to approve",
+      "rejectError": "Failed to reject",
+      "tabs": {
+        "stats": "Statistics",
+        "moderation": "Moderation"
+      },
+      "noPending": "No sounds pending review",
+      "details": "Details",
+      "detailTitle": "Title",
+      "detailStory": "Story",
+      "detailCategory": "Category",
+      "detailLocation": "Location",
+      "detailEquipment": "Equipment",
+      "detailLicense": "License",
+      "detailHashtags": "Hashtags",
+      "detailDate": "Added on",
+      "detailAudio": "Listen"
     },
     "featuredSound": {
       "title": "Sound of the Day",
@@ -1223,5 +1274,14 @@
   "update": {
     "available": "A new version is available",
     "reload": "Reload"
+  },
+  "quota": {
+    "weeklyUsage": "Uploads this week",
+    "monthlyUsage": "Uploads this month",
+    "remaining": "{{count}} remaining",
+    "exceeded": "Limit reached",
+    "weeklyExceeded": "You've reached the limit of {{limit}} sounds per week",
+    "monthlyExceeded": "You've reached the limit of {{limit}} sounds per month",
+    "backToDashboard": "Back to dashboard"
   }
 }

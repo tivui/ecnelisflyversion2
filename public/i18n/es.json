@@ -220,6 +220,10 @@
     "userNotFound": "Usuario no encontrado",
     "refresh": "Actualizar",
     "audioError": "Error de reproducción de audio",
+    "tabs": {
+      "stats": "Estadísticas",
+      "sounds": "Mis Sonidos"
+    },
     "table": {
       "title": "Título",
       "category": "Categoría",
@@ -256,8 +260,17 @@
     },
     "status": {
       "private": "Privado",
-      "public_to_be_approved": "Pendiente",
-      "public": "Público"
+      "public_to_be_approved": "Pendiente de validación",
+      "public": "Público",
+      "pendingTooltip": "Tu sonido será visible públicamente tras la validación por un moderador"
+    },
+    "stats": {
+      "totalSounds": "Total sonidos",
+      "publicSounds": "Sonidos públicos",
+      "totalLikes": "Total likes",
+      "categoryDistribution": "Distribución por categoría",
+      "statusBreakdown": "Estados de los sonidos",
+      "monthlyActivity": "Actividad mensual"
     },
     "admin": {
       "showAll": "Ver todos los sonidos",
@@ -276,6 +289,15 @@
       "noResults": "Ningún resultado coincide con sus criterios",
       "resultsCount": "{{count}} resultado(s) de {{total}}"
     }
+  },
+  "quota": {
+    "weeklyUsage": "Subidas esta semana",
+    "monthlyUsage": "Subidas este mes",
+    "remaining": "{{count}} restante(s)",
+    "exceeded": "Límite alcanzado",
+    "weeklyExceeded": "Has alcanzado el límite de {{limit}} sonidos por semana",
+    "monthlyExceeded": "Has alcanzado el límite de {{limit}} sonidos por mes",
+    "backToDashboard": "Volver al panel"
   },
   "account": {
     "title": "Mi espacio",
@@ -436,7 +458,49 @@
       "featuredSound": "Sonido del día",
       "journeys": "Viajes sonoros",
       "quizzes": "Quiz sonoros",
-      "articles": "Artículos"
+      "articles": "Artículos",
+      "tabs": {
+        "dashboard": "Panel de control"
+      }
+    },
+    "dashboard": {
+      "title": "Panel de control",
+      "loading": "Cargando estadísticas...",
+      "totalSounds": "Total sonidos",
+      "totalUsers": "Total usuarios",
+      "publicSounds": "Sonidos públicos",
+      "pendingSounds": "Pendientes",
+      "newThisMonth": "Nuevos este mes",
+      "byCategory": "Sonidos por categoría",
+      "uploadsOverTime": "Evolución de subidas",
+      "statusDistribution": "Distribución de estados",
+      "topContributors": "Principales contribuidores",
+      "topCities": "Ciudades más activas",
+      "moderation": "Moderación",
+      "pendingCount": "{{count}} sonido(s) pendiente(s)",
+      "noPending": "No hay sonidos pendientes de validación",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "approveAll": "Aprobar todos",
+      "approved": "Sonido aprobado",
+      "rejected": "Sonido rechazado",
+      "allApproved": "Todos los sonidos aprobados",
+      "approveError": "Error al aprobar",
+      "rejectError": "Error al rechazar",
+      "tabs": {
+        "stats": "Estadísticas",
+        "moderation": "Moderación"
+      },
+      "details": "Detalles",
+      "detailTitle": "Título",
+      "detailStory": "Historia",
+      "detailCategory": "Categoría",
+      "detailLocation": "Ubicación",
+      "detailEquipment": "Equipo",
+      "detailLicense": "Licencia",
+      "detailHashtags": "Hashtags",
+      "detailDate": "Fecha de adición",
+      "detailAudio": "Escuchar"
     },
     "featuredSound": {
       "title": "Sonido del día",

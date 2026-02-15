@@ -69,8 +69,8 @@
         </button>
 
         <mat-menu #adminMenu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>manage_accounts</mat-icon>
+          <button mat-menu-item [routerLink]="'/admin/dashboard'">
+            <mat-icon>dashboard</mat-icon>
             {{ "toolbar.admin.dashboard" | translate }}
           </button>
           <button mat-menu-item [routerLink]="'/admin/database'">

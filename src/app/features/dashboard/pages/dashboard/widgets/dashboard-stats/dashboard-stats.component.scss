@@ -1,0 +1,249 @@
+.stats-container {
+  margin-bottom: 24px;
+}
+
+// KPI Cards
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.kpi-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #3f51b5;
+  margin-bottom: 8px;
+
+  &.kpi-icon-public {
+    color: #4caf50;
+  }
+
+  &.kpi-icon-likes {
+    color: #ef5350;
+  }
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Quota Bars
+.quota-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.quota-item {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.quota-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.quota-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.quota-count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #3f51b5;
+}
+
+.quota-remaining {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+// Charts
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+
+  &.chart-card-wide {
+    grid-column: span 1;
+  }
+}
+
+.chart-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+// Dark mode
+:host-context(body.dark-theme) {
+  .kpi-card,
+  .quota-item,
+  .chart-card {
+    background: rgba(30, 30, 46, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .kpi-value {
+    color: #e8eaf6;
+  }
+
+  .kpi-label {
+    color: #9fa4be;
+  }
+
+  .quota-label,
+  .chart-title {
+    color: #c5cae9;
+  }
+
+  .quota-count {
+    color: #7986cb;
+  }
+
+  .quota-remaining {
+    color: #7a7f9e;
+  }
+
+  // ngx-charts dark mode: axis labels, grid lines, ticks
+  ::ng-deep {
+    .ngx-charts {
+      text {
+        fill: rgba(255, 255, 255, 0.7) !important;
+      }
+
+      .gridline-path {
+        stroke: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      .refline-path {
+        stroke: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      .tick {
+        line {
+          stroke: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        text {
+          fill: rgba(255, 255, 255, 0.6) !important;
+        }
+      }
+
+      .domain {
+        stroke: rgba(255, 255, 255, 0.15) !important;
+      }
+
+      // Pie chart labels
+      .label-text,
+      .pie-label-text {
+        fill: rgba(255, 255, 255, 0.8) !important;
+      }
+
+      .pie-label-line {
+        stroke: rgba(255, 255, 255, 0.3) !important;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .kpi-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .kpi-card {
+    padding: 14px 8px;
+  }
+
+  .kpi-value {
+    font-size: 1.5rem;
+  }
+
+  .kpi-label {
+    font-size: 0.7rem;
+  }
+
+  .kpi-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .quota-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    ::ng-deep {
+      .ngx-charts {
+        width: 100% !important;
+      }
+    }
+  }
+}

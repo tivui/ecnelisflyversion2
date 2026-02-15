@@ -171,6 +171,15 @@ export class ConfirmationStepComponent implements OnChanges {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+  private resolveStatus(status?: string): 'public_to_be_approved' | 'public' | 'private' {
+    const isAdmin = this.authService.isInGroup('ADMIN');
+    // Non-admin users: "public" becomes "public_to_be_approved"
+    if (!isAdmin && (!status || status === 'public')) {
+      return 'public_to_be_approved';
+    }
+    return (status || 'public') as 'public_to_be_approved' | 'public' | 'private';
+  }
+
   async onConfirm() {
     if (!this.soundData || this.loading() || !this.isDataValid) return;
 
@@ -196,7 +205,7 @@ export class ConfirmationStepComponent implements OnChanges {
           ? JSON.stringify(this.soundData.shortStory_i18n)
           : undefined,
         filename: this.soundData.soundPath || '',
-        status: (this.soundData.status || 'public_to_be_approved') as 'public_to_be_approved' | 'public' | 'private',
+        status: this.resolveStatus(this.soundData.status),
         latitude: this.soundData.place?.lat,
         longitude: this.soundData.place?.lng,
         city: this.soundData.place?.name,
@@ -224,7 +233,8 @@ export class ConfirmationStepComponent implements OnChanges {
       // Émettre l'événement de confirmation
       this.confirmed.emit();
 
-      // Rediriger vers mapfly centrée sur le son après l'animation
+      // Rediriger après l'animation — toujours vers la carte
+      const finalStatus = soundToCreate.status;
       setTimeout(() => {
         this.router.navigate(['/mapfly'], {
           queryParams: {
@@ -234,11 +244,19 @@ export class ConfirmationStepComponent implements OnChanges {
             [MAP_QUERY_KEYS.basemap]: 'mapbox',
           },
         });
-        this.snackBar.open(
-          this.translate.instant('sound.confirmation-success'),
-          'OK',
-          { duration: 4000 },
-        );
+        if (finalStatus === 'public_to_be_approved') {
+          this.snackBar.open(
+            this.translate.instant('dashboard.status.pendingTooltip'),
+            'OK',
+            { duration: 5000 },
+          );
+        } else {
+          this.snackBar.open(
+            this.translate.instant('sound.confirmation-success'),
+            'OK',
+            { duration: 4000 },
+          );
+        }
       }, 2500);
     } catch (error) {
       console.error('Error creating sound:', error);

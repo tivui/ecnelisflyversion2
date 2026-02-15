@@ -260,6 +260,11 @@ export class AppComponent implements OnInit {
           this.logService.info('User signed in via Amplify Hub');
 
           const appUser = await this.appUserService.loadCurrentUser();
+
+          // Reload groups and update admin status
+          await this.authService.loadCurrentUser();
+          this.isAdmin.set(this.authService.isInGroup('ADMIN'));
+
           if (appUser?.language) {
             // Update language from user preference
             this.selectedLang.set(appUser.language);
@@ -286,6 +291,7 @@ export class AppComponent implements OnInit {
         case 'signedOut': {
           const previousUsername = this.appUserService.currentUser?.username ?? '';
           this.appUserService.clearCurrentUser();
+          this.isAdmin.set(false);
 
           this.router.navigate(['/home'], { replaceUrl: true });
 

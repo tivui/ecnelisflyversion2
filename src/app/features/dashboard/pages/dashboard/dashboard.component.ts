@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -17,6 +18,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { Sound } from '../../../../core/models/sound.model';
 import { SoundListComponent } from './widgets/sound-list/sound-list.component';
 import { SoundFiltersComponent } from './widgets/sound-filters/sound-filters.component';
+import { DashboardStatsComponent } from './widgets/dashboard-stats/dashboard-stats.component';
 import {
   DEFAULT_FILTERS,
   DEFAULT_SORT,
@@ -39,9 +41,11 @@ import {
     MatButtonModule,
     MatSlideToggleModule,
     MatProgressSpinnerModule,
+    MatTabsModule,
     TranslateModule,
     SoundListComponent,
     SoundFiltersComponent,
+    DashboardStatsComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

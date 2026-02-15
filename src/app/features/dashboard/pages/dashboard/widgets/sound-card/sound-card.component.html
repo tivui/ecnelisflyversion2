@@ -24,7 +24,10 @@
         </button>
         <h3 class="card-title">{{ displayTitle }}</h3>
       </div>
-      <mat-chip [class]="'status-chip ' + statusClass">
+      <mat-chip
+        [class]="'status-chip ' + statusClass"
+        [matTooltip]="sound.status === 'public_to_be_approved' ? ('dashboard.status.pendingTooltip' | translate) : ''"
+      >
         {{ statusText }}
       </mat-chip>
     </div>

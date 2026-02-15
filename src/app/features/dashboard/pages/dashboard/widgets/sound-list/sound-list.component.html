@@ -103,6 +103,7 @@
           <td mat-cell *matCellDef="let sound">
             <mat-chip
               [class]="'status-chip status-' + (sound.status || 'unknown')"
+              [matTooltip]="sound.status === 'public_to_be_approved' ? ('dashboard.status.pendingTooltip' | translate) : ''"
             >
               {{ getStatusText(sound.status) }}
             </mat-chip>

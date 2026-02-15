@@ -217,4 +217,38 @@ export class DashboardService {
   async getAudioUrl(sound: Sound): Promise<string> {
     return this.soundsService.getAudioUrl(sound);
   }
+
+  /**
+   * Load all users (admin only)
+   */
+  async loadAllUsers(): Promise<{ id: string; username: string; createdAt?: string }[]> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const users: any[] = [];
+      let nextToken: string | null | undefined = undefined;
+
+      do {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const result: { data: any[]; nextToken?: string | null } = await (
+          this.amplifyService.client.models.User.list as any
+        )({
+          selectionSet: ['id', 'username', 'createdAt'],
+          limit: 100,
+          nextToken,
+          authMode: 'userPool',
+        });
+        /* eslint-enable @typescript-eslint/no-explicit-any */
+
+        if (result.data) {
+          users.push(...result.data);
+        }
+        nextToken = result.nextToken;
+      } while (nextToken);
+
+      return users;
+    } catch (error) {
+      console.error('[DashboardService] Failed to load users:', error);
+      throw error;
+    }
+  }
 }

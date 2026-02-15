@@ -92,15 +92,17 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
     } while (nextToken);
   };
 
-  // --- Sélection de l’index selon les paramètres envoyés ---
+  // --- Sélection de l'index selon les paramètres envoyés ---
   const fetchWithStatuses = async (
     query: keyof typeof client.models.Sound,
     base: any,
   ) => {
     if (fetchPublic)
       await fetchAllPages(query, { ...base, status: { eq: 'public' } });
-    if (fetchAllPrivate)
+    if (fetchAllPrivate) {
       await fetchAllPages(query, { ...base, status: { eq: 'private' } });
+      await fetchAllPages(query, { ...base, status: { eq: 'public_to_be_approved' } });
+    }
   };
 
   // --------------------------------------------------------------------
@@ -115,7 +117,7 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
       status: { eq: 'public' },
     });
 
-    // PRIVATE only if owner (currentUser) or admin
+    // PRIVATE + PUBLIC_TO_BE_APPROVED only if owner (currentUser) or admin
     if (
       fetchAllPrivate ||
       (fetchPrivateForUser &&
@@ -125,6 +127,10 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
       await fetchAllPages('listSoundsByUserAndStatus', {
         userId: queryUserId,
         status: { eq: 'private' },
+      });
+      await fetchAllPages('listSoundsByUserAndStatus', {
+        userId: queryUserId,
+        status: { eq: 'public_to_be_approved' },
       });
     }
   } else if (secondaryCategory) {
@@ -138,22 +144,27 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
       category: category as CategoryKey,
     });
   } else {
-    console.log('Fetching all sounds (public + my private)');
+    console.log('Fetching all sounds (public + my private + my pending)');
 
     // Tous les sons publics
     await fetchAllPages('listSoundsByStatus', { status: 'public' });
 
-    // Privés de l'utilisateur courant
+    // Utilisateur connecté (non admin) : ses sons privés + en attente
     if (fetchPrivateForUser && !isAdmin && currentUserTableId) {
       await fetchAllPages('listSoundsByUserAndStatus', {
         userId: currentUserTableId,
         status: { eq: 'private' },
+      });
+      await fetchAllPages('listSoundsByUserAndStatus', {
+        userId: currentUserTableId,
+        status: { eq: 'public_to_be_approved' },
       });
     }
 
     // Admin = tout voir
     if (fetchAllPrivate) {
       await fetchAllPages('listSoundsByStatus', { status: 'private' });
+      await fetchAllPages('listSoundsByStatus', { status: 'public_to_be_approved' });
     }
   }
 
@@ -164,8 +175,8 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   // --------------------------------------------------------------------
   const filtered = allItems.filter((sound) => {
     if (sound.status === 'public') return true;
-    if (fetchAllPrivate) return true;
-    if (fetchPrivateForUser && sound.userId === currentUserTableId) return true;
+    if (fetchAllPrivate) return true; // Admin voit tout
+    if (fetchPrivateForUser && sound.userId === currentUserTableId) return true; // Owner voit ses privés + pending
     return false;
   });
 

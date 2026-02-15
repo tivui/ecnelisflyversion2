@@ -1,0 +1,103 @@
+<div class="stats-container">
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <mat-icon class="kpi-icon">library_music</mat-icon>
+      <div class="kpi-value">{{ totalSounds() }}</div>
+      <div class="kpi-label">{{ 'dashboard.stats.totalSounds' | translate }}</div>
+    </div>
+    <div class="kpi-card">
+      <mat-icon class="kpi-icon kpi-icon-public">public</mat-icon>
+      <div class="kpi-value">{{ publicSounds() }}</div>
+      <div class="kpi-label">{{ 'dashboard.stats.publicSounds' | translate }}</div>
+    </div>
+    <div class="kpi-card">
+      <mat-icon class="kpi-icon kpi-icon-likes">favorite</mat-icon>
+      <div class="kpi-value">{{ totalLikes() }}</div>
+      <div class="kpi-label">{{ 'dashboard.stats.totalLikes' | translate }}</div>
+    </div>
+  </div>
+
+  <!-- Quota Bars (only for non-admin) -->
+  @if (!isAdmin() && quotaInfo(); as qi) {
+    @if (qi.weekLimit !== Infinity) {
+      <div class="quota-row">
+        <div class="quota-item">
+          <div class="quota-header">
+            <span class="quota-label">{{ 'quota.weeklyUsage' | translate }}</span>
+            <span class="quota-count">{{ qi.weekCount }} / {{ qi.weekLimit }}</span>
+          </div>
+          <mat-progress-bar
+            [mode]="'determinate'"
+            [value]="weekPercent()"
+            [color]="getQuotaBarColor(weekPercent())"
+          ></mat-progress-bar>
+          <span class="quota-remaining">{{ 'quota.remaining' | translate:{ count: qi.weekRemaining } }}</span>
+        </div>
+        <div class="quota-item">
+          <div class="quota-header">
+            <span class="quota-label">{{ 'quota.monthlyUsage' | translate }}</span>
+            <span class="quota-count">{{ qi.monthCount }} / {{ qi.monthLimit }}</span>
+          </div>
+          <mat-progress-bar
+            [mode]="'determinate'"
+            [value]="monthPercent()"
+            [color]="getQuotaBarColor(monthPercent())"
+          ></mat-progress-bar>
+          <span class="quota-remaining">{{ 'quota.remaining' | translate:{ count: qi.monthRemaining } }}</span>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Charts Row -->
+  @if (totalSounds() > 0) {
+    <div class="charts-row">
+      <!-- Category Distribution -->
+      @if (categoryData().length > 1) {
+        <div class="chart-card">
+          <h3 class="chart-title">{{ 'dashboard.stats.categoryDistribution' | translate }}</h3>
+          <ngx-charts-pie-chart
+            [results]="categoryData()"
+            [scheme]="categoryColorScheme()"
+            [doughnut]="true"
+            [labels]="true"
+            [trimLabels]="true"
+            [maxLabelLength]="16"
+            [view]="[320, 240]"
+          ></ngx-charts-pie-chart>
+        </div>
+      }
+
+      <!-- Status Breakdown -->
+      @if (statusData().length > 1) {
+        <div class="chart-card">
+          <h3 class="chart-title">{{ 'dashboard.stats.statusBreakdown' | translate }}</h3>
+          <ngx-charts-pie-chart
+            [results]="statusData()"
+            [scheme]="statusColorScheme"
+            [labels]="true"
+            [view]="[280, 240]"
+          ></ngx-charts-pie-chart>
+        </div>
+      }
+
+      <!-- Monthly Activity -->
+      <div class="chart-card chart-card-wide">
+        <h3 class="chart-title">{{ 'dashboard.stats.monthlyActivity' | translate }}</h3>
+        <ngx-charts-bar-vertical
+          [results]="monthlyData()"
+          [scheme]="monthlyColorScheme"
+          [xAxisLabel]="''"
+          [yAxisLabel]="''"
+          [showXAxisLabel]="false"
+          [showYAxisLabel]="false"
+          [xAxis]="true"
+          [yAxis]="true"
+          [roundDomains]="true"
+          [view]="[400, 220]"
+        ></ngx-charts-bar-vertical>
+      </div>
+    </div>
+  }
+</div>
