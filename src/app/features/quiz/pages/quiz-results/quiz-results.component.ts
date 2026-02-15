@@ -40,66 +40,84 @@ export class QuizResultsComponent implements OnInit {
 
   loading = signal(true);
   quiz = signal<Quiz | null>(null);
-  attempt = signal<QuizAttempt | null>(null);
   leaderboard = signal<QuizAttempt[]>([]);
   isGuest = signal(false);
 
-  // Local data for guest or fallback
+  // Local data (always used now)
   localScore = signal(0);
   localMaxScore = signal(0);
   localAnswers = signal<QuizAnswer[]>([]);
   localQuestions = signal<QuizQuestion[]>([]);
 
-  score = computed(() => this.attempt()?.score ?? this.localScore());
-  maxScore = computed(() => this.attempt()?.maxScore ?? this.localMaxScore());
-  stars = computed(() => {
-    if (this.attempt()) return this.attempt()!.stars;
-    return calculateStars(this.localScore(), this.localMaxScore());
-  });
+  // Publish state
+  published = signal(false);
+  publishing = signal(false);
+  publishedAttemptId = signal<string | null>(null);
+  publishedRank = signal<number | null>(null);
+
+  // Full leaderboard
+  showFullLeaderboard = signal(false);
+  fullLeaderboard = signal<QuizAttempt[]>([]);
+  loadingFull = signal(false);
+
+  score = computed(() => this.localScore());
+  maxScore = computed(() => this.localMaxScore());
+  stars = computed(() => calculateStars(this.localScore(), this.localMaxScore()));
   percentage = computed(() => {
     const max = this.maxScore();
     return max > 0 ? Math.round((this.score() / max) * 100) : 0;
   });
 
   isAuthenticated = computed(() => !!this.appUserService.currentUser);
+  starsArray = computed(() => Array.from({ length: 3 }, (_, i) => i < this.stars()));
+
+  // Estimated rank: where user would land in the current leaderboard
+  estimatedRank = computed(() => {
+    const s = this.score();
+    const lb = this.leaderboard();
+    if (lb.length === 0) return 1;
+    const idx = lb.findIndex((entry) => s >= entry.score);
+    return idx === -1 ? lb.length + 1 : idx + 1;
+  });
+
+  // Display leaderboard (top 10 or full)
+  displayLeaderboard = computed(() =>
+    this.showFullLeaderboard() ? this.fullLeaderboard() : this.leaderboard(),
+  );
+
+  // Whether there might be more entries beyond the top 10
+  hasMoreEntries = computed(() => this.leaderboard().length >= 10);
+
+  // After publish: check if user is visible in displayed leaderboard
+  userInDisplayedList = computed(() => {
+    const id = this.publishedAttemptId();
+    if (!id) return false;
+    return this.displayLeaderboard().some((e) => e.id === id);
+  });
+
+  // The user's published entry (for showing below separator when outside top 10)
+  publishedEntry = computed(() => {
+    const id = this.publishedAttemptId();
+    if (!id) return null;
+    const inFull = this.fullLeaderboard().find((e) => e.id === id);
+    if (inFull) return inFull;
+    return this.leaderboard().find((e) => e.id === id) ?? null;
+  });
 
   private quizId = '';
 
   ngOnInit() {
     this.quizId = this.route.snapshot.params['id'];
-    const attemptId = this.route.snapshot.params['attemptId'];
 
-    // Check for local state data (guest mode or fallback)
-    const nav = this.router.getCurrentNavigation()?.extras?.state
-      ?? history.state;
+    const nav = this.router.getCurrentNavigation()?.extras?.state ?? history.state;
 
-    if (attemptId === 'local' && nav) {
-      this.isGuest.set(!!nav['guest']);
-      this.localScore.set(nav['score'] ?? 0);
-      this.localMaxScore.set(nav['maxScore'] ?? 0);
-      this.localAnswers.set(nav['answers'] ?? []);
-      this.localQuestions.set(nav['questions'] ?? []);
-      this.loadQuizAndLeaderboard();
-    } else {
-      this.loadAttemptData(attemptId);
-    }
-  }
+    this.isGuest.set(!!nav?.['guest']);
+    this.localScore.set(nav?.['score'] ?? 0);
+    this.localMaxScore.set(nav?.['maxScore'] ?? 0);
+    this.localAnswers.set(nav?.['answers'] ?? []);
+    this.localQuestions.set(nav?.['questions'] ?? []);
 
-  private async loadAttemptData(attemptId: string) {
-    try {
-      const [quiz, attempt, leaderboard] = await Promise.all([
-        this.quizService.getQuiz(this.quizId),
-        this.quizService.getAttempt(attemptId),
-        this.quizService.getLeaderboard(this.quizId, 10),
-      ]);
-      this.quiz.set(quiz);
-      this.attempt.set(attempt);
-      this.leaderboard.set(leaderboard);
-    } catch (error) {
-      console.error('Error loading results:', error);
-    } finally {
-      this.loading.set(false);
-    }
+    this.loadQuizAndLeaderboard();
   }
 
   private async loadQuizAndLeaderboard() {
@@ -117,18 +135,65 @@ export class QuizResultsComponent implements OnInit {
     }
   }
 
-  goToReview() {
-    const attemptId = this.route.snapshot.params['attemptId'];
-    if (attemptId === 'local') {
-      this.router.navigate(['/quiz', this.quizId, 'review', 'local'], {
-        state: {
-          answers: this.localAnswers(),
-          questions: this.localQuestions(),
-        },
-      });
-    } else {
-      this.router.navigate(['/quiz', this.quizId, 'review', attemptId]);
+  async publishScore() {
+    if (this.publishing() || this.published()) return;
+
+    this.publishing.set(true);
+    try {
+      const attempt = await this.quizService.submitAttempt(
+        this.quizId,
+        this.localAnswers(),
+        this.localMaxScore(),
+      );
+      this.publishedAttemptId.set(attempt.id);
+      this.published.set(true);
+
+      // Refresh leaderboard to include new entry
+      const leaderboard = await this.quizService.getLeaderboard(this.quizId, 10);
+      this.leaderboard.set(leaderboard);
+
+      // Calculate real rank
+      const rank = leaderboard.findIndex((e) => e.id === attempt.id);
+      if (rank !== -1) {
+        this.publishedRank.set(rank + 1);
+      } else {
+        // User is outside top 10 — load full leaderboard to find position
+        const full = await this.quizService.getLeaderboard(this.quizId, 100);
+        this.fullLeaderboard.set(full);
+        const fullRank = full.findIndex((e) => e.id === attempt.id);
+        this.publishedRank.set(fullRank !== -1 ? fullRank + 1 : null);
+      }
+    } catch (error) {
+      console.error('Error publishing score:', error);
+    } finally {
+      this.publishing.set(false);
     }
+  }
+
+  async loadFullLeaderboard() {
+    this.loadingFull.set(true);
+    try {
+      const full = await this.quizService.getLeaderboard(this.quizId, 100);
+      this.fullLeaderboard.set(full);
+      this.showFullLeaderboard.set(true);
+    } catch (error) {
+      console.error('Error loading full leaderboard:', error);
+    } finally {
+      this.loadingFull.set(false);
+    }
+  }
+
+  isCurrentUser(entry: QuizAttempt): boolean {
+    return this.publishedAttemptId() === entry.id;
+  }
+
+  goToReview() {
+    this.router.navigate(['/quiz', this.quizId, 'review', 'local'], {
+      state: {
+        answers: this.localAnswers(),
+        questions: this.localQuestions(),
+      },
+    });
   }
 
   replay() {
@@ -142,6 +207,4 @@ export class QuizResultsComponent implements OnInit {
   goToLogin() {
     this.router.navigate(['/login']);
   }
-
-  starsArray = computed(() => Array.from({ length: 3 }, (_, i) => i < this.stars()));
 }

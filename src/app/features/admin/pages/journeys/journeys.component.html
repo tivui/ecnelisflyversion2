@@ -61,6 +61,13 @@
           <div class="actions">
             <button
               mat-icon-button
+              [matTooltip]="'admin.journeys.actions.monthly' | translate"
+              (click)="setAsMonthly(journey)"
+            >
+              <mat-icon>star</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               [matTooltip]="'admin.journeys.actions.previewOnMap' | translate"
               (click)="previewOnMap(journey)"
             >

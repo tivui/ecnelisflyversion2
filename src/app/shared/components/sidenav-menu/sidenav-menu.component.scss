@@ -271,6 +271,10 @@
   text-align: center;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 
+  @media (min-width: 701px) {
+    display: none;
+  }
+
   :host-context(body.dark-theme) & {
     border-top-color: rgba(255, 255, 255, 0.1);
   }

@@ -390,4 +390,19 @@ body.dark-theme {
   }
 }
 
+// Success snackbar (account save)
+.account-snackbar {
+  .mdc-snackbar__surface {
+    background: #1b5e20 !important;
+  }
 
+  .mat-mdc-snack-bar-label {
+    color: #fff !important;
+  }
+
+  body.dark-theme & {
+    .mdc-snackbar__surface {
+      background: #2e7d32 !important;
+    }
+  }
+}

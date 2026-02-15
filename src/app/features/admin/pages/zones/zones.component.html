@@ -61,6 +61,13 @@
           <div class="actions">
             <button
               mat-icon-button
+              [matTooltip]="'admin.zones.actions.monthly' | translate"
+              (click)="setAsMonthly(zone)"
+            >
+              <mat-icon>star</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               [matTooltip]="'admin.zones.actions.viewOnMap' | translate"
               (click)="viewOnMap(zone)"
             >

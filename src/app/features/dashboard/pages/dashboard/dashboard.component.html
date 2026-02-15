@@ -18,6 +18,16 @@
         </mat-slide-toggle>
       }
 
+      <!-- My map button -->
+      <button
+        mat-stroked-button
+        (click)="goToMyMap()"
+        class="my-map-btn"
+      >
+        <mat-icon>map</mat-icon>
+        {{ "dashboard.myMap" | translate }}
+      </button>
+
       <!-- Add sound button -->
       <button
         mat-raised-button

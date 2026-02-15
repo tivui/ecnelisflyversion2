@@ -32,7 +32,12 @@
           </div>
           <div class="pill">
             <mat-icon>help_outline</mat-icon>
-            <span>{{ 'quiz.lobby.questions' | translate:{ count: quiz()!.questionCount } }}</span>
+            <span>
+              {{ 'quiz.lobby.questions' | translate:{ count: quiz()!.questionsPerPlay } }}
+              @if (quiz()!.questionCount > quiz()!.questionsPerPlay) {
+                <span class="pool-info">{{ 'quiz.lobby.questionsFromPool' | translate:{ total: quiz()!.questionCount } }}</span>
+              }
+            </span>
           </div>
           <div class="pill">
             <mat-icon>timer</mat-icon>

@@ -44,6 +44,7 @@ export class QuizService {
       icon: raw.icon ?? undefined,
       status: raw.status as QuizStatus,
       questionCount: raw.questionCount ?? 0,
+      questionsPerPlay: raw.questionsPerPlay ?? 5,
       totalPlays: raw.totalPlays ?? 0,
       createdAt: raw.createdAt ?? undefined,
       updatedAt: raw.updatedAt ?? undefined,
@@ -168,6 +169,7 @@ export class QuizService {
     imageKey?: string;
     icon?: string;
     status: QuizStatus;
+    questionsPerPlay?: number;
   }): Promise<Quiz> {
     const result = await this.client.models.Quiz.create({
       id: uuidv4(),
@@ -185,6 +187,7 @@ export class QuizService {
       icon: data.icon,
       status: data.status,
       questionCount: 0,
+      questionsPerPlay: data.questionsPerPlay ?? 5,
       totalPlays: 0,
     } as any);
     if (result.errors?.length) {
@@ -207,6 +210,7 @@ export class QuizService {
       icon: string;
       status: QuizStatus;
       questionCount: number;
+      questionsPerPlay: number;
       totalPlays: number;
     }>,
   ): Promise<Quiz> {
@@ -227,6 +231,8 @@ export class QuizService {
     if (updates.status !== undefined) input['status'] = updates.status;
     if (updates.questionCount !== undefined)
       input['questionCount'] = updates.questionCount;
+    if (updates.questionsPerPlay !== undefined)
+      input['questionsPerPlay'] = updates.questionsPerPlay;
     if (updates.totalPlays !== undefined)
       input['totalPlays'] = updates.totalPlays;
 

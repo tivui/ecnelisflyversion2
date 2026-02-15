@@ -1,6 +1,9 @@
 @if (appUser()) {
   <div class="account-container">
-    <h1 class="account-title">{{ "account.title" | translate }}</h1>
+    <div class="account-title-section">
+      <mat-icon class="account-title-icon">person</mat-icon>
+      <h1 class="account-title">{{ "account.title" | translate }}</h1>
+    </div>
 
     <div class="form-wrapper">
       <mat-tab-group
@@ -107,7 +110,7 @@
                 <mat-label>{{ "account.avatar.seed" | translate }}</mat-label>
                 <input
                   matInput
-                  [value]="selectedAvatarSeed()"
+                  [value]="seedFieldValue()"
                   (input)="onAvatarSeedChange($event)"
                 />
               </mat-form-field>
@@ -213,6 +216,15 @@
       <mat-divider></mat-divider>
 
       <div class="form-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          class="cancel-btn"
+          (click)="cancel()"
+          [disabled]="saving()"
+        >
+          {{ "account.cancel" | translate }}
+        </button>
         <button
           mat-raised-button
           color="primary"

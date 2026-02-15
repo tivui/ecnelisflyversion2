@@ -162,6 +162,13 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/new-sound']);
   }
 
+  goToMyMap() {
+    const userId = this.currentUserId();
+    if (userId) {
+      this.router.navigate(['/mapfly'], { queryParams: { userId } });
+    }
+  }
+
   onFiltersChanged(filters: SoundFilters) {
     this.currentFilters.set(filters);
   }

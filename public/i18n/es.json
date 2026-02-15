@@ -126,7 +126,8 @@
       "questions": "{{count}} preguntas",
       "bestScore": "Mejor puntuación",
       "topPlayers": "Mejores jugadores",
-      "guestNotice": "Inicia sesión para guardar tu puntuación"
+      "guestNotice": "Inicia sesión para guardar tu puntuación",
+      "questionsFromPool": "(de {{total}})"
     },
     "play": {
       "getReady": "¡Prepárate!",
@@ -138,7 +139,12 @@
       "replay": "Jugar de nuevo",
       "backToList": "Volver a los quiz",
       "guestWarning": "Tu puntuación no fue guardada",
-      "loginToSave": "Inicia sesión para guardar tus puntuaciones"
+      "loginToSave": "Inicia sesión para guardar tus puntuaciones",
+      "estimatedRank": "Tu posición estimada: #{{rank}}",
+      "publish": "Publicar mi puntuación",
+      "publishing": "Publicando...",
+      "published": "¡Puntuación publicada! Posición: #{{rank}}",
+      "showAll": "Ver clasificación completa"
     },
     "review": {
       "title": "Revisión de respuestas",
@@ -209,6 +215,7 @@
     "noSounds": "Aún no has añadido ningún sonido.",
     "addFirstSound": "Añadir tu primer sonido",
     "addSound": "Añadir sonido",
+    "myMap": "Mi mapa",
     "loadError": "Error al cargar los sonidos.",
     "userNotFound": "Usuario no encontrado",
     "refresh": "Actualizar",
@@ -271,7 +278,7 @@
     }
   },
   "account": {
-    "title": "Configuración del cuento",
+    "title": "Mi espacio",
     "tabs": {
       "profile": "Perfil",
       "avatar": "Avatar"
@@ -284,6 +291,14 @@
     "language": "App idioma",
     "theme": "Tema",
     "save": "Guardar cambios",
+    "saveSuccess": "Perfil actualizado",
+    "cancel": "Cancelar",
+    "cancelConfirm": {
+      "title": "Cambios no guardados",
+      "message": "Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?",
+      "confirm": "Salir",
+      "stay": "Quedarse"
+    },
     "avatar": {
       "title": "Avatar de perfil",
       "seed": "Semilla del avatar",
@@ -444,7 +459,11 @@
       },
       "deleteConfirm": "¿Eliminar este sonido de la lista?",
       "deleteSuccess": "Sonido eliminado de la lista",
-      "saveSuccess": "Sonido guardado"
+      "saveSuccess": "Sonido guardado",
+      "dailySet": "Sonido del día definido con éxito",
+      "actions": {
+        "setDaily": "Definir como sonido del día"
+      }
     },
     "zones": {
       "title": "Terruños sonoros",
@@ -461,7 +480,9 @@
         "order": "Orden",
         "actions": "Acciones"
       },
+      "monthlySet": "Terruño del mes definido con éxito",
       "actions": {
+        "monthly": "Terruño del mes",
         "viewOnMap": "Ver en el mapa",
         "manageSounds": "Gestionar sonidos",
         "edit": "Editar",
@@ -563,7 +584,9 @@
         "order": "Orden",
         "actions": "Acciones"
       },
+      "monthlySet": "Viaje del mes definido con éxito",
       "actions": {
+        "monthly": "Viaje del mes",
         "previewOnMap": "Vista previa en el mapa",
         "manageSteps": "Gestionar etapas",
         "edit": "Editar",
@@ -666,6 +689,8 @@
         "category": "Categoría",
         "icon": "Icono",
         "status": "Estado",
+        "questionsPerPlay": "Preguntas por partida",
+        "publishError": "No se puede publicar: se necesitan al menos {{count}} preguntas ({{current}} actualmente)",
         "createSuccess": "Quiz creado con éxito",
         "updateSuccess": "Quiz actualizado con éxito",
         "saveError": "Error al guardar el quiz"
@@ -706,6 +731,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Artículo del mes definido con éxito",
+      "actions": {
+        "monthly": "Artículo del mes"
+      },
       "list": {
         "title": "Artículos Sonoros",
         "new": "Nuevo artículo",
@@ -846,6 +875,15 @@
       "next": "Siguiente",
       "finish": "Terminar",
       "step": "Etapa"
+    },
+    "category": {
+      "count": "{{count}} sonidos",
+      "countOne": "1 sonido",
+      "lonely": "Un lobo solitario... ¡esperando compañía!"
+    },
+    "user": {
+      "soundsOf": "Sonidos de {{username}}",
+      "exploreFullMap": "Explorar el mapa completo"
     },
     "timeFilter": {
       "all": "Todos",

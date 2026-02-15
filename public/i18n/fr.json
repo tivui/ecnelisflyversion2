@@ -127,7 +127,8 @@
       "questions": "{{count}} questions",
       "bestScore": "Meilleur score",
       "topPlayers": "Meilleurs joueurs",
-      "guestNotice": "Connectez-vous pour sauvegarder votre score"
+      "guestNotice": "Connectez-vous pour sauvegarder votre score",
+      "questionsFromPool": "(sur {{total}})"
     },
     "play": {
       "getReady": "Préparez-vous !",
@@ -139,7 +140,12 @@
       "replay": "Rejouer",
       "backToList": "Retour aux quiz",
       "guestWarning": "Votre score n'a pas été sauvegardé",
-      "loginToSave": "Connectez-vous pour sauvegarder vos scores"
+      "loginToSave": "Connectez-vous pour sauvegarder vos scores",
+      "estimatedRank": "Votre position estimée : #{{rank}}",
+      "publish": "Publier mon score",
+      "publishing": "Publication...",
+      "published": "Score publié ! Position : #{{rank}}",
+      "showAll": "Voir classement complet"
     },
     "review": {
       "title": "Révision des réponses",
@@ -210,6 +216,7 @@
     "noSounds": "Vous n'avez pas encore ajouté de son.",
     "addFirstSound": "Ajouter votre premier son",
     "addSound": "Ajouter un son",
+    "myMap": "Ma carte",
     "loadError": "Erreur lors du chargement des sons.",
     "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
@@ -275,7 +282,7 @@
     }
   },
   "account": {
-    "title": "Configuration du compte",
+    "title": "Mon espace",
     "tabs": {
       "profile": "Profil",
       "avatar": "Avatar"
@@ -289,6 +296,14 @@
     "language": "Langue de l'application",
     "theme": "Thème",
     "save": "Enregistrer",
+    "saveSuccess": "Profil mis à jour",
+    "cancel": "Annuler",
+    "cancelConfirm": {
+      "title": "Modifications non enregistrées",
+      "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+      "confirm": "Quitter",
+      "stay": "Rester"
+    },
     "avatar": {
       "title": "Avatar de profil",
       "seed": "Graine de l'avatar",
@@ -461,7 +476,11 @@
       },
       "deleteConfirm": "Supprimer ce son de la liste ?",
       "deleteSuccess": "Son retiré de la liste",
-      "saveSuccess": "Son sauvegardé"
+      "saveSuccess": "Son sauvegardé",
+      "dailySet": "Son du jour défini avec succès",
+      "actions": {
+        "setDaily": "Définir comme son du jour"
+      }
     },
     "zones": {
       "title": "Terroirs sonores",
@@ -478,7 +497,9 @@
         "order": "Ordre",
         "actions": "Actions"
       },
+      "monthlySet": "Terroir du mois défini avec succès",
       "actions": {
+        "monthly": "Terroir du mois",
         "viewOnMap": "Voir sur la carte",
         "manageSounds": "Gérer les sons",
         "edit": "Modifier",
@@ -580,7 +601,9 @@
         "order": "Ordre",
         "actions": "Actions"
       },
+      "monthlySet": "Voyage du mois défini avec succès",
       "actions": {
+        "monthly": "Voyage du mois",
         "previewOnMap": "Aperçu sur la carte",
         "manageSteps": "Gérer les étapes",
         "edit": "Modifier",
@@ -683,6 +706,8 @@
         "category": "Catégorie",
         "icon": "Icône",
         "status": "Statut",
+        "questionsPerPlay": "Questions par partie",
+        "publishError": "Impossible de publier : il faut au moins {{count}} questions ({{current}} actuellement)",
         "createSuccess": "Quiz créé avec succès",
         "updateSuccess": "Quiz mis à jour avec succès",
         "saveError": "Erreur lors de l'enregistrement"
@@ -723,6 +748,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Article du mois défini avec succès",
+      "actions": {
+        "monthly": "Article du mois"
+      },
       "list": {
         "title": "Articles Sonores",
         "new": "Nouvel article",
@@ -874,6 +903,10 @@
       "count": "{{count}} sons",
       "countOne": "1 son",
       "lonely": "Un peu seul... il attend de la compagnie !"
+    },
+    "user": {
+      "soundsOf": "Sons de {{username}}",
+      "exploreFullMap": "Explorer la carte complète"
     },
     "timeFilter": {
       "all": "Tous",

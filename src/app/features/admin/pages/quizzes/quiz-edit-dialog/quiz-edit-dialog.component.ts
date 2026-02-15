@@ -94,6 +94,7 @@ export class QuizEditDialogComponent implements OnInit {
       category: [this.data.quiz?.category ?? ''],
       icon: [this.data.quiz?.icon ?? 'quiz'],
       status: [this.data.quiz?.status ?? 'draft', Validators.required],
+      questionsPerPlay: [this.data.quiz?.questionsPerPlay ?? 5, [Validators.required, Validators.min(1)]],
     });
   }
 
@@ -115,6 +116,21 @@ export class QuizEditDialogComponent implements OnInit {
       if (v.description_en) description_i18n['en'] = v.description_en;
       if (v.description_es) description_i18n['es'] = v.description_es;
 
+      // Validate publish: need enough questions
+      if (v.status === 'published' && this.isEditMode() && this.data.quiz) {
+        const needed = v.questionsPerPlay ?? 5;
+        const current = this.data.quiz.questionCount ?? 0;
+        if (current < needed) {
+          this.snackBar.open(
+            this.translate.instant('admin.quiz.dialog.publishError', { count: needed, current }),
+            '',
+            { duration: 5000 },
+          );
+          this.saving.set(false);
+          return;
+        }
+      }
+
       const payload = {
         title: v.title,
         title_i18n: Object.keys(title_i18n).length > 0 ? title_i18n : undefined,
@@ -125,6 +141,7 @@ export class QuizEditDialogComponent implements OnInit {
         category: v.category || undefined,
         icon: v.icon || undefined,
         status: v.status as QuizStatus,
+        questionsPerPlay: v.questionsPerPlay ?? 5,
       };
 
       if (this.isEditMode()) {

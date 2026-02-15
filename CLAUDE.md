@@ -247,7 +247,7 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 
 **Featured distinction :** `border-color: rgba(#7c4dff, 0.14)` + `box-shadow` violet glow + `inset 0 0 0 1px rgba(#7c4dff, 0.04)`
 
-**Hero title compacte :** logo 64px (au lieu de 80px), margins reduits, padding-top: 0
+**Hero title compacte :** logo 85px, margins reduits, padding-top: 0
 
 **Carousel section :** separateur gradient renforce (`$primary-blue → $primary-indigo → $primary-violet`), icon/titre colores indigo
 
@@ -287,9 +287,26 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 ### Mapfly (`features/map/pages/mapfly/`)
 
 - `ViewEncapsulation.None` (styles globaux pour popups Leaflet)
-- **Featured mode** : animation cinematique fly-in, overlay violet, popup avec header violet
+- **Featured mode** : animation cinematique fly-in, overlay violet, popup sans limitation de hauteur (maxHeight retire)
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
+
+#### Controles conditionnels par mode
+
+- **Mode categorie** (`isCategoryMode()`) : `groupedLayersControl` (selecteur de layers/categories) masque — inutile puisqu'on est deja dans une categorie filtree
+- **Mode zone** (`isZoneMode()`) : bouton recherche par lieu ("places") masque dans la barre de recherche — seule la recherche par son reste disponible
+- **Lang change** : la recreation du `groupedLayersControl` est gardee par `if (this.groupedLayersControl)` pour eviter erreur en mode categorie
+
+#### Zone mode - fitBounds polygone
+
+- Apres affichage du polygone dans `displayZoneOnMap()`, `fitBounds` est appele sur les bounds du polygone
+- **Mobile portrait** : `paddingTopLeft: [30, 80]`, `paddingBottomRight: [30, 140]` (espace pour barre de recherche en haut + timeline bar + bottom nav en bas)
+- **Desktop** : `padding: [60, 60]` uniforme
+
+#### Zone mode - donnees utilisateur dans les popups
+
+- `getSoundsForZone()` utilise la requete GraphQL custom `ListSoundsByZoneWithUser` (dans `amplify-queries.model.ts`) qui inclut `user { username country }`
+- Meme pattern que `ListSoundsForMapWithAppUser` pour la carte normale — garantit que le "recorded at by username" s'affiche dans les popups de la carte terroir
 
 #### Journey mode - popups et stepper
 
@@ -326,7 +343,7 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 | Service | Methodes avec `apiKey` |
 |---------|----------------------|
 | `featured-sound.service.ts` | `getTodayFeatured()` |
-| `article.service.ts` | `listPublishedArticles()`, `getArticleBySlug()` |
+| `article.service.ts` | `listPublishedArticles()`, `getArticleBySlug()`, `getMonthlyArticle()` |
 | `quiz.service.ts` | `listPublishedQuizzes()`, `getQuiz()`, `getQuizQuestions()`, `getMonthlyQuiz()`, `getSoundFilename()`, `getLeaderboard()`, `getAttempt()` |
 | `zone.service.ts` | `listZones()`, `getZoneById()`, `getZoneBySlug()`, `getMonthlyZone()`, `listZoneSoundsByZone()`, `listZoneSoundsBySound()`, `getSoundsForZone()` |
 | `sound-journey.service.ts` | `listPublicJourneys()`, `getJourney()`, `listSteps()` |
@@ -334,9 +351,102 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 ### Quiz en mode deconnecte
 
 - L'utilisateur peut jouer sans se connecter
-- `quiz-play.component.ts` : `finishQuiz()` verifie `isAuthenticated()` — si guest, navigue vers `/quiz/:id/results/local` avec state local
+- `quiz-play.component.ts` : `finishQuiz()` navigue toujours vers `/quiz/:id/results/local` avec state local (meme flux pour authentifie et guest)
 - L'enregistrement du score (`submitAttempt`) requiert l'authentification
 - Le schema `QuizAttempt` n'autorise `create` que pour `authenticated`
+
+### Questions par partie (`questionsPerPlay`)
+
+Chaque quiz a un nombre de questions par partie (`questionsPerPlay`, defaut 5) independant du nombre total de questions associees (`questionCount`).
+
+- **Schema** : `Quiz.questionsPerPlay: a.integer().default(5)` dans `amplify/data/resource.ts`
+- **Admin dialog** : champ nombre dans l'onglet General, validation a la publication (impossible si `questionCount < questionsPerPlay`)
+- **Quiz play** : Fisher-Yates shuffle pour selectionner aleatoirement `questionsPerPlay` questions parmi le pool total
+- **Lobby** : affiche `questionsPerPlay` questions + "(sur X)" si pool > questionsPerPlay, temps estime base sur questionsPerPlay
+- **Liste publique** : affiche `questionsPerPlay` questions (pas le total)
+- **Admin list** : affiche ratio `questionsPerPlay / questionCount`
+- **Scoring** : max 150 points par question (100 base + 0-50 bonus vitesse), `maxScore = questionsPerPlay * 150`
+
+### Publication optionnelle du score et classement
+
+Le score n'est plus auto-soumis a la fin du quiz. L'utilisateur choisit de publier ou non depuis la page resultats.
+
+**Flux :**
+1. Quiz termine → navigation vers `/quiz/:id/results/local` (state local avec score, answers, questions)
+2. Page resultats charge le quiz + leaderboard top 10 (API publique `apiKey`)
+3. Position estimee affichee avant publication (comparaison score vs leaderboard)
+4. Bouton "Publier mon score" (authentifie uniquement) → `submitAttempt` → refresh leaderboard → position reelle
+5. Ligne du joueur highlight en emerald dans le classement
+6. Si joueur hors top 10 : separateur "..." + sa ligne en bas du classement
+7. Bouton "Voir classement complet" si >= 10 entrees → charge 100 entrees
+8. Guest : banniere d'avertissement, pas de bouton publier
+
+**Signals cles (`quiz-results.component.ts`) :**
+- `published`, `publishing`, `publishedAttemptId`, `publishedRank` : etat publication
+- `showFullLeaderboard`, `fullLeaderboard`, `loadingFull` : classement complet
+- `estimatedRank` (computed) : position estimee avant publication
+- `displayLeaderboard` (computed) : top 10 ou complet selon `showFullLeaderboard`
+- `userInDisplayedList`, `publishedEntry` (computed) : detection/affichage joueur dans le classement
+
+**Styles (`quiz-results.component.scss`) :**
+- Palette emerald (`$emerald: #0d7c51`, `$emerald-light: #66bb6a`)
+- `.leaderboard-row.current-user` : highlight emerald
+- `.rank-1/.rank-2/.rank-3` : or `#ffc107` / argent `#90a4ae` / bronze `#cd7f32`
+- Stars animees (bounce staggere)
+
+**i18n :** `quiz.results.estimatedRank`, `quiz.results.publish`, `quiz.results.publishing`, `quiz.results.published`, `quiz.results.showAll`
+
+## Admin — Override manuel des elements mis en valeur
+
+### Principe
+
+Les elements mis en valeur (son du jour, quiz/zone/voyage/article du mois) sont peuples automatiquement par des Lambdas (`pick-daily-featured-sound`, `pick-monthly-quiz`, `pick-monthly-zone`, `pick-monthly-journey`, `pick-monthly-article`). Quand l'admin modifie un element source (ex: nom d'une zone), les donnees denormalisees dans les tables Monthly*/DailyFeatured* ne sont pas mises a jour automatiquement.
+
+Chaque section admin dispose d'un bouton (icone `star` ou `today`) pour forcer manuellement la (re)creation de l'element mis en valeur avec les donnees a jour.
+
+### Services — methodes d'override
+
+| Service | Methode | Action |
+|---------|---------|--------|
+| `zone.service.ts` | `setMonthlyZone(zone)` | Desactive les MonthlyZone actifs du mois, cree un nouveau avec donnees denormalisees (zoneName, zoneName_i18n, zoneDescription, zoneDescription_i18n, zoneSlug, zoneCoverImage, zoneIcon, zoneColor) |
+| `sound-journey.service.ts` | `setMonthlyJourney(journey)` | Desactive les MonthlyJourney actifs du mois, cree un nouveau avec donnees denormalisees (journeyName, journeyName_i18n, journeyDescription, journeyDescription_i18n, journeySlug, journeyColor, journeyCoverImage) |
+| `article.service.ts` | `setMonthlyArticle(article)` | Desactive les MonthlyArticle actifs du mois, cree un nouveau avec donnees denormalisees (articleTitle, articleTitle_i18n, articleSlug, articleCoverImageKey, articleAuthorName, articleDescription, articleDescription_i18n) |
+| `featured-sound.service.ts` | `forcePickDaily(candidate)` | Supprime le DailyFeaturedSound existant pour aujourd'hui, recup le Sound associe, cree un nouveau DailyFeaturedSound avec donnees denormalisees |
+| `quiz.service.ts` | `setMonthlyQuiz(quiz)` | (preexistant) Meme pattern pour le quiz du mois |
+
+### Modele MonthlyArticle
+
+Interface `MonthlyArticle` dans `article.model.ts` : `id`, `articleId`, `month`, `active`, `articleTitle`, `articleTitle_i18n`, `articleSlug`, `articleCoverImageKey`, `articleAuthorName`, `articleDescription`, `articleDescription_i18n`.
+
+Methode `getMonthlyArticle()` dans `article.service.ts` : query par mois courant avec `authMode: 'apiKey'`, filtre actifs, mappe les champs i18n avec `JSON.parse`.
+
+### Composants admin — boutons d'override
+
+| Composant | Bouton | Methode | Icone |
+|-----------|--------|---------|-------|
+| `zones.component` | Terroir du mois | `setAsMonthly(zone)` | `star` |
+| `journeys.component` | Voyage du mois | `setAsMonthly(journey)` | `star` |
+| `article-admin-list.component` | Article du mois | `setAsMonthly(article)` | `star` |
+| `featured-sound.component` | Son du jour | `setAsDaily(candidate)` | `today` |
+
+Chaque bouton appelle le service, affiche un snackBar de succes, et recharge les donnees.
+
+### Home page — article du mois
+
+`home.component.ts` : `loadArticle()` tente d'abord `getMonthlyArticle()`, convertit le `MonthlyArticle` en `SoundArticle` (mapping des champs prefixes), puis fallback sur `getLatestPublishedArticle()` si pas de monthly article.
+
+### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `admin.zones.actions.monthly` | Terroir du mois | Monthly zone | Terroir del mes |
+| `admin.zones.monthlySet` | Terroir du mois defini | Monthly zone set | Terroir del mes definido |
+| `admin.journeys.actions.monthly` | Voyage du mois | Monthly journey | Viaje del mes |
+| `admin.journeys.monthlySet` | Voyage du mois defini | Monthly journey set | Viaje del mes definido |
+| `admin.articles.actions.monthly` | Article du mois | Monthly article | Articulo del mes |
+| `admin.articles.monthlySet` | Article du mois defini | Monthly article set | Articulo del mes definido |
+| `admin.featuredSound.actions.setDaily` | Definir son du jour | Set as today's sound | Definir sonido del dia |
+| `admin.featuredSound.dailySet` | Son du jour defini | Daily sound set | Sonido del dia definido |
 
 ## Icone customisable par quiz
 
@@ -414,6 +524,15 @@ normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[]
 
 Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 
+## Toolbar — masquage conditionnel du logo
+
+Le logo de la toolbar est masque sur certaines pages pour eviter la redondance visuelle :
+
+- **Home page** (desktop) : classe `.hide-desktop-home` via `isHomePage()` ou `isCategoryMapPage()`
+- **Page de connexion** : classe `.hide-login` via `isLoginPage()` (la page affiche deja le logo Ecnelis FLY dans le formulaire d'authentification)
+
+Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPage` — mis a jour via `Router.events` (`NavigationEnd`).
+
 ## Navigation mobile (bottom nav + sidenav)
 
 ### Bottom nav (`app.component`)
@@ -431,6 +550,7 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 - **Position** : `'end'` (droite) en mobile portrait, `'start'` (gauche) en desktop — `[position]="isMobilePortrait() ? 'end' : 'start'"`
 - **Plein ecran** : `width: 100vw; max-width: 100vw; box-shadow: none` en mobile portrait
 - **Desktop** : `width: 320px; max-width: 85vw`
+- **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
 
@@ -466,6 +586,111 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 | musicfly | `#D60101` | `~#872114` (bordeaux) |
 | naturalfly | `#39AFF7` | `~#2d73a7` (azur profond) |
 | Toutes | — | `#5c6a8a` (slate-indigo) |
+
+## Gooey Living Logo (`home.component` + `gooey-audio.service`)
+
+Logo interactif avec physique et synthese audio Web Audio API. Fonctionne sur mobile et desktop.
+
+### Interactions
+
+| Geste | Visuel | Son |
+|-------|--------|-----|
+| **Tap** (< 400ms) | Squish (scaleY 0.7 → rebond CSS) | Boing (oscillateur descendant 400→100Hz) |
+| **Drag** | Translation + stretch (scale proportionnel a la distance) | Goo resistance (bruit filtre, pitch lie a la vitesse) |
+| **Flick** (relache avec velocite) | Bounce physique (rebond sur bords viewport, friction, gravite) | Whoosh (bruit bande passante etroite) + Plop (a chaque rebond) |
+| **Long press** (>= 400ms) | Inflate (scale progressif) + pulse + spin accelerant | Drone (2 oscillateurs exponentiels 60→2500Hz / 120→4000Hz) |
+
+### Architecture
+
+- **Template** : `.hero-logo-tilt` wrapper (cursor grab/grabbing), `<img>` avec pointer events
+- **Physique** : `requestAnimationFrame` hors zone Angular (`NgZone.runOutsideAngular`)
+- **Audio** : `GooeyAudioService` — synthese pure Web Audio (OscillatorNode, GainNode, BiquadFilterNode, LFO)
+- **Clone** : pour flick, un clone `<img>` est cree dans le DOM pour animer independamment du layout
+- **Long press spin** : classe `.longpress-active` desactive `animation: none !important` pour eviter conflit CSS
+
+### Drone (long press) - courbe exponentielle
+
+```typescript
+const factor = Math.pow(1.18, elapsed) - 1;
+const freq1 = Math.min(60 + 60 * factor, 2500);   // osc1: 60Hz → 2500Hz
+const freq2 = Math.min(120 + 120 * factor, 4000);  // osc2: 120Hz → 4000Hz
+```
+
+Pas de cap temporel — le son monte en continu tant que le long press dure.
+
+### Hover desktop
+
+Pas de comportement JS au hover (reverted). Seul un `filter` glow CSS subtil est applique au `:hover`.
+
+## Page Compte (`features/users/pages/account/`)
+
+### Titre premium
+
+- Titre i18n : "Mon espace" (FR) / "My space" (EN) / "Mi espacio" (ES)
+- Style : uppercase, `letter-spacing: 0.5px`, `font-weight: 700`, icone Material `person` discrete
+- Couleurs : `#2c3e50` light / `#e8eaf6` dark, icone `#3f51b5` light / `#7986cb` dark
+
+### Bouton Annuler avec confirmation
+
+- Bouton `mat-stroked-button` a cote de Enregistrer
+- Si modifications non sauvegardees (`accountForm.dirty || avatarDirty()`) : ouvre `ConfirmDialogComponent` avec confirmation "Quitter / Rester"
+- Sans modifications : navigation directe vers `/home`
+- i18n : `account.cancel`, `account.cancelConfirm.*` (title, message, confirm, stay)
+
+### Snackbar de succes
+
+- Apres sauvegarde reussie : snackbar verte 3s avec `account.saveSuccess`
+- Style global `.account-snackbar` dans `styles.scss` : fond `#1b5e20` light / `#2e7d32` dark, texte blanc
+
+### Graine de l'avatar (seed)
+
+- Le champ seed (`seedFieldValue`) est independant de la selection de variation
+- Cliquer une variation dans la galerie change le rendu de l'avatar (`selectedAvatarSeed`) mais ne met PAS a jour le champ texte
+- Seule la saisie manuelle dans le champ met a jour `seedFieldValue` ET `selectedAvatarSeed`
+- A l'init, les deux signals sont synchronises avec la valeur sauvegardee de l'utilisateur
+
+## Carte utilisateur (User Map)
+
+### Principe
+
+Cliquer sur un nom d'utilisateur dans un popup mapfly navigue **dans le meme onglet** vers `/mapfly?userId=xxx` (full reload via `window.location.href`). Un bandeau elegant s'affiche en haut de la carte, et un bouton permet de revenir a la carte complete.
+
+### Navigation in-page
+
+- **Popup normal** (lignes ~753) et **popup featured** (lignes ~1858) : `window.location.href` au lieu de `window.open('_blank')`
+- Utilise `router.createUrlTree` pour construire l'URL proprement
+
+### Bandeau utilisateur
+
+- **Signals** : `isUserMode`, `userFilterLabel`, `userSoundCount`
+- **Setup** : apres le category banner setup, si `userId && !category` → extrait le username du premier son (`sounds[0]?.user?.username ?? userId`)
+- **Template** : meme pattern que `.category-banner` — icone `person` + "Sons de {username}" + divider + compteur (singulier/pluriel via `mapfly.category.countOne`/`count`)
+- **Style** : glassmorphism, accent bleu `#1976d2`, `border-left: 4px solid #1976d2`
+- **fitBounds** : la condition de centrage automatique inclut `userId` en plus de `category`/`secondaryCategory`
+
+### Bouton "Explorer la carte complete"
+
+- Classe `.user-explore-btn`, positionne `top: 16px; left: 58px` (a droite des controles zoom Leaflet)
+- Appelle `goToFullMap()` (full reload vers `/mapfly`)
+- Meme design que `.featured-explore-btn`
+
+### Elements masques en mode utilisateur
+
+- Search bar : condition `&& !isUserMode()`
+- Time filter : condition `&& !isUserMode()`
+
+### Dashboard — Bouton "Ma carte"
+
+- Bouton `mat-stroked-button` dans `.header-actions` du dashboard, avant "Ajouter un son"
+- Methode `goToMyMap()` : `router.navigate(['/mapfly'], { queryParams: { userId } })`
+
+### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `mapfly.user.soundsOf` | Sons de {{username}} | Sounds by {{username}} | Sonidos de {{username}} |
+| `mapfly.user.exploreFullMap` | Explorer la carte complete | Explore full map | Explorar el mapa completo |
+| `dashboard.myMap` | Ma carte | My map | Mi mapa |
 
 ## Fichiers temporaires a ignorer
 

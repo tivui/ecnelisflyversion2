@@ -1240,6 +1240,172 @@
 }
 
 // =====================
+// User Filter Banner
+// =====================
+.user-banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 28px;
+  border-left: 4px solid #1976d2;
+  backdrop-filter: blur(14px);
+  font-family: 'Inter', system-ui, sans-serif;
+  animation: banner-slide-in 0.5s ease-out 0.3s both;
+  pointer-events: none;
+  white-space: nowrap;
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  body.dark-theme & {
+    background: rgba(30, 30, 46, 0.88);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  @media (max-width: 700px) {
+    top: 55px;
+    padding: 6px 14px;
+    gap: 6px;
+    max-width: calc(100% - 32px);
+    white-space: normal;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 14px;
+  }
+}
+
+.user-banner-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+
+  body.light-theme & {
+    color: #1976d2;
+  }
+
+  body.dark-theme & {
+    color: #90caf9;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
+}
+
+.user-banner-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  body.light-theme & {
+    color: #2c2c3a;
+  }
+
+  body.dark-theme & {
+    color: #e8e8f0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.78rem;
+  }
+}
+
+.user-banner-divider {
+  width: 1px;
+  height: 18px;
+  flex-shrink: 0;
+
+  body.light-theme & {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  body.dark-theme & {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.user-banner-count {
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  body.light-theme & {
+    color: #666;
+  }
+
+  body.dark-theme & {
+    color: #aaa;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.72rem;
+  }
+}
+
+// User Mode: Explore Full Map Button
+.user-explore-btn {
+  position: absolute;
+  top: 16px;
+  left: 58px;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: btn-fade-in 0.5s ease-out 0.5s both;
+
+  .material-icons {
+    font-size: 20px;
+  }
+
+  body.light-theme & {
+    background: #fff;
+    color: #1976d2;
+
+    &:hover {
+      background: #e3f2fd;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  body.dark-theme & {
+    background: #2c2c3e;
+    color: #90caf9;
+
+    &:hover {
+      background: #3a3a4e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+
+    .material-icons {
+      font-size: 18px;
+    }
+  }
+}
+
+// =====================
 // Zone (Terroir) Cinematic Entry Overlay
 // =====================
 .zone-entry-overlay {

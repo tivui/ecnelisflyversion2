@@ -52,7 +52,7 @@
       <!-- Question Count Column -->
       <ng-container matColumnDef="questionCount">
         <th mat-header-cell *matHeaderCellDef>{{ 'admin.quiz.table.questions' | translate }}</th>
-        <td mat-cell *matCellDef="let quiz">{{ quiz.questionCount ?? 0 }}</td>
+        <td mat-cell *matCellDef="let quiz">{{ quiz.questionsPerPlay ?? 5 }} / {{ quiz.questionCount ?? 0 }}</td>
       </ng-container>
 
       <!-- Total Plays Column -->

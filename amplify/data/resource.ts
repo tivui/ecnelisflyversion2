@@ -313,6 +313,7 @@ const schema = a
         icon: a.string(),
         status: a.ref('QuizStatus').required(),
         questionCount: a.integer().default(0),
+        questionsPerPlay: a.integer().default(5),
         totalPlays: a.integer().default(0),
         createdAt: a.datetime(),
         updatedAt: a.datetime(),

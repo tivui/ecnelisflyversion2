@@ -99,6 +99,19 @@ export class ArticleAdminListComponent implements OnInit {
     }
   }
 
+  async setAsMonthly(article: SoundArticle) {
+    try {
+      await this.articleService.setMonthlyArticle(article);
+      this.snackBar.open(
+        this.translate.instant('admin.articles.monthlySet'),
+        '',
+        { duration: 3000 },
+      );
+    } catch (error) {
+      console.error('Error setting monthly article:', error);
+    }
+  }
+
   openEditor(article: SoundArticle) {
     this.router.navigate([
       '/admin/database/articles',

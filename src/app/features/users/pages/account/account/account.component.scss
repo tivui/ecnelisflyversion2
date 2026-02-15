@@ -18,15 +18,47 @@
   }
 }
 
-.account-title {
-  margin: 0 0 12px;
-  font-size: 1.3rem;
-  font-weight: 600;
-  text-align: center;
+.account-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
 
   @media (max-width: 700px) {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+}
+
+.account-title-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  color: #3f51b5;
+  opacity: 0.7;
+
+  :host-context(body.dark-theme) & {
+    color: #7986cb;
+    opacity: 0.8;
+  }
+}
+
+.account-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #2c3e50;
+
+  :host-context(body.dark-theme) & {
+    color: #e8eaf6;
+  }
+
+  @media (max-width: 700px) {
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
   }
 }
 
@@ -395,6 +427,7 @@ form {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
   padding: 16px 24px;
   background: rgba(0, 0, 0, 0.02);
 
@@ -406,7 +439,17 @@ form {
     padding: 12px 16px;
 
     button {
-      width: 100%;
+      flex: 1;
     }
+  }
+}
+
+.cancel-btn {
+  color: #666;
+  border-color: rgba(0, 0, 0, 0.15);
+
+  :host-context(body.dark-theme) & {
+    color: #aaa;
+    border-color: rgba(255, 255, 255, 0.15);
   }
 }

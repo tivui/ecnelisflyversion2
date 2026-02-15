@@ -127,7 +127,8 @@
       "questions": "{{count}} questions",
       "bestScore": "Best Score",
       "topPlayers": "Top Players",
-      "guestNotice": "Log in to save your score"
+      "guestNotice": "Log in to save your score",
+      "questionsFromPool": "(from {{total}})"
     },
     "play": {
       "getReady": "Get ready!",
@@ -139,7 +140,12 @@
       "replay": "Play Again",
       "backToList": "Back to Quizzes",
       "guestWarning": "Your score was not saved",
-      "loginToSave": "Log in to save your scores"
+      "loginToSave": "Log in to save your scores",
+      "estimatedRank": "Your estimated rank: #{{rank}}",
+      "publish": "Publish my score",
+      "publishing": "Publishing...",
+      "published": "Score published! Rank: #{{rank}}",
+      "showAll": "Show full leaderboard"
     },
     "review": {
       "title": "Answer Review",
@@ -210,6 +216,7 @@
     "noSounds": "You haven't added any sounds yet.",
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
+    "myMap": "My map",
     "loadError": "Failed to load sounds.",
     "userNotFound": "User not found",
     "refresh": "Refresh",
@@ -275,7 +282,7 @@
     }
   },
   "account": {
-    "title": "Account configuration",
+    "title": "My space",
     "tabs": {
       "profile": "Profile",
       "avatar": "Avatar"
@@ -289,6 +296,14 @@
     "language": "App language",
     "theme": "Theme",
     "save": "Save Changes",
+    "saveSuccess": "Profile updated",
+    "cancel": "Cancel",
+    "cancelConfirm": {
+      "title": "Unsaved changes",
+      "message": "You have unsaved changes. Are you sure you want to leave?",
+      "confirm": "Leave",
+      "stay": "Stay"
+    },
     "avatar": {
       "title": "Profile Avatar",
       "seed": "Avatar seed",
@@ -460,7 +475,11 @@
       },
       "deleteConfirm": "Remove this sound from the list?",
       "deleteSuccess": "Sound removed from the list",
-      "saveSuccess": "Sound saved"
+      "saveSuccess": "Sound saved",
+      "dailySet": "Today's sound set successfully",
+      "actions": {
+        "setDaily": "Set as today's sound"
+      }
     },
     "zones": {
       "title": "Sound Terroirs",
@@ -477,7 +496,9 @@
         "order": "Order",
         "actions": "Actions"
       },
+      "monthlySet": "Monthly zone set successfully",
       "actions": {
+        "monthly": "Monthly zone",
         "viewOnMap": "View on map",
         "manageSounds": "Manage sounds",
         "edit": "Edit",
@@ -579,7 +600,9 @@
         "order": "Order",
         "actions": "Actions"
       },
+      "monthlySet": "Monthly journey set successfully",
       "actions": {
+        "monthly": "Monthly journey",
         "previewOnMap": "Preview on map",
         "manageSteps": "Manage steps",
         "edit": "Edit",
@@ -682,6 +705,8 @@
         "category": "Category",
         "icon": "Icon",
         "status": "Status",
+        "questionsPerPlay": "Questions per play",
+        "publishError": "Cannot publish: at least {{count}} questions required ({{current}} currently)",
         "createSuccess": "Quiz created successfully",
         "updateSuccess": "Quiz updated successfully",
         "saveError": "Error saving quiz"
@@ -722,6 +747,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Monthly article set successfully",
+      "actions": {
+        "monthly": "Monthly article"
+      },
       "list": {
         "title": "Sound Articles",
         "new": "New article",
@@ -873,6 +902,10 @@
       "count": "{{count}} sounds",
       "countOne": "1 sound",
       "lonely": "A lone wolf... waiting for friends!"
+    },
+    "user": {
+      "soundsOf": "Sounds by {{username}}",
+      "exploreFullMap": "Explore full map"
     },
     "timeFilter": {
       "all": "All",

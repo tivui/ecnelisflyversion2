@@ -45,7 +45,7 @@
               {{ 'quiz.difficulty.' + quiz.difficulty | translate }}
             </span>
             <span class="question-count">
-              {{ 'quiz.list.questions' | translate:{ count: quiz.questionCount } }}
+              {{ 'quiz.list.questions' | translate:{ count: quiz.questionsPerPlay } }}
             </span>
             @if (quiz.totalPlays > 0) {
               <span class="plays-count">

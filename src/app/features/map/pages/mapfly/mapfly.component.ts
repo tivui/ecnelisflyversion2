@@ -128,10 +128,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   // Category filter info
   public isCategoryMode = signal(false);
+  public isZoneMode = signal(false);
   public categoryFilterLabel = signal('');
   public categoryFilterColor = signal('');
   public categoryFilterOverlay = signal('');
   public categorySoundCount = signal(0);
+
+  // User filter info
+  public isUserMode = signal(false);
+  public userFilterLabel = signal('');
+  public userSoundCount = signal(0);
 
   // Time-based filter (normal mode only)
   public timeFilter = signal<'all' | 'latest10' | 'week' | 'month'>('all');
@@ -309,6 +315,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     // --- Load zone if zoneId is provided ---
     this.currentZoneId = zoneId ?? null;
     if (zoneId) {
+      this.isZoneMode.set(true);
       this.loadZone(zoneId);
     }
 
@@ -353,22 +360,24 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // Met à jour dynamiquement les libellés si la langue change
     this.translate.onLangChange.subscribe(() => {
-      this.groupedLayersControl.remove();
+      if (this.groupedLayersControl) {
+        this.groupedLayersControl.remove();
 
-      const newCategoryOverlays = this.buildCategoryOverlays();
-      this.groupedLayersControl = (L as any).control.groupedLayers(
-        {},
-        newCategoryOverlays,
-        {
-          collapsed: true,
-          position: 'bottomright',
-          autoZIndex: false,
-          groupCheckboxes: true,
-          exclusiveGroups: [],
-          groupKey: 'all',
-        },
-      );
-      this.groupedLayersControl.addTo(this.map);
+        const newCategoryOverlays = this.buildCategoryOverlays();
+        this.groupedLayersControl = (L as any).control.groupedLayers(
+          {},
+          newCategoryOverlays,
+          {
+            collapsed: true,
+            position: 'bottomright',
+            autoZIndex: false,
+            groupCheckboxes: true,
+            exclusiveGroups: [],
+            groupKey: 'all',
+          },
+        );
+        this.groupedLayersControl.addTo(this.map);
+      }
 
       // Supprime le contrôle existant
       this.baseLayersControl.remove();
@@ -516,6 +525,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
         // --- Empty state detection ---
         if (sounds.length === 0) {
           this.emptyCategoryLabel.set(subLabel || catLabel);
+          this.isEmptyResults.set(true);
+        }
+      }
+
+      // --- User filter info banner ---
+      if (userId && !category) {
+        this.isUserMode.set(true);
+        this.userSoundCount.set(sounds.length);
+        const username = sounds[0]?.user?.username ?? userId;
+        this.userFilterLabel.set(username);
+
+        if (sounds.length === 0) {
           this.isEmptyResults.set(true);
         }
       }
@@ -753,13 +774,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 const tree = this.router.createUrlTree(['/mapfly'], {
                   queryParams: { userId: s.userId },
                 });
-                const newWindow = window.open(
-                  window.location.origin + this.router.serializeUrl(tree),
-                  '_blank',
-                );
-                if (newWindow) {
-                  newWindow.opener = null;
-                }
+                window.location.href = window.location.origin + this.router.serializeUrl(tree);
               });
             }
           };
@@ -911,31 +926,32 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.computeTimeFilterCounts();
       }
 
-      // --- Fit bounds when filtering by category ---
-      if ((category || secondaryCategory) && sounds.length > 0) {
+      // --- Fit bounds when filtering by category or user ---
+      if ((category || secondaryCategory || userId) && sounds.length > 0) {
         const bounds = this.markersCluster.getBounds();
         if (bounds.isValid()) {
           this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
         }
       }
 
-      const categoryOverlays = this.buildCategoryOverlays();
+      // Layers control: hidden in category mode (already filtered)
+      if (!this.isCategoryMode()) {
+        const categoryOverlays = this.buildCategoryOverlays();
 
-      // Ajout d'un paramètre `groupKey` pour la logique interne
-      this.groupedLayersControl = (L as any).control.groupedLayers(
-        {},
-        categoryOverlays,
-        {
-          collapsed: true,
-          position: 'bottomright',
-          autoZIndex: false,
-          groupCheckboxes: true,
-          exclusiveGroups: [],
-          // clé logique du groupe parent
-          groupKey: 'all',
-        },
-      );
-      this.groupedLayersControl.addTo(this.map);
+        this.groupedLayersControl = (L as any).control.groupedLayers(
+          {},
+          categoryOverlays,
+          {
+            collapsed: true,
+            position: 'bottomright',
+            autoZIndex: false,
+            groupCheckboxes: true,
+            exclusiveGroups: [],
+            groupKey: 'all',
+          },
+        );
+        this.groupedLayersControl.addTo(this.map);
+      }
 
       // --- 🔍 Préparation des données pour Fuse (unified search bar) ---
       const soundsForSearch = sounds.map((s) => {
@@ -1255,6 +1271,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
       opacity: 0,
       className: 'zone-polygon-main',
     }).addTo(this.map);
+
+    // Fit map to polygon bounds with padding for UI elements
+    const isMobile = window.innerWidth <= 700 && window.matchMedia('(orientation: portrait)').matches;
+    const bounds = this.zonePolygonLayer.getBounds();
+    if (bounds.isValid()) {
+      const opts: L.FitBoundsOptions = isMobile
+        ? { paddingTopLeft: [30, 80], paddingBottomRight: [30, 140], maxZoom: 15, animate: true }
+        : { padding: [60, 60], maxZoom: 15, animate: true };
+      this.map.fitBounds(bounds, opts);
+    }
 
     // Animate polygon appearance
     let opacity = 0;
@@ -1794,7 +1820,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
     `, {
       maxWidth: 340,
       minWidth: 280,
-      maxHeight: window.innerWidth <= 700 ? Math.round(window.innerHeight * 0.55) : 400,
       autoPanPaddingTopLeft: L.point(10, 60),
       autoPanPaddingBottomRight: L.point(10, 70),
     });
@@ -1847,7 +1872,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             const tree = this.router.createUrlTree(['/mapfly'], {
               queryParams: { userId: s.userId },
             });
-            window.open(window.location.origin + this.router.serializeUrl(tree), '_blank');
+            window.location.href = window.location.origin + this.router.serializeUrl(tree);
           });
         }
       }

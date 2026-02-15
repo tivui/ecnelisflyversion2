@@ -190,10 +190,54 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
+// Desktop: hover wrapper for interactive logo
+.hero-logo-tilt {
+  display: inline-block;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .hero-main-logo {
   width: 80px;
   height: 80px;
   margin-bottom: 16px;
+  user-select: none;
+
+  // Desktop hover: glow halo (animations handled by JS hover-* classes)
+  @media (min-width: 701px) {
+    transition: filter 0.3s ease;
+
+    &:hover {
+      filter: drop-shadow(0 0 16px rgba($primary-blue, 0.35))
+              drop-shadow(0 4px 16px rgba(0, 0, 0, 0.25));
+    }
+
+    :host-context(body.dark-theme) &:hover {
+      filter: drop-shadow(0 0 20px rgba(#90caf9, 0.4))
+              drop-shadow(0 4px 16px rgba(0, 0, 0, 0.30));
+    }
+  }
+
+  // Gooey: hide original when bouncing clone is active
+  &.logo-hidden {
+    opacity: 0 !important;
+    pointer-events: none;
+    animation: none !important;
+  }
+
+  // Gooey: disable animation during long press to allow JS transform
+  &.longpress-active {
+    animation: none !important;
+    opacity: 1 !important; // Compensate for fadeInUp fill removal
+  }
+
+  // Gooey: squish on tap
+  &.squish {
+    animation: logoSquish 0.4s ease-out !important;
+  }
 
   @media (max-width: 700px) {
     width: 48px;
@@ -833,6 +877,16 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   100% { background-position: 200% center; }
 }
 
+// Gooey logo: squish on tap (elastic bounce)
+@keyframes logoSquish {
+  0%   { transform: scale(1, 1); }
+  20%  { transform: scale(1.2, 0.7); }
+  40%  { transform: scale(0.9, 1.15); }
+  60%  { transform: scale(1.05, 0.95); }
+  80%  { transform: scale(0.98, 1.02); }
+  100% { transform: scale(1, 1); }
+}
+
 @keyframes hintSlide {
   0%, 100% { left: 0px; }
   30% { left: 20px; }
@@ -1237,8 +1291,8 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .hero-main-logo {
-    width: 64px;
-    height: 64px;
+    width: 85px;
+    height: 85px;
     margin-bottom: 10px;
   }
 
@@ -1448,6 +1502,22 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       z-index: 2;
       filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.30));
       animation: float 3s ease-in-out 1.2s infinite;
+
+      // Gooey: hide original when bouncing clone is active
+      &.logo-hidden {
+        opacity: 0;
+        animation: none !important;
+      }
+
+      // Gooey: disable animation during long press to allow JS transform
+      &.longpress-active {
+        animation: none !important;
+      }
+
+      // Gooey: squish on tap
+      &.squish {
+        animation: logoSquish 0.4s ease-out !important;
+      }
     }
 
     // --- Content overlay at bottom (compact) ---
@@ -2118,4 +2188,26 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   .carousel-section {
     padding: 12px 0 8px;
   }
+
+  // Small phones: smaller bouncing logo
+  .bouncing-logo {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+// =====================
+// Gooey Logo: bouncing clone (position:fixed, escapes overflow:hidden)
+// =====================
+.bouncing-logo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.30));
+  will-change: transform;
 }

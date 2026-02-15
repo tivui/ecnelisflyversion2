@@ -42,7 +42,7 @@ export class QuizLobbyComponent implements OnInit {
   estimatedTime = computed(() => {
     const q = this.quiz();
     if (!q) return '';
-    const seconds = q.questionCount * QUIZ_TIME_LIMITS[q.difficulty];
+    const seconds = q.questionsPerPlay * QUIZ_TIME_LIMITS[q.difficulty];
     const minutes = Math.ceil(seconds / 60);
     return `~${minutes} min`;
   });

@@ -144,6 +144,19 @@ export class JourneysComponent implements OnInit {
     });
   }
 
+  async setAsMonthly(journey: SoundJourney) {
+    try {
+      await this.journeyService.setMonthlyJourney(journey);
+      this.snackBar.open(
+        this.translate.instant('admin.journeys.monthlySet'),
+        '',
+        { duration: 3000 },
+      );
+    } catch (error) {
+      console.error('Error setting monthly journey:', error);
+    }
+  }
+
   previewOnMap(journey: SoundJourney) {
     window.open(`/mapfly?journeyMode=true&journeyId=${journey.id}`, '_blank');
   }

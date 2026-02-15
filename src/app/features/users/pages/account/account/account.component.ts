@@ -19,6 +19,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LangChangeEvent, TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AppUserService } from '../../../../../core/services/app-user.service';
 import { AppUser, Theme } from '../../../../../core/models/app-user.model';
@@ -26,6 +28,7 @@ import { Language } from '../../../../../core/models/i18n.model';
 import { Router } from '@angular/router';
 import { AvatarService, AvatarStyleOption } from '../../../../../core/services/avatar.service';
 import { UserAvatarComponent } from '../../../../../shared/components/user-avatar/user-avatar.component';
+import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import * as countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
@@ -50,6 +53,8 @@ import esLocale from 'i18n-iso-countries/langs/es.json';
     MatTooltipModule,
     MatTabsModule,
     MatIconModule,
+    MatDialogModule,
+    MatSnackBarModule,
     UserAvatarComponent,
   ],
   templateUrl: './account.component.html',
@@ -60,6 +65,8 @@ export class AccountComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   readonly avatarService = inject(AvatarService);
 
   public appUser = signal<AppUser | null>(null);
@@ -71,6 +78,7 @@ export class AccountComponent implements OnInit {
   // Avatar
   selectedAvatarStyle = signal<string>('initials');
   selectedAvatarSeed = signal<string>('');
+  seedFieldValue = signal<string>(''); // Only updated by manual input
   selectedAvatarBgColor = signal<string>('1976d2');
   selectedAvatarOptions = signal<Record<string, string>>({});
   avatarDirty = signal(false);
@@ -125,7 +133,9 @@ export class AccountComponent implements OnInit {
           theme: user.theme,
         });
         this.selectedAvatarStyle.set(user.avatarStyle ?? 'initials');
-        this.selectedAvatarSeed.set(user.avatarSeed ?? user.username ?? '');
+        const seed = user.avatarSeed ?? user.username ?? '';
+        this.selectedAvatarSeed.set(seed);
+        this.seedFieldValue.set(seed);
         this.selectedAvatarBgColor.set(user.avatarBgColor ?? '1976d2');
         this.selectedAvatarOptions.set(user.avatarOptions ?? {});
       }
@@ -201,6 +211,7 @@ export class AccountComponent implements OnInit {
 
   onAvatarSeedChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
+    this.seedFieldValue.set(value);
     this.selectedAvatarSeed.set(value);
     this.avatarDirty.set(true);
   }
@@ -248,6 +259,31 @@ export class AccountComponent implements OnInit {
     );
   }
 
+  get hasUnsavedChanges(): boolean {
+    return this.accountForm.dirty || this.avatarDirty();
+  }
+
+  cancel() {
+    if (this.hasUnsavedChanges) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: this.translate.instant('account.cancelConfirm.title'),
+          message: this.translate.instant('account.cancelConfirm.message'),
+          confirmText: this.translate.instant('account.cancelConfirm.confirm'),
+          cancelText: this.translate.instant('account.cancelConfirm.stay'),
+          confirmColor: 'warn',
+        },
+      });
+      dialogRef.afterClosed().subscribe((confirmed) => {
+        if (confirmed) {
+          this.router.navigate(['/home']);
+        }
+      });
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
   // Save the form and update user profile
   async save() {
     this.countryCodeControl.updateValueAndValidity();
@@ -284,6 +320,11 @@ export class AccountComponent implements OnInit {
         this.translate.use(values.language as Language);
       }
 
+      this.snackBar.open(
+        this.translate.instant('account.saveSuccess'),
+        undefined,
+        { duration: 3000, panelClass: 'account-snackbar' },
+      );
       this.router.navigate(['/home']);
     } catch (err) {
       console.error('Failed to save profile', err);

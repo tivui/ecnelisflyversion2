@@ -8,6 +8,7 @@ import {
   ArticleStatus,
   ArticleBlockType,
   BlockSettings,
+  MonthlyArticle,
 } from '../models/article.model';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -386,6 +387,80 @@ export class ArticleService {
         id: b.id,
         order: b.order,
       } as any);
+    }
+  }
+
+  // ============ MONTHLY ARTICLE ============
+
+  async getMonthlyArticle(): Promise<MonthlyArticle | null> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const result = await (
+      this.client.models.MonthlyArticle as any
+    ).getMonthlyArticleByMonth({ month }, { authMode: 'apiKey' });
+
+    if (result.errors?.length) {
+      console.error('Error getting monthly article:', result.errors);
+      return null;
+    }
+
+    const actives = (result.data ?? []).filter((m: any) => m.active);
+    if (actives.length === 0) return null;
+
+    const raw = actives[0];
+    return {
+      id: raw.id,
+      articleId: raw.articleId,
+      month: raw.month,
+      active: raw.active,
+      articleTitle: raw.articleTitle,
+      articleTitle_i18n: raw.articleTitle_i18n ? JSON.parse(raw.articleTitle_i18n) : undefined,
+      articleSlug: raw.articleSlug,
+      articleCoverImageKey: raw.articleCoverImageKey,
+      articleAuthorName: raw.articleAuthorName,
+      articleDescription: raw.articleDescription,
+      articleDescription_i18n: raw.articleDescription_i18n ? JSON.parse(raw.articleDescription_i18n) : undefined,
+    };
+  }
+
+  async setMonthlyArticle(article: SoundArticle): Promise<void> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Deactivate existing active entries for this month
+    const existing = await (
+      this.client.models.MonthlyArticle as any
+    ).getMonthlyArticleByMonth({ month });
+    if (existing.data) {
+      for (const m of existing.data) {
+        if (m.active) {
+          await this.client.models.MonthlyArticle.update({
+            id: m.id,
+            active: false,
+          } as any);
+        }
+      }
+    }
+
+    // Create new MonthlyArticle with denormalized data
+    const result = await this.client.models.MonthlyArticle.create({
+      id: uuidv4(),
+      articleId: article.id,
+      month,
+      active: true,
+      articleTitle: article.title ?? undefined,
+      articleTitle_i18n: article.title_i18n ? JSON.stringify(article.title_i18n) : undefined,
+      articleSlug: article.slug ?? undefined,
+      articleCoverImageKey: article.coverImageKey ?? undefined,
+      articleAuthorName: article.authorName ?? undefined,
+      articleDescription: article.description ?? undefined,
+      articleDescription_i18n: article.description_i18n ? JSON.stringify(article.description_i18n) : undefined,
+    } as any);
+
+    if (result.errors?.length) {
+      console.error('Error setting monthly article:', result.errors);
+      throw new Error('Failed to set monthly article');
     }
   }
 
