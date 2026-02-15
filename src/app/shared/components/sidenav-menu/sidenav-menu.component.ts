@@ -9,6 +9,7 @@ import { MatRippleModule } from '@angular/material/core';
 
 import { FeaturedSoundService } from '../../../core/services/featured-sound.service';
 import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
+import { Language } from '../../../core/models/i18n.model';
 
 @Component({
   selector: 'app-sidenav-menu',
@@ -29,7 +30,12 @@ export class SidenavMenuComponent {
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   isOpen = input(false);
+  isDark = input(false);
+  currentLanguage = input<Language>('fr');
+  languages = input<Language[]>(['fr', 'en', 'es']);
   closed = output<void>();
+  themeToggled = output<void>();
+  languageChanged = output<Language>();
 
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
 

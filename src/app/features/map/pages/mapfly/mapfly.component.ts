@@ -21,7 +21,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { GraphQLResult } from 'aws-amplify/api';
 import { ListSoundsForMapWithAppUser } from '../../../../core/models/amplify-queries.model';
 import 'leaflet.markercluster';
-import 'leaflet-search';
+
 import 'leaflet.featuregroup.subgroup/dist/leaflet.featuregroup.subgroup.js';
 import Fuse from 'fuse.js';
 import { environment } from '../../../../../environments/environment';
@@ -32,7 +32,7 @@ import {
 } from '../../../../core/models/map.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../core/services/auth.service';
-import { GeoSearchService } from '../../../../core/services/geo-search.service';
+import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
@@ -58,7 +58,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
-  private geoSearchService = inject(GeoSearchService);
   private readonly zoneService = inject(ZoneService);
   private readonly soundJourneyService = inject(SoundJourneyService);
   private readonly likeService = inject(LikeService);
@@ -145,6 +144,17 @@ export class MapflyComponent implements OnInit, OnDestroy {
   // Mobile tooltip: first tap reveals label, second tap activates filter
   public timeFilterTooltip = signal<string | null>(null);
   private timeFilterTooltipTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Unified search bar
+  public searchMode = signal<'sounds' | 'places'>('sounds');
+  public searchQuery = signal('');
+  public searchResults = signal<{ label: string; filename?: string; lat?: number; lng?: number }[]>([]);
+  public searchFocused = signal(false);
+  private fuseInstance: Fuse<{ filename: string; combinedText: string }> | null = null;
+  private markerLookup: Record<string, L.Marker> = {};
+  private geoProvider = new (OpenStreetMapProvider as any)();
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private isSearchActive = false;
 
   private readonly categoryColors: Record<string, string> = {
     ambiancefly: '#3AE27A',
@@ -264,7 +274,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let isSearchActive = false;
+    this.isSearchActive = false;
 
     this.map = L.map('mapfly', {
       center: L.latLng(lat, lng),
@@ -435,7 +445,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // 🔭 Changement automatique du fond si l’utilisateur n’a pas choisi manuellement
     this.map.on('zoomend', () => {
-      if (userHasSelectedBase || isSearchActive) return;
+      if (userHasSelectedBase || this.isSearchActive) return;
 
       const currentZoom = this.map.getZoom();
       const thresholdZoom = 6;
@@ -560,10 +570,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         .addTo(this.map); // TRANSPORTFLY
 
       // --- 4️⃣ Préparation markers ---
-      const markerLookup: Record<string, L.Marker> = {};
-
-      // FeatureGroup pour recherche (invisible)
-      const fgSearch = L.featureGroup().addTo(this.map);
+      this.markerLookup = {};
 
       const isNormalMode = !zoneId && !category && !secondaryCategory && !userId;
 
@@ -613,7 +620,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <button class="zoom-btn material-icons" id="zoom-in-${s.filename}">add</button>
           </div>
         </div>
-      `);
+      `, {
+          maxWidth: 340,
+          minWidth: 280,
+          ...(window.innerWidth <= 700 ? { maxHeight: Math.round(window.innerHeight * 0.55) } : {}),
+        });
 
         // Ajout au groupe correct
         this.fgAll.addLayer(m); // toujours dans "TOUT"
@@ -884,15 +895,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         });
 
         // --- Add marker to cluster ---
-        markerLookup[s.filename] = m; // lookup pour Fuse.js
-
-        // Marker invisible pour la recherche
-        const searchMarker = L.marker([s.latitude!, s.longitude!], {
-          opacity: 0,
-          title:
-            `${s.title} ${s.hashtags?.replace(/[#,@]/g, ' ').replace(/,/g, ' ').trim() || ''}`.trim(),
-        });
-        fgSearch.addLayer(searchMarker);
+        this.markerLookup[s.filename] = m; // lookup pour Fuse.js
       }
 
       // --- Add cluster to map ---
@@ -934,7 +937,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       );
       this.groupedLayersControl.addTo(this.map);
 
-      // --- 🔍 Préparation des données pour Fuse ---
+      // --- 🔍 Préparation des données pour Fuse (unified search bar) ---
       const soundsForSearch = sounds.map((s) => {
         const title = (s.title || '').trim();
         const hashtags = (s.hashtags || '')
@@ -942,85 +945,124 @@ export class MapflyComponent implements OnInit, OnDestroy {
           .replace(/,/g, ' ')
           .trim();
         return {
-          filename: s.filename, // identifiant interne
-          // Texte complet combiné pour indexation et affichage
+          filename: s.filename,
           combinedText: `${title} ${hashtags}`.trim(),
         };
       });
 
-      // --- Fuse.js ---
-      const fuse = new Fuse(soundsForSearch, {
+      this.fuseInstance = new Fuse(soundsForSearch, {
         keys: ['combinedText'],
         threshold: 0.3,
         ignoreLocation: true,
         distance: 1000,
       });
-
-      // --- Contrôle de recherche ---
-      const controlSearch = new (L.Control as any).Search({
-        layer: fgSearch,
-        sourceData: (text: string, callResponse: any) => {
-          const results = fuse.search(text).slice(0, 10);
-
-          // Clé affichée = titre + hashtags
-          const ret: Record<string, { loc: L.LatLng; filename: string }> = {};
-          results.forEach((r) => {
-            const marker = markerLookup[r.item.filename];
-            if (marker) {
-              const key = r.item.combinedText; // affichage + clé unique
-              ret[key] = {
-                loc: marker.getLatLng(),
-                filename: r.item.filename,
-              };
-            }
-          });
-          callResponse(ret);
-        },
-        position: 'topright',
-        zoom: 17,
-        initial: false,
-        collapsed: false,
-        textPlaceholder: 'Titre ou #Hashtags...',
-        buildTip: (text: string) => `<span>${text}</span>`,
-      }).on('search:locationfound', (e: any) => {
-        isSearchActive = true; // 🚫 bloque le changement de base layer automatique
-        // retrouver le bon marker à partir du texte combiné
-        const found = markerLookup[e.layer?.options.filename || e.text];
-        if (found) {
-          this.markersCluster.zoomToShowLayer(found, () => found.openPopup());
-        }
-
-        // 🕒 après un petit délai, on réactive la logique automatique
-        setTimeout(() => (isSearchActive = false), 1500);
-      });
-
-      this.map.addControl(controlSearch);
-
-      // Utilisation du service GeoSearchService
-      this.geoSearchService.addSearchControl(this.map, (lat, lng) => {
-        isSearchActive = true; // bloque temporairement le baselayer automatique
-
-        // Centrer la carte sur le résultat
-        this.map.setView([lat, lng], 17);
-
-        // Trouver le marker correspondant si tu veux l'ouvrir
-        // Ici on suppose que fgAll contient tous les markers
-        this.fgAll.eachLayer((marker: any) => {
-          const mLatLng = marker.getLatLng();
-          if (
-            Math.abs(mLatLng.lat - lat) < 0.0001 &&
-            Math.abs(mLatLng.lng - lng) < 0.0001
-          ) {
-            marker.openPopup();
-          }
-        });
-
-        // Après un petit délai, réactive le changement de base layer automatique
-        setTimeout(() => (isSearchActive = false), 1500);
-      });
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  // =====================================================
+  // Unified Search Bar
+  // =====================================================
+  onSearchInput(event: Event) {
+    const query = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(query);
+
+    if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
+
+    if (!query || query.length < 2) {
+      this.searchResults.set([]);
+      return;
+    }
+
+    this.searchDebounceTimer = setTimeout(() => {
+      if (this.searchMode() === 'sounds') {
+        this.searchSounds(query);
+      } else {
+        this.searchPlaces(query);
+      }
+    }, 250);
+  }
+
+  private searchSounds(query: string) {
+    if (!this.fuseInstance) return;
+    const results = this.fuseInstance.search(query).slice(0, 8);
+    this.searchResults.set(
+      results
+        .filter(r => this.markerLookup[r.item.filename])
+        .map(r => ({
+          label: r.item.combinedText,
+          filename: r.item.filename,
+        }))
+    );
+  }
+
+  private async searchPlaces(query: string) {
+    try {
+      const results = await this.geoProvider.search({ query });
+      this.searchResults.set(
+        results.slice(0, 8).map((r: any) => ({
+          label: r.label,
+          lat: r.y,
+          lng: r.x,
+        }))
+      );
+    } catch {
+      this.searchResults.set([]);
+    }
+  }
+
+  selectSearchResult(result: { label: string; filename?: string; lat?: number; lng?: number }) {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.searchFocused.set(false);
+
+    if (this.searchMode() === 'sounds' && result.filename) {
+      // Sound search: zoom to marker and open popup
+      const marker = this.markerLookup[result.filename];
+      if (marker) {
+        this.isSearchActive = true;
+        this.markersCluster.zoomToShowLayer(marker, () => {
+          marker.openPopup();
+          // On mobile, shift map up so popup is well centered below search bar
+          if (window.innerWidth <= 700) {
+            setTimeout(() => {
+              // Shift up by 15% of viewport height to center popup visually
+              const offsetY = -Math.round(window.innerHeight * 0.15);
+              this.map.panBy([0, offsetY], { animate: true });
+            }, 300);
+          }
+        });
+        setTimeout(() => (this.isSearchActive = false), 2000);
+      }
+    } else if (result.lat != null && result.lng != null) {
+      // Place search: fly to location
+      this.isSearchActive = true;
+      this.map.setView([result.lat, result.lng], 17);
+
+      // Try to open nearest marker popup
+      this.fgAll.eachLayer((marker: any) => {
+        const mLatLng = marker.getLatLng();
+        if (
+          Math.abs(mLatLng.lat - result.lat!) < 0.0001 &&
+          Math.abs(mLatLng.lng - result.lng!) < 0.0001
+        ) {
+          marker.openPopup();
+        }
+      });
+      setTimeout(() => (this.isSearchActive = false), 1500);
+    }
+  }
+
+  switchSearchMode(mode: 'sounds' | 'places') {
+    this.searchMode.set(mode);
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+  }
+
+  clearSearch() {
+    this.searchQuery.set('');
+    this.searchResults.set([]);
   }
 
   private parseI18n(field?: string | Record<string, string>) {
@@ -1749,7 +1791,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
           <button class="zoom-btn material-icons" id="zoom-in-${soundFilename}">add</button>
         </div>
       </div>
-    `);
+    `, {
+      maxWidth: 340,
+      minWidth: 280,
+      maxHeight: window.innerWidth <= 700 ? Math.round(window.innerHeight * 0.55) : 400,
+      autoPanPaddingTopLeft: L.point(10, 60),
+      autoPanPaddingBottomRight: L.point(10, 70),
+    });
 
     // Popup open logic (same as normal mode)
     marker.on('popupopen', () => {
@@ -1916,8 +1964,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
         // Step 4: Brief pause, then zoom to street level
         // Offset center northward so popup has room above the marker
+        // Larger offset on mobile where popup takes more vertical space
         setTimeout(() => {
-          const offsetLat = L.latLng(lat + 0.0012, lng);
+          const isMobile = window.innerWidth <= 700;
+          const offsetLat = L.latLng(lat + (isMobile ? 0.0018 : 0.0012), lng);
           this.map.flyTo(offsetLat, 17, {
             duration: 2,
             easeLinearity: 0.4,

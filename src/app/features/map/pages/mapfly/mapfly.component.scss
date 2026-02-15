@@ -1,6 +1,309 @@
 @use '../../../../shared/styles/map.scss';
 
 // =====================
+// Hide Leaflet controls during loading, fade in when ready
+// =====================
+.map-container {
+  .leaflet-control-zoom,
+  .leaflet-control-layers {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  &:not(.map-loading) {
+    .leaflet-control-zoom,
+    .leaflet-control-layers {
+      opacity: 1;
+    }
+  }
+}
+
+// =====================
+// Unified Search Bar
+// =====================
+.unified-search {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 800;
+  width: 360px;
+  max-width: calc(100vw - 80px);
+  animation: fadeInSearch 0.3s ease;
+}
+
+@keyframes fadeInSearch {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.unified-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(63, 81, 181, 0.10);
+  border-radius: 24px;
+  padding: 4px 6px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.10);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  body.dark-theme & {
+    background: rgba(14, 14, 28, 0.94);
+    border: 1px solid rgba(92, 107, 192, 0.15);
+    box-shadow: 0 2px 20px rgba(0, 0, 20, 0.35);
+  }
+
+  .unified-search.focused & {
+    border-color: rgba(25, 118, 210, 0.30);
+    box-shadow: 0 4px 24px rgba(25, 118, 210, 0.12);
+
+    body.dark-theme & {
+      border-color: rgba(92, 107, 192, 0.30);
+      box-shadow: 0 4px 24px rgba(25, 118, 210, 0.15);
+    }
+  }
+}
+
+.unified-search-toggle {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.search-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 18px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  .material-icons {
+    font-size: 16px;
+  }
+
+  body.dark-theme & {
+    color: #999;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.25);
+  }
+
+  &:not(.active):active {
+    background: rgba(25, 118, 210, 0.08);
+  }
+}
+
+.unified-search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.unified-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #222;
+  padding: 6px 4px;
+  min-width: 0;
+  font-family: inherit;
+
+  &::placeholder {
+    color: #999;
+    font-weight: 400;
+  }
+
+  body.dark-theme & {
+    color: #eee;
+
+    &::placeholder {
+      color: #666;
+    }
+  }
+}
+
+.unified-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+
+  .material-icons {
+    font-size: 16px;
+    color: #666;
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  body.dark-theme & {
+    background: rgba(255, 255, 255, 0.08);
+
+    .material-icons {
+      color: #aaa;
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+.unified-search-results {
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(63, 81, 181, 0.10);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+
+  body.dark-theme & {
+    background: rgba(14, 14, 28, 0.96);
+    border: 1px solid rgba(92, 107, 192, 0.15);
+    box-shadow: 0 4px 24px rgba(0, 0, 20, 0.4);
+  }
+}
+
+.unified-search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+
+  &:hover, &:active {
+    background: rgba(25, 118, 210, 0.06);
+  }
+
+  body.dark-theme &:hover,
+  body.dark-theme &:active {
+    background: rgba(25, 118, 210, 0.12);
+  }
+
+  .search-result-icon {
+    font-size: 18px;
+    color: #1976d2;
+    flex-shrink: 0;
+
+    body.dark-theme & {
+      color: #64b5f6;
+    }
+  }
+
+  .search-result-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    body.dark-theme & {
+      color: #ddd;
+    }
+  }
+}
+
+.unified-search-no-results {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  color: #999;
+  font-size: 0.8rem;
+
+  .material-icons {
+    font-size: 18px;
+    opacity: 0.5;
+  }
+
+  body.dark-theme & {
+    color: #666;
+  }
+}
+
+// --- Mobile: unified search responsive ---
+@media (max-width: 700px) and (orientation: portrait) {
+  .unified-search {
+    top: 6px;
+    right: 6px;
+    left: 44px; // Leave space for zoom control + gap
+    width: auto;
+    max-width: none;
+  }
+
+  .unified-search-bar {
+    padding: 2px 4px;
+    border-radius: 20px;
+  }
+
+  .search-mode-label {
+    display: none; // Icons only on mobile
+  }
+
+  .search-mode-btn {
+    padding: 4px 7px;
+
+    .material-icons {
+      font-size: 15px;
+    }
+  }
+
+  .unified-search-input {
+    font-size: 0.75rem;
+    padding: 4px 4px;
+  }
+
+  .unified-search-clear {
+    width: 24px;
+    height: 24px;
+
+    .material-icons {
+      font-size: 14px;
+    }
+  }
+
+  .unified-search-results {
+    max-height: 250px;
+  }
+}
+
+// =====================
 // Featured Sound Cinematic Overlay
 // =====================
 .featured-overlay {
@@ -1297,7 +1600,7 @@
   }
 
   @media (max-width: 700px) {
-    bottom: 50px;
+    bottom: 70px;
     width: calc(100% - 24px);
     max-width: none;
     padding: 6px 10px;
@@ -1596,9 +1899,22 @@
   animation: btn-fade-in 0.4s ease-out 0.5s both;
 
   @media (max-width: 700px) and (orientation: portrait) {
-    top: 10px;
-    left: 50px;
+    // Repositioned below the unified search bar
+    top: 42px;
+    left: 6px;
+    right: 6px;
+    justify-content: center;
     gap: 4px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+}
+
+// Mobile: hide time filter when search bar is focused
+@media (max-width: 700px) and (orientation: portrait) {
+  .unified-search.focused ~ .time-filter {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
   }
 }
 
@@ -1736,6 +2052,182 @@
     &.tooltip-visible::after {
       opacity: 1;
       transform: translateX(-50%) scale(1);
+    }
+  }
+}
+
+// =====================
+// Mobile: Compact layer control + bottom offset
+// =====================
+@media (max-width: 700px) and (orientation: portrait) {
+  // Offset all bottom Leaflet controls above bottom nav
+  .leaflet-bottom {
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  // Kill Leaflet's default 10px margin on bottom controls
+  .leaflet-bottom .leaflet-control {
+    margin-bottom: 2px !important;
+  }
+
+  // --- Base layer control: compact horizontal chips ---
+  .leaflet-bottom.leaflet-left .leaflet-control-layers.leaflet-control-layers-expanded {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid rgba(63, 81, 181, 0.10) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    padding: 4px 6px !important;
+    margin-left: 8px !important;
+
+    body.dark-theme & {
+      background: rgba(14, 14, 28, 0.92) !important;
+      border: 1px solid rgba(92, 107, 192, 0.15) !important;
+      box-shadow: 0 2px 16px rgba(0, 0, 20, 0.35) !important;
+    }
+
+    // Hide the separator line
+    .leaflet-control-layers-separator {
+      display: none !important;
+    }
+
+    // Transform the form into horizontal layout
+    .leaflet-control-layers-list {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 2px !important;
+    }
+
+    .leaflet-control-layers-base {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 2px !important;
+    }
+
+    // Each label = a chip
+    .leaflet-control-layers-base label {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 5px 10px !important;
+      margin: 0 !important;
+      border-radius: 16px !important;
+      font-size: 0.62rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.3px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      white-space: nowrap !important;
+      color: #555 !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+
+      body.dark-theme & {
+        color: #aaa !important;
+      }
+
+      // Hide the radio button
+      input[type="radio"] {
+        display: none !important;
+      }
+
+      // Style for the text span
+      span {
+        font-size: 0.62rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.3px !important;
+      }
+    }
+
+    // Active/checked chip — via the checked radio
+    .leaflet-control-layers-base label:has(input:checked) {
+      background: linear-gradient(135deg, #1976d2, #1565c0) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.25) !important;
+
+      body.dark-theme & {
+        background: linear-gradient(135deg, #1976d2, #1565c0) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.35) !important;
+      }
+    }
+  }
+
+  // --- Grouped layers control (categories): offset + compact toggle ---
+  .leaflet-bottom.leaflet-right .leaflet-control-layers {
+    margin-right: 8px !important;
+
+    // The toggle icon button
+    .leaflet-control-layers-toggle {
+      width: 36px !important;
+      height: 36px !important;
+      background-size: 20px 20px !important;
+      border-radius: 50% !important;
+      background-color: rgba(255, 255, 255, 0.92) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(63, 81, 181, 0.10) !important;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+
+      body.dark-theme & {
+        background-color: rgba(14, 14, 28, 0.92) !important;
+        border: 1px solid rgba(92, 107, 192, 0.15) !important;
+        box-shadow: 0 2px 16px rgba(0, 0, 20, 0.35) !important;
+      }
+    }
+  }
+
+  // --- Zoom control: compact glassmorphism buttons ---
+  .leaflet-control-zoom {
+    border: none !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(16px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+    border: 1px solid rgba(63, 81, 181, 0.10) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+
+    body.dark-theme & {
+      background: rgba(14, 14, 28, 0.92) !important;
+      border: 1px solid rgba(92, 107, 192, 0.15) !important;
+      box-shadow: 0 2px 16px rgba(0, 0, 20, 0.35) !important;
+    }
+
+    a {
+      width: 26px !important;
+      height: 26px !important;
+      line-height: 26px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #333 !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: none !important;
+      transition: background 0.15s ease !important;
+
+      &:active {
+        background: rgba(25, 118, 210, 0.12) !important;
+      }
+
+      body.dark-theme & {
+        color: #ccc !important;
+
+        &:active {
+          background: rgba(25, 118, 210, 0.20) !important;
+        }
+      }
+    }
+
+    // Thin separator between + and -
+    .leaflet-control-zoom-in {
+      border-bottom: 1px solid rgba(63, 81, 181, 0.08) !important;
+
+      body.dark-theme & {
+        border-bottom: 1px solid rgba(92, 107, 192, 0.12) !important;
+      }
     }
   }
 }

@@ -45,6 +45,22 @@
 
   <!-- Footer -->
   <div class="sidenav-footer">
+    <div class="sidenav-footer-controls">
+      <button class="footer-control-btn" (click)="themeToggled.emit()">
+        <mat-icon>{{ isDark() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+      </button>
+      <div class="footer-lang-chips">
+        @for (lang of languages(); track lang) {
+          <button
+            class="lang-chip"
+            [class.active]="lang === currentLanguage()"
+            (click)="languageChanged.emit(lang)"
+          >
+            {{ lang.toUpperCase() }}
+          </button>
+        }
+      </div>
+    </div>
     <span class="footer-text">Sounds of the world</span>
   </div>
 </div>

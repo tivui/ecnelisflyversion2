@@ -3,20 +3,28 @@
   <mat-sidenav
     #sidenav
     mode="over"
-    position="start"
+    [position]="isMobilePortrait() ? 'end' : 'start'"
     [opened]="sidenavOpened()"
     (closedStart)="closeSidenav()"
     class="main-sidenav"
   >
-    <app-sidenav-menu [isOpen]="sidenavOpened()" (closed)="closeSidenav()"></app-sidenav-menu>
+    <app-sidenav-menu
+      [isOpen]="sidenavOpened()"
+      [isDark]="isDark()"
+      [currentLanguage]="selectedLang()"
+      [languages]="languages"
+      (closed)="closeSidenav()"
+      (themeToggled)="toggleDarkMode()"
+      (languageChanged)="changeLang($event)"
+    />
   </mat-sidenav>
 
   <!-- Main Content -->
   <mat-sidenav-content>
     <mat-toolbar color="primary">
-      <!-- Hamburger menu button -->
+      <!-- Hamburger menu button (desktop only — moved to bottom nav on mobile) -->
       <button
-        class="menu-btn"
+        class="menu-btn desktop-only-toolbar"
         mat-icon-button
         (click)="toggleSidenav()"
         aria-label="Toggle menu"
@@ -34,9 +42,9 @@
         <span class="app-title">Ecnelis FLY</span>
       </a>
 
-      <!-- Bouton plein écran -->
+      <!-- Bouton plein écran (desktop only) -->
       <button
-        class="fullscreen-btn"
+        class="fullscreen-btn desktop-only-toolbar"
         mat-icon-button
         (click)="toggleFullscreen()"
         [matTooltip]="
@@ -48,9 +56,10 @@
       </button>
       <span class="spacer"></span>
 
-      <!-- Admin settings wheel -->
+      <!-- Admin settings wheel (desktop only) -->
       @if (authenticator.user && isAdmin()) {
         <button
+          class="desktop-only-toolbar"
           mat-icon-button
           [matMenuTriggerFor]="adminMenu"
           matTooltip="Settings"
@@ -79,13 +88,14 @@
         }
       </mat-menu>
 
-      <button mat-button [matMenuTriggerFor]="langMenu">
+      <button class="desktop-only-toolbar" mat-button [matMenuTriggerFor]="langMenu">
         {{ selectedLang() | uppercase }}
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
 
-      <!-- Dark mode toggle with icons -->
+      <!-- Dark mode toggle with icons (desktop only — moved to sidebar on mobile) -->
       <button
+        class="desktop-only-toolbar"
         mat-icon-button
         (click)="toggleDarkMode()"
         [matTooltip]="(isDark() ? 'toolbar.light' : 'toolbar.dark') | translate"
@@ -141,6 +151,28 @@
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<!-- Bottom navigation bar (mobile portrait only) — outside sidenav-container to avoid overflow:hidden clipping -->
+@if (isMobilePortrait() && !sidenavOpened()) {
+  <nav class="bottom-nav">
+    <a class="bottom-nav-item" [class.active]="activeRoute().startsWith('/home')" routerLink="/home">
+      <mat-icon>home</mat-icon>
+      <span>{{ 'bottomNav.home' | translate }}</span>
+    </a>
+    <button class="bottom-nav-item" [class.active]="activeRoute() === '/mapfly' || activeRoute().startsWith('/mapfly?')" (click)="goToMap()">
+      <mat-icon>public</mat-icon>
+      <span>{{ 'bottomNav.map' | translate }}</span>
+    </button>
+    <button class="bottom-nav-item" [class.active]="activeRoute().includes('featuredMode')" [class.disabled]="!bottomNavFeatured()" (click)="goToFeaturedFromBottomNav()">
+      <mat-icon>headphones</mat-icon>
+      <span>{{ 'bottomNav.featured' | translate }}</span>
+    </button>
+    <button class="bottom-nav-item" (click)="toggleSidenav()">
+      <mat-icon>menu</mat-icon>
+      <span>{{ 'bottomNav.menu' | translate }}</span>
+    </button>
+  </nav>
+}
 
 <!-- PWA install banner -->
 <app-pwa-install-banner></app-pwa-install-banner>
