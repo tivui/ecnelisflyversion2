@@ -22,6 +22,42 @@
       }
     </div>
 
+    <!-- Estimated rank (before publish, authenticated only) -->
+    @if (isAuthenticated() && !published()) {
+      <div class="estimated-rank">
+        <mat-icon>emoji_events</mat-icon>
+        <span>{{ 'quiz.results.estimatedRank' | translate:{ rank: estimatedRank() } }}</span>
+      </div>
+    }
+
+    <!-- Publish button (authenticated, not yet published) -->
+    @if (isAuthenticated() && !published()) {
+      <div class="publish-section">
+        <button
+          mat-raised-button
+          class="publish-btn"
+          (click)="publishScore()"
+          [disabled]="publishing()"
+        >
+          @if (publishing()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            {{ 'quiz.results.publishing' | translate }}
+          } @else {
+            <mat-icon>publish</mat-icon>
+            {{ 'quiz.results.publish' | translate }}
+          }
+        </button>
+      </div>
+    }
+
+    <!-- Publish success -->
+    @if (published() && publishedRank()) {
+      <div class="publish-success">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ 'quiz.results.published' | translate:{ rank: publishedRank() } }}</span>
+      </div>
+    }
+
     <!-- Guest warning -->
     @if (isGuest()) {
       <div class="guest-banner">
@@ -36,16 +72,20 @@
     }
 
     <!-- Leaderboard -->
-    @if (leaderboard().length > 0) {
+    @if (displayLeaderboard().length > 0) {
       <div class="leaderboard-section">
         <h3>
           <mat-icon>leaderboard</mat-icon>
           {{ 'quiz.results.leaderboard' | translate }}
         </h3>
         <div class="leaderboard-list">
-          @for (entry of leaderboard(); track entry.id; let i = $index) {
-            <div class="leaderboard-row" [class.top-3]="i < 3">
-              <span class="rank">{{ i + 1 }}</span>
+          @for (entry of displayLeaderboard(); track entry.id; let i = $index) {
+            <div
+              class="leaderboard-row"
+              [class.top-3]="i < 3"
+              [class.current-user]="isCurrentUser(entry)"
+            >
+              <span class="rank" [class.rank-1]="i === 0" [class.rank-2]="i === 1" [class.rank-3]="i === 2">{{ i + 1 }}</span>
               <app-user-avatar
                 [username]="entry.username ?? '?'"
                 [avatarStyle]="entry.avatarStyle ?? 'initials'"
@@ -64,7 +104,50 @@
               </div>
             </div>
           }
+
+          <!-- User outside visible list: separator + their row -->
+          @if (published() && publishedRank() && !userInDisplayedList() && publishedEntry()) {
+            <div class="leaderboard-separator">
+              <span>...</span>
+            </div>
+            <div class="leaderboard-row current-user">
+              <span class="rank">{{ publishedRank() }}</span>
+              <app-user-avatar
+                [username]="publishedEntry()!.username ?? '?'"
+                [avatarStyle]="publishedEntry()!.avatarStyle ?? 'initials'"
+                [avatarSeed]="publishedEntry()!.avatarSeed ?? publishedEntry()!.username ?? '?'"
+                [avatarBgColor]="publishedEntry()!.avatarBgColor ?? '0d7c51'"
+                size="32px"
+              />
+              <span class="player-name">{{ publishedEntry()!.username ?? '?' }}</span>
+              <span class="player-score">{{ publishedEntry()!.score }}</span>
+              <div class="player-stars">
+                @for (s of [0,1,2]; track s) {
+                  <mat-icon class="mini-star" [class.filled]="s < publishedEntry()!.stars">
+                    {{ s < publishedEntry()!.stars ? 'star' : 'star_border' }}
+                  </mat-icon>
+                }
+              </div>
+            </div>
+          }
         </div>
+
+        <!-- Show full leaderboard button -->
+        @if (hasMoreEntries() && !showFullLeaderboard()) {
+          <button
+            mat-button
+            class="show-all-btn"
+            (click)="loadFullLeaderboard()"
+            [disabled]="loadingFull()"
+          >
+            @if (loadingFull()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <mat-icon>expand_more</mat-icon>
+            }
+            {{ 'quiz.results.showAll' | translate }}
+          </button>
+        }
       </div>
     }
 

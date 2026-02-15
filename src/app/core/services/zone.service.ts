@@ -6,6 +6,8 @@ import { Zone, ZoneSound, ZonePolygon, ZoneCenter, MonthlyZone } from '../models
 import { Sound } from '../models/sound.model';
 import { SoundsService } from './sounds.service';
 import { generateUniqueFilename } from './filename.service';
+import { ListSoundsByZoneWithUser } from '../models/amplify-queries.model';
+import { GraphQLResult } from '@aws-amplify/api-graphql';
 
 @Injectable({
   providedIn: 'root',
@@ -253,12 +255,13 @@ export class ZoneService {
   // ============ SOUNDS FOR ZONE (via Lambda) ============
 
   async getSoundsForZone(zoneId: string): Promise<Sound[]> {
-    const result = await (this.client.queries.listSoundsByZone as any)({ zoneId }, { authMode: 'apiKey' });
-    if (result.errors?.length) {
-      console.error('Error fetching sounds for zone:', result.errors);
-      throw new Error('Failed to fetch sounds for zone');
-    }
-    return (result.data ?? []).map((s: any) => this.soundsService.map(s));
+    const result = (await this.client.graphql({
+      query: ListSoundsByZoneWithUser,
+      variables: { zoneId },
+      authMode: 'apiKey',
+    })) as GraphQLResult<{ listSoundsByZone: any[] }>;
+    const soundsData = result?.data?.listSoundsByZone ?? [];
+    return soundsData.map((s: any) => this.soundsService.map(s));
   }
 
   // ============ MONTHLY ZONE ============

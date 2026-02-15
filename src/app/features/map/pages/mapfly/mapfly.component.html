@@ -10,10 +10,12 @@
             <span class="material-icons">music_note</span>
             <span class="search-mode-label">{{ 'mapfly.search.sounds' | translate }}</span>
           </button>
-          <button class="search-mode-btn" [class.active]="searchMode() === 'places'" (click)="switchSearchMode('places')">
-            <span class="material-icons">place</span>
-            <span class="search-mode-label">{{ 'mapfly.search.places' | translate }}</span>
-          </button>
+          @if (!isZoneMode()) {
+            <button class="search-mode-btn" [class.active]="searchMode() === 'places'" (click)="switchSearchMode('places')">
+              <span class="material-icons">place</span>
+              <span class="search-mode-label">{{ 'mapfly.search.places' | translate }}</span>
+            </button>
+          }
         </div>
         <div class="unified-search-input-wrap">
           <input

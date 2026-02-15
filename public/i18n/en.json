@@ -127,7 +127,8 @@
       "questions": "{{count}} questions",
       "bestScore": "Best Score",
       "topPlayers": "Top Players",
-      "guestNotice": "Log in to save your score"
+      "guestNotice": "Log in to save your score",
+      "questionsFromPool": "(from {{total}})"
     },
     "play": {
       "getReady": "Get ready!",
@@ -139,7 +140,12 @@
       "replay": "Play Again",
       "backToList": "Back to Quizzes",
       "guestWarning": "Your score was not saved",
-      "loginToSave": "Log in to save your scores"
+      "loginToSave": "Log in to save your scores",
+      "estimatedRank": "Your estimated rank: #{{rank}}",
+      "publish": "Publish my score",
+      "publishing": "Publishing...",
+      "published": "Score published! Rank: #{{rank}}",
+      "showAll": "Show full leaderboard"
     },
     "review": {
       "title": "Answer Review",
@@ -698,6 +704,8 @@
         "category": "Category",
         "icon": "Icon",
         "status": "Status",
+        "questionsPerPlay": "Questions per play",
+        "publishError": "Cannot publish: at least {{count}} questions required ({{current}} currently)",
         "createSuccess": "Quiz created successfully",
         "updateSuccess": "Quiz updated successfully",
         "saveError": "Error saving quiz"

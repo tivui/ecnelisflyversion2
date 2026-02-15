@@ -127,7 +127,8 @@
       "questions": "{{count}} questions",
       "bestScore": "Meilleur score",
       "topPlayers": "Meilleurs joueurs",
-      "guestNotice": "Connectez-vous pour sauvegarder votre score"
+      "guestNotice": "Connectez-vous pour sauvegarder votre score",
+      "questionsFromPool": "(sur {{total}})"
     },
     "play": {
       "getReady": "Préparez-vous !",
@@ -139,7 +140,12 @@
       "replay": "Rejouer",
       "backToList": "Retour aux quiz",
       "guestWarning": "Votre score n'a pas été sauvegardé",
-      "loginToSave": "Connectez-vous pour sauvegarder vos scores"
+      "loginToSave": "Connectez-vous pour sauvegarder vos scores",
+      "estimatedRank": "Votre position estimée : #{{rank}}",
+      "publish": "Publier mon score",
+      "publishing": "Publication...",
+      "published": "Score publié ! Position : #{{rank}}",
+      "showAll": "Voir classement complet"
     },
     "review": {
       "title": "Révision des réponses",
@@ -699,6 +705,8 @@
         "category": "Catégorie",
         "icon": "Icône",
         "status": "Statut",
+        "questionsPerPlay": "Questions par partie",
+        "publishError": "Impossible de publier : il faut au moins {{count}} questions ({{current}} actuellement)",
         "createSuccess": "Quiz créé avec succès",
         "updateSuccess": "Quiz mis à jour avec succès",
         "saveError": "Erreur lors de l'enregistrement"

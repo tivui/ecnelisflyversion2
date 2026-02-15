@@ -128,6 +128,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   // Category filter info
   public isCategoryMode = signal(false);
+  public isZoneMode = signal(false);
   public categoryFilterLabel = signal('');
   public categoryFilterColor = signal('');
   public categoryFilterOverlay = signal('');
@@ -309,6 +310,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     // --- Load zone if zoneId is provided ---
     this.currentZoneId = zoneId ?? null;
     if (zoneId) {
+      this.isZoneMode.set(true);
       this.loadZone(zoneId);
     }
 
@@ -353,22 +355,24 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // Met à jour dynamiquement les libellés si la langue change
     this.translate.onLangChange.subscribe(() => {
-      this.groupedLayersControl.remove();
+      if (this.groupedLayersControl) {
+        this.groupedLayersControl.remove();
 
-      const newCategoryOverlays = this.buildCategoryOverlays();
-      this.groupedLayersControl = (L as any).control.groupedLayers(
-        {},
-        newCategoryOverlays,
-        {
-          collapsed: true,
-          position: 'bottomright',
-          autoZIndex: false,
-          groupCheckboxes: true,
-          exclusiveGroups: [],
-          groupKey: 'all',
-        },
-      );
-      this.groupedLayersControl.addTo(this.map);
+        const newCategoryOverlays = this.buildCategoryOverlays();
+        this.groupedLayersControl = (L as any).control.groupedLayers(
+          {},
+          newCategoryOverlays,
+          {
+            collapsed: true,
+            position: 'bottomright',
+            autoZIndex: false,
+            groupCheckboxes: true,
+            exclusiveGroups: [],
+            groupKey: 'all',
+          },
+        );
+        this.groupedLayersControl.addTo(this.map);
+      }
 
       // Supprime le contrôle existant
       this.baseLayersControl.remove();
@@ -919,23 +923,24 @@ export class MapflyComponent implements OnInit, OnDestroy {
         }
       }
 
-      const categoryOverlays = this.buildCategoryOverlays();
+      // Layers control: hidden in category mode (already filtered)
+      if (!this.isCategoryMode()) {
+        const categoryOverlays = this.buildCategoryOverlays();
 
-      // Ajout d'un paramètre `groupKey` pour la logique interne
-      this.groupedLayersControl = (L as any).control.groupedLayers(
-        {},
-        categoryOverlays,
-        {
-          collapsed: true,
-          position: 'bottomright',
-          autoZIndex: false,
-          groupCheckboxes: true,
-          exclusiveGroups: [],
-          // clé logique du groupe parent
-          groupKey: 'all',
-        },
-      );
-      this.groupedLayersControl.addTo(this.map);
+        this.groupedLayersControl = (L as any).control.groupedLayers(
+          {},
+          categoryOverlays,
+          {
+            collapsed: true,
+            position: 'bottomright',
+            autoZIndex: false,
+            groupCheckboxes: true,
+            exclusiveGroups: [],
+            groupKey: 'all',
+          },
+        );
+        this.groupedLayersControl.addTo(this.map);
+      }
 
       // --- 🔍 Préparation des données pour Fuse (unified search bar) ---
       const soundsForSearch = sounds.map((s) => {
@@ -1255,6 +1260,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
       opacity: 0,
       className: 'zone-polygon-main',
     }).addTo(this.map);
+
+    // Fit map to polygon bounds with padding for UI elements
+    const isMobile = window.innerWidth <= 700 && window.matchMedia('(orientation: portrait)').matches;
+    const bounds = this.zonePolygonLayer.getBounds();
+    if (bounds.isValid()) {
+      const opts: L.FitBoundsOptions = isMobile
+        ? { paddingTopLeft: [30, 80], paddingBottomRight: [30, 140], maxZoom: 15, animate: true }
+        : { padding: [60, 60], maxZoom: 15, animate: true };
+      this.map.fitBounds(bounds, opts);
+    }
 
     // Animate polygon appearance
     let opacity = 0;
@@ -1794,7 +1809,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
     `, {
       maxWidth: 340,
       minWidth: 280,
-      maxHeight: window.innerWidth <= 700 ? Math.round(window.innerHeight * 0.55) : 400,
       autoPanPaddingTopLeft: L.point(10, 60),
       autoPanPaddingBottomRight: L.point(10, 70),
     });

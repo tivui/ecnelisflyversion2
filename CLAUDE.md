@@ -287,9 +287,26 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 ### Mapfly (`features/map/pages/mapfly/`)
 
 - `ViewEncapsulation.None` (styles globaux pour popups Leaflet)
-- **Featured mode** : animation cinematique fly-in, overlay violet, popup avec header violet
+- **Featured mode** : animation cinematique fly-in, overlay violet, popup sans limitation de hauteur (maxHeight retire)
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
+
+#### Controles conditionnels par mode
+
+- **Mode categorie** (`isCategoryMode()`) : `groupedLayersControl` (selecteur de layers/categories) masque — inutile puisqu'on est deja dans une categorie filtree
+- **Mode zone** (`isZoneMode()`) : bouton recherche par lieu ("places") masque dans la barre de recherche — seule la recherche par son reste disponible
+- **Lang change** : la recreation du `groupedLayersControl` est gardee par `if (this.groupedLayersControl)` pour eviter erreur en mode categorie
+
+#### Zone mode - fitBounds polygone
+
+- Apres affichage du polygone dans `displayZoneOnMap()`, `fitBounds` est appele sur les bounds du polygone
+- **Mobile portrait** : `paddingTopLeft: [30, 80]`, `paddingBottomRight: [30, 140]` (espace pour barre de recherche en haut + timeline bar + bottom nav en bas)
+- **Desktop** : `padding: [60, 60]` uniforme
+
+#### Zone mode - donnees utilisateur dans les popups
+
+- `getSoundsForZone()` utilise la requete GraphQL custom `ListSoundsByZoneWithUser` (dans `amplify-queries.model.ts`) qui inclut `user { username country }`
+- Meme pattern que `ListSoundsForMapWithAppUser` pour la carte normale — garantit que le "recorded at by username" s'affiche dans les popups de la carte terroir
 
 #### Journey mode - popups et stepper
 
@@ -334,9 +351,50 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 ### Quiz en mode deconnecte
 
 - L'utilisateur peut jouer sans se connecter
-- `quiz-play.component.ts` : `finishQuiz()` verifie `isAuthenticated()` — si guest, navigue vers `/quiz/:id/results/local` avec state local
+- `quiz-play.component.ts` : `finishQuiz()` navigue toujours vers `/quiz/:id/results/local` avec state local (meme flux pour authentifie et guest)
 - L'enregistrement du score (`submitAttempt`) requiert l'authentification
 - Le schema `QuizAttempt` n'autorise `create` que pour `authenticated`
+
+### Questions par partie (`questionsPerPlay`)
+
+Chaque quiz a un nombre de questions par partie (`questionsPerPlay`, defaut 5) independant du nombre total de questions associees (`questionCount`).
+
+- **Schema** : `Quiz.questionsPerPlay: a.integer().default(5)` dans `amplify/data/resource.ts`
+- **Admin dialog** : champ nombre dans l'onglet General, validation a la publication (impossible si `questionCount < questionsPerPlay`)
+- **Quiz play** : Fisher-Yates shuffle pour selectionner aleatoirement `questionsPerPlay` questions parmi le pool total
+- **Lobby** : affiche `questionsPerPlay` questions + "(sur X)" si pool > questionsPerPlay, temps estime base sur questionsPerPlay
+- **Liste publique** : affiche `questionsPerPlay` questions (pas le total)
+- **Admin list** : affiche ratio `questionsPerPlay / questionCount`
+- **Scoring** : max 150 points par question (100 base + 0-50 bonus vitesse), `maxScore = questionsPerPlay * 150`
+
+### Publication optionnelle du score et classement
+
+Le score n'est plus auto-soumis a la fin du quiz. L'utilisateur choisit de publier ou non depuis la page resultats.
+
+**Flux :**
+1. Quiz termine → navigation vers `/quiz/:id/results/local` (state local avec score, answers, questions)
+2. Page resultats charge le quiz + leaderboard top 10 (API publique `apiKey`)
+3. Position estimee affichee avant publication (comparaison score vs leaderboard)
+4. Bouton "Publier mon score" (authentifie uniquement) → `submitAttempt` → refresh leaderboard → position reelle
+5. Ligne du joueur highlight en emerald dans le classement
+6. Si joueur hors top 10 : separateur "..." + sa ligne en bas du classement
+7. Bouton "Voir classement complet" si >= 10 entrees → charge 100 entrees
+8. Guest : banniere d'avertissement, pas de bouton publier
+
+**Signals cles (`quiz-results.component.ts`) :**
+- `published`, `publishing`, `publishedAttemptId`, `publishedRank` : etat publication
+- `showFullLeaderboard`, `fullLeaderboard`, `loadingFull` : classement complet
+- `estimatedRank` (computed) : position estimee avant publication
+- `displayLeaderboard` (computed) : top 10 ou complet selon `showFullLeaderboard`
+- `userInDisplayedList`, `publishedEntry` (computed) : detection/affichage joueur dans le classement
+
+**Styles (`quiz-results.component.scss`) :**
+- Palette emerald (`$emerald: #0d7c51`, `$emerald-light: #66bb6a`)
+- `.leaderboard-row.current-user` : highlight emerald
+- `.rank-1/.rank-2/.rank-3` : or `#ffc107` / argent `#90a4ae` / bronze `#cd7f32`
+- Stars animees (bounce staggere)
+
+**i18n :** `quiz.results.estimatedRank`, `quiz.results.publish`, `quiz.results.publishing`, `quiz.results.published`, `quiz.results.showAll`
 
 ## Admin — Override manuel des elements mis en valeur
 

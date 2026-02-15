@@ -96,6 +96,88 @@ $emerald-light: #66bb6a;
 }
 
 // =====================
+// Estimated Rank
+// =====================
+.estimated-rank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  margin-bottom: 16px;
+  background: rgba($emerald, 0.06);
+  border: 1px solid rgba($emerald, 0.18);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $emerald;
+
+  :host-context(body.dark-theme) & {
+    background: rgba($emerald-light, 0.08);
+    border-color: rgba($emerald-light, 0.2);
+    color: $emerald-light;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// =====================
+// Publish Section
+// =====================
+.publish-section {
+  margin-bottom: 20px;
+}
+
+.publish-btn {
+  background-color: $emerald !important;
+  color: #fff !important;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 10px;
+
+  :host-context(body.dark-theme) & {
+    background-color: $emerald-light !important;
+    color: #1c1c2a !important;
+  }
+
+  mat-icon, mat-spinner {
+    margin-right: 6px;
+  }
+}
+
+// =====================
+// Publish Success
+// =====================
+.publish-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  background: rgba($emerald, 0.08);
+  border: 1px solid rgba($emerald, 0.25);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $emerald;
+
+  :host-context(body.dark-theme) & {
+    background: rgba($emerald-light, 0.1);
+    border-color: rgba($emerald-light, 0.25);
+    color: $emerald-light;
+  }
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+// =====================
 // Guest Banner
 // =====================
 .guest-banner {
@@ -158,6 +240,7 @@ $emerald-light: #66bb6a;
   background: #fff;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 0.2s ease;
 
   :host-context(body.dark-theme) & {
     background: #2a2a3e;
@@ -166,6 +249,16 @@ $emerald-light: #66bb6a;
 
   &.top-3 {
     border-left: 3px solid $emerald;
+  }
+
+  &.current-user {
+    background: rgba($emerald, 0.08);
+    border: 2px solid $emerald;
+
+    :host-context(body.dark-theme) & {
+      background: rgba($emerald-light, 0.1);
+      border-color: $emerald-light;
+    }
   }
 }
 
@@ -177,6 +270,18 @@ $emerald-light: #66bb6a;
 
   :host-context(body.dark-theme) & {
     color: $emerald-light;
+  }
+
+  &.rank-1 {
+    color: #ffc107;
+  }
+
+  &.rank-2 {
+    color: #90a4ae;
+  }
+
+  &.rank-3 {
+    color: #cd7f32;
   }
 }
 
@@ -213,6 +318,40 @@ $emerald-light: #66bb6a;
 
   &:not(.filled) {
     color: #ccc;
+  }
+}
+
+// =====================
+// Leaderboard Separator
+// =====================
+.leaderboard-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  color: #999;
+  font-size: 1.2rem;
+  letter-spacing: 4px;
+
+  :host-context(body.dark-theme) & {
+    color: #666;
+  }
+}
+
+// =====================
+// Show All Button
+// =====================
+.show-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 12px auto 0;
+  color: $emerald;
+  font-size: 0.9rem;
+
+  :host-context(body.dark-theme) & {
+    color: $emerald-light;
   }
 }
 

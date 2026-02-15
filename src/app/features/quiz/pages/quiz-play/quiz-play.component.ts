@@ -119,7 +119,16 @@ export class QuizPlayComponent implements OnInit, OnDestroy {
       }
 
       this.quiz.set(quiz);
-      this.questions.set(questions);
+
+      // Randomly select questionsPerPlay questions (Fisher-Yates shuffle)
+      const count = Math.min(quiz.questionsPerPlay, questions.length);
+      const shuffled = [...questions];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      this.questions.set(shuffled.slice(0, count));
+
       this.startCountdown();
     } catch (error) {
       console.error('Error loading quiz:', error);
@@ -268,43 +277,21 @@ export class QuizPlayComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async finishQuiz() {
+  private finishQuiz() {
     this.gameState.set('finished');
     const quiz = this.quiz()!;
     const maxScore = this.questions().length * 150;
 
-    if (this.isAuthenticated()) {
-      try {
-        const attempt = await this.quizService.submitAttempt(
-          quiz.id,
-          this.answers(),
-          maxScore,
-        );
-        this.router.navigate(['/quiz', quiz.id, 'results', attempt.id]);
-      } catch (error) {
-        console.error('Error submitting attempt:', error);
-        // Navigate to results anyway, pass data via state
-        this.router.navigate(['/quiz', quiz.id, 'results', 'local'], {
-          state: {
-            answers: this.answers(),
-            score: this.totalScore(),
-            maxScore,
-            questions: this.questions(),
-          },
-        });
-      }
-    } else {
-      // Guest mode: navigate with local data
-      this.router.navigate(['/quiz', quiz.id, 'results', 'local'], {
-        state: {
-          answers: this.answers(),
-          score: this.totalScore(),
-          maxScore,
-          questions: this.questions(),
-          guest: true,
-        },
-      });
-    }
+    // Always navigate to local results — user decides to publish from the results page
+    this.router.navigate(['/quiz', quiz.id, 'results', 'local'], {
+      state: {
+        answers: this.answers(),
+        score: this.totalScore(),
+        maxScore,
+        questions: this.questions(),
+        guest: !this.isAuthenticated(),
+      },
+    });
   }
 
   getCorrectIndex(): number {

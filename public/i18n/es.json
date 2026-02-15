@@ -126,7 +126,8 @@
       "questions": "{{count}} preguntas",
       "bestScore": "Mejor puntuación",
       "topPlayers": "Mejores jugadores",
-      "guestNotice": "Inicia sesión para guardar tu puntuación"
+      "guestNotice": "Inicia sesión para guardar tu puntuación",
+      "questionsFromPool": "(de {{total}})"
     },
     "play": {
       "getReady": "¡Prepárate!",
@@ -138,7 +139,12 @@
       "replay": "Jugar de nuevo",
       "backToList": "Volver a los quiz",
       "guestWarning": "Tu puntuación no fue guardada",
-      "loginToSave": "Inicia sesión para guardar tus puntuaciones"
+      "loginToSave": "Inicia sesión para guardar tus puntuaciones",
+      "estimatedRank": "Tu posición estimada: #{{rank}}",
+      "publish": "Publicar mi puntuación",
+      "publishing": "Publicando...",
+      "published": "¡Puntuación publicada! Posición: #{{rank}}",
+      "showAll": "Ver clasificación completa"
     },
     "review": {
       "title": "Revisión de respuestas",
@@ -682,6 +688,8 @@
         "category": "Categoría",
         "icon": "Icono",
         "status": "Estado",
+        "questionsPerPlay": "Preguntas por partida",
+        "publishError": "No se puede publicar: se necesitan al menos {{count}} preguntas ({{current}} actualmente)",
         "createSuccess": "Quiz creado con éxito",
         "updateSuccess": "Quiz actualizado con éxito",
         "saveError": "Error al guardar el quiz"

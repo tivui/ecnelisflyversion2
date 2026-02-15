@@ -38,6 +38,11 @@
             </mat-form-field>
           </div>
 
+          <mat-form-field>
+            <mat-label>{{ 'admin.quiz.dialog.questionsPerPlay' | translate }}</mat-label>
+            <input matInput type="number" formControlName="questionsPerPlay" min="1" />
+          </mat-form-field>
+
           <mat-form-field class="full-width">
             <mat-label>{{ 'admin.quiz.dialog.category' | translate }}</mat-label>
             <input matInput formControlName="category" />

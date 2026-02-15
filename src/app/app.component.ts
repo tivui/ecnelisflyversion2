@@ -83,6 +83,7 @@ export class AppComponent implements OnInit {
   public isAdmin = signal(false);
   public sidenavOpened = signal(false);
   public isHomePage = signal(false);
+  public isLoginPage = signal(false);
   public isCategoryMapPage = signal(false);
 
   // ==================== BOTTOM NAV (mobile) ====================
@@ -192,6 +193,7 @@ export class AppComponent implements OnInit {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects;
         this.isHomePage.set(url.startsWith('/home'));
+        this.isLoginPage.set(url.startsWith('/login'));
         this.isCategoryMapPage.set(url.startsWith('/mapfly') && url.includes('category='));
         this.activeRoute.set(url);
       }

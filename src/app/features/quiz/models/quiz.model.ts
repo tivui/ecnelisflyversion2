@@ -26,6 +26,7 @@ export interface Quiz {
   icon?: string;
   status: QuizStatus;
   questionCount: number;
+  questionsPerPlay: number;
   totalPlays: number;
   createdAt?: string;
   updatedAt?: string;
