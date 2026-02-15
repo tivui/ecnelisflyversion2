@@ -21,6 +21,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'admin/dashboard',
+    loadComponent: () =>
+      import('./features/admin/pages/admin-dashboard/admin-dashboard.component').then(
+        (m) => m.AdminDashboardComponent,
+      ),
+    canActivate: [authGuard],
+    data: { requiredGroup: 'ADMIN' },
+  },
+  {
     path: 'admin/database',
     loadChildren: () =>
       import('./features/admin/database/database.routes').then(

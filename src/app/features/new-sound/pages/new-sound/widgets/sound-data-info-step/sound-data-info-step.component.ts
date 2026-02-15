@@ -184,6 +184,16 @@ export class SoundDataInfoStepComponent implements OnInit {
       this.updateMarkerImage(option);
       this.emitCompleted();
     });
+
+    // Émettre aussi quand le titre ou l'histoire changent (debounced)
+    // pour que le parent ait toujours les données à jour
+    this.form.get('title')!.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => this.emitCompleted());
+
+    this.form.get('shortStory')!.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => this.emitCompleted());
   }
 
   /* ================= AUTOCOMPLETE HELPERS ================= */
@@ -306,6 +316,18 @@ export class SoundDataInfoStepComponent implements OnInit {
   /* ================= EMIT ================= */
 
   private emitCompleted() {
+    // Synchroniser le titre/story brut dans la langue courante
+    // pour éviter que title_i18n soit vide si la traduction n'a pas encore été déclenchée
+    const currentLang = this.translate.currentLang || 'fr';
+    const rawTitle = this.form.get('title')?.value?.trim() || '';
+    if (rawTitle && !this.translatedTitle[currentLang]) {
+      this.translatedTitle[currentLang] = rawTitle;
+    }
+    const rawStory = this.form.get('shortStory')?.value?.trim() || '';
+    if (rawStory && !this.translatedStory[currentLang]) {
+      this.translatedStory[currentLang] = rawStory;
+    }
+
     this.completed.emit({
       title_i18n: this.translatedTitle,
       shortStory_i18n: this.translatedStory,

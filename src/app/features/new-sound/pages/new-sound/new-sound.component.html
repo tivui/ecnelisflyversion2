@@ -1,3 +1,25 @@
+<!-- Quota exceeded overlay -->
+@if (quotaExceeded()) {
+  <div class="quota-exceeded-overlay">
+    <div class="quota-exceeded-card">
+      <mat-icon class="quota-exceeded-icon">block</mat-icon>
+      <h2 class="quota-exceeded-title">{{ 'quota.exceeded' | translate }}</h2>
+      @if (quotaInfo(); as qi) {
+        @if (qi.weekRemaining === 0) {
+          <p class="quota-exceeded-message">{{ 'quota.weeklyExceeded' | translate:{ limit: qi.weekLimit } }}</p>
+        } @else {
+          <p class="quota-exceeded-message">{{ 'quota.monthlyExceeded' | translate:{ limit: qi.monthLimit } }}</p>
+        }
+      }
+      <button mat-raised-button color="primary" (click)="goToDashboard()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'quota.backToDashboard' | translate }}
+      </button>
+    </div>
+  </div>
+}
+
+@if (!quotaExceeded() && !quotaLoading()) {
 <mat-stepper
   class="new-sound-stepper mat-elevation-z8"
   [class.highlight-step-0]="isStepHighlighted(0)"
@@ -94,3 +116,4 @@
     ></app-confirmation-step>
   </mat-step>
 </mat-stepper>
+}

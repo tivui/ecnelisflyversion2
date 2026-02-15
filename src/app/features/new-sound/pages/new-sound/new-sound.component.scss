@@ -211,6 +211,70 @@
   }
 }
 
+// Quota exceeded overlay
+.quota-exceeded-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 32px 16px;
+}
+
+.quota-exceeded-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+  padding: 48px 32px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.quota-exceeded-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: #ef5350;
+  margin-bottom: 16px;
+}
+
+.quota-exceeded-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 12px;
+}
+
+.quota-exceeded-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+:host-context(.dark-theme) {
+  .quota-exceeded-card {
+    background: rgba(24, 24, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .quota-exceeded-title {
+    color: #e8eaf6;
+  }
+
+  .quota-exceeded-message {
+    color: #9fa4be;
+  }
+
+  .quota-exceeded-icon {
+    color: #ef5350;
+  }
+}
+
 // Responsive
 @media (max-width: 768px) {
   :host {

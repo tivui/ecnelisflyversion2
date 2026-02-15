@@ -41,38 +41,19 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  @if (!loading() && !error() && sounds().length > 0) {
-    <app-sound-filters
-      (filtersChanged)="onFiltersChanged($event)"
-    />
-
-    <!-- Results count -->
-    @if (filtersActive()) {
-      <div class="results-info">
-        <span class="results-count">
-          {{ "dashboard.filters.resultsCount" | translate: { count: resultsCount(), total: totalCount() } }}
-        </span>
-        <button mat-button color="primary" (click)="resetFilters()" class="reset-all-btn">
-          <mat-icon>clear_all</mat-icon>
-          {{ "dashboard.filters.resetAll" | translate }}
-        </button>
-      </div>
-    }
-  }
-
-  <!-- Content -->
-  <div class="dashboard-content">
-    <!-- Loading state -->
-    @if (loading()) {
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="dashboard-content">
       <div class="loading-container">
         <mat-spinner diameter="48"></mat-spinner>
         <p>{{ "dashboard.loading" | translate }}</p>
       </div>
-    }
+    </div>
+  }
 
-    <!-- Error state -->
-    @if (error() && !loading()) {
+  <!-- Error state -->
+  @if (error() && !loading()) {
+    <div class="dashboard-content">
       <div class="error-container">
         <mat-icon class="error-icon">error_outline</mat-icon>
         <p>{{ error() }}</p>
@@ -81,41 +62,94 @@
           {{ "dashboard.refresh" | translate }}
         </button>
       </div>
-    }
+    </div>
+  }
 
-    <!-- Empty state after filtering -->
-    @if (!loading() && !error() && sounds().length > 0 && displayedSounds().length === 0) {
-      <div class="empty-results">
-        <mat-icon>search_off</mat-icon>
-        <p>{{ "dashboard.filters.noResults" | translate }}</p>
-        <button mat-stroked-button color="primary" (click)="resetFilters()">
-          <mat-icon>clear_all</mat-icon>
-          {{ "dashboard.filters.resetAll" | translate }}
-        </button>
-      </div>
-    }
+  <!-- Tabs -->
+  @if (!loading() && !error()) {
+    <mat-tab-group class="dashboard-tabs" animationDuration="200ms">
+      <!-- Tab: Stats (only if user has sounds) -->
+      @if (sounds().length > 0 && currentUserId()) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">bar_chart</mat-icon>
+            {{ "dashboard.tabs.stats" | translate }}
+          </ng-template>
+          <div class="tab-content">
+            <app-dashboard-stats
+              [sounds]="sounds()"
+              [userId]="currentUserId()!"
+              [isAdmin]="isAdmin()"
+            />
+          </div>
+        </mat-tab>
+      }
 
-    <!-- Sound list -->
-    @if (!loading() && !error() && displayedSounds().length > 0) {
-      <app-sound-list
-        [sounds]="displayedSounds()"
-        [isAdmin]="isAdmin()"
-        [showUserColumn]="isAdmin() && showAllSounds()"
-        (soundUpdated)="onSoundUpdated($event)"
-        (soundDeleted)="onSoundDeleted($event)"
-      />
-    }
+      <!-- Tab: My Sounds -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">library_music</mat-icon>
+          {{ "dashboard.tabs.sounds" | translate }}
+        </ng-template>
+        <div class="tab-content">
+          <!-- Filters -->
+          @if (sounds().length > 0) {
+            <app-sound-filters
+              (filtersChanged)="onFiltersChanged($event)"
+            />
 
-    <!-- No sounds at all -->
-    @if (!loading() && !error() && sounds().length === 0) {
-      <div class="empty-state">
-        <mat-icon>library_music</mat-icon>
-        <p>{{ "dashboard.noSounds" | translate }}</p>
-        <button mat-raised-button color="primary" (click)="goToNewSound()">
-          <mat-icon>add</mat-icon>
-          {{ "dashboard.addSound" | translate }}
-        </button>
-      </div>
-    }
-  </div>
+            <!-- Results count -->
+            @if (filtersActive()) {
+              <div class="results-info">
+                <span class="results-count">
+                  {{ "dashboard.filters.resultsCount" | translate: { count: resultsCount(), total: totalCount() } }}
+                </span>
+                <button mat-button color="primary" (click)="resetFilters()" class="reset-all-btn">
+                  <mat-icon>clear_all</mat-icon>
+                  {{ "dashboard.filters.resetAll" | translate }}
+                </button>
+              </div>
+            }
+          }
+
+          <div class="dashboard-content">
+            <!-- Empty state after filtering -->
+            @if (sounds().length > 0 && displayedSounds().length === 0) {
+              <div class="empty-results">
+                <mat-icon>search_off</mat-icon>
+                <p>{{ "dashboard.filters.noResults" | translate }}</p>
+                <button mat-stroked-button color="primary" (click)="resetFilters()">
+                  <mat-icon>clear_all</mat-icon>
+                  {{ "dashboard.filters.resetAll" | translate }}
+                </button>
+              </div>
+            }
+
+            <!-- Sound list -->
+            @if (displayedSounds().length > 0) {
+              <app-sound-list
+                [sounds]="displayedSounds()"
+                [isAdmin]="isAdmin()"
+                [showUserColumn]="isAdmin() && showAllSounds()"
+                (soundUpdated)="onSoundUpdated($event)"
+                (soundDeleted)="onSoundDeleted($event)"
+              />
+            }
+
+            <!-- No sounds at all -->
+            @if (sounds().length === 0) {
+              <div class="empty-state">
+                <mat-icon>library_music</mat-icon>
+                <p>{{ "dashboard.noSounds" | translate }}</p>
+                <button mat-raised-button color="primary" (click)="goToNewSound()">
+                  <mat-icon>add</mat-icon>
+                  {{ "dashboard.addSound" | translate }}
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
 </div>

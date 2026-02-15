@@ -4,9 +4,9 @@ export const storage = defineStorage({
   name: 'ecnelisFlyStorage',
   access: (allow) => ({
     'sounds/*': [
-      allow.authenticated.to(['read']),
+      allow.authenticated.to(['read', 'write']),
       allow.guest.to(['read']),
-      allow.groups(['ADMIN']).to(['read', 'write']),
+      allow.groups(['ADMIN']).to(['read', 'write', 'delete']),
     ],
     'imports/*': [
       allow.groups(['ADMIN']).to(['read', 'write']),

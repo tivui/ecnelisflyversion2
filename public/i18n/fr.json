@@ -221,6 +221,10 @@
     "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
     "audioError": "Erreur lors de la lecture audio",
+    "tabs": {
+      "stats": "Statistiques",
+      "sounds": "Mes Sons"
+    },
     "table": {
       "title": "Titre",
       "category": "Catégorie",
@@ -258,8 +262,17 @@
     },
     "status": {
       "private": "Privé",
-      "public_to_be_approved": "En attente",
-      "public": "Public"
+      "public_to_be_approved": "En attente de validation",
+      "public": "Public",
+      "pendingTooltip": "Votre son sera visible publiquement après validation par un modérateur"
+    },
+    "stats": {
+      "totalSounds": "Total sons",
+      "publicSounds": "Sons publics",
+      "totalLikes": "Total likes",
+      "categoryDistribution": "Répartition par catégorie",
+      "statusBreakdown": "Statuts des sons",
+      "monthlyActivity": "Activité mensuelle"
     },
     "admin": {
       "showAll": "Voir tous les sons",
@@ -453,7 +466,45 @@
       "featuredSound": "Son du jour",
       "journeys": "Voyages sonores",
       "quizzes": "Quiz sonores",
-      "articles": "Articles"
+      "articles": "Articles",
+      "tabs": {
+        "dashboard": "Tableau de bord"
+      }
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "totalSounds": "Total sons",
+      "totalUsers": "Utilisateurs",
+      "publicSounds": "Sons publics",
+      "pendingSounds": "En attente",
+      "newThisMonth": "Nouveaux ce mois",
+      "byCategory": "Sons par catégorie",
+      "uploadsOverTime": "Évolution des uploads",
+      "statusDistribution": "Répartition des statuts",
+      "topContributors": "Top contributeurs",
+      "topCities": "Villes les plus actives",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "approveAll": "Tout approuver",
+      "approved": "Son approuvé",
+      "rejected": "Son rejeté",
+      "approveError": "Erreur lors de l'approbation",
+      "rejectError": "Erreur lors du rejet",
+      "tabs": {
+        "stats": "Statistiques",
+        "moderation": "Modération"
+      },
+      "noPending": "Aucun son en attente de validation",
+      "details": "Détails",
+      "detailTitle": "Titre",
+      "detailStory": "Histoire",
+      "detailCategory": "Catégorie",
+      "detailLocation": "Lieu",
+      "detailEquipment": "Équipement",
+      "detailLicense": "Licence",
+      "detailHashtags": "Hashtags",
+      "detailDate": "Date d'ajout",
+      "detailAudio": "Écouter"
     },
     "featuredSound": {
       "title": "Son du jour",
@@ -1223,5 +1274,14 @@
   "update": {
     "available": "Une nouvelle version est disponible",
     "reload": "Recharger"
+  },
+  "quota": {
+    "weeklyUsage": "Uploads cette semaine",
+    "monthlyUsage": "Uploads ce mois",
+    "remaining": "{{count}} restant(s)",
+    "exceeded": "Limite atteinte",
+    "weeklyExceeded": "Vous avez atteint la limite de {{limit}} sons par semaine",
+    "monthlyExceeded": "Vous avez atteint la limite de {{limit}} sons par mois",
+    "backToDashboard": "Retour au tableau de bord"
   }
 }

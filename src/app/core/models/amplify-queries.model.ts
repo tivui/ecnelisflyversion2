@@ -27,6 +27,7 @@ export const ListSoundsForMapWithAppUser = /* GraphQL */ `
       url
       urlTitle
       hashtags
+      status
       likesCount
       createdAt
     }

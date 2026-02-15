@@ -1,0 +1,309 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else {
+  <div class="admin-dashboard">
+    <mat-tab-group animationDuration="200ms">
+      <!-- Tab 1: Statistiques -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">bar_chart</mat-icon>
+          <span class="tab-label">{{ 'admin.dashboard.tabs.stats' | translate }}</span>
+        </ng-template>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">library_music</mat-icon>
+            <div class="kpi-value">{{ totalSounds() }}</div>
+            <div class="kpi-label">{{ 'admin.dashboard.totalSounds' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon kpi-users">group</mat-icon>
+            <div class="kpi-value">{{ totalUsers() }}</div>
+            <div class="kpi-label">{{ 'admin.dashboard.totalUsers' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon kpi-public">public</mat-icon>
+            <div class="kpi-value">{{ publicSounds() }}</div>
+            <div class="kpi-label">{{ 'admin.dashboard.publicSounds' | translate }}</div>
+          </div>
+          <div class="kpi-card kpi-card-pending" [class.kpi-has-pending]="pendingSounds() > 0">
+            <mat-icon class="kpi-icon kpi-pending">pending_actions</mat-icon>
+            <div class="kpi-value">{{ pendingSounds() }}</div>
+            <div class="kpi-label">{{ 'admin.dashboard.pendingSounds' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon kpi-new">trending_up</mat-icon>
+            <div class="kpi-value">{{ newUsersThisMonth() }}</div>
+            <div class="kpi-label">{{ 'admin.dashboard.newThisMonth' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        @if (totalSounds() > 0) {
+          <div class="charts-row">
+            <!-- Sounds by category -->
+            <div class="chart-card">
+              <h3 class="chart-title">{{ 'admin.dashboard.byCategory' | translate }}</h3>
+              <ngx-charts-bar-horizontal
+                [results]="categoryData()"
+                [scheme]="categoryColorScheme()"
+                [xAxis]="true"
+                [yAxis]="true"
+                [showXAxisLabel]="false"
+                [showYAxisLabel]="false"
+                [trimYAxisTicks]="true"
+                [maxYAxisTickLength]="18"
+                [view]="[480, 300]"
+              ></ngx-charts-bar-horizontal>
+            </div>
+
+            <!-- Uploads over time -->
+            <div class="chart-card">
+              <h3 class="chart-title">{{ 'admin.dashboard.uploadsOverTime' | translate }}</h3>
+              <ngx-charts-line-chart
+                [results]="uploadsOverTime()"
+                [scheme]="lineColorScheme"
+                [xAxis]="true"
+                [yAxis]="true"
+                [showXAxisLabel]="false"
+                [showYAxisLabel]="false"
+                [autoScale]="true"
+                [view]="[480, 300]"
+              ></ngx-charts-line-chart>
+            </div>
+          </div>
+
+          <!-- Charts Row 2 -->
+          <div class="charts-row">
+            <!-- Status distribution -->
+            <div class="chart-card chart-card-small">
+              <h3 class="chart-title">{{ 'admin.dashboard.statusDistribution' | translate }}</h3>
+              <ngx-charts-pie-chart
+                [results]="statusData()"
+                [scheme]="statusColorScheme"
+                [labels]="true"
+                [doughnut]="true"
+                [view]="[300, 240]"
+              ></ngx-charts-pie-chart>
+            </div>
+
+            <!-- Top contributors -->
+            @if (topContributors().length > 0) {
+              <div class="chart-card">
+                <h3 class="chart-title">{{ 'admin.dashboard.topContributors' | translate }}</h3>
+                <ngx-charts-bar-horizontal
+                  [results]="topContributors()"
+                  [scheme]="contributorsColorScheme"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [showXAxisLabel]="false"
+                  [showYAxisLabel]="false"
+                  [trimYAxisTicks]="true"
+                  [maxYAxisTickLength]="14"
+                  [view]="[380, 280]"
+                ></ngx-charts-bar-horizontal>
+              </div>
+            }
+
+            <!-- Top cities -->
+            @if (topCities().length > 0) {
+              <div class="chart-card">
+                <h3 class="chart-title">{{ 'admin.dashboard.topCities' | translate }}</h3>
+                <ngx-charts-bar-vertical
+                  [results]="topCities()"
+                  [scheme]="citiesColorScheme"
+                  [xAxis]="true"
+                  [yAxis]="true"
+                  [showXAxisLabel]="false"
+                  [showYAxisLabel]="false"
+                  [view]="[380, 280]"
+                ></ngx-charts-bar-vertical>
+              </div>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <!-- Tab 2: Modération -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">pending_actions</mat-icon>
+          <span class="tab-label">{{ 'admin.dashboard.tabs.moderation' | translate }}</span>
+          @if (pendingSounds() > 0) {
+            <span class="tab-badge">{{ pendingSounds() }}</span>
+          }
+        </ng-template>
+
+        @if (pendingSoundsList().length === 0) {
+          <div class="empty-moderation">
+            <mat-icon class="empty-icon">check_circle</mat-icon>
+            <p>{{ 'admin.dashboard.noPending' | translate }}</p>
+          </div>
+        } @else {
+          <div class="moderation-section">
+            <div class="moderation-header">
+              <h3>
+                <mat-icon>pending_actions</mat-icon>
+                {{ 'admin.dashboard.pendingSounds' | translate }}
+                <span class="pending-count">{{ pendingSoundsList().length }}</span>
+              </h3>
+              <button mat-stroked-button color="primary" (click)="approveAll()">
+                <mat-icon>done_all</mat-icon>
+                {{ 'admin.dashboard.approveAll' | translate }}
+              </button>
+            </div>
+
+            <div class="moderation-list">
+              @for (sound of pendingSoundsList(); track sound.id) {
+                <div class="moderation-item" [class.expanded]="expandedSoundId() === sound.id">
+                  <div class="moderation-row" (click)="toggleExpand(sound)">
+                    <div class="moderation-info">
+                      <span class="moderation-title">{{ sound.title }}</span>
+                      <span class="moderation-meta">
+                        {{ sound.user?.username || '—' }} · {{ sound.city || '—' }} ·
+                        {{ sound.category ? (('categories.' + sound.category) | translate) : '—' }}
+                      </span>
+                    </div>
+                    <div class="moderation-actions">
+                      <button
+                        mat-icon-button
+                        (click)="toggleExpand(sound); $event.stopPropagation()"
+                        [matTooltip]="'admin.dashboard.details' | translate"
+                      >
+                        <mat-icon>{{ expandedSoundId() === sound.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        color="primary"
+                        (click)="approveSound(sound); $event.stopPropagation()"
+                        [matTooltip]="'admin.dashboard.approve' | translate"
+                      >
+                        <mat-icon>check_circle</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        (click)="rejectSound(sound); $event.stopPropagation()"
+                        [matTooltip]="'admin.dashboard.reject' | translate"
+                      >
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Expanded metadata -->
+                  @if (expandedSoundId() === sound.id) {
+                    <div class="moderation-details">
+                      <div class="detail-grid">
+                        <!-- Title i18n -->
+                        @if (sound.title_i18n) {
+                          <div class="detail-item">
+                            <span class="detail-label">{{ 'admin.dashboard.detailTitle' | translate }}</span>
+                            <div class="detail-value">
+                              @for (entry of sound.title_i18n | keyvalue; track entry.key) {
+                                <span class="lang-chip">{{ entry.key }}: {{ entry.value }}</span>
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        <!-- Short story -->
+                        @if (sound.shortStory) {
+                          <div class="detail-item detail-item-full">
+                            <span class="detail-label">{{ 'admin.dashboard.detailStory' | translate }}</span>
+                            <span class="detail-value">{{ sound.shortStory }}</span>
+                          </div>
+                        }
+
+                        <!-- Category -->
+                        <div class="detail-item">
+                          <span class="detail-label">{{ 'admin.dashboard.detailCategory' | translate }}</span>
+                          <span class="detail-value">
+                            {{ sound.category ? (('categories.' + sound.category) | translate) : '—' }}
+                            @if (sound.secondaryCategory) {
+                              · {{ ('categories.' + sound.category + '.' + sound.secondaryCategory) | translate }}
+                            }
+                          </span>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="detail-item">
+                          <span class="detail-label">{{ 'admin.dashboard.detailLocation' | translate }}</span>
+                          <span class="detail-value">
+                            {{ sound.city || '—' }}
+                            @if (sound.latitude && sound.longitude) {
+                              ({{ sound.latitude | number:'1.4-4' }}, {{ sound.longitude | number:'1.4-4' }})
+                            }
+                          </span>
+                        </div>
+
+                        <!-- Equipment -->
+                        @if (sound.equipment) {
+                          <div class="detail-item">
+                            <span class="detail-label">{{ 'admin.dashboard.detailEquipment' | translate }}</span>
+                            <span class="detail-value">{{ sound.equipment }}</span>
+                          </div>
+                        }
+
+                        <!-- License -->
+                        @if (sound.license) {
+                          <div class="detail-item">
+                            <span class="detail-label">{{ 'admin.dashboard.detailLicense' | translate }}</span>
+                            <span class="detail-value">{{ ('sound.licenses.' + sound.license) | translate }}</span>
+                          </div>
+                        }
+
+                        <!-- Hashtags -->
+                        @if (sound.hashtags) {
+                          <div class="detail-item detail-item-full">
+                            <span class="detail-label">{{ 'admin.dashboard.detailHashtags' | translate }}</span>
+                            <div class="detail-tags">
+                              @for (tag of sound.hashtags.split(' '); track tag) {
+                                @if (tag.trim()) {
+                                  <mat-chip-option disabled>{{ tag }}</mat-chip-option>
+                                }
+                              }
+                            </div>
+                          </div>
+                        }
+
+                        <!-- URLs -->
+                        @if (sound.url) {
+                          <div class="detail-item">
+                            <span class="detail-label">URL</span>
+                            <a class="detail-link" [href]="sound.url" target="_blank">{{ sound.urlTitle || sound.url }}</a>
+                          </div>
+                        }
+
+                        <!-- Date -->
+                        @if (sound.createdAt) {
+                          <div class="detail-item">
+                            <span class="detail-label">{{ 'admin.dashboard.detailDate' | translate }}</span>
+                            <span class="detail-value">{{ sound.createdAt | date:'medium' }}</span>
+                          </div>
+                        }
+
+                        <!-- Audio player -->
+                        @if (soundUrls()[sound.id!]) {
+                          <div class="detail-item detail-item-full">
+                            <span class="detail-label">{{ 'admin.dashboard.detailAudio' | translate }}</span>
+                            <audio controls class="detail-audio">
+                              <source [src]="soundUrls()[sound.id!]" />
+                            </audio>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+}
