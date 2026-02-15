@@ -110,6 +110,20 @@ export class FeaturedSoundComponent implements OnInit {
     }
   }
 
+  async setAsDaily(candidate: FeaturedSoundCandidate) {
+    try {
+      await this.featuredSoundService.forcePickDaily(candidate);
+      this.snackBar.open(
+        this.translate.instant('admin.featuredSound.dailySet'),
+        '',
+        { duration: 3000 },
+      );
+      this.loadData();
+    } catch (error) {
+      console.error('Error setting daily featured:', error);
+    }
+  }
+
   async deleteCandidate(candidate: FeaturedSoundCandidate) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {

@@ -247,7 +247,7 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 
 **Featured distinction :** `border-color: rgba(#7c4dff, 0.14)` + `box-shadow` violet glow + `inset 0 0 0 1px rgba(#7c4dff, 0.04)`
 
-**Hero title compacte :** logo 64px (au lieu de 80px), margins reduits, padding-top: 0
+**Hero title compacte :** logo 85px, margins reduits, padding-top: 0
 
 **Carousel section :** separateur gradient renforce (`$primary-blue → $primary-indigo → $primary-violet`), icon/titre colores indigo
 
@@ -431,6 +431,7 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 - **Position** : `'end'` (droite) en mobile portrait, `'start'` (gauche) en desktop — `[position]="isMobilePortrait() ? 'end' : 'start'"`
 - **Plein ecran** : `width: 100vw; max-width: 100vw; box-shadow: none` en mobile portrait
 - **Desktop** : `width: 320px; max-width: 85vw`
+- **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
 
@@ -466,6 +467,41 @@ Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 | musicfly | `#D60101` | `~#872114` (bordeaux) |
 | naturalfly | `#39AFF7` | `~#2d73a7` (azur profond) |
 | Toutes | — | `#5c6a8a` (slate-indigo) |
+
+## Gooey Living Logo (`home.component` + `gooey-audio.service`)
+
+Logo interactif avec physique et synthese audio Web Audio API. Fonctionne sur mobile et desktop.
+
+### Interactions
+
+| Geste | Visuel | Son |
+|-------|--------|-----|
+| **Tap** (< 400ms) | Squish (scaleY 0.7 → rebond CSS) | Boing (oscillateur descendant 400→100Hz) |
+| **Drag** | Translation + stretch (scale proportionnel a la distance) | Goo resistance (bruit filtre, pitch lie a la vitesse) |
+| **Flick** (relache avec velocite) | Bounce physique (rebond sur bords viewport, friction, gravite) | Whoosh (bruit bande passante etroite) + Plop (a chaque rebond) |
+| **Long press** (>= 400ms) | Inflate (scale progressif) + pulse + spin accelerant | Drone (2 oscillateurs exponentiels 60→2500Hz / 120→4000Hz) |
+
+### Architecture
+
+- **Template** : `.hero-logo-tilt` wrapper (cursor grab/grabbing), `<img>` avec pointer events
+- **Physique** : `requestAnimationFrame` hors zone Angular (`NgZone.runOutsideAngular`)
+- **Audio** : `GooeyAudioService` — synthese pure Web Audio (OscillatorNode, GainNode, BiquadFilterNode, LFO)
+- **Clone** : pour flick, un clone `<img>` est cree dans le DOM pour animer independamment du layout
+- **Long press spin** : classe `.longpress-active` desactive `animation: none !important` pour eviter conflit CSS
+
+### Drone (long press) - courbe exponentielle
+
+```typescript
+const factor = Math.pow(1.18, elapsed) - 1;
+const freq1 = Math.min(60 + 60 * factor, 2500);   // osc1: 60Hz → 2500Hz
+const freq2 = Math.min(120 + 120 * factor, 4000);  // osc2: 120Hz → 4000Hz
+```
+
+Pas de cap temporel — le son monte en continu tant que le long press dure.
+
+### Hover desktop
+
+Pas de comportement JS au hover (reverted). Seul un `filter` glow CSS subtil est applique au `:hover`.
 
 ## Fichiers temporaires a ignorer
 

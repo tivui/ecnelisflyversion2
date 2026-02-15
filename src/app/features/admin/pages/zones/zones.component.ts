@@ -144,6 +144,19 @@ export class ZonesComponent implements OnInit {
     });
   }
 
+  async setAsMonthly(zone: Zone) {
+    try {
+      await this.zoneService.setMonthlyZone(zone);
+      this.snackBar.open(
+        this.translate.instant('admin.zones.monthlySet'),
+        '',
+        { duration: 3000 },
+      );
+    } catch (error) {
+      console.error('Error setting monthly zone:', error);
+    }
+  }
+
   viewOnMap(zone: Zone) {
     window.open(`/mapfly?zoneId=${zone.id}`, '_blank');
   }

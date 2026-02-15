@@ -460,7 +460,11 @@
       },
       "deleteConfirm": "Remove this sound from the list?",
       "deleteSuccess": "Sound removed from the list",
-      "saveSuccess": "Sound saved"
+      "saveSuccess": "Sound saved",
+      "dailySet": "Today's sound set successfully",
+      "actions": {
+        "setDaily": "Set as today's sound"
+      }
     },
     "zones": {
       "title": "Sound Terroirs",
@@ -477,7 +481,9 @@
         "order": "Order",
         "actions": "Actions"
       },
+      "monthlySet": "Monthly zone set successfully",
       "actions": {
+        "monthly": "Monthly zone",
         "viewOnMap": "View on map",
         "manageSounds": "Manage sounds",
         "edit": "Edit",
@@ -579,7 +585,9 @@
         "order": "Order",
         "actions": "Actions"
       },
+      "monthlySet": "Monthly journey set successfully",
       "actions": {
+        "monthly": "Monthly journey",
         "previewOnMap": "Preview on map",
         "manageSteps": "Manage steps",
         "edit": "Edit",
@@ -722,6 +730,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Monthly article set successfully",
+      "actions": {
+        "monthly": "Monthly article"
+      },
       "list": {
         "title": "Sound Articles",
         "new": "New article",

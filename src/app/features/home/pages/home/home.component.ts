@@ -15,7 +15,7 @@ import { DailyFeaturedSound } from '../../../../core/models/featured-sound.model
 import { QuizService } from '../../../quiz/services/quiz.service';
 import { Quiz } from '../../../quiz/models/quiz.model';
 import { ArticleService } from '../../../articles/services/article.service';
-import { SoundArticle } from '../../../articles/models/article.model';
+import { SoundArticle, MonthlyArticle } from '../../../articles/models/article.model';
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
 import { MonthlyJourney } from '../../../../core/models/sound-journey.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
@@ -115,7 +115,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const [dailyResult, monthlyQuizResult, articleResult, monthlyZoneResult, monthlyJourneyResult] = await Promise.allSettled([
       this.featuredSoundService.getTodayFeatured(),
       this.quizService.getMonthlyQuiz(),
-      this.articleService.getLatestPublishedArticle(),
+      this.loadArticle(),
       this.zoneService.getMonthlyZone(),
       this.journeyService.getMonthlyJourney(),
     ]);
@@ -266,6 +266,28 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (quiz.description_i18n && quiz.description_i18n[lang]) return quiz.description_i18n[lang];
     return quiz.description ?? '';
   });
+
+  private async loadArticle(): Promise<SoundArticle | null> {
+    // Try monthly article first, fall back to latest published
+    const monthly = await this.articleService.getMonthlyArticle();
+    if (monthly) {
+      return {
+        id: monthly.articleId,
+        title: monthly.articleTitle ?? '',
+        title_i18n: monthly.articleTitle_i18n,
+        description: monthly.articleDescription,
+        description_i18n: monthly.articleDescription_i18n,
+        slug: monthly.articleSlug ?? '',
+        coverImageKey: monthly.articleCoverImageKey,
+        authorName: monthly.articleAuthorName,
+        tags: [],
+        status: 'published',
+        blockCount: 0,
+        sortOrder: 0,
+      };
+    }
+    return this.articleService.getLatestPublishedArticle();
+  }
 
   articleTitle = computed(() => {
     const article = this.latestArticle();

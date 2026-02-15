@@ -461,7 +461,11 @@
       },
       "deleteConfirm": "Supprimer ce son de la liste ?",
       "deleteSuccess": "Son retiré de la liste",
-      "saveSuccess": "Son sauvegardé"
+      "saveSuccess": "Son sauvegardé",
+      "dailySet": "Son du jour défini avec succès",
+      "actions": {
+        "setDaily": "Définir comme son du jour"
+      }
     },
     "zones": {
       "title": "Terroirs sonores",
@@ -478,7 +482,9 @@
         "order": "Ordre",
         "actions": "Actions"
       },
+      "monthlySet": "Terroir du mois défini avec succès",
       "actions": {
+        "monthly": "Terroir du mois",
         "viewOnMap": "Voir sur la carte",
         "manageSounds": "Gérer les sons",
         "edit": "Modifier",
@@ -580,7 +586,9 @@
         "order": "Ordre",
         "actions": "Actions"
       },
+      "monthlySet": "Voyage du mois défini avec succès",
       "actions": {
+        "monthly": "Voyage du mois",
         "previewOnMap": "Aperçu sur la carte",
         "manageSteps": "Gérer les étapes",
         "edit": "Modifier",
@@ -723,6 +731,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Article du mois défini avec succès",
+      "actions": {
+        "monthly": "Article du mois"
+      },
       "list": {
         "title": "Articles Sonores",
         "new": "Nouvel article",

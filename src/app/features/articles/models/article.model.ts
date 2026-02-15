@@ -53,6 +53,20 @@ export interface ArticleBlock {
   settings?: BlockSettings;
 }
 
+export interface MonthlyArticle {
+  id: string;
+  articleId: string;
+  month: string;
+  active: boolean;
+  articleTitle?: string;
+  articleTitle_i18n?: Record<string, string>;
+  articleSlug?: string;
+  articleCoverImageKey?: string;
+  articleAuthorName?: string;
+  articleDescription?: string;
+  articleDescription_i18n?: Record<string, string>;
+}
+
 export type BlockVariant =
   | 'default'
   | 'separator'

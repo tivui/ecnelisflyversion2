@@ -444,7 +444,11 @@
       },
       "deleteConfirm": "¿Eliminar este sonido de la lista?",
       "deleteSuccess": "Sonido eliminado de la lista",
-      "saveSuccess": "Sonido guardado"
+      "saveSuccess": "Sonido guardado",
+      "dailySet": "Sonido del día definido con éxito",
+      "actions": {
+        "setDaily": "Definir como sonido del día"
+      }
     },
     "zones": {
       "title": "Terruños sonoros",
@@ -461,7 +465,9 @@
         "order": "Orden",
         "actions": "Acciones"
       },
+      "monthlySet": "Terruño del mes definido con éxito",
       "actions": {
+        "monthly": "Terruño del mes",
         "viewOnMap": "Ver en el mapa",
         "manageSounds": "Gestionar sonidos",
         "edit": "Editar",
@@ -563,7 +569,9 @@
         "order": "Orden",
         "actions": "Acciones"
       },
+      "monthlySet": "Viaje del mes definido con éxito",
       "actions": {
+        "monthly": "Viaje del mes",
         "previewOnMap": "Vista previa en el mapa",
         "manageSteps": "Gestionar etapas",
         "edit": "Editar",
@@ -706,6 +714,10 @@
       }
     },
     "articles": {
+      "monthlySet": "Artículo del mes definido con éxito",
+      "actions": {
+        "monthly": "Artículo del mes"
+      },
       "list": {
         "title": "Artículos Sonoros",
         "new": "Nuevo artículo",

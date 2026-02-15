@@ -149,4 +149,48 @@ export class FeaturedSoundService {
     const items = result.data ?? [];
     return items.length > 0 ? this.mapDaily(items[0]) : null;
   }
+
+  async forcePickDaily(candidate: FeaturedSoundCandidate): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Delete existing daily featured for today
+    const existing = await (
+      this.client.models.DailyFeaturedSound.getDailyFeaturedByDate as any
+    )({ date: today });
+    if (existing.data) {
+      for (const d of existing.data) {
+        await this.client.models.DailyFeaturedSound.delete({ id: d.id });
+      }
+    }
+
+    // Fetch the full Sound record
+    const soundResult = await (this.client.models.Sound as any).get({ id: candidate.soundId });
+    const sound = soundResult.data;
+    if (!sound) {
+      throw new Error('Sound not found for candidate');
+    }
+
+    // Create new DailyFeaturedSound with denormalized data
+    const result = await this.client.models.DailyFeaturedSound.create({
+      date: today,
+      featuredCandidateId: candidate.id,
+      soundId: candidate.soundId,
+      teasing: candidate.teasing,
+      teasing_i18n: candidate.teasing_i18n
+        ? JSON.stringify(candidate.teasing_i18n)
+        : undefined,
+      soundTitle: sound.title,
+      soundCity: sound.city ?? undefined,
+      soundLatitude: sound.latitude ?? undefined,
+      soundLongitude: sound.longitude ?? undefined,
+      soundCategory: sound.category ?? undefined,
+      soundSecondaryCategory: sound.secondaryCategory ?? undefined,
+      soundFilename: sound.filename,
+    } as any);
+
+    if (result.errors?.length) {
+      console.error('Error creating daily featured:', result.errors);
+      throw new Error('Failed to set daily featured sound');
+    }
+  }
 }

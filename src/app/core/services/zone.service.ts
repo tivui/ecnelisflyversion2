@@ -296,6 +296,47 @@ export class ZoneService {
     };
   }
 
+  async setMonthlyZone(zone: Zone): Promise<void> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Deactivate existing active entries for this month
+    const existing = await (
+      this.client.models.MonthlyZone as any
+    ).getMonthlyZoneByMonth({ month });
+    if (existing.data) {
+      for (const m of existing.data) {
+        if (m.active) {
+          await this.client.models.MonthlyZone.update({
+            id: m.id,
+            active: false,
+          } as any);
+        }
+      }
+    }
+
+    // Create new MonthlyZone with denormalized data
+    const result = await this.client.models.MonthlyZone.create({
+      id: crypto.randomUUID(),
+      zoneId: zone.id,
+      month,
+      active: true,
+      zoneName: zone.name ?? undefined,
+      zoneName_i18n: zone.name_i18n ? JSON.stringify(zone.name_i18n) : undefined,
+      zoneDescription: zone.description ?? undefined,
+      zoneDescription_i18n: zone.description_i18n ? JSON.stringify(zone.description_i18n) : undefined,
+      zoneSlug: zone.slug ?? undefined,
+      zoneCoverImage: zone.coverImage ?? undefined,
+      zoneIcon: zone.icon ?? undefined,
+      zoneColor: zone.color ?? undefined,
+    } as any);
+
+    if (result.errors?.length) {
+      console.error('Error setting monthly zone:', result.errors);
+      throw new Error('Failed to set monthly zone');
+    }
+  }
+
   // ============ UTILITIES ============
 
   generateSlug(name: string): string {

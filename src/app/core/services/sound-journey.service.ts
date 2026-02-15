@@ -324,6 +324,46 @@ export class SoundJourneyService {
     });
   }
 
+  async setMonthlyJourney(journey: SoundJourney): Promise<void> {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Deactivate existing active entries for this month
+    const existing = await (
+      this.client.models.MonthlyJourney as any
+    ).getMonthlyJourneyByMonth({ month });
+    if (existing.data) {
+      for (const m of existing.data) {
+        if (m.active) {
+          await this.client.models.MonthlyJourney.update({
+            id: m.id,
+            active: false,
+          } as any);
+        }
+      }
+    }
+
+    // Create new MonthlyJourney with denormalized data
+    const result = await this.client.models.MonthlyJourney.create({
+      id: crypto.randomUUID(),
+      journeyId: journey.id,
+      month,
+      active: true,
+      journeyName: journey.name ?? undefined,
+      journeyName_i18n: journey.name_i18n ? JSON.stringify(journey.name_i18n) : undefined,
+      journeyDescription: journey.description ?? undefined,
+      journeyDescription_i18n: journey.description_i18n ? JSON.stringify(journey.description_i18n) : undefined,
+      journeySlug: journey.slug ?? undefined,
+      journeyColor: journey.color ?? undefined,
+      journeyCoverImage: journey.coverImage ?? undefined,
+    } as any);
+
+    if (result.errors?.length) {
+      console.error('Error setting monthly journey:', result.errors);
+      throw new Error('Failed to set monthly journey');
+    }
+  }
+
   // ── Utilities ────────────────────────────────────────
 
   generateSlug(name: string): string {

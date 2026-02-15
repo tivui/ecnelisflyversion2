@@ -85,6 +85,13 @@
           <div class="actions">
             <button
               mat-icon-button
+              [matTooltip]="'admin.articles.actions.monthly' | translate"
+              (click)="setAsMonthly(article)"
+            >
+              <mat-icon>star</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               [matTooltip]="'admin.articles.editor.back' | translate"
               (click)="openEditor(article)"
             >
