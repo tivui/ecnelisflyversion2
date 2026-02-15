@@ -26,7 +26,7 @@
       "soundOfTheDay": "Sound of the Day",
       "listen": "Listen",
       "soundJourney": "Sound Journey",
-      "startJourney": "Start the journey",
+      "startJourney": "Take off",
       "discoverJourneys": "Discover journeys",
       "monthlyQuiz": "Quiz of the Month",
       "play": "Play",
@@ -58,6 +58,12 @@
     "soundQuiz": "Quiz",
     "soundArticles": "Articles",
     "categories": "Categories"
+  },
+  "bottomNav": {
+    "home": "Home",
+    "map": "Map",
+    "featured": "Featured",
+    "menu": "Menu"
   },
   "zones": {
     "title": "Sound Terroirs",
@@ -873,6 +879,13 @@
       "latest10": "Latest 10",
       "week": "This week",
       "month": "This month"
+    },
+    "search": {
+      "sounds": "Sounds",
+      "places": "Places",
+      "soundsPlaceholder": "Title or #Hashtags...",
+      "placesPlaceholder": "Search a place...",
+      "noResults": "No results"
     }
   },
   "categories": {

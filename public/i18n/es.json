@@ -26,7 +26,7 @@
       "soundOfTheDay": "Sonido del día",
       "listen": "Escuchar",
       "soundJourney": "Viaje sonoro",
-      "startJourney": "Comenzar el viaje",
+      "startJourney": "Despegar",
       "discoverJourneys": "Descubrir viajes",
       "monthlyQuiz": "Quiz del mes",
       "play": "Jugar",
@@ -57,6 +57,12 @@
     "soundJourneys": "Viajes sonoros",
     "soundQuiz": "Quiz",
     "soundArticles": "Artículos"
+  },
+  "bottomNav": {
+    "home": "Inicio",
+    "map": "Mapa",
+    "featured": "Sonido del día",
+    "menu": "Menú"
   },
   "zones": {
     "title": "Terruños sonoros",
@@ -846,6 +852,13 @@
       "latest10": "10 recientes",
       "week": "Semana",
       "month": "Mes"
+    },
+    "search": {
+      "sounds": "Sonidos",
+      "places": "Lugares",
+      "soundsPlaceholder": "Título o #Hashtags...",
+      "placesPlaceholder": "Buscar un lugar...",
+      "noResults": "Sin resultados"
     }
   },
   "categories": {

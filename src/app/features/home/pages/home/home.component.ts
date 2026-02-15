@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, OnDestroy, signal, computed, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,7 +36,7 @@ import { FitTextDirective } from '../../../../shared/directives/fit-text.directi
   styleUrls: ['./home.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class HomeComponent implements OnInit, AfterViewInit {
   private readonly appUserService = inject(AppUserService);
   private readonly zoneService = inject(ZoneService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
@@ -55,9 +55,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   dataLoaded = signal(false);
   isMobileGrid = signal(false);
 
-  // Tap-to-reveal (mobile grid tiles)
-  longPressedCard = signal<string | null>(null);
-  private revealDismissTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly subtitleIndex = Math.floor(Math.random() * 7);
   randomSubtitle = computed(() => {
@@ -353,36 +350,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     window.location.href = `/mapfly?${params.toString()}`;
   }
 
-  // --- Tap-to-reveal handling (mobile grid tiles) ---
+  // --- Card click handling ---
 
   onCardClick(cardType: string): void {
-    if (!this.isMobileGrid()) {
-      this.navigateToCard(cardType);
-      return;
-    }
-    // Mobile: already revealed → navigate
-    if (this.longPressedCard() === cardType) {
-      this.clearReveal();
-      this.navigateToCard(cardType);
-      return;
-    }
-    // Mobile: reveal description
-    this.longPressedCard.set(cardType);
-    if (navigator.vibrate) navigator.vibrate(10);
-    if (this.revealDismissTimer) clearTimeout(this.revealDismissTimer);
-    this.revealDismissTimer = setTimeout(() => this.longPressedCard.set(null), 3000);
+    this.navigateToCard(cardType);
   }
 
   onCardCtaClick(cardType: string, event: Event): void {
     if (!this.isMobileGrid()) return; // Desktop: let click bubble to card/routerLink
     event.stopPropagation();
-    this.clearReveal();
     this.navigateToCard(cardType);
-  }
-
-  private clearReveal(): void {
-    this.longPressedCard.set(null);
-    if (this.revealDismissTimer) { clearTimeout(this.revealDismissTimer); this.revealDismissTimer = null; }
   }
 
   navigateToCard(cardType: string) {
@@ -409,7 +386,4 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy() {
-    if (this.revealDismissTimer) clearTimeout(this.revealDismissTimer);
-  }
 }

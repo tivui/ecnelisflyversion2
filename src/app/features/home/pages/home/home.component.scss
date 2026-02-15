@@ -524,6 +524,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
+// Logo inside map card — hidden on desktop, shown on mobile
+.hero-card-map-logo {
+  display: none;
+}
+
 .zones-preview {
   position: absolute;
   top: 16px;
@@ -1279,17 +1284,15 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
 @media (max-width: 700px) and (orientation: portrait) {
   .home-container {
-    height: calc(100dvh - 64px);
+    height: calc(100dvh - 48px - 56px - 14px - env(safe-area-inset-bottom, 0px));
+    min-height: 0;
     display: flex;
     flex-direction: column;
+    gap: 8px;
     overflow: hidden;
 
-    // Light mode: enriched gradient mesh
-    background:
-      radial-gradient(ellipse 70% 50% at 15% 10%, rgba($primary-blue, 0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 85% 60%, rgba($primary-indigo, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 45% at 50% 80%, rgba($primary-violet, 0.06) 0%, transparent 55%),
-      linear-gradient(180deg, #f5f6fa 0%, #f0f3f8 35%, #eaecf2 100%);
+    // Light mode: clean neutral canvas (no tinted fog)
+    background: #F7F8FA;
 
     :host-context(body.dark-theme) & {
       background:
@@ -1300,137 +1303,75 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
   }
 
-  // --- Hero section: takes remaining space, scrolls internally ---
+  // --- Hero section: fills available space ---
   .hero-section {
     flex: 1 1 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 16px 0 0;
-    overflow-y: auto;
-  }
-
-  .hero-content {
-    margin-bottom: 16px;
-    padding: 0 16px;
-  }
-
-  .hero-main-logo {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 6px;
-  }
-
-  .hero-title {
-    font-weight: 800;
-    margin-bottom: 6px;
-    letter-spacing: -0.4px;
-    line-height: 1.15;
-  }
-
-  .hero-subtitle {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    padding: 10px 0 0;
     overflow: hidden;
-    font-size: 0.88rem;
-    opacity: 0.75;
-    text-wrap: balance;
-    line-height: 1.35;
   }
 
-  // Accent line below hero content for visual structure
-  .hero-content::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 2px;
-    margin: 6px auto 0;
-    border-radius: 1px;
-    background: linear-gradient(90deg, rgba($primary-blue, 0.4), rgba($logo-orange, 0.3));
-    opacity: 0;
-
-    :host-context(body.dark-theme) & {
-      background: linear-gradient(90deg, rgba(#64b5f6, 0.3), rgba(#FFD180, 0.25));
-    }
+  // --- Hide external hero-content on mobile (integrated into map card) ---
+  .hero-content {
+    display: none;
   }
 
-  // --- Hero actions: natural flow, grows to fill ---
+  // --- Hero actions: fills remaining space ---
   .hero-actions {
     flex: 1 1 0;
     min-height: 0;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
     padding: 0 10px;
-    overflow: visible;
+    overflow: hidden;
     justify-content: flex-start;
   }
 
-  // --- Globe video in map card (mobile only) ---
+  // --- Globe video hidden on mobile (gradient replaces it) ---
   .map-card-video {
-    display: block;
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 0;
-    opacity: 0.9;
-    pointer-events: none;
-
-    :host-context(body.dark-theme) & {
-      opacity: 0.55;
-    }
+    display: none !important;
   }
 
-  // --- Primary card: immersive hero ---
+  // --- Primary card: premium gradient hero (no video) ---
   .hero-card-map {
     flex: 1 1 0;
-    min-height: 120px;
-    max-height: 38dvh;
+    min-height: 60px;
+    max-height: 28dvh;
     min-width: unset;
     max-width: unset;
     width: auto;
     margin: 0;
-    border-radius: 14px;
+    border-radius: 16px;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba($primary-blue, 0.18);
-    // Light: deeper branded shadow for elevation + bottom spread for transition to grid
-    box-shadow: 0 8px 32px rgba($primary-blue, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06),
-                0 12px 20px -8px rgba($primary-indigo, 0.08);
+    border: 1px solid rgba($primary-indigo, 0.14);
+    box-shadow: 0 10px 36px rgba($primary-blue, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06),
+                0 14px 24px -8px rgba($primary-indigo, 0.10);
 
-    // Light: top accent bar — brand blue signature
+    // Top accent bar — brand blue→indigo→violet signature
     &::after {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 2.5px;
-      border-radius: 0 0 2px 2px;
-      background: linear-gradient(90deg, $primary-blue 0%, $primary-indigo 60%, #5c6bc0 100%);
+      height: 3px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(90deg, $primary-blue 0%, $primary-indigo 50%, $primary-violet 100%);
       z-index: 5;
     }
 
     :host-context(body.dark-theme) & {
-      border: 1px solid rgba(#5c6bc0, 0.18);
-      box-shadow: 0 10px 40px rgba(0, 0, 20, 0.5), 0 0 16px rgba($primary-indigo, 0.08);
+      border: 1px solid rgba(#5c6bc0, 0.20);
+      box-shadow: 0 12px 44px rgba(0, 0, 20, 0.55), 0 0 18px rgba($primary-indigo, 0.10);
 
-      // Top accent bar — brand signature matching grid cards
       &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        border-radius: 0 0 2px 2px;
-        background: linear-gradient(90deg, $primary-blue 0%, $primary-indigo 50%, #5c6bc0 100%);
         filter: brightness(1.2);
-        box-shadow: 0 1px 8px rgba($primary-blue, 0.3);
-        z-index: 5;
+        box-shadow: 0 1px 8px rgba($primary-blue, 0.25);
       }
     }
 
@@ -1438,52 +1379,50 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       transform: none;
     }
 
+    // --- Full gradient visual (replaces video) ---
     .hero-card-visual {
       height: auto;
       position: absolute;
       inset: 0;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding-bottom: 30px;
-      // Light: full-surface blue wash to lift the dark video against white page
-      background: linear-gradient(180deg,
-        rgba(200, 220, 255, 0.22) 0%,
-        rgba(144, 202, 249, 0.14) 35%,
-        rgba(120, 160, 230, 0.10) 60%,
-        rgba(100, 140, 210, 0.06) 100%) !important;
-      background-blend-mode: normal !important;
+      padding-bottom: 44px;
+      // Gradient + noise texture (same premium feel as XL desktop)
+      background: $noise-texture repeat, $gradient-pos-1 !important;
+      background-blend-mode: overlay, normal !important;
 
       :host-context(body.dark-theme) & {
-        // Dark: very light tint — video is already dark, no heavy veil needed
-        background: linear-gradient(135deg, rgba(15, 20, 40, 0.10) 0%, rgba(25, 118, 210, 0.06) 100%) !important;
+        background: $noise-texture repeat, linear-gradient(135deg, #0d1a3a 0%, #1a3a6e 50%, #1565c0 100%) !important;
+        background-blend-mode: overlay, normal !important;
       }
 
-      // Floating orbs — broader and brighter in light to lift the dark video
+      // Floating orbs — soft and diffuse
       &::before {
         content: '';
         position: absolute;
         inset: 0;
         background:
-          radial-gradient(circle 90px at 10% 20%, rgba(100, 210, 255, 0.22) 0%, transparent 100%),
-          radial-gradient(circle 80px at 85% 55%, rgba(30, 136, 229, 0.18) 0%, transparent 100%),
-          radial-gradient(circle 70px at 50% 40%, rgba(144, 202, 249, 0.14) 0%, transparent 100%);
+          radial-gradient(circle 100px at 10% 20%, rgba(100, 210, 255, 0.18) 0%, transparent 100%),
+          radial-gradient(circle 80px at 85% 55%, rgba(30, 136, 229, 0.14) 0%, transparent 100%),
+          radial-gradient(circle 60px at 50% 35%, rgba(144, 202, 249, 0.10) 0%, transparent 100%);
         z-index: 0;
 
         :host-context(body.dark-theme) & {
-          // Softer orbs in dark — no whitish wash
           background:
-            radial-gradient(circle 70px at 10% 20%, rgba(63, 81, 181, 0.12) 0%, transparent 100%),
-            radial-gradient(circle 55px at 85% 65%, rgba(25, 118, 210, 0.10) 0%, transparent 100%),
-            radial-gradient(circle 35px at 55% 5%, rgba(92, 107, 192, 0.08) 0%, transparent 100%);
+            radial-gradient(circle 90px at 10% 20%, rgba(63, 81, 181, 0.15) 0%, transparent 100%),
+            radial-gradient(circle 70px at 85% 55%, rgba(25, 118, 210, 0.12) 0%, transparent 100%),
+            radial-gradient(circle 50px at 55% 10%, rgba(92, 107, 192, 0.08) 0%, transparent 100%);
         }
       }
 
-      // Shimmer sweep — driven by secondary cards scroll
+      // Shimmer sweep
       &::after {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(105deg, transparent 40%, rgba(200, 220, 255, 0.18) 50%, transparent 60%);
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%);
         background-size: 200% 100%;
         background-position: var(--shimmer-x, -200%) center;
         transition: background-position 0.12s ease-out;
@@ -1495,100 +1434,103 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
 
+    // Hide the public mat-icon, show the logo instead
     .hero-card-icon {
       display: none;
     }
 
+    // --- App logo inside the card (large, centered) ---
+    .hero-card-map-logo {
+      display: block;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      z-index: 2;
+      filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.30));
+      animation: float 3s ease-in-out 1.2s infinite;
+    }
+
+    // --- Content overlay at bottom (compact) ---
     .hero-card-content {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 20px 16px 12px;
-      // Light: blue-indigo tinted gradient — not pure black
+      padding: 14px 16px 10px;
       background: linear-gradient(to top,
-        rgba(15, 25, 60, 0.72) 0%,
-        rgba(25, 40, 80, 0.32) 50%,
+        rgba(15, 25, 60, 0.78) 0%,
+        rgba(25, 40, 80, 0.38) 60%,
         transparent 100%);
       z-index: 2;
 
       :host-context(body.dark-theme) & {
-        // Brand-tinted gradient — deep indigo instead of pure black
         background: linear-gradient(to top,
-          rgba(12, 14, 32, 0.82) 0%,
-          rgba(20, 24, 52, 0.45) 50%,
+          rgba(8, 10, 28, 0.88) 0%,
+          rgba(15, 20, 45, 0.45) 60%,
           transparent 100%);
       }
 
       h3 {
-        color: #f0f2ff; // Indigo-tinted white
-        font-size: 1.05rem;
+        color: #f0f2ff;
+        font-size: 1rem;
         font-weight: 700;
-        text-shadow: 0 1px 6px rgba($primary-indigo, 0.25);
+        text-shadow: 0 1px 6px rgba($primary-indigo, 0.3);
+        margin: 0;
 
         :host-context(body.dark-theme) & {
           color: #e8eaf6;
-          text-shadow: 0 1px 8px rgba($primary-indigo, 0.3);
+          text-shadow: 0 1px 8px rgba($primary-indigo, 0.35);
         }
       }
     }
 
     .hero-card-desc {
-      color: rgba(#e8eaf6, 0.92);
-      font-size: 0.78rem;
-      -webkit-line-clamp: 3;
-      text-shadow: 0 1px 3px rgba(15, 25, 60, 0.2);
-
-      :host-context(body.dark-theme) & {
-        color: rgba(#e8eaf6, 0.85);
-        text-shadow: 0 1px 3px rgba(0, 0, 20, 0.3);
-      }
+      display: none;
     }
 
     .hero-card-cta {
       color: #fff !important;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       text-shadow: none;
-      // Light: branded blue CTA
-      background: rgba($primary-blue, 0.25);
-      backdrop-filter: blur(6px);
-      padding: 0 20px;
-      min-height: 44px;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(8px);
+      padding: 0 18px;
+      min-height: 34px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 22px;
-      border: 1px solid rgba($primary-blue, 0.25);
-      margin-top: 6px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      margin-top: 4px;
       transition: background 0.2s ease;
-      box-shadow: 0 2px 8px rgba($primary-blue, 0.12);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.08);
 
       :host-context(body.dark-theme) & {
-        // Brand indigo CTA — not generic white
-        background: rgba($primary-indigo, 0.30);
-        border: 1px solid rgba(#5c6bc0, 0.30);
+        background: rgba($primary-indigo, 0.28);
+        border: 1px solid rgba(#5c6bc0, 0.28);
         box-shadow: 0 2px 10px rgba($primary-indigo, 0.15);
         color: #e8eaf6 !important;
       }
 
       mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
     }
   }
 
   // --- Secondary cards: 2x2 grid Android-friendly tiles ---
   .hero-cards-secondary {
-    flex-shrink: 0;
+    flex: 0 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    align-content: start;
     gap: 10px;
-    margin: 0 0 14px 0;
+    margin: 0;
     padding: 0;
-    overflow: visible;
+    overflow: hidden;
 
     // Mobile: show all cards (override desktop nth-child limit)
     > .hero-card:nth-child(n+4) {
@@ -1597,30 +1539,33 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
     .hero-card {
       flex: none;
-      min-width: unset;
+      width: 100%;
+      min-width: 0;
       max-width: unset;
-      min-height: unset;
+      min-height: 0;
+      aspect-ratio: 1;
       display: flex;
       flex-direction: column;
-      padding: 14px 12px 12px;
+      padding: 12px 12px 10px;
+      align-self: center;
       border-radius: 14px;
       position: relative;
       overflow: hidden;
       opacity: 1;
       scale: 1;
-      // Blue-indigo wash for brand cohesion
-      background: linear-gradient(145deg, #fff 60%, rgba($primary-indigo, 0.03) 100%);
-      border: 1px solid rgba($primary-indigo, 0.10);
-      box-shadow: 0 3px 12px rgba($primary-indigo, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+      // Pure white surface with stronger diffuse shadow for pop
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.09);
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.3s ease;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
 
       :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba(24, 24, 42, 0.92) 40%, rgba($primary-indigo, 0.08) 100%);
-        border: 1px solid rgba(#5c6bc0, 0.12);
-        box-shadow: 0 2px 12px rgba(0, 0, 20, 0.35), 0 1px 4px rgba($primary-indigo, 0.1);
+        background: linear-gradient(145deg, rgba(24, 24, 42, 0.94) 40%, rgba($primary-indigo, 0.10) 100%);
+        border: 1px solid rgba(#5c6bc0, 0.16);
+        box-shadow: 0 3px 14px rgba(0, 0, 20, 0.40), 0 1px 4px rgba($primary-indigo, 0.12);
       }
 
       &:hover {
@@ -1628,26 +1573,17 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
         box-shadow: inherit;
       }
 
-      &:active:not(.long-pressed) {
+      &:active {
         transform: scale(0.97);
-        box-shadow: 0 1px 4px rgba($primary-indigo, 0.10);
-      }
-
-      // Long-pressed expanded state
-      &.long-pressed {
-        box-shadow: 0 4px 16px rgba($primary-indigo, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
-
-        :host-context(body.dark-theme) & {
-          box-shadow: 0 4px 20px rgba(0, 0, 20, 0.45), 0 2px 8px rgba($primary-indigo, 0.15);
-        }
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
       }
     }
 
     // --- Featured card: subtle distinction (daily flagship) ---
     .hero-card-featured {
-      // Light: delicate violet border
-      border-color: rgba(#7c4dff, 0.12);
-      box-shadow: 0 2px 8px rgba($primary-indigo, 0.08), 0 0 8px rgba(#7c4dff, 0.04);
+      // Light: strengthened violet border
+      border-color: rgba(#7c4dff, 0.22);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(#7c4dff, 0.10);
 
       :host-context(body.dark-theme) & {
         border-color: rgba(#b388ff, 0.18);
@@ -1662,7 +1598,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       top: 0;
       left: 0;
       right: 0;
-      height: 2.5px;
+      height: 3px;
       border-radius: 0 0 2px 2px;
       z-index: 2;
 
@@ -1715,10 +1651,10 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       padding: 6px 10px;
       margin: -14px -12px 0; // bleed into card padding
       border-radius: 13px 13px 0 0;
-      // Light: very subtle blue-indigo tint for structure
-      background: linear-gradient(135deg, rgba($primary-indigo, 0.03) 0%, rgba(#5c6bc0, 0.02) 100%) !important;
+      // Light: pure white header, structured by border only
+      background: transparent !important;
       background-blend-mode: normal !important;
-      border-bottom: 1px solid rgba($primary-indigo, 0.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
       :host-context(body.dark-theme) & {
         // Blue-indigo tint echoing the title gradient — visible structure
@@ -1753,11 +1689,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
 
-    // Per-card icon: unified blue-indigo base tint + accent icon color
+    // Per-card icon: saturated accent tint + strong border
     .hero-card-featured .hero-card-icon {
-      background: rgba($primary-indigo, 0.07);
-      border: 1px solid rgba(#7c4dff, 0.12);
-      mat-icon { color: #7c4dff; }
+      background: rgba(#7c4dff, 0.14);
+      border: 1px solid rgba(#7c4dff, 0.28);
+      mat-icon { color: #6a3de8; }
 
       :host-context(body.dark-theme) & {
         background: rgba(#7c4dff, 0.18);
@@ -1768,9 +1704,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-card-journey .hero-card-icon {
-      background: rgba($primary-indigo, 0.07);
-      border: 1px solid rgba(#5c6a8a, 0.12);
-      mat-icon { color: #5c6a8a; }
+      background: rgba(#5c6a8a, 0.14);
+      border: 1px solid rgba(#5c6a8a, 0.28);
+      mat-icon { color: #4a5a78; }
 
       :host-context(body.dark-theme) & {
         background: rgba(#5c6a8a, 0.22);
@@ -1781,9 +1717,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-card-article .hero-card-icon {
-      background: rgba($primary-indigo, 0.07);
-      border: 1px solid rgba($accent-article, 0.12);
-      mat-icon { color: $accent-article; }
+      background: rgba($accent-article, 0.14);
+      border: 1px solid rgba($accent-article, 0.28);
+      mat-icon { color: #7a5f38; }
 
       :host-context(body.dark-theme) & {
         background: rgba($accent-article, 0.18);
@@ -1794,9 +1730,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-card-quiz .hero-card-icon {
-      background: rgba($primary-indigo, 0.07);
-      border: 1px solid rgba(#0d7c51, 0.12);
-      mat-icon { color: #0d7c51; }
+      background: rgba(#0d7c51, 0.14);
+      border: 1px solid rgba(#0d7c51, 0.28);
+      mat-icon { color: #0a6340; }
 
       :host-context(body.dark-theme) & {
         background: rgba(#0d7c51, 0.20);
@@ -1807,9 +1743,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-card-monthly-zone .hero-card-icon {
-      background: rgba($primary-indigo, 0.07);
-      border: 1px solid rgba(#b07c10, 0.12);
-      mat-icon { color: #b07c10; }
+      background: rgba(#b07c10, 0.14);
+      border: 1px solid rgba(#b07c10, 0.28);
+      mat-icon { color: #96690c; }
 
       :host-context(body.dark-theme) & {
         background: rgba(#b07c10, 0.20);
@@ -1828,10 +1764,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       position: static;
       display: inline-block;
       padding: 2px 7px;
-      background: rgba($primary-indigo, 0.06);
+      background: rgba($primary-indigo, 0.08);
       backdrop-filter: none;
+      border: 1px solid rgba($primary-indigo, 0.08);
       border-radius: 6px;
-      font-size: 0.52rem;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -1841,7 +1778,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       :host-context(body.dark-theme) & {
         background: rgba(#5c6bc0, 0.20);
         border: 1px solid rgba(#5c6bc0, 0.15);
-        font-size: 0.50rem;
+        font-size: 0.62rem;
         letter-spacing: 0.6px;
       }
     }
@@ -1885,14 +1822,14 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       min-height: unset;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 6px;
       flex: 1;
       border-left: none !important;
 
       h3 {
-        color: #1a1f3a; // Dark blue-grey — echoes the brand indigo
-        font-size: 0.82rem;
-        font-weight: 700;
+        color: #111827; // Near-black neutral — strong hierarchy
+        font-size: 1rem;
+        font-weight: 800;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1905,41 +1842,35 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
 
-    // --- Description: hidden by default, revealed on long press ---
+    // --- Description: always visible ---
     .hero-card-desc {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
       margin: 0;
       font-size: 0.72rem;
       line-height: 1.35;
-      color: #4a4e6a; // Indigo-grey for brand harmony
+      color: #6B7280;
       text-shadow: none;
       -webkit-line-clamp: 2;
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                  opacity 0.3s ease,
-                  margin 0.3s ease;
+      overflow: hidden;
 
       :host-context(body.dark-theme) & {
-        color: #9fa4be; // Soft indigo-grey
+        color: #9fa4be;
       }
     }
 
-    .hero-card.long-pressed .hero-card-desc {
-      max-height: 48px;
-      opacity: 1;
-      margin-top: 4px;
-    }
-
-    // --- CTA: small accent-colored link at bottom ---
+    // --- CTA: accent-colored pill button at bottom ---
     .hero-card-cta {
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 700;
       margin-top: auto;
-      padding-top: 6px;
+      padding: 5px 14px;
+      border-radius: 8px;
       text-shadow: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: opacity 0.15s ease;
 
       mat-icon {
         font-size: 14px;
@@ -1948,77 +1879,42 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
 
-    // Per-card CTA colors — blended toward blue-indigo for brand cohesion
+    // Per-card CTA pills — accent background + border (saturated)
     .hero-card-featured .hero-card-cta {
-      color: #6a45d9 !important; // violet shifted toward indigo
-      :host-context(body.dark-theme) & { color: #b388ff !important; }
+      background: rgba(#7c4dff, 0.16);
+      color: #5a2dd0 !important;
+      border: 1px solid rgba(#7c4dff, 0.24);
+      :host-context(body.dark-theme) & { color: #b388ff !important; background: none; border: none; }
     }
 
     .hero-card-journey .hero-card-cta {
-      color: #4e5d80 !important; // slate shifted toward indigo
-      :host-context(body.dark-theme) & { color: #a0b0cc !important; }
+      background: rgba(#5c6a8a, 0.16);
+      color: #3d4e6e !important;
+      border: 1px solid rgba(#5c6a8a, 0.24);
+      :host-context(body.dark-theme) & { color: #a0b0cc !important; background: none; border: none; }
     }
 
     .hero-card-article .hero-card-cta {
-      color: #6d5a3e !important; // terre with slight indigo warmth
-      :host-context(body.dark-theme) & { color: $accent-article-light !important; }
+      background: rgba($accent-article, 0.16);
+      color: #5e4a30 !important;
+      border: 1px solid rgba($accent-article, 0.24);
+      :host-context(body.dark-theme) & { color: $accent-article-light !important; background: none; border: none; }
     }
 
     .hero-card-quiz .hero-card-cta {
-      color: #1a6b50 !important; // emerald with subtle depth
-      :host-context(body.dark-theme) & { color: #66bb6a !important; }
+      background: rgba(#0d7c51, 0.16);
+      color: #0a6340 !important;
+      border: 1px solid rgba(#0d7c51, 0.24);
+      :host-context(body.dark-theme) & { color: #66bb6a !important; background: none; border: none; }
     }
 
     .hero-card-monthly-zone .hero-card-cta {
-      color: #8a640e !important; // amber with depth
-      :host-context(body.dark-theme) & { color: #fbbf24 !important; }
+      background: rgba(#b07c10, 0.16);
+      color: #7a580a !important;
+      border: 1px solid rgba(#b07c10, 0.24);
+      :host-context(body.dark-theme) & { color: #fbbf24 !important; background: none; border: none; }
     }
 
-    // --- Long-pressed tinted background per card type (indigo-blended) ---
-    .hero-card-featured.long-pressed {
-      background: linear-gradient(145deg, rgba(#7c4dff, 0.04) 0%, rgba($primary-indigo, 0.06) 100%);
-      border-color: rgba(#7c4dff, 0.15);
-      :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba(#b388ff, 0.08) 0%, rgba(#5c6bc0, 0.10) 100%);
-        border-color: rgba(#b388ff, 0.20);
-      }
-    }
-
-    .hero-card-journey.long-pressed {
-      background: linear-gradient(145deg, rgba(#5c6a8a, 0.04) 0%, rgba($primary-indigo, 0.05) 100%);
-      border-color: rgba(#5c6a8a, 0.15);
-      :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba(#a0b0cc, 0.08) 0%, rgba(#5c6bc0, 0.10) 100%);
-        border-color: rgba(#a0b0cc, 0.20);
-      }
-    }
-
-    .hero-card-article.long-pressed {
-      background: linear-gradient(145deg, rgba($accent-article, 0.04) 0%, rgba($primary-indigo, 0.05) 100%);
-      border-color: rgba($accent-article, 0.15);
-      :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba($accent-article-light, 0.08) 0%, rgba(#5c6bc0, 0.10) 100%);
-        border-color: rgba($accent-article-light, 0.20);
-      }
-    }
-
-    .hero-card-quiz.long-pressed {
-      background: linear-gradient(145deg, rgba(#0d7c51, 0.04) 0%, rgba($primary-indigo, 0.05) 100%);
-      border-color: rgba(#0d7c51, 0.15);
-      :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba(#66bb6a, 0.08) 0%, rgba(#5c6bc0, 0.10) 100%);
-        border-color: rgba(#66bb6a, 0.20);
-      }
-    }
-
-    .hero-card-monthly-zone.long-pressed {
-      background: linear-gradient(145deg, rgba(#b07c10, 0.04) 0%, rgba($primary-indigo, 0.05) 100%);
-      border-color: rgba(#b07c10, 0.15);
-      :host-context(body.dark-theme) & {
-        background: linear-gradient(145deg, rgba(#fbbf24, 0.08) 0%, rgba(#5c6bc0, 0.10) 100%);
-        border-color: rgba(#fbbf24, 0.20);
-      }
-    }
   }
 
   // --- Scroll dots: hidden in mobile grid ---
@@ -2030,11 +1926,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     display: none;
   }
 
-  // --- Carousel bottom bar (pinned at bottom via flex) ---
+  // --- Carousel bottom bar (always visible) ---
   .carousel-section {
-    z-index: 100;
-    flex-shrink: 0;
-    padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 1;
+    flex: 0 0 auto;
+    padding: 8px 0 6px;
     margin: 0;
     // Light: subtle indigo-tinted glass
     background: linear-gradient(180deg, rgba(248, 249, 255, 0.95) 0%, rgba(255, 255, 255, 0.94) 100%);
@@ -2062,16 +1958,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       z-index: 1;
     }
 
-    // Soft fade above the bar
+    // Fade overlay removed (carousel is no longer sticky)
     &::after {
-      content: '';
-      position: absolute;
-      top: -32px;
-      left: 0;
-      right: 0;
-      height: 32px;
-      background: linear-gradient(to bottom, transparent, rgba(248, 249, 255, 0.5));
-      pointer-events: none;
+      display: none;
     }
 
     :host-context(body.dark-theme) & {
@@ -2146,26 +2035,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 @media (max-width: 700px) and (orientation: portrait) and (max-height: 800px) {
 
   .hero-section {
-    padding: 10px 14px 0;
-  }
-
-  .hero-content {
-    margin-bottom: 8px;
-  }
-
-  .hero-main-logo {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 2px;
-  }
-
-  .hero-title {
-    margin-bottom: 2px;
-  }
-
-  .hero-subtitle {
-    -webkit-line-clamp: 1;
-    font-size: 0.68rem;
+    padding: 8px 14px 0;
   }
 
   .hero-actions {
@@ -2173,22 +2043,22 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .hero-card-map {
-    min-height: 120px;
+
+    .hero-card-map-logo {
+      width: 80px;
+      height: 80px;
+    }
 
     .hero-card-visual {
-      padding-bottom: 26px;
+      padding-bottom: 36px;
     }
 
     .hero-card-content {
-      padding: 16px 12px 8px;
+      padding: 12px 10px 6px;
 
       h3 {
-        font-size: 0.95rem;
+        font-size: 0.90rem;
       }
-    }
-
-    .hero-card-desc {
-      font-size: 0.72rem;
     }
   }
 
@@ -2216,25 +2086,26 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     .quiz-badge,
     .article-badge,
     .monthly-zone-badge {
-      font-size: 0.5rem;
+      font-size: 0.60rem;
     }
 
     .hero-card-content {
       margin-top: 6px;
 
       h3 {
-        font-size: 0.74rem;
+        font-size: 0.86rem;
       }
     }
 
     .hero-card-desc {
-      font-size: 0.64rem;
+      font-size: 0.70rem;
       -webkit-line-clamp: 1;
     }
 
     .hero-card-cta {
-      font-size: 0.65rem;
-      padding-top: 4px;
+      font-size: 0.68rem;
+      padding: 4px 10px;
+      border-radius: 7px;
 
       mat-icon {
         font-size: 12px;
@@ -2245,6 +2116,6 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .carousel-section {
-    padding: 12px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 0 8px;
   }
 }

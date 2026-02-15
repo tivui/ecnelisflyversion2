@@ -26,7 +26,7 @@
       "soundOfTheDay": "Son du jour",
       "listen": "Écouter",
       "soundJourney": "Voyage sonore",
-      "startJourney": "Commencer le voyage",
+      "startJourney": "Décoller",
       "discoverJourneys": "Découvrir les voyages",
       "monthlyQuiz": "Quiz du mois",
       "play": "Jouer",
@@ -58,6 +58,12 @@
     "soundQuiz": "Quiz",
     "soundArticles": "Articles",
     "categories": "Catégories"
+  },
+  "bottomNav": {
+    "home": "Accueil",
+    "map": "Carte",
+    "featured": "Son du jour",
+    "menu": "Menu"
   },
   "zones": {
     "title": "Terroirs sonores",
@@ -874,6 +880,13 @@
       "latest10": "10 derniers",
       "week": "Semaine",
       "month": "Mois"
+    },
+    "search": {
+      "sounds": "Sons",
+      "places": "Lieux",
+      "soundsPlaceholder": "Titre ou #Hashtags...",
+      "placesPlaceholder": "Rechercher un lieu...",
+      "noResults": "Aucun résultat"
     }
   },
   "categories": {

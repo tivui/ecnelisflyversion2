@@ -1,5 +1,57 @@
-<div class="map-container">
+<div class="map-container" [class.map-loading]="isLoading()">
   <div id="mapfly"></div>
+
+  <!-- Unified search bar (normal mode only) -->
+  @if (!isLoading() && !isFeaturedMode() && !isJourneyMode()) {
+    <div class="unified-search" [class.focused]="searchFocused()">
+      <div class="unified-search-bar">
+        <div class="unified-search-toggle">
+          <button class="search-mode-btn" [class.active]="searchMode() === 'sounds'" (click)="switchSearchMode('sounds')">
+            <span class="material-icons">music_note</span>
+            <span class="search-mode-label">{{ 'mapfly.search.sounds' | translate }}</span>
+          </button>
+          <button class="search-mode-btn" [class.active]="searchMode() === 'places'" (click)="switchSearchMode('places')">
+            <span class="material-icons">place</span>
+            <span class="search-mode-label">{{ 'mapfly.search.places' | translate }}</span>
+          </button>
+        </div>
+        <div class="unified-search-input-wrap">
+          <input
+            class="unified-search-input"
+            type="text"
+            [placeholder]="(searchMode() === 'sounds' ? 'mapfly.search.soundsPlaceholder' : 'mapfly.search.placesPlaceholder') | translate"
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            (focus)="searchFocused.set(true)"
+            (blur)="searchFocused.set(false)"
+          />
+          @if (searchQuery()) {
+            <button class="unified-search-clear" (mousedown)="clearSearch(); $event.preventDefault()">
+              <span class="material-icons">close</span>
+            </button>
+          }
+        </div>
+      </div>
+      @if (searchResults().length > 0) {
+        <div class="unified-search-results">
+          @for (result of searchResults(); track result.label) {
+            <button class="unified-search-result" (mousedown)="selectSearchResult(result); $event.preventDefault()">
+              <span class="material-icons search-result-icon">{{ searchMode() === 'sounds' ? 'graphic_eq' : 'place' }}</span>
+              <span class="search-result-label">{{ result.label }}</span>
+            </button>
+          }
+        </div>
+      }
+      @if (searchQuery() && searchQuery().length >= 2 && searchResults().length === 0 && searchFocused()) {
+        <div class="unified-search-results">
+          <div class="unified-search-no-results">
+            <span class="material-icons">search_off</span>
+            <span>{{ 'mapfly.search.noResults' | translate }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
 
   @if (isLoading()) {
     <div class="spinner-overlay">

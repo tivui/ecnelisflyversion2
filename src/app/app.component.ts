@@ -35,6 +35,8 @@ import { DOCUMENT } from '@angular/common'; // required for fullscreen
 import { PwaInstallBannerComponent } from './shared/components/pwa-install-banner/pwa-install-banner.component';
 import { UserAvatarComponent } from './shared/components/user-avatar/user-avatar.component';
 import { AppUpdateService } from './core/services/app-update.service';
+import { FeaturedSoundService } from './core/services/featured-sound.service';
+import { DailyFeaturedSound } from './core/models/featured-sound.model';
 
 @Component({
   selector: 'app-root',
@@ -73,6 +75,7 @@ export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
   private readonly appUpdateService = inject(AppUpdateService);
+  private readonly featuredSoundService = inject(FeaturedSoundService);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
@@ -81,6 +84,11 @@ export class AppComponent implements OnInit {
   public sidenavOpened = signal(false);
   public isHomePage = signal(false);
   public isCategoryMapPage = signal(false);
+
+  // ==================== BOTTOM NAV (mobile) ====================
+  public isMobilePortrait = signal(false);
+  public activeRoute = signal('');
+  public bottomNavFeatured = signal<DailyFeaturedSound | null>(null);
 
   // ==================== WELCOME / GOODBYE OVERLAY ====================
   public welcomeVisible = signal(false);
@@ -168,12 +176,24 @@ export class AppComponent implements OnInit {
   constructor() {
     this.translate.addLangs(this.languages);
 
+    // Mobile portrait detection
+    const checkMobile = () => {
+      this.isMobilePortrait.set(
+        window.innerWidth <= 700 &&
+        window.matchMedia('(orientation: portrait)').matches
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', () => checkMobile());
+    screen.orientation?.addEventListener('change', () => checkMobile());
+
     // Track current route for conditional UI
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects;
         this.isHomePage.set(url.startsWith('/home'));
         this.isCategoryMapPage.set(url.startsWith('/mapfly') && url.includes('category='));
+        this.activeRoute.set(url);
       }
     });
 
@@ -225,6 +245,11 @@ export class AppComponent implements OnInit {
     this.selectedLang.set(defaultLang);
     this.translate.use(defaultLang);
     this.amplifyI18n.init(defaultLang);
+
+    // Load featured sound for bottom nav
+    this.featuredSoundService.getTodayFeatured()
+      .then((daily) => this.bottomNavFeatured.set(daily))
+      .catch(() => {});
 
     // 2️⃣ Listen to authentication events (Amplify Hub)
     Hub.listen('auth', async ({ payload }) => {
@@ -330,5 +355,35 @@ export class AppComponent implements OnInit {
 
   closeSidenav() {
     this.sidenavOpened.set(false);
+  }
+
+  goToMap() {
+    if (this.router.url.startsWith('/mapfly')) {
+      // Already on mapfly (e.g. featuredMode) — force full reload to clean state
+      window.location.href = '/mapfly';
+    } else {
+      this.router.navigate(['/mapfly']);
+    }
+  }
+
+  goToFeaturedFromBottomNav() {
+    const daily = this.bottomNavFeatured();
+    if (!daily) return;
+
+    const params = new URLSearchParams({
+      featuredMode: 'true',
+      lat: String(daily.soundLatitude ?? ''),
+      lng: String(daily.soundLongitude ?? ''),
+      soundFilename: daily.soundFilename ?? '',
+      soundTitle: daily.soundTitle ?? '',
+      soundCity: daily.soundCity ?? '',
+      soundCategory: daily.soundCategory ?? '',
+      soundId: daily.soundId ?? '',
+      soundTeasing: daily.teasing ?? '',
+    });
+    if (daily.teasing_i18n) {
+      params.set('soundTeasingI18n', JSON.stringify(daily.teasing_i18n));
+    }
+    window.location.href = `/mapfly?${params.toString()}`;
   }
 }
