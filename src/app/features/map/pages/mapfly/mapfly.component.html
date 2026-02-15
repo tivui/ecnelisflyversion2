@@ -2,7 +2,7 @@
   <div id="mapfly"></div>
 
   <!-- Unified search bar (normal mode only) -->
-  @if (!isLoading() && !isFeaturedMode() && !isJourneyMode()) {
+  @if (!isLoading() && !isFeaturedMode() && !isJourneyMode() && !isUserMode()) {
     <div class="unified-search" [class.focused]="searchFocused()">
       <div class="unified-search-bar">
         <div class="unified-search-toggle">
@@ -213,8 +213,30 @@
     </div>
   }
 
+  <!-- User filter banner -->
+  @if (isUserMode() && !isEmptyResults() && !isLoading()) {
+    <div class="user-banner">
+      <span class="material-icons user-banner-icon">person</span>
+      <span class="user-banner-label">{{ 'mapfly.user.soundsOf' | translate:{ username: userFilterLabel() } }}</span>
+      <span class="user-banner-divider"></span>
+      @if (userSoundCount() === 1) {
+        <span class="user-banner-count">{{ 'mapfly.category.countOne' | translate }}</span>
+      } @else {
+        <span class="user-banner-count">{{ 'mapfly.category.count' | translate:{ count: userSoundCount() } }}</span>
+      }
+    </div>
+  }
+
+  <!-- User mode: "Explore full map" button -->
+  @if (isUserMode() && !isEmptyResults() && !isLoading()) {
+    <button class="user-explore-btn" (click)="goToFullMap()">
+      <span class="material-icons">public</span>
+      <span>{{ 'mapfly.user.exploreFullMap' | translate }}</span>
+    </button>
+  }
+
   <!-- Time-based filter (normal mode only) -->
-  @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0) {
+  @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0 && !isUserMode()) {
     <div class="time-filter">
       <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" [class.tooltip-visible]="timeFilterTooltip() === 'all'" [attr.data-label]="'mapfly.timeFilter.all' | translate" (click)="onTimeFilterClick('all')">
         <span class="material-icons time-filter-icon">public</span>

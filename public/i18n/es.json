@@ -215,6 +215,7 @@
     "noSounds": "Aún no has añadido ningún sonido.",
     "addFirstSound": "Añadir tu primer sonido",
     "addSound": "Añadir sonido",
+    "myMap": "Mi mapa",
     "loadError": "Error al cargar los sonidos.",
     "userNotFound": "Usuario no encontrado",
     "refresh": "Actualizar",
@@ -874,6 +875,15 @@
       "next": "Siguiente",
       "finish": "Terminar",
       "step": "Etapa"
+    },
+    "category": {
+      "count": "{{count}} sonidos",
+      "countOne": "1 sonido",
+      "lonely": "Un lobo solitario... ¡esperando compañía!"
+    },
+    "user": {
+      "soundsOf": "Sonidos de {{username}}",
+      "exploreFullMap": "Explorar el mapa completo"
     },
     "timeFilter": {
       "all": "Todos",

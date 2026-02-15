@@ -524,6 +524,15 @@ normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[]
 
 Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
 
+## Toolbar — masquage conditionnel du logo
+
+Le logo de la toolbar est masque sur certaines pages pour eviter la redondance visuelle :
+
+- **Home page** (desktop) : classe `.hide-desktop-home` via `isHomePage()` ou `isCategoryMapPage()`
+- **Page de connexion** : classe `.hide-login` via `isLoginPage()` (la page affiche deja le logo Ecnelis FLY dans le formulaire d'authentification)
+
+Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPage` — mis a jour via `Router.events` (`NavigationEnd`).
+
 ## Navigation mobile (bottom nav + sidenav)
 
 ### Bottom nav (`app.component`)
@@ -639,6 +648,49 @@ Pas de comportement JS au hover (reverted). Seul un `filter` glow CSS subtil est
 - Cliquer une variation dans la galerie change le rendu de l'avatar (`selectedAvatarSeed`) mais ne met PAS a jour le champ texte
 - Seule la saisie manuelle dans le champ met a jour `seedFieldValue` ET `selectedAvatarSeed`
 - A l'init, les deux signals sont synchronises avec la valeur sauvegardee de l'utilisateur
+
+## Carte utilisateur (User Map)
+
+### Principe
+
+Cliquer sur un nom d'utilisateur dans un popup mapfly navigue **dans le meme onglet** vers `/mapfly?userId=xxx` (full reload via `window.location.href`). Un bandeau elegant s'affiche en haut de la carte, et un bouton permet de revenir a la carte complete.
+
+### Navigation in-page
+
+- **Popup normal** (lignes ~753) et **popup featured** (lignes ~1858) : `window.location.href` au lieu de `window.open('_blank')`
+- Utilise `router.createUrlTree` pour construire l'URL proprement
+
+### Bandeau utilisateur
+
+- **Signals** : `isUserMode`, `userFilterLabel`, `userSoundCount`
+- **Setup** : apres le category banner setup, si `userId && !category` → extrait le username du premier son (`sounds[0]?.user?.username ?? userId`)
+- **Template** : meme pattern que `.category-banner` — icone `person` + "Sons de {username}" + divider + compteur (singulier/pluriel via `mapfly.category.countOne`/`count`)
+- **Style** : glassmorphism, accent bleu `#1976d2`, `border-left: 4px solid #1976d2`
+- **fitBounds** : la condition de centrage automatique inclut `userId` en plus de `category`/`secondaryCategory`
+
+### Bouton "Explorer la carte complete"
+
+- Classe `.user-explore-btn`, positionne `top: 16px; left: 58px` (a droite des controles zoom Leaflet)
+- Appelle `goToFullMap()` (full reload vers `/mapfly`)
+- Meme design que `.featured-explore-btn`
+
+### Elements masques en mode utilisateur
+
+- Search bar : condition `&& !isUserMode()`
+- Time filter : condition `&& !isUserMode()`
+
+### Dashboard — Bouton "Ma carte"
+
+- Bouton `mat-stroked-button` dans `.header-actions` du dashboard, avant "Ajouter un son"
+- Methode `goToMyMap()` : `router.navigate(['/mapfly'], { queryParams: { userId } })`
+
+### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `mapfly.user.soundsOf` | Sons de {{username}} | Sounds by {{username}} | Sonidos de {{username}} |
+| `mapfly.user.exploreFullMap` | Explorer la carte complete | Explore full map | Explorar el mapa completo |
+| `dashboard.myMap` | Ma carte | My map | Mi mapa |
 
 ## Fichiers temporaires a ignorer
 

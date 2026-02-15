@@ -216,6 +216,7 @@
     "noSounds": "You haven't added any sounds yet.",
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
+    "myMap": "My map",
     "loadError": "Failed to load sounds.",
     "userNotFound": "User not found",
     "refresh": "Refresh",
@@ -901,6 +902,10 @@
       "count": "{{count}} sounds",
       "countOne": "1 sound",
       "lonely": "A lone wolf... waiting for friends!"
+    },
+    "user": {
+      "soundsOf": "Sounds by {{username}}",
+      "exploreFullMap": "Explore full map"
     },
     "timeFilter": {
       "all": "All",

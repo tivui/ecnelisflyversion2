@@ -134,6 +134,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public categoryFilterOverlay = signal('');
   public categorySoundCount = signal(0);
 
+  // User filter info
+  public isUserMode = signal(false);
+  public userFilterLabel = signal('');
+  public userSoundCount = signal(0);
+
   // Time-based filter (normal mode only)
   public timeFilter = signal<'all' | 'latest10' | 'week' | 'month'>('all');
   public timeFilterCounts = signal<{ all: number; latest10: number; week: number; month: number }>({
@@ -524,6 +529,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
         }
       }
 
+      // --- User filter info banner ---
+      if (userId && !category) {
+        this.isUserMode.set(true);
+        this.userSoundCount.set(sounds.length);
+        const username = sounds[0]?.user?.username ?? userId;
+        this.userFilterLabel.set(username);
+
+        if (sounds.length === 0) {
+          this.isEmptyResults.set(true);
+        }
+      }
+
       // --- MarkerCluster ---
       this.markersCluster = L.markerClusterGroup({
         iconCreateFunction: (cluster) => {
@@ -757,13 +774,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 const tree = this.router.createUrlTree(['/mapfly'], {
                   queryParams: { userId: s.userId },
                 });
-                const newWindow = window.open(
-                  window.location.origin + this.router.serializeUrl(tree),
-                  '_blank',
-                );
-                if (newWindow) {
-                  newWindow.opener = null;
-                }
+                window.location.href = window.location.origin + this.router.serializeUrl(tree);
               });
             }
           };
@@ -915,8 +926,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.computeTimeFilterCounts();
       }
 
-      // --- Fit bounds when filtering by category ---
-      if ((category || secondaryCategory) && sounds.length > 0) {
+      // --- Fit bounds when filtering by category or user ---
+      if ((category || secondaryCategory || userId) && sounds.length > 0) {
         const bounds = this.markersCluster.getBounds();
         if (bounds.isValid()) {
           this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
@@ -1861,7 +1872,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             const tree = this.router.createUrlTree(['/mapfly'], {
               queryParams: { userId: s.userId },
             });
-            window.open(window.location.origin + this.router.serializeUrl(tree), '_blank');
+            window.location.href = window.location.origin + this.router.serializeUrl(tree);
           });
         }
       }
