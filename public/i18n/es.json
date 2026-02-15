@@ -271,7 +271,7 @@
     }
   },
   "account": {
-    "title": "Configuración del cuento",
+    "title": "Mi espacio",
     "tabs": {
       "profile": "Perfil",
       "avatar": "Avatar"
@@ -284,6 +284,14 @@
     "language": "App idioma",
     "theme": "Tema",
     "save": "Guardar cambios",
+    "saveSuccess": "Perfil actualizado",
+    "cancel": "Cancelar",
+    "cancelConfirm": {
+      "title": "Cambios no guardados",
+      "message": "Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?",
+      "confirm": "Salir",
+      "stay": "Quedarse"
+    },
     "avatar": {
       "title": "Avatar de perfil",
       "seed": "Semilla del avatar",

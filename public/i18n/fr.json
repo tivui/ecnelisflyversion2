@@ -275,7 +275,7 @@
     }
   },
   "account": {
-    "title": "Configuration du compte",
+    "title": "Mon espace",
     "tabs": {
       "profile": "Profil",
       "avatar": "Avatar"
@@ -289,6 +289,14 @@
     "language": "Langue de l'application",
     "theme": "Thème",
     "save": "Enregistrer",
+    "saveSuccess": "Profil mis à jour",
+    "cancel": "Annuler",
+    "cancelConfirm": {
+      "title": "Modifications non enregistrées",
+      "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+      "confirm": "Quitter",
+      "stay": "Rester"
+    },
     "avatar": {
       "title": "Avatar de profil",
       "seed": "Graine de l'avatar",

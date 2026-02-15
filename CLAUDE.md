@@ -326,7 +326,7 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 | Service | Methodes avec `apiKey` |
 |---------|----------------------|
 | `featured-sound.service.ts` | `getTodayFeatured()` |
-| `article.service.ts` | `listPublishedArticles()`, `getArticleBySlug()` |
+| `article.service.ts` | `listPublishedArticles()`, `getArticleBySlug()`, `getMonthlyArticle()` |
 | `quiz.service.ts` | `listPublishedQuizzes()`, `getQuiz()`, `getQuizQuestions()`, `getMonthlyQuiz()`, `getSoundFilename()`, `getLeaderboard()`, `getAttempt()` |
 | `zone.service.ts` | `listZones()`, `getZoneById()`, `getZoneBySlug()`, `getMonthlyZone()`, `listZoneSoundsByZone()`, `listZoneSoundsBySound()`, `getSoundsForZone()` |
 | `sound-journey.service.ts` | `listPublicJourneys()`, `getJourney()`, `listSteps()` |
@@ -337,6 +337,58 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 - `quiz-play.component.ts` : `finishQuiz()` verifie `isAuthenticated()` — si guest, navigue vers `/quiz/:id/results/local` avec state local
 - L'enregistrement du score (`submitAttempt`) requiert l'authentification
 - Le schema `QuizAttempt` n'autorise `create` que pour `authenticated`
+
+## Admin — Override manuel des elements mis en valeur
+
+### Principe
+
+Les elements mis en valeur (son du jour, quiz/zone/voyage/article du mois) sont peuples automatiquement par des Lambdas (`pick-daily-featured-sound`, `pick-monthly-quiz`, `pick-monthly-zone`, `pick-monthly-journey`, `pick-monthly-article`). Quand l'admin modifie un element source (ex: nom d'une zone), les donnees denormalisees dans les tables Monthly*/DailyFeatured* ne sont pas mises a jour automatiquement.
+
+Chaque section admin dispose d'un bouton (icone `star` ou `today`) pour forcer manuellement la (re)creation de l'element mis en valeur avec les donnees a jour.
+
+### Services — methodes d'override
+
+| Service | Methode | Action |
+|---------|---------|--------|
+| `zone.service.ts` | `setMonthlyZone(zone)` | Desactive les MonthlyZone actifs du mois, cree un nouveau avec donnees denormalisees (zoneName, zoneName_i18n, zoneDescription, zoneDescription_i18n, zoneSlug, zoneCoverImage, zoneIcon, zoneColor) |
+| `sound-journey.service.ts` | `setMonthlyJourney(journey)` | Desactive les MonthlyJourney actifs du mois, cree un nouveau avec donnees denormalisees (journeyName, journeyName_i18n, journeyDescription, journeyDescription_i18n, journeySlug, journeyColor, journeyCoverImage) |
+| `article.service.ts` | `setMonthlyArticle(article)` | Desactive les MonthlyArticle actifs du mois, cree un nouveau avec donnees denormalisees (articleTitle, articleTitle_i18n, articleSlug, articleCoverImageKey, articleAuthorName, articleDescription, articleDescription_i18n) |
+| `featured-sound.service.ts` | `forcePickDaily(candidate)` | Supprime le DailyFeaturedSound existant pour aujourd'hui, recup le Sound associe, cree un nouveau DailyFeaturedSound avec donnees denormalisees |
+| `quiz.service.ts` | `setMonthlyQuiz(quiz)` | (preexistant) Meme pattern pour le quiz du mois |
+
+### Modele MonthlyArticle
+
+Interface `MonthlyArticle` dans `article.model.ts` : `id`, `articleId`, `month`, `active`, `articleTitle`, `articleTitle_i18n`, `articleSlug`, `articleCoverImageKey`, `articleAuthorName`, `articleDescription`, `articleDescription_i18n`.
+
+Methode `getMonthlyArticle()` dans `article.service.ts` : query par mois courant avec `authMode: 'apiKey'`, filtre actifs, mappe les champs i18n avec `JSON.parse`.
+
+### Composants admin — boutons d'override
+
+| Composant | Bouton | Methode | Icone |
+|-----------|--------|---------|-------|
+| `zones.component` | Terroir du mois | `setAsMonthly(zone)` | `star` |
+| `journeys.component` | Voyage du mois | `setAsMonthly(journey)` | `star` |
+| `article-admin-list.component` | Article du mois | `setAsMonthly(article)` | `star` |
+| `featured-sound.component` | Son du jour | `setAsDaily(candidate)` | `today` |
+
+Chaque bouton appelle le service, affiche un snackBar de succes, et recharge les donnees.
+
+### Home page — article du mois
+
+`home.component.ts` : `loadArticle()` tente d'abord `getMonthlyArticle()`, convertit le `MonthlyArticle` en `SoundArticle` (mapping des champs prefixes), puis fallback sur `getLatestPublishedArticle()` si pas de monthly article.
+
+### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `admin.zones.actions.monthly` | Terroir du mois | Monthly zone | Terroir del mes |
+| `admin.zones.monthlySet` | Terroir du mois defini | Monthly zone set | Terroir del mes definido |
+| `admin.journeys.actions.monthly` | Voyage du mois | Monthly journey | Viaje del mes |
+| `admin.journeys.monthlySet` | Voyage du mois defini | Monthly journey set | Viaje del mes definido |
+| `admin.articles.actions.monthly` | Article du mois | Monthly article | Articulo del mes |
+| `admin.articles.monthlySet` | Article du mois defini | Monthly article set | Articulo del mes definido |
+| `admin.featuredSound.actions.setDaily` | Definir son du jour | Set as today's sound | Definir sonido del dia |
+| `admin.featuredSound.dailySet` | Son du jour defini | Daily sound set | Sonido del dia definido |
 
 ## Icone customisable par quiz
 
@@ -502,6 +554,33 @@ Pas de cap temporel — le son monte en continu tant que le long press dure.
 ### Hover desktop
 
 Pas de comportement JS au hover (reverted). Seul un `filter` glow CSS subtil est applique au `:hover`.
+
+## Page Compte (`features/users/pages/account/`)
+
+### Titre premium
+
+- Titre i18n : "Mon espace" (FR) / "My space" (EN) / "Mi espacio" (ES)
+- Style : uppercase, `letter-spacing: 0.5px`, `font-weight: 700`, icone Material `person` discrete
+- Couleurs : `#2c3e50` light / `#e8eaf6` dark, icone `#3f51b5` light / `#7986cb` dark
+
+### Bouton Annuler avec confirmation
+
+- Bouton `mat-stroked-button` a cote de Enregistrer
+- Si modifications non sauvegardees (`accountForm.dirty || avatarDirty()`) : ouvre `ConfirmDialogComponent` avec confirmation "Quitter / Rester"
+- Sans modifications : navigation directe vers `/home`
+- i18n : `account.cancel`, `account.cancelConfirm.*` (title, message, confirm, stay)
+
+### Snackbar de succes
+
+- Apres sauvegarde reussie : snackbar verte 3s avec `account.saveSuccess`
+- Style global `.account-snackbar` dans `styles.scss` : fond `#1b5e20` light / `#2e7d32` dark, texte blanc
+
+### Graine de l'avatar (seed)
+
+- Le champ seed (`seedFieldValue`) est independant de la selection de variation
+- Cliquer une variation dans la galerie change le rendu de l'avatar (`selectedAvatarSeed`) mais ne met PAS a jour le champ texte
+- Seule la saisie manuelle dans le champ met a jour `seedFieldValue` ET `selectedAvatarSeed`
+- A l'init, les deux signals sont synchronises avec la valeur sauvegardee de l'utilisateur
 
 ## Fichiers temporaires a ignorer
 

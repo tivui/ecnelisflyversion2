@@ -275,7 +275,7 @@
     }
   },
   "account": {
-    "title": "Account configuration",
+    "title": "My space",
     "tabs": {
       "profile": "Profile",
       "avatar": "Avatar"
@@ -289,6 +289,14 @@
     "language": "App language",
     "theme": "Theme",
     "save": "Save Changes",
+    "saveSuccess": "Profile updated",
+    "cancel": "Cancel",
+    "cancelConfirm": {
+      "title": "Unsaved changes",
+      "message": "You have unsaved changes. Are you sure you want to leave?",
+      "confirm": "Leave",
+      "stay": "Stay"
+    },
     "avatar": {
       "title": "Profile Avatar",
       "seed": "Avatar seed",
