@@ -2,7 +2,18 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="hero-main-logo" />
+      <div class="hero-logo-tilt">
+        <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="hero-main-logo"
+          [class.logo-hidden]="logoCloneActive()"
+          [class.squish]="logoSquishing()"
+          (pointerdown)="onLogoDown($event)"
+          (pointermove)="onLogoMove($event)"
+          (pointerup)="onLogoUp($event)"
+          (pointercancel)="onLogoCancel($event)"
+          style="touch-action: none;"
+          draggable="false"
+        />
+      </div>
       <h1 class="hero-title" appFitText [fitTextMax]="34" [fitTextMin]="16">{{ 'home.hero.title' | translate }}</h1>
       <p class="hero-subtitle">{{ randomSubtitle() }}</p>
     </div>
@@ -10,7 +21,7 @@
     <!-- Main action cards -->
     <div class="hero-actions">
       <!-- World Map Card (primary CTA — always visible) -->
-      <a routerLink="/mapfly" class="hero-card hero-card-map" [style.--shimmer-x]="shimmerX()">
+      <a routerLink="/mapfly" class="hero-card hero-card-map" [style.--shimmer-x]="shimmerX()" (click)="onMapCardClick($event)">
         <video
           #heroVideo
           class="map-card-video"
@@ -23,7 +34,19 @@
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
           </div>
-          <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="hero-card-map-logo" />
+          <img #mapLogo
+            src="/img/logos/logo_blue_orange_left_round.png"
+            alt="Ecnelis Fly"
+            class="hero-card-map-logo"
+            [class.logo-hidden]="logoCloneActive()"
+            [class.squish]="logoSquishing()"
+            (pointerdown)="onLogoDown($event)"
+            (pointermove)="onLogoMove($event)"
+            (pointerup)="onLogoUp($event)"
+            (pointercancel)="onLogoCancel($event)"
+            style="touch-action: none;"
+            draggable="false"
+          />
         </div>
         <div class="hero-card-content">
           <h3>{{ 'home.hero.exploreMap' | translate }}</h3>
@@ -159,3 +182,14 @@
     <app-carousel-categories></app-carousel-categories>
   </section>
 </div>
+
+<!-- Gooey Logo: bouncing clone (outside home-container to escape overflow:hidden) -->
+@if (logoCloneActive()) {
+  <img #bouncingLogo
+    src="/img/logos/logo_blue_orange_left_round.png"
+    alt=""
+    class="bouncing-logo"
+    [style.width.px]="cloneSize()"
+    [style.height.px]="cloneSize()"
+  />
+}

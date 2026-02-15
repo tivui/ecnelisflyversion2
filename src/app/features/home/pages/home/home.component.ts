@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, AfterViewInit, signal, computed, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, NgZone, OnInit, AfterViewInit, OnDestroy, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,6 +20,7 @@ import { SoundJourneyService } from '../../../../core/services/sound-journey.ser
 import { MonthlyJourney } from '../../../../core/models/sound-journey.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
 import { FitTextDirective } from '../../../../shared/directives/fit-text.directive';
+import { GooeyAudioService } from '../../../../core/services/gooey-audio.service';
 
 @Component({
   selector: 'app-home',
@@ -36,7 +37,7 @@ import { FitTextDirective } from '../../../../shared/directives/fit-text.directi
   styleUrls: ['./home.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly appUserService = inject(AppUserService);
   private readonly zoneService = inject(ZoneService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
@@ -45,9 +46,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly journeyService = inject(SoundJourneyService);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+  private readonly gooeyAudio = inject(GooeyAudioService);
 
   @ViewChild('secondaryScroll') secondaryScrollEl?: ElementRef<HTMLElement>;
   @ViewChild('heroVideo') heroVideoEl?: ElementRef<HTMLVideoElement>;
+  @ViewChild('mapLogo') mapLogoEl?: ElementRef<HTMLImageElement>;
+  @ViewChild('bouncingLogo') bouncingLogoEl?: ElementRef<HTMLImageElement>;
 
   shimmerX = signal('-200%');
   hasScrolled = signal(false);
@@ -384,6 +389,460 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.goToMonthlyZone();
         break;
     }
+  }
+
+  // =====================================================================
+  // Gooey Living Logo — Interactive physics + synthesized audio
+  // =====================================================================
+
+  logoState = signal<'idle' | 'dragging' | 'bouncing' | 'returning' | 'longpress'>('idle');
+  logoCloneActive = signal(false);
+  logoSquishing = signal(false);
+  cloneSize = signal(100);
+
+  // Physics state (mutated at 60fps — NOT signals to avoid change detection)
+  private rAFId = 0;
+  private pointerStart = { x: 0, y: 0, time: 0 };
+  private pointerCurrent = { x: 0, y: 0 };
+  private logoHome = { x: 0, y: 0 };
+  private logoSize = 100;
+  private pointerHistory: Array<{ x: number; y: number; time: number }> = [];
+  private position = { x: 0, y: 0 };
+  private velocity = { x: 0, y: 0 };
+  private bounceStartTime = 0;
+  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressStartTime = 0;
+  private gestureStarted = false;
+  private totalMovement = 0;
+  private justTapped = false;
+  private activePointerId: number | null = null;
+  private activeLogoEl: HTMLImageElement | null = null;
+
+  // Physics constants
+  private readonly SPRING_STIFFNESS = 0.08;
+  private readonly SPRING_DAMPING = 0.85;
+  private readonly BOUNCE_FRICTION = 0.985;
+  private readonly WALL_RESTITUTION = 0.7;
+  private readonly FLICK_VELOCITY_THRESHOLD = 800;
+  private readonly MAX_BOUNCE_TIME = 8000;
+  private readonly TAP_MAX_DURATION = 200;
+  private readonly TAP_MAX_MOVEMENT = 10;
+  private readonly LONG_PRESS_DURATION = 500;
+  private readonly GOO_STRETCH_MAX = 150;
+
+  // --- Pointer Event Handlers (template-bound) ---
+
+  onLogoDown(event: PointerEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const state = this.logoState();
+    if (state === 'bouncing' || state === 'returning') return;
+
+    this.gooeyAudio.ensureContext();
+
+    this.activePointerId = event.pointerId;
+    this.gestureStarted = true;
+    this.totalMovement = 0;
+    this.pointerStart = { x: event.clientX, y: event.clientY, time: Date.now() };
+    this.pointerCurrent = { x: event.clientX, y: event.clientY };
+    this.pointerHistory = [{ x: event.clientX, y: event.clientY, time: Date.now() }];
+
+    const logoEl = event.target as HTMLImageElement;
+    this.activeLogoEl = logoEl;
+    const rect = logoEl.getBoundingClientRect();
+    this.logoHome = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    this.logoSize = rect.width;
+    this.cloneSize.set(rect.width);
+
+    this.longPressTimer = setTimeout(() => {
+      if (this.gestureStarted && this.totalMovement < this.TAP_MAX_MOVEMENT) {
+        this.startLongPress();
+      }
+    }, this.LONG_PRESS_DURATION);
+
+    logoEl.setPointerCapture(event.pointerId);
+  }
+
+  onLogoMove(event: PointerEvent): void {
+    if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
+
+    const dx = event.clientX - this.pointerStart.x;
+    const dy = event.clientY - this.pointerStart.y;
+    this.totalMovement = Math.sqrt(dx * dx + dy * dy);
+
+    this.pointerHistory.push({ x: event.clientX, y: event.clientY, time: Date.now() });
+    if (this.pointerHistory.length > 4) this.pointerHistory.shift();
+
+    this.pointerCurrent = { x: event.clientX, y: event.clientY };
+
+    if (this.totalMovement > this.TAP_MAX_MOVEMENT) {
+      this.clearLongPressTimer();
+      const state = this.logoState();
+      if (state === 'longpress') {
+        this.endLongPress(false);
+      }
+      if (state !== 'dragging') {
+        this.startDrag();
+      }
+    }
+  }
+
+  onLogoUp(event: PointerEvent): void {
+    if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
+    this.gestureStarted = false;
+    this.activePointerId = null;
+    this.clearLongPressTimer();
+
+    const duration = Date.now() - this.pointerStart.time;
+    const state = this.logoState();
+
+    if (state === 'longpress') {
+      this.endLongPress(true);
+      return;
+    }
+
+    if (state === 'dragging') {
+      const vel = this.computeVelocity();
+      const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+      if (speed > this.FLICK_VELOCITY_THRESHOLD) {
+        this.startBounce(vel);
+      } else {
+        this.startReturn();
+      }
+      return;
+    }
+
+    // Tap detection
+    if (duration < this.TAP_MAX_DURATION && this.totalMovement < this.TAP_MAX_MOVEMENT) {
+      this.handleTap();
+      return;
+    }
+
+    this.logoState.set('idle');
+  }
+
+  onLogoCancel(event: PointerEvent): void {
+    if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
+    this.gestureStarted = false;
+    this.activePointerId = null;
+    this.clearLongPressTimer();
+
+    const state = this.logoState();
+    if (state === 'dragging') {
+      this.startReturn();
+    } else if (state === 'longpress') {
+      this.endLongPress(true);
+    } else {
+      this.logoState.set('idle');
+      this.activeLogoEl = null;
+    }
+  }
+
+  onMapCardClick(event: Event): void {
+    const state = this.logoState();
+    if (state !== 'idle' || this.logoCloneActive() || this.justTapped) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.justTapped = false;
+    }
+  }
+
+
+  // --- Gesture Handlers ---
+
+  private handleTap(): void {
+    this.justTapped = true;
+    setTimeout(() => this.justTapped = false, 300);
+
+    this.logoSquishing.set(true);
+    setTimeout(() => this.logoSquishing.set(false), 400);
+
+    this.gooeyAudio.playBoing();
+    navigator.vibrate?.(10);
+  }
+
+  private startDrag(): void {
+    this.logoState.set('dragging');
+    this.logoCloneActive.set(true);
+    this.position = { ...this.logoHome };
+    this.gooeyAudio.startStretch(0);
+    this.startPhysicsLoop();
+  }
+
+  private startBounce(vel: { x: number; y: number }): void {
+    this.logoState.set('bouncing');
+    this.velocity = vel;
+    this.bounceStartTime = Date.now();
+    this.gooeyAudio.stopStretch();
+    this.gooeyAudio.playWhoosh(Math.sqrt(vel.x * vel.x + vel.y * vel.y));
+    navigator.vibrate?.(15);
+  }
+
+  private startReturn(): void {
+    this.logoState.set('returning');
+    this.velocity = { x: 0, y: 0 };
+    this.gooeyAudio.stopStretch();
+    this.gooeyAudio.playSnap(Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2));
+  }
+
+  private startLongPress(): void {
+    this.logoState.set('longpress');
+    this.longPressStartTime = 0;
+    this.gooeyAudio.startDrone();
+    navigator.vibrate?.(10);
+    // Kill CSS animation to allow JS transform (animation overrides inline styles)
+    if (this.activeLogoEl) {
+      this.activeLogoEl.classList.add('longpress-active');
+    }
+    if (!this.rAFId) this.startPhysicsLoop();
+  }
+
+  private endLongPress(withPop: boolean): void {
+    this.gooeyAudio.stopDrone();
+    if (withPop) this.gooeyAudio.playPop();
+    this.logoState.set('idle');
+    this.longPressStartTime = 0;
+
+    const logoEl = this.activeLogoEl;
+    if (logoEl) {
+      logoEl.style.transform = '';
+      logoEl.style.transition = '';
+      logoEl.classList.remove('longpress-active');
+    }
+    this.activeLogoEl = null;
+    this.stopPhysicsLoop();
+  }
+
+  // --- Physics Loop (outside Angular zone for performance) ---
+
+  private startPhysicsLoop(): void {
+    if (this.rAFId) return;
+
+    this.ngZone.runOutsideAngular(() => {
+      let lastTime = performance.now();
+
+      const loop = (now: number) => {
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+
+        const state = this.logoState();
+
+        switch (state) {
+          case 'dragging':
+            this.updateDragPhysics();
+            break;
+          case 'bouncing':
+            this.updateBouncePhysics(dt);
+            break;
+          case 'returning':
+            this.updateReturnPhysics();
+            break;
+          case 'longpress':
+            this.updateLongPressVisual();
+            break;
+          default:
+            this.stopPhysicsLoop();
+            return;
+        }
+
+        this.rAFId = requestAnimationFrame(loop);
+      };
+
+      this.rAFId = requestAnimationFrame(loop);
+    });
+  }
+
+  private stopPhysicsLoop(): void {
+    if (this.rAFId) {
+      cancelAnimationFrame(this.rAFId);
+      this.rAFId = 0;
+    }
+  }
+
+  // --- Physics Update Methods ---
+
+  private updateDragPhysics(): void {
+    const target = this.pointerCurrent;
+    const home = this.logoHome;
+    const dx = target.x - home.x;
+    const dy = target.y - home.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Elastic resistance
+    const maxStretch = this.GOO_STRETCH_MAX;
+    const factor = distance < maxStretch ? 1 : maxStretch / distance * 0.5 + 0.5;
+
+    this.position.x = home.x + dx * factor;
+    this.position.y = home.y + dy * factor;
+
+    // Goo deformation
+    const stretchAmount = Math.min(distance / maxStretch, 1);
+    const angle = Math.atan2(dy, dx);
+    const scaleX = 1 + stretchAmount * 0.15 * Math.abs(Math.cos(angle));
+    const scaleY = 1 + stretchAmount * 0.15 * Math.abs(Math.sin(angle));
+
+    this.updateCloneTransform(this.position.x, this.position.y, scaleX, scaleY);
+    this.gooeyAudio.updateStretch(distance);
+  }
+
+  private updateBouncePhysics(dt: number): void {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const r = this.logoSize / 2;
+
+    this.velocity.x *= this.BOUNCE_FRICTION;
+    this.velocity.y *= this.BOUNCE_FRICTION;
+
+    this.position.x += this.velocity.x * dt;
+    this.position.y += this.velocity.y * dt;
+
+    let bounced = false;
+
+    if (this.position.x - r < 0) {
+      this.position.x = r;
+      this.velocity.x = Math.abs(this.velocity.x) * this.WALL_RESTITUTION;
+      bounced = true;
+    } else if (this.position.x + r > vw) {
+      this.position.x = vw - r;
+      this.velocity.x = -Math.abs(this.velocity.x) * this.WALL_RESTITUTION;
+      bounced = true;
+    }
+
+    if (this.position.y - r < 0) {
+      this.position.y = r;
+      this.velocity.y = Math.abs(this.velocity.y) * this.WALL_RESTITUTION;
+      bounced = true;
+    } else if (this.position.y + r > vh) {
+      this.position.y = vh - r;
+      this.velocity.y = -Math.abs(this.velocity.y) * this.WALL_RESTITUTION;
+      bounced = true;
+    }
+
+    if (bounced) {
+      const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
+      this.gooeyAudio.playPlop(speed);
+      navigator.vibrate?.(8);
+    }
+
+    // Deformation based on speed
+    const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
+    const deform = Math.min(speed / 1500, 0.2);
+    const angle = Math.atan2(this.velocity.y, this.velocity.x);
+    const scaleX = 1 + deform * Math.abs(Math.cos(angle));
+    const scaleY = 1 - deform * 0.5 * Math.abs(Math.cos(angle));
+
+    this.updateCloneTransform(this.position.x, this.position.y, scaleX, scaleY);
+
+    // Timeout or slowed enough → return
+    const elapsed = Date.now() - this.bounceStartTime;
+    if (elapsed > this.MAX_BOUNCE_TIME || speed < 20) {
+      this.ngZone.run(() => {
+        this.logoState.set('returning');
+        this.velocity = { x: 0, y: 0 };
+        this.gooeyAudio.playSnap(0);
+      });
+    }
+  }
+
+  private updateReturnPhysics(): void {
+    const home = this.logoHome;
+    const dx = home.x - this.position.x;
+    const dy = home.y - this.position.y;
+
+    this.velocity.x += dx * this.SPRING_STIFFNESS;
+    this.velocity.y += dy * this.SPRING_STIFFNESS;
+    this.velocity.x *= this.SPRING_DAMPING;
+    this.velocity.y *= this.SPRING_DAMPING;
+
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    // Wobble deformation
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const wobble = Math.min(dist / 50, 0.15);
+    const scaleX = 1 + wobble * 0.3;
+    const scaleY = 1 - wobble * 0.15;
+
+    this.updateCloneTransform(this.position.x, this.position.y, scaleX, scaleY);
+
+    // Settled?
+    const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
+    if (dist < 1 && speed < 0.5) {
+      this.ngZone.run(() => {
+        this.logoState.set('idle');
+        this.logoCloneActive.set(false);
+      });
+      this.activeLogoEl = null;
+      this.stopPhysicsLoop();
+    }
+  }
+
+  private updateLongPressVisual(): void {
+    if (!this.longPressStartTime) this.longPressStartTime = performance.now();
+
+    const elapsed = (performance.now() - this.longPressStartTime) / 1000;
+
+    // Inflate: 0 → 1 over 1.5s
+    const inflateProgress = Math.min(elapsed / 1.5, 1);
+    const baseScale = 1 + inflateProgress * 0.3;
+
+    // Pulse: gentle breathing
+    const pulse = 1 + Math.sin(elapsed * Math.PI * 2) * 0.03 * inflateProgress;
+    const scale = baseScale * pulse;
+
+    // Spin: quadratic acceleration — starts barely moving, gets exciting
+    const rotation = 30 * Math.pow(elapsed, 2.5);
+
+    // Wobble: asymmetric goo stretch while spinning
+    const wobbleAmount = 0.025 * inflateProgress;
+    const wobble = Math.sin(elapsed * 8) * wobbleAmount;
+    const scaleX = (scale + wobble).toFixed(3);
+    const scaleY = (scale - wobble).toFixed(3);
+
+    const logoEl = this.activeLogoEl;
+    if (logoEl) {
+      logoEl.style.transition = 'none';
+      logoEl.style.transform = `rotate(${rotation.toFixed(1)}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
+    }
+
+    // Drone pitch rises exponentially with spin duration
+    this.gooeyAudio.updateDrone(elapsed);
+  }
+
+  // --- Helpers ---
+
+  private updateCloneTransform(x: number, y: number, scaleX: number, scaleY: number): void {
+    const clone = this.bouncingLogoEl?.nativeElement;
+    if (!clone) return;
+    const halfSize = this.logoSize / 2;
+    clone.style.transform = `translate(${x - halfSize}px, ${y - halfSize}px) scaleX(${scaleX.toFixed(3)}) scaleY(${scaleY.toFixed(3)})`;
+  }
+
+  private computeVelocity(): { x: number; y: number } {
+    if (this.pointerHistory.length < 2) return { x: 0, y: 0 };
+    const latest = this.pointerHistory[this.pointerHistory.length - 1];
+    const earliest = this.pointerHistory[0];
+    const dt = (latest.time - earliest.time) / 1000;
+    if (dt === 0) return { x: 0, y: 0 };
+    return {
+      x: (latest.x - earliest.x) / dt,
+      y: (latest.y - earliest.y) / dt,
+    };
+  }
+
+  private clearLongPressTimer(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopPhysicsLoop();
+    this.clearLongPressTimer();
+    this.gooeyAudio.stopStretch();
+    this.gooeyAudio.stopDrone();
   }
 
 }
