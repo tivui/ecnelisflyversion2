@@ -109,7 +109,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
-// Mobile scroll: stagger individual cards with horizontal reveal
+// Mobile grid: stagger individual cards with vertical reveal
 @media (max-width: 700px) and (orientation: portrait) {
   .hero-cards-secondary > .hero-card {
     opacity: 0;
@@ -120,28 +120,17 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     opacity: 1;
 
     > .hero-card:nth-child(1) {
-      animation: fadeInRight 0.5s $reveal-ease 0.35s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.35s both;
     }
     > .hero-card:nth-child(2) {
-      animation: fadeInRight 0.5s $reveal-ease 0.42s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.42s both;
     }
     > .hero-card:nth-child(3) {
-      animation: fadeInRight 0.5s $reveal-ease 0.49s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.49s both;
     }
     > .hero-card:nth-child(4) {
-      animation: fadeInRight 0.5s $reveal-ease 0.56s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.56s both;
     }
-    > .hero-card:nth-child(5) {
-      animation: fadeInRight 0.5s $reveal-ease 0.63s both;
-    }
-  }
-
-  .onboarding-section {
-    opacity: 0;
-  }
-
-  .home-container.ready .onboarding-section {
-    animation: fadeInUp 0.5s $reveal-ease 0.6s both;
   }
 }
 
@@ -1750,37 +1739,30 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
   }
 
-  // --- Secondary cards: horizontal scroll strip ---
+  // --- Secondary cards: 2x2 grid ---
   .hero-cards-secondary {
     flex: 1 1 0;
     min-height: 0;
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin: 0;
     padding: 4px 10px 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    overflow: hidden;
 
-    // Mobile: show all cards (override desktop nth-child limit)
+    // Mobile: show all 4 cards (override desktop nth-child limit)
     > .hero-card:nth-child(n+4) {
       display: flex;
     }
 
     .hero-card {
-      flex: 0 0 65%;
       min-width: 0;
       max-width: unset;
       min-height: 0;
       aspect-ratio: unset;
       display: flex;
       flex-direction: column;
-      padding: 8px 12px 6px;
-      scroll-snap-align: center;
+      padding: 8px 10px 6px;
       border-radius: 16px;
       position: relative;
       overflow: hidden;
@@ -2159,119 +2141,14 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   // --- Scroll dots: active in mobile scroll (outside hero-actions to avoid overflow:hidden clip) ---
+  // --- Scroll dots: hidden on mobile (no more scroll) ---
   .scroll-dots {
-    display: flex !important;
-    flex: 0 0 auto;
-    justify-content: center;
-    gap: 6px;
-    padding: 2px 0 4px;
+    display: none !important;
   }
 
-  .scroll-dot {
-    display: block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(#3f51b5, 0.2);
-    transition: all 0.3s ease;
-
-    &.active {
-      width: 18px;
-      border-radius: 3px;
-      background: linear-gradient(90deg, #1976d2, #3f51b5);
-    }
-
-    :host-context(body.dark-theme) & {
-      background: rgba(#5c6bc0, 0.25);
-
-      &.active {
-        background: linear-gradient(90deg, rgba(#5c6bc0, 0.7), rgba(#7986cb, 0.7));
-      }
-    }
-  }
-
-  // --- Onboarding + Community stats (mobile — premium card) ---
+  // --- Onboarding + Community stats: hidden on mobile ---
   .onboarding-section {
-    gap: 0;
-    padding: 6px 12px 4px;
-    flex: 0 0 auto;
-    z-index: 2;
-    position: relative;
-    margin: 2px 10px 0;
-
-    // Glassmorphism card wrapper
-    background: rgba(255, 255, 255, 0.60);
-    backdrop-filter: blur(16px) saturate(1.3);
-    -webkit-backdrop-filter: blur(16px) saturate(1.3);
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    box-shadow:
-      0 2px 12px rgba(0, 0, 0, 0.04),
-      0 6px 20px rgba(0, 0, 0, 0.06);
-
-    :host-context(body.dark-theme) & {
-      background: rgba(20, 20, 38, 0.70);
-      backdrop-filter: blur(16px) saturate(1.2);
-      -webkit-backdrop-filter: blur(16px) saturate(1.2);
-      border: 1px solid rgba(#5c6bc0, 0.14);
-      box-shadow:
-        0 2px 12px rgba(0, 0, 10, 0.25),
-        0 6px 20px rgba(0, 0, 10, 0.15);
-    }
-  }
-
-  .onboarding-pillars {
-    gap: 0;
-    width: 100%;
-
-    .pillar {
-      flex: 1;
-      gap: 3px;
-      padding: 4px 4px;
-    }
-
-    .pillar-icon {
-      width: 24px;
-      height: 24px;
-      font-size: 24px;
-      opacity: 0.65;
-      background: rgba($primary-indigo, 0.08);
-      border-radius: 50%;
-      padding: 5px;
-      width: 34px;
-      height: 34px;
-
-      :host-context(body.dark-theme) & {
-        opacity: 0.80;
-        background: rgba(#5c6bc0, 0.12);
-      }
-    }
-
-    .pillar-label {
-      font-size: 0.66rem;
-      font-weight: 600;
-      max-width: 95px;
-      letter-spacing: 0.2px;
-    }
-  }
-
-  // Separator between pillars and stats
-  .community-stats {
-    gap: 10px;
-    padding: 6px 16px 2px;
-    font-size: 0.78rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 6px;
-    width: 100%;
-
-    .stat strong {
-      font-size: 0.88rem;
-      letter-spacing: 0.3px;
-    }
-
-    :host-context(body.dark-theme) & {
-      border-top-color: rgba(#5c6bc0, 0.12);
-    }
+    display: none !important;
   }
 
   // --- Carousel bottom bar (always visible) ---
@@ -2449,89 +2326,6 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
   }
 
-  .hero-cards-secondary {
-    gap: 10px;
-
-    .hero-card {
-      flex: 0 0 70%;
-      min-height: 0;
-      padding: 8px 10px 6px;
-    }
-
-    .hero-card-icon {
-      width: 30px;
-      height: 30px;
-      min-height: 30px;
-
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-    }
-
-    .featured-badge,
-    .journey-badge,
-    .quiz-badge,
-    .article-badge,
-    .monthly-zone-badge {
-      font-size: 0.64rem;
-    }
-
-    .hero-card-content {
-      margin-top: 4px;
-
-      h3 {
-        font-size: 0.90rem;
-      }
-    }
-
-    .hero-card-desc {
-      font-size: 0.72rem;
-      -webkit-line-clamp: 1;
-    }
-
-    .hero-card-cta {
-      font-size: 0.72rem;
-      padding: 4px 10px;
-      border-radius: 7px;
-
-      mat-icon {
-        font-size: 13px;
-        width: 13px;
-        height: 13px;
-      }
-    }
-  }
-
-  // Small phones: stats-only (no pillars, no card wrapper)
-  .onboarding-section {
-    padding: 0;
-    margin: 0 8px;
-    background: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
-  .onboarding-pillars {
-    display: none !important;
-  }
-
-  .community-stats {
-    padding: 2px 10px 0;
-    font-size: 0.70rem;
-    margin-top: 0;
-    border-top: none;
-    justify-content: center;
-
-    .stat strong {
-      font-size: 0.76rem;
-    }
-  }
-
   .carousel-section {
     padding: 2px 0 2px;
   }
@@ -2555,6 +2349,83 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   .bouncing-logo {
     width: 80px;
     height: 80px;
+  }
+}
+
+// =====================
+// Narrow phones (<=399px width): compact 2x2 grid cards
+// Targets iPhone 11 Pro (375px), iPhone SE (375px), etc.
+// =====================
+@media (max-width: 399px) and (orientation: portrait) {
+  .hero-cards-secondary {
+    gap: 6px;
+    padding: 2px 6px 4px;
+
+    .hero-card {
+      padding: 4px 7px 4px;
+      border-radius: 10px;
+    }
+
+    .hero-card-visual {
+      gap: 4px;
+      padding: 3px 5px 2px;
+      margin: -4px -7px 0;
+      border-radius: 9px 9px 0 0;
+    }
+
+    .hero-card-icon {
+      width: 22px;
+      height: 22px;
+      min-height: 22px;
+
+      mat-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .featured-badge,
+    .journey-badge,
+    .quiz-badge,
+    .article-badge,
+    .monthly-zone-badge {
+      font-size: 0.50rem;
+      padding: 1px 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-card-content {
+      margin-top: 2px;
+      gap: 1px;
+
+      h3 {
+        font-size: 0.78rem;
+      }
+    }
+
+    .hero-card-desc {
+      font-size: 0.62rem;
+      -webkit-line-clamp: 1;
+      line-height: 1.2;
+    }
+
+    .hero-card-cta {
+      font-size: 0.66rem;
+      padding: 2px 6px;
+      border-radius: 5px;
+      margin-top: 2px;
+
+      mat-icon {
+        font-size: 11px;
+        width: 11px;
+        height: 11px;
+      }
+    }
+
+    .hero-card::before {
+      height: 2px;
+    }
   }
 }
 

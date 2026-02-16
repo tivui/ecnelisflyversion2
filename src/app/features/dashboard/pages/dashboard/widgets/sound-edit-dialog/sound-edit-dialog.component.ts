@@ -456,8 +456,8 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
   async save() {
     if (this.saving()) return;
 
-    // Validate info form (title is required)
-    if (this.infoForm.invalid) {
+    // Validate title (the only required field)
+    if (this.infoForm.get('title')?.invalid) {
       this.activeTab.set(0);
       return;
     }
