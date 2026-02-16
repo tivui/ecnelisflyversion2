@@ -1172,10 +1172,20 @@ body.dark-theme .leaflet-control-layers-toggle {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 700px) and (orientation: portrait) {
+  // Center zone title below search bar — fixed to viewport to escape Leaflet's topleft container
+  .zone-title-control {
+    position: fixed !important;
+    top: 90px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    z-index: 790;
+  }
+
   .zone-title-content {
     padding: 6px 12px 6px 6px;
-    max-width: 220px;
+    max-width: calc(100vw - 32px);
   }
 
   .zone-title-icon {
@@ -1476,5 +1486,12 @@ body.dark-theme .leaflet-control-layers-toggle {
   .zone-modal-explore-btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* Hide zoom controls on mobile portrait (all maps) — pinch-to-zoom suffices */
+@media (max-width: 700px) and (orientation: portrait) {
+  .leaflet-control-zoom {
+    display: none !important;
   }
 }

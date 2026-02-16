@@ -48,6 +48,16 @@
     },
     "categories": {
       "title": "Explorer par catégorie"
+    },
+    "stats": {
+      "sounds": "sons",
+      "countries": "pays",
+      "contributors": "explorateurs"
+    },
+    "onboarding": {
+      "explore": "Explorez les sons du monde",
+      "listen": "Écoutez des lieux uniques",
+      "contribute": "Partagez vos découvertes"
     }
   },
   "sidenav": {
@@ -960,10 +970,16 @@
       "exploreFullMap": "Explorer la carte complète"
     },
     "timeFilter": {
+      "title": "Filtrer par période",
       "all": "Tous",
       "latest10": "10 derniers",
       "week": "Semaine",
       "month": "Mois"
+    },
+    "filter": {
+      "categories": "Catégories",
+      "hideAll": "Tout masquer",
+      "showAll": "Tout afficher"
     },
     "search": {
       "sounds": "Sons",

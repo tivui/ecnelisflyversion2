@@ -580,3 +580,69 @@
     padding-bottom: 8px;
   }
 }
+
+// Mobile wizard mode
+@media (max-width: 700px) and (orientation: portrait) {
+  .confirmation-container {
+    padding: 12px 10px;
+    gap: 12px;
+    padding-bottom: calc(80px + 56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header-card {
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+
+  .summary-section {
+    gap: 10px;
+  }
+
+  .section-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .section-header {
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+  }
+
+  // Fix confirmation actions at bottom (replaces parent stepper-actions)
+  .actions {
+    position: fixed;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    padding: 10px 16px;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    z-index: 10;
+    flex-direction: row !important;
+    gap: 10px;
+
+    .button-wrapper {
+      max-width: none;
+      flex: 1;
+    }
+
+    button {
+      height: 44px;
+      border-radius: 12px !important;
+      font-weight: 600;
+    }
+  }
+}
+
+// Dark mode for mobile wizard actions
+@media (max-width: 700px) and (orientation: portrait) {
+  :host-context(body.dark-theme) {
+    .actions {
+      background: rgba(22, 22, 38, 0.95);
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

@@ -258,3 +258,29 @@ body.dark-theme {
     }
   }
 }
+
+// Mobile wizard mode
+@media (max-width: 700px) and (orientation: portrait) {
+  .place-step-container {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+
+  .instructions-card {
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+
+  .map-wrapper {
+    height: clamp(240px, 42dvh, 380px);
+  }
+
+  .map-card {
+    border-radius: 12px;
+  }
+
+  .place-name-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+}

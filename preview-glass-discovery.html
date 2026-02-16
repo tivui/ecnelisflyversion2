@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Glass Discovery — Maquette Mobile Light</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    background: #1a1a2e;
+    min-height: 100vh;
+    padding: 20px 0;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #333,
+      0 0 0 6px #1a1a1a,
+      0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  /* ========== GRADIENT MESH BACKGROUND ========== */
+  .home-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+
+    /* Gradient mesh — soft warm-to-cool flow */
+    background:
+      radial-gradient(ellipse 120% 80% at 15% 10%, rgba(25, 118, 210, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 90% at 85% 30%, rgba(124, 77, 255, 0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 140% 70% at 50% 85%, rgba(245, 166, 35, 0.05) 0%, transparent 50%),
+      linear-gradient(175deg, #f0f4ff 0%, #f7f8fa 35%, #faf8f5 70%, #f5f3ff 100%);
+  }
+
+  /* ========== HERO SECTION ========== */
+  .hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px 0;
+  }
+
+  /* ========== HERO TITLE ========== */
+  .hero-content {
+    text-align: center;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .hero-content::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2.5px;
+    margin: 6px auto 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #1976d2, #3f51b5, #F5A623);
+    opacity: 0.5;
+  }
+
+  .hero-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2, #F5A623);
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+    cursor: grab;
+    transition: transform 0.2s;
+  }
+  .hero-logo:hover { transform: scale(1.05); }
+  .hero-logo span {
+    color: white;
+    font-size: 28px;
+    font-weight: 900;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .hero-title {
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #1a237e 0%, #1976d2 50%, #3f51b5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 2px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.72rem;
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  /* ========== MAP CARD ========== */
+  .hero-card-map {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    height: clamp(140px, 28dvh, 220px);
+    margin-bottom: 14px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+
+    /* Glass treatment */
+    background: linear-gradient(145deg, #2e6bc0 0%, #4a93d8 100%);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow:
+      0 4px 20px rgba(25, 118, 210, 0.20),
+      0 12px 40px rgba(25, 118, 210, 0.10),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+
+  .map-card-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+  }
+
+  /* Simulated video with gradient */
+  .map-bg-sim {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(100,180,255,0.3) 0%, transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(60,140,220,0.2) 0%, transparent 40%),
+      radial-gradient(circle at 50% 30%, rgba(255,255,255,0.08) 0%, transparent 30%),
+      linear-gradient(145deg, #2e6bc0 0%, #4a93d8 100%);
+  }
+
+  .map-accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2.5px;
+    background: linear-gradient(90deg, #1976d2, #3f51b5, #5c6bc0);
+    z-index: 2;
+  }
+
+  .map-content {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(15,25,60,0.72) 0%, rgba(15,25,60,0.28) 60%, transparent 100%);
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .map-content h3 {
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 800;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .map-content p {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.72rem;
+    margin-top: 2px;
+  }
+
+  .map-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .map-cta .material-icons { font-size: 16px; }
+
+  .map-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2, #F5A623);
+    opacity: 0.7;
+    z-index: 1;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  /* ========== HORIZONTAL SCROLL STRIP ========== */
+  .hero-cards-secondary {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px 12px;
+    margin: 0 -4px;
+
+    /* Hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hero-cards-secondary::-webkit-scrollbar { display: none; }
+
+  /* ========== GLASS CARDS ========== */
+  .hero-card {
+    flex: 0 0 75%;
+    scroll-snap-align: center;
+    min-height: 155px;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* GLASSMORPHISM */
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+      0 4px 16px rgba(0,0,0,0.06),
+      0 12px 32px rgba(0,0,0,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+
+  .hero-card:active {
+    transform: scale(0.97);
+  }
+
+  /* Accent top bar */
+  .card-accent-bar {
+    height: 3px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Per-card accent colors */
+  .card-featured .card-accent-bar {
+    background: linear-gradient(90deg, #3f51b5, #7c4dff);
+  }
+  .card-featured {
+    border-color: rgba(124, 77, 255, 0.18);
+    box-shadow:
+      0 4px 16px rgba(124, 77, 255, 0.08),
+      0 12px 32px rgba(0,0,0,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+
+  .card-quiz .card-accent-bar {
+    background: linear-gradient(90deg, #3f51b5, #0d7c51);
+  }
+
+  .card-article .card-accent-bar {
+    background: linear-gradient(90deg, #3f51b5, #8b6f47);
+  }
+
+  .card-journey .card-accent-bar {
+    background: linear-gradient(90deg, #3f51b5, #5c6a8a);
+  }
+
+  .card-zone .card-accent-bar {
+    background: linear-gradient(90deg, #3f51b5, #b07c10);
+  }
+
+  /* Card header row */
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 8px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-icon .material-icons {
+    font-size: 20px;
+  }
+
+  /* Per-card icon colors */
+  .card-featured .card-icon {
+    background: rgba(124, 77, 255, 0.12);
+    border: 1px solid rgba(124, 77, 255, 0.20);
+  }
+  .card-featured .card-icon .material-icons { color: #5a2dd0; }
+
+  .card-quiz .card-icon {
+    background: rgba(13, 124, 81, 0.12);
+    border: 1px solid rgba(13, 124, 81, 0.20);
+  }
+  .card-quiz .card-icon .material-icons { color: #0a6340; }
+
+  .card-article .card-icon {
+    background: rgba(139, 111, 71, 0.12);
+    border: 1px solid rgba(139, 111, 71, 0.20);
+  }
+  .card-article .card-icon .material-icons { color: #5e4a30; }
+
+  .card-journey .card-icon {
+    background: rgba(92, 106, 138, 0.12);
+    border: 1px solid rgba(92, 106, 138, 0.20);
+  }
+  .card-journey .card-icon .material-icons { color: #3d4e6e; }
+
+  .card-zone .card-icon {
+    background: rgba(176, 124, 16, 0.12);
+    border: 1px solid rgba(176, 124, 16, 0.20);
+  }
+  .card-zone .card-icon .material-icons { color: #7a580a; }
+
+  /* Badge */
+  .card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(63, 81, 181, 0.08);
+    border: 1px solid rgba(63, 81, 181, 0.12);
+    color: #3f51b5;
+    letter-spacing: 0.02em;
+  }
+
+  /* Card content */
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 14px 12px;
+    gap: 4px;
+  }
+
+  .card-body h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #111827;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-body .card-desc {
+    font-size: 0.72rem;
+    color: #6B7280;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* CTA pill */
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-top: auto;
+    align-self: flex-start;
+  }
+  .card-cta .material-icons { font-size: 14px; }
+
+  .card-featured .card-cta {
+    background: rgba(124, 77, 255, 0.14);
+    border: 1px solid rgba(124, 77, 255, 0.22);
+    color: #5a2dd0;
+  }
+  .card-quiz .card-cta {
+    background: rgba(13, 124, 81, 0.14);
+    border: 1px solid rgba(13, 124, 81, 0.22);
+    color: #0a6340;
+  }
+  .card-article .card-cta {
+    background: rgba(139, 111, 71, 0.14);
+    border: 1px solid rgba(139, 111, 71, 0.22);
+    color: #5e4a30;
+  }
+  .card-journey .card-cta {
+    background: rgba(92, 106, 138, 0.14);
+    border: 1px solid rgba(92, 106, 138, 0.22);
+    color: #3d4e6e;
+  }
+  .card-zone .card-cta {
+    background: rgba(176, 124, 16, 0.14);
+    border: 1px solid rgba(176, 124, 16, 0.22);
+    color: #7a580a;
+  }
+
+  /* ========== SCROLL DOTS ========== */
+  .scroll-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 0 10px;
+  }
+
+  .scroll-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(63, 81, 181, 0.2);
+    transition: all 0.3s ease;
+  }
+  .scroll-dot.active {
+    width: 18px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #1976d2, #3f51b5);
+  }
+
+  /* ========== CAROUSEL SECTION ========== */
+  .carousel-section {
+    flex: 0 0 auto;
+    padding: 0 16px 8px;
+    position: relative;
+  }
+
+  .carousel-accent-line {
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #1976d2, #3f51b5, #F5A623, transparent);
+    opacity: 0.3;
+    margin-bottom: 8px;
+  }
+
+  .carousel-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .carousel-header .material-icons {
+    font-size: 18px;
+    color: #3f51b5;
+    opacity: 0.6;
+  }
+  .carousel-header h2 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #3949ab;
+    opacity: 0.6;
+  }
+
+  .carousel-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .carousel-chips::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    background: rgba(248, 249, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(63, 81, 181, 0.12);
+    color: #3949ab;
+  }
+  .chip:hover, .chip:active {
+    background: rgba(63, 81, 181, 0.12);
+    border-color: rgba(63, 81, 181, 0.25);
+  }
+
+  /* ========== BOTTOM NAV (simulee) ========== */
+  .bottom-nav {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #555;
+    font-size: 0.6rem;
+    font-weight: 500;
+  }
+  .nav-item.active {
+    color: #1976d2;
+  }
+  .nav-item .material-icons { font-size: 22px; }
+
+  /* ========== ANNOTATIONS ========== */
+  .annotations {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 280px;
+    z-index: 10;
+  }
+
+  @media (max-width: 750px) {
+    .annotations { display: none; }
+  }
+
+  .annotation {
+    background: rgba(30,30,50,0.9);
+    backdrop-filter: blur(10px);
+    color: #e0e0e0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    border-left: 3px solid;
+  }
+  .annotation strong { color: white; font-weight: 700; }
+  .annotation.blue { border-color: #1976d2; }
+  .annotation.violet { border-color: #7c4dff; }
+  .annotation.orange { border-color: #F5A623; }
+  .annotation.green { border-color: #0d7c51; }
+  .annotation.indigo { border-color: #3f51b5; }
+
+  .title-bar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30,30,50,0.9);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  /* ========== LEFT ANNOTATIONS ========== */
+  .annotations-left {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 260px;
+    z-index: 10;
+  }
+
+  @media (max-width: 1050px) {
+    .annotations-left { display: none; }
+  }
+
+  /* Connector lines visual hint */
+  .annotation .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    font-size: 0.65rem;
+    font-weight: 800;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Title -->
+<div class="title-bar">GLASS DISCOVERY — Maquette Mobile Light</div>
+
+<!-- Left annotations -->
+<div class="annotations-left">
+  <div class="annotation blue">
+    <span class="num">1</span>
+    <strong>Gradient Mesh Background</strong><br>
+    Fond subtil avec 3 radial-gradients (bleu, violet, orange) sur base creme. Remplace le blanc plat #F7F8FA. Effet premium sans surcharger.
+  </div>
+  <div class="annotation indigo">
+    <span class="num">2</span>
+    <strong>Carte Monde inchangee</strong><br>
+    Gradient #2e6bc0 -> #4a93d8 conserve. Scrim bottom pour texte lisible. CTA glassmorphism blanc. Logo gooey interactif au centre.
+  </div>
+  <div class="annotation violet">
+    <span class="num">3</span>
+    <strong>Scroll Horizontal</strong><br>
+    La grille 2x2 devient un strip horizontal avec scroll-snap. Cards a 75% de largeur, centrees. Gesture naturelle mobile. Scroll dots actifs.
+  </div>
+</div>
+
+<!-- Right annotations -->
+<div class="annotations">
+  <div class="annotation violet">
+    <span class="num">4</span>
+    <strong>Cards Glassmorphism</strong><br>
+    Surfaces semi-transparentes (72% blanc) avec backdrop-filter blur(20px). Border blanche lumineuse. Le gradient mesh transperce les cards = effet profondeur.
+  </div>
+  <div class="annotation green">
+    <span class="num">5</span>
+    <strong>Accent Top Bar 3px</strong><br>
+    Chaque card garde son accent color en gradient depuis $primary-indigo. Seul element colore fort = hierachie claire.
+  </div>
+  <div class="annotation orange">
+    <span class="num">6</span>
+    <strong>Carousel Glass</strong><br>
+    Footer indigo-tinted glass conserve. Ligne accent tricolore. Chips avec backdrop-filter.
+  </div>
+</div>
+
+<!-- Phone mockup -->
+<div class="phone-frame">
+  <div class="home-container">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+
+      <!-- Hero Title -->
+      <div class="hero-content">
+        <div class="hero-logo">
+          <span>E</span>
+        </div>
+        <h1 class="hero-title">Ecnelis FLY</h1>
+        <p class="hero-subtitle">Les sons du monde a portee d'oreille</p>
+      </div>
+
+      <!-- Map Card -->
+      <a class="hero-card-map" href="#">
+        <div class="map-bg-sim"></div>
+        <div class="map-accent-bar"></div>
+        <div class="map-logo"></div>
+        <div class="map-content">
+          <div>
+            <h3>Carte Mondiale</h3>
+            <p>Explorez les sons du monde entier</p>
+          </div>
+          <span class="map-cta">
+            Explorer
+            <span class="material-icons">arrow_forward</span>
+          </span>
+        </div>
+      </a>
+
+      <!-- Secondary Cards — Horizontal Scroll -->
+      <div class="hero-cards-secondary" id="scrollStrip">
+
+        <!-- Card 1: Journey -->
+        <div class="hero-card card-journey">
+          <div class="card-accent-bar"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <span class="material-icons">route</span>
+            </div>
+            <span class="card-badge">Voyage du mois</span>
+          </div>
+          <div class="card-body">
+            <h3>Istanbul Sonore</h3>
+            <p class="card-desc">Parcourez les ruelles du Grand Bazar aux rives du Bosphore</p>
+            <span class="card-cta">
+              Decoller
+              <span class="material-icons">arrow_forward</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 2: Featured (always position 2) -->
+        <div class="hero-card card-featured">
+          <div class="card-accent-bar"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <span class="material-icons">headphones</span>
+            </div>
+            <span class="card-badge">Son du jour</span>
+          </div>
+          <div class="card-body">
+            <h3>Marche flottant de Bangkok</h3>
+            <p class="card-desc">L'effervescence matinale des marchands sur l'eau</p>
+            <span class="card-cta">
+              Ecouter
+              <span class="material-icons">arrow_forward</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 3: Quiz -->
+        <div class="hero-card card-quiz">
+          <div class="card-accent-bar"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <span class="material-icons">quiz</span>
+            </div>
+            <span class="card-badge">Quiz du mois</span>
+          </div>
+          <div class="card-body">
+            <h3>Chants d'oiseaux d'Europe</h3>
+            <p class="card-desc">Saurez-vous reconnaitre ces melodies de la nature?</p>
+            <span class="card-cta">
+              Jouer
+              <span class="material-icons">arrow_forward</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 4: Monthly Zone -->
+        <div class="hero-card card-zone">
+          <div class="card-accent-bar"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <span class="material-icons">terrain</span>
+            </div>
+            <span class="card-badge">Terroir du mois</span>
+          </div>
+          <div class="card-body">
+            <h3>Provence</h3>
+            <p class="card-desc">Cigales, mistral et marches provencaux</p>
+            <span class="card-cta">
+              Explorer
+              <span class="material-icons">arrow_forward</span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Scroll Dots -->
+      <div class="scroll-dots">
+        <span class="scroll-dot active"></span>
+        <span class="scroll-dot"></span>
+        <span class="scroll-dot"></span>
+        <span class="scroll-dot"></span>
+      </div>
+
+    </section>
+
+    <!-- Carousel Section -->
+    <section class="carousel-section">
+      <div class="carousel-accent-line"></div>
+      <div class="carousel-header">
+        <span class="material-icons">category</span>
+        <h2>Explorer par categorie</h2>
+      </div>
+      <div class="carousel-chips">
+        <span class="chip">Ambiance</span>
+        <span class="chip">Animaux</span>
+        <span class="chip">Cuisine</span>
+        <span class="chip">Humain</span>
+        <span class="chip">Musique</span>
+        <span class="chip">Nature</span>
+        <span class="chip">Transport</span>
+      </div>
+    </section>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <span class="material-icons">home</span>
+        Home
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">public</span>
+        Carte
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">add_circle</span>
+        Ajouter
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">person</span>
+        Compte
+      </div>
+      <div class="nav-item">
+        <span class="material-icons">menu</span>
+        Menu
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Simulate scroll snap dot indicator
+  const strip = document.getElementById('scrollStrip');
+  const dots = document.querySelectorAll('.scroll-dot');
+
+  strip.addEventListener('scroll', () => {
+    const scrollLeft = strip.scrollLeft;
+    const cardWidth = strip.querySelector('.hero-card').offsetWidth + 12; // gap
+    const index = Math.round(scrollLeft / cardWidth);
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -3,6 +3,12 @@ import { Sound } from '../models/sound.model'
 import { StorageService } from './storage.service';
 import { AmplifyService } from './amplify.service';
 
+export interface CommunityStats {
+  soundCount: number;
+  countryCount: number;
+  contributorCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -116,6 +122,57 @@ export class SoundsService {
       throw new Error('Sound has no filename');
     }
     return this.storageService.getSoundUrl(sound.filename);
+  }
+
+  // --- Community stats (cached 5 min) ---
+
+  private cachedStats: { data: CommunityStats; ts: number } | null = null;
+
+  async getCommunityStats(): Promise<CommunityStats> {
+    const now = Date.now();
+    if (this.cachedStats && now - this.cachedStats.ts < 5 * 60_000) {
+      return this.cachedStats.data;
+    }
+
+    const userIds = new Set<string>();
+    const countries = new Set<string>();
+    let soundCount = 0;
+    let nextToken: string | null | undefined = undefined;
+
+    do {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const page: any =
+        await this.amplifyService.client.models.Sound.listSoundsByStatus(
+          { status: 'public' },
+          {
+            limit: 500,
+            nextToken: nextToken ?? undefined,
+            authMode: 'apiKey',
+            selectionSet: ['id', 'userId', 'city'],
+          },
+        );
+
+      const data = page.data ?? [];
+      for (const raw of data) {
+        soundCount++;
+        if (raw.userId) userIds.add(raw.userId);
+        if (raw.city) {
+          // city often contains "City, Country" — extract last segment
+          const parts = (raw.city as string).split(',');
+          const country = parts[parts.length - 1]?.trim();
+          if (country) countries.add(country.toLowerCase());
+        }
+      }
+      nextToken = page.nextToken ?? null;
+    } while (nextToken);
+
+    const stats: CommunityStats = {
+      soundCount,
+      countryCount: countries.size,
+      contributorCount: userIds.size,
+    };
+    this.cachedStats = { data: stats, ts: now };
+    return stats;
   }
 
   // Detect MIME type from file extension

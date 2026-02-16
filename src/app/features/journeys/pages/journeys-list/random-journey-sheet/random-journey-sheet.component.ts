@@ -486,7 +486,9 @@ export class RandomJourneySheetComponent {
 
       // Determine color (softened for map use)
       const color = cat ? this.softenColor(this.getCategoryColor(cat as CategoryKey)) : '#5c6a8a';
-      const name = this.translate.instant('journeys.random.journeyName');
+      const name = cat
+        ? this.categoriesService.getLabel(cat as CategoryKey)
+        : this.translate.instant('journeys.random.journeyName');
 
       // Store in ephemeral service
       this.ephemeralService.set(picked, name, color);

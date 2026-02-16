@@ -48,6 +48,16 @@
     },
     "categories": {
       "title": "Explore by category"
+    },
+    "stats": {
+      "sounds": "sounds",
+      "countries": "countries",
+      "contributors": "explorers"
+    },
+    "onboarding": {
+      "explore": "Explore the sounds of the world",
+      "listen": "Listen to unique places",
+      "contribute": "Share your discoveries"
     }
   },
   "sidenav": {
@@ -959,10 +969,16 @@
       "exploreFullMap": "Explore full map"
     },
     "timeFilter": {
+      "title": "Filter by period",
       "all": "All",
       "latest10": "Latest 10",
       "week": "This week",
       "month": "This month"
+    },
+    "filter": {
+      "categories": "Categories",
+      "hideAll": "Hide all",
+      "showAll": "Show all"
     },
     "search": {
       "sounds": "Sounds",

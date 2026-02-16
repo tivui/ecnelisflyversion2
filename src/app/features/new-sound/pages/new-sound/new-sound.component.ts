@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnDestroy, OnInit, HostListener, ViewChild, AfterViewInit, Renderer2, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy, OnInit, HostListener, ViewChild, AfterViewInit, Renderer2, effect } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -75,6 +75,24 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
 
   readonly highlightedSteps = signal<number[]>([]);
 
+  // Mobile wizard
+  readonly isMobileWizard = signal(false);
+  readonly currentStepIndex = signal(0);
+  readonly maxStepReached = signal(0);
+  private mobileMediaQuery?: MediaQueryList;
+
+  readonly stepMeta = [
+    { icon: 'cloud_upload', labelKey: 'sound.sound-title' },
+    { icon: 'location_searching', labelKey: 'sound.place-title' },
+    { icon: 'info', labelKey: 'sound.data-info-title' },
+    { icon: 'link', labelKey: 'sound.data-meta-title' },
+    { icon: 'fact_check', labelKey: 'sound.confirmation-title' },
+  ];
+
+  readonly progressPercent = computed(() =>
+    (this.currentStepIndex() / (this.stepMeta.length - 1)) * 100
+  );
+
   // Quota
   readonly quotaExceeded = signal(false);
   readonly quotaLoading = signal(true);
@@ -118,6 +136,11 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
+    // Mobile wizard detection
+    this.mobileMediaQuery = window.matchMedia('(max-width: 700px) and (orientation: portrait)');
+    this.isMobileWizard.set(this.mobileMediaQuery.matches);
+    this.mobileMediaQuery.addEventListener('change', this.onMobileChange);
+
     try {
       const user = this.appUserService.currentUser;
       if (user?.id) {
@@ -131,6 +154,10 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
       this.quotaLoading.set(false);
     }
   }
+
+  private onMobileChange = (e: MediaQueryListEvent) => {
+    this.isMobileWizard.set(e.matches);
+  };
 
   goToDashboard() {
     this.router.navigate(['/dashboard']);
@@ -177,8 +204,28 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.mobileMediaQuery?.removeEventListener('change', this.onMobileChange);
     if (this.soundPath() && !this.confirmed()) {
       this.cleanupFile(this.soundPath()!);
+    }
+  }
+
+  goToStep(index: number): void {
+    this.currentStepIndex.set(index);
+    this.maxStepReached.update(max => Math.max(max, index));
+
+    if (!this.isMobileWizard() && this.stepper) {
+      this.stepper.selectedIndex = index;
+    }
+
+    // Place step: trigger map resize
+    if (index === 1) {
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+    }
+
+    // Scroll to top on mobile
+    if (this.isMobileWizard()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -240,6 +287,10 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onHighlightSteps(stepIndices: number[]) {
     this.highlightedSteps.set(stepIndices);
+    // On mobile, navigate to the first problematic step
+    if (this.isMobileWizard() && stepIndices.length > 0) {
+      this.goToStep(stepIndices[0]);
+    }
   }
 
   isStepHighlighted(index: number): boolean {
