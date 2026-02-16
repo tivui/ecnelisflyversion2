@@ -123,9 +123,20 @@
     height: 28px;
   }
 
+  .toolbar-logo {
+    display: none;
+  }
+
   .app-title {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #555;
+
+    :host-context(body.dark-theme) & {
+      color: #9a9ab0;
+    }
   }
 
   .avatar-btn {

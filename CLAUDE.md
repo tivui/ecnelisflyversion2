@@ -692,6 +692,138 @@ Cliquer sur un nom d'utilisateur dans un popup mapfly navigue **dans le meme ong
 | `mapfly.user.exploreFullMap` | Explorer la carte complete | Explore full map | Explorar el mapa completo |
 | `dashboard.myMap` | Ma carte | My map | Mi mapa |
 
+## Quotas d'upload
+
+### Principe
+
+Limites count-based par utilisateur pour eviter les abus. Admins exemptes.
+
+| Limite | Valeur |
+|--------|--------|
+| Sons par semaine | 10 |
+| Sons par mois | 30 |
+| Taille max par son | 50 MB (client-side, pre-existant) |
+
+### Architecture — comptage a la volee
+
+Pas de champ en base. `QuotaService` (`core/services/quota.service.ts`) compte les sons crees dans la periode via `createdAt` (auto-genere par DynamoDB). Pas de Lambda de reset necessaire.
+
+### Modele
+
+`QuotaInfo` (`core/models/quota.model.ts`) : `weekCount`, `monthCount`, `weekLimit`, `monthLimit`, `canUpload`, `weekRemaining`, `monthRemaining`.
+
+### Enforcement
+
+- `new-sound.component.ts` : verifie le quota au `ngOnInit`, affiche overlay bloquant si limite atteinte
+- `confirmation-step.component.ts` : double-verification avant `Sound.create()`
+- Admins : bypass automatique (`quotaService` verifie `isAdmin`)
+
+### Affichage
+
+Barres de progression dans `dashboard-stats.component` (onglet Statistiques du dashboard utilisateur). Couleur verte→orange→rouge selon le pourcentage.
+
+## Moderation des sons (statut public_to_be_approved)
+
+### Workflow
+
+1. Utilisateur non-admin uploade un son en "public" → statut force a `public_to_be_approved` via `resolveStatus()` dans `confirmation-step.component.ts`
+2. Admin uploade en "public" → statut reste `public` directement
+3. Admin approuve/rejette dans le dashboard admin → statut passe a `public` ou `private`
+
+### Visibilite sur la carte (Lambda `list-sounds-for-map`)
+
+| Utilisateur | Voit ses `public_to_be_approved` | Voit ceux des autres |
+|-------------|--------------------------------|---------------------|
+| Non connecte | Non | Non |
+| Connecte (owner) | Oui | Non |
+| Admin | Oui (tous) | Oui (tous) |
+
+La Lambda (`amplify/functions/list-sounds-for-map/handler.ts`) fetch les sons `public_to_be_approved` pour le owner et l'admin. Le filtre de securite final autorise `public_to_be_approved` pour le owner (`sound.userId === currentUserTableId`) et l'admin (`fetchAllPrivate`).
+
+La query GraphQL `ListSoundsForMapWithAppUser` inclut le champ `status` pour que le frontend connaisse le statut du son.
+
+### Redirect post-upload
+
+Toujours vers `/mapfly` avec coordonnees, quel que soit le statut. Snackbar informatif si `public_to_be_approved`.
+
+## Dashboard utilisateur (`features/dashboard/`)
+
+### Onglets
+
+`mat-tab-group` avec 2 onglets :
+- **Statistiques** (`bar_chart`) : KPIs + quotas + graphiques ngx-charts. Visible uniquement si l'utilisateur a >= 1 son.
+- **Mes Sons** (`library_music`) : filtres + liste de sons. Toujours visible.
+
+Le header (titre + boutons "Ma carte" / "+ Ajouter un son") reste au-dessus des onglets.
+
+### Stats visuelles (`dashboard-stats` widget)
+
+Composant `app-dashboard-stats` avec `@swimlane/ngx-charts` :
+- **KPIs** : total sons, sons publics, total likes
+- **Quotas** : barres de progression semaine/mois (non-admin uniquement)
+- **Graphiques** : repartition par categorie (pie donut), statuts (pie), activite mensuelle (bar vertical, 6 mois)
+
+Calculs 100% client-side via `computed()` signals sur le tableau `sounds()`.
+
+### Couleurs categories (graphiques)
+
+Variantes adoucies (muted) des couleurs d'accent de categorie pour les charts :
+
+| Categorie | Couleur muted |
+|-----------|--------------|
+| ambiancefly | `#5BBF8A` |
+| animalfly | `#D97BD5` |
+| foodfly | `#D4A05C` |
+| humanfly | `#D4A3CC` |
+| itemfly | `#8C8C8C` |
+| musicfly | `#C04040` |
+| naturalfly | `#5A9FD4` |
+| sportfly | `#B06B35` |
+| transportfly | `#C8B840` |
+
+`categoryColorScheme` est un `computed<Color>` signal qui mappe dynamiquement les categories aux couleurs.
+
+### ngx-charts dark mode
+
+Les graphiques ngx-charts necessitent des styles `::ng-deep` dans le bloc `:host-context(body.dark-theme)` pour etre lisibles en dark mode :
+- `text { fill: rgba(255,255,255,0.7) }`, `.gridline-path/.domain { stroke: rgba(255,255,255,0.1) }`, `.tick text { fill: rgba(255,255,255,0.6) }`, `.pie-label-text { fill: rgba(255,255,255,0.8) }`
+
+## Dashboard admin (`features/admin/pages/admin-dashboard/`)
+
+### Route standalone
+
+Route `/admin/dashboard` (pas enfant de database tabs). Accessible via le bouton "Tableau de bord" dans le menu admin du sidenav (`app.component.html`).
+
+### 2 onglets
+
+`mat-tab-group` :
+- **Statistiques** (`bar_chart`) : KPIs (total sons, utilisateurs, sons publics, en attente, nouveaux ce mois) + graphiques (sons par categorie, uploads over time, statuts, top contributeurs, top villes)
+- **Moderation** (`pending_actions`) : gestion des sons en attente avec badge compteur
+
+### Moderation — preview des metadonnees
+
+Chaque son en attente est cliquable/expandable (`toggleExpand(sound)`) avec :
+- Titre (toutes langues), histoire, categorie + sous-categorie, lieu + coordonnees
+- Equipement, licence, hashtags (chips), URLs, date d'ajout
+- **Lecteur audio** integre (charge l'URL S3 via `StorageService` au clic)
+- Boutons approuver/rejeter + "Tout approuver"
+
+### Etat vide
+
+Si aucun son en attente : icone `check_circle` verte + message "Aucun son en attente de validation".
+
+## Upload de son — flux de donnees titre
+
+### Piege connu (corrige)
+
+`emitCompleted()` dans `sound-data-info-step.component.ts` synchronise le titre/histoire brut du formulaire dans `translatedTitle[currentLang]` avant d'emettre. Sans cette synchro, `title_i18n` restait vide si la traduction automatique (blur) n'avait pas encore ete declenchee.
+
+De plus, des listeners `valueChanges` (debounce 300ms) sur les champs `title` et `shortStory` appellent `emitCompleted()` pour garder le parent a jour en continu.
+
+## Admin icon — Hub listener
+
+Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `signedIn` (pas seulement dans `ngOnInit`) via `await authService.loadCurrentUser()` + `isAdmin.set(authService.isInGroup('ADMIN'))`. Reset a `false` dans le handler `signedOut`.
+
 ## Fichiers temporaires a ignorer
 
 - `preview-color-proposals.html` (preview design, pas partie de l'app)

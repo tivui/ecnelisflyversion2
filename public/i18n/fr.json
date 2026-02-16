@@ -48,6 +48,16 @@
     },
     "categories": {
       "title": "Explorer par catégorie"
+    },
+    "stats": {
+      "sounds": "sons",
+      "countries": "pays",
+      "contributors": "explorateurs"
+    },
+    "onboarding": {
+      "explore": "Explorez les sons du monde",
+      "listen": "Écoutez des lieux uniques",
+      "contribute": "Partagez vos découvertes"
     }
   },
   "sidenav": {

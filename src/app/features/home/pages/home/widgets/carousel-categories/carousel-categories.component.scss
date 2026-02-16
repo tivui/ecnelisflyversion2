@@ -148,3 +148,25 @@
     }
   }
 }
+
+// Small phones: compact chips
+@media (max-width: 700px) and (orientation: portrait) and (max-height: 800px) {
+  .mobile-category-strip {
+    gap: 8px;
+    padding: 4px 12px 2px;
+  }
+
+  .category-chip {
+    gap: 7px;
+    padding: 3px 12px 3px 3px;
+  }
+
+  .chip-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .chip-label {
+    font-size: 0.68rem;
+  }
+}

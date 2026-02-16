@@ -21,32 +21,11 @@
     <!-- Main action cards -->
     <div class="hero-actions">
       <!-- World Map Card (primary CTA — always visible) -->
-      <a routerLink="/mapfly" class="hero-card hero-card-map" [style.--shimmer-x]="shimmerX()" (click)="onMapCardClick($event)">
-        <video
-          #heroVideo
-          class="map-card-video"
-          src="/videos/globe.webm"
-          preload="auto"
-          autoplay muted loop playsinline
-          disablePictureInPicture
-        ></video>
+      <a routerLink="/mapfly" class="hero-card hero-card-map" (click)="onMapCardClick($event)">
         <div class="hero-card-visual">
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
           </div>
-          <img #mapLogo
-            src="/img/logos/logo_blue_orange_left_round.png"
-            alt="Ecnelis Fly"
-            class="hero-card-map-logo"
-            [class.logo-hidden]="logoCloneActive()"
-            [class.squish]="logoSquishing()"
-            (pointerdown)="onLogoDown($event)"
-            (pointermove)="onLogoMove($event)"
-            (pointerup)="onLogoUp($event)"
-            (pointercancel)="onLogoCancel($event)"
-            style="touch-action: none;"
-            draggable="false"
-          />
         </div>
         <div class="hero-card-content">
           <h3>{{ 'home.hero.exploreMap' | translate }}</h3>
@@ -164,14 +143,51 @@
         }
       </div>
 
-      <!-- Scroll dots (desktop horizontal scroll only) -->
-      <div class="scroll-dots" aria-hidden="true">
-        @for (i of secondaryCardIndices(); track i) {
-          <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
-        }
-      </div>
+    </div>
+
+    <!-- Scroll dots (horizontal scroll indicator) -->
+    <div class="scroll-dots" aria-hidden="true">
+      @for (i of secondaryCardIndices(); track i) {
+        <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
+      }
     </div>
   </section>
+
+  <!-- Onboarding + Community stats -->
+  <div class="onboarding-section">
+    <div class="onboarding-pillars">
+      <div class="pillar">
+        <mat-icon class="pillar-icon">explore</mat-icon>
+        <span class="pillar-label">{{ 'home.onboarding.explore' | translate }}</span>
+      </div>
+      <div class="pillar">
+        <mat-icon class="pillar-icon">headphones</mat-icon>
+        <span class="pillar-label">{{ 'home.onboarding.listen' | translate }}</span>
+      </div>
+      <div class="pillar">
+        <mat-icon class="pillar-icon">mic</mat-icon>
+        <span class="pillar-label">{{ 'home.onboarding.contribute' | translate }}</span>
+      </div>
+    </div>
+    @if (communityStats()) {
+      <div class="community-stats">
+        <span class="stat">
+          <strong>{{ communityStats()!.sounds }}</strong>
+          {{ 'home.stats.sounds' | translate }}
+        </span>
+        <span class="stat-dot">&middot;</span>
+        <span class="stat">
+          <strong>{{ communityStats()!.countries }}</strong>
+          {{ 'home.stats.countries' | translate }}
+        </span>
+        <span class="stat-dot">&middot;</span>
+        <span class="stat">
+          <strong>{{ communityStats()!.contributors }}</strong>
+          {{ 'home.stats.contributors' | translate }}
+        </span>
+      </div>
+    }
+  </div>
 
   <!-- Categories Carousel -->
   <section class="carousel-section">

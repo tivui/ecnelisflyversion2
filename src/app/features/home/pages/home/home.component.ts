@@ -21,6 +21,7 @@ import { MonthlyJourney } from '../../../../core/models/sound-journey.model';
 import { CarouselCategoriesComponent } from './widgets/carousel-categories/carousel-categories.component';
 import { FitTextDirective } from '../../../../shared/directives/fit-text.directive';
 import { GooeyAudioService } from '../../../../core/services/gooey-audio.service';
+import { SoundsService, CommunityStats } from '../../../../core/services/sounds.service';
 
 @Component({
   selector: 'app-home',
@@ -48,13 +49,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   private readonly gooeyAudio = inject(GooeyAudioService);
+  private readonly soundsService = inject(SoundsService);
 
   @ViewChild('secondaryScroll') secondaryScrollEl?: ElementRef<HTMLElement>;
-  @ViewChild('heroVideo') heroVideoEl?: ElementRef<HTMLVideoElement>;
-  @ViewChild('mapLogo') mapLogoEl?: ElementRef<HTMLImageElement>;
   @ViewChild('bouncingLogo') bouncingLogoEl?: ElementRef<HTMLImageElement>;
-
-  shimmerX = signal('-200%');
   hasScrolled = signal(false);
   activeCardIndex = signal(0);
   dataLoaded = signal(false);
@@ -81,6 +79,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   latestArticle = signal<SoundArticle | null>(null);
   monthlyZone = signal<MonthlyZone | null>(null);
   monthlyJourney = signal<MonthlyJourney | null>(null);
+  communityStats = signal<{ sounds: number; countries: number; contributors: number } | null>(null);
 
   /** Exactly 3 secondary cards (map always primary = 4 total).
    *  Available: Son du jour, Quiz du mois, Terroir du mois, Article du mois.
@@ -112,12 +111,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   async ngOnInit() {
-    const [dailyResult, monthlyQuizResult, articleResult, monthlyZoneResult, monthlyJourneyResult] = await Promise.allSettled([
+    const [dailyResult, monthlyQuizResult, articleResult, monthlyZoneResult, monthlyJourneyResult, statsResult] = await Promise.allSettled([
       this.featuredSoundService.getTodayFeatured(),
       this.quizService.getMonthlyQuiz(),
       this.loadArticle(),
       this.zoneService.getMonthlyZone(),
       this.journeyService.getMonthlyJourney(),
+      this.soundsService.getCommunityStats(),
     ]);
 
     if (dailyResult.status === 'fulfilled') {
@@ -138,6 +138,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (monthlyJourneyResult.status === 'fulfilled' && monthlyJourneyResult.value) {
       this.monthlyJourney.set(monthlyJourneyResult.value);
+    }
+
+    if (statsResult.status === 'fulfilled' && statsResult.value) {
+      const s = statsResult.value;
+      this.communityStats.set({
+        sounds: s.soundCount,
+        countries: s.countryCount,
+        contributors: s.contributorCount,
+      });
     }
 
     const isMobile = window.innerWidth <= 700;
@@ -161,9 +170,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const hasFeatured = !!this.dailyFeatured();
 
     if (isMobile) {
-      // Mobile: 2x2 grid — featured always present + pick 3 from pool
-      const picked = pool.slice(0, 3);
-      available = hasFeatured ? ['featured', ...picked] : [...pool.slice(0, 4)];
+      // Mobile scroll: show ALL available cards (scroll handles any count)
+      available = hasFeatured ? ['featured', ...pool] : [...pool];
     } else {
       // Desktop: up to 4 secondary cards (featured + 3 from shuffled pool).
       // CSS hides 4th on non-XL; XL (≥1920px) shows all 4.
@@ -176,11 +184,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Ordering
     if (isMobile) {
-      // Mobile grid: featured at position 2 (top-right) for visual focus
+      // Mobile scroll: featured at position 2, rest shuffled around it
       const nonFeatured = available.filter(t => t !== 'featured');
-      if (hasFeatured && nonFeatured.length >= 3) {
-        this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1], nonFeatured[2]]);
-      } else if (hasFeatured && nonFeatured.length >= 1) {
+      if (hasFeatured && nonFeatured.length >= 1) {
         this.orderedSecondaryCards.set([nonFeatured[0], 'featured', ...nonFeatured.slice(1)]);
       } else {
         this.orderedSecondaryCards.set(available);
@@ -217,14 +223,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    const video = this.heroVideoEl?.nativeElement;
-    if (video) {
-      // Force load + play for mobile browsers that ignore autoplay
-      video.load();
-      video.play().catch(() => {});
-      // Safety net: retry when video data is ready (slow connections)
-      video.addEventListener('canplay', () => video.play().catch(() => {}), { once: true });
-    }
+    // Placeholder for future view-init logic
   }
 
   onSecondaryScroll(event: Event) {
@@ -233,9 +232,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const maxScroll = el.scrollWidth - el.clientWidth;
     if (maxScroll <= 0) return;
     const ratio = el.scrollLeft / maxScroll;
-    // Shimmer: map 0→1 to -200%→200%
-    const pos = -200 + ratio * 400;
-    this.shimmerX.set(`${pos}%`);
     // Active card index based on scroll position
     const cardCount = this.secondaryCardIndices().length;
     const index = Math.round(ratio * (cardCount - 1));
