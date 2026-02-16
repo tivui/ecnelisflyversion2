@@ -2188,6 +2188,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const step = this.journeySteps[stepIndex];
     const targetLatLng = L.latLng(sound.latitude, sound.longitude);
     const color = this.journeyColor();
+    const isMobile = window.innerWidth <= 700;
+    const flyToLatLng = L.latLng(sound.latitude + (isMobile ? 0.0020 : 0.0012), sound.longitude);
+    const flyToZoom = isMobile ? 16 : 17;
 
     this.currentJourneyStep.set(stepIndex);
     this.updateJourneyStepper();
@@ -2245,7 +2248,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div class="journey-popup-header" style="background: linear-gradient(180deg, ${color} 0%, ${color}cc 100%);">
           <span class="journey-step-badge">${stepLabel}</span>
           <div class="popup-header-row">
-            <b class="journey-popup-title">${title}</b>
+            <b class="journey-popup-title" id="journey-title-${stepIndex}">${title}</b>
             <div id="like-btn-journey-${sound.id}" class="popup-like-btn popup-like-btn-journey" data-sound-id="${sound.id}" data-likes-count="${sound.likesCount ?? 0}">
               <img src="${this.likeService.isLiked(sound.id!) ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png'}" class="popup-like-icon" alt="like" />
               <span class="popup-like-count">${sound.likesCount ?? 0}</span>
@@ -2253,7 +2256,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
-        ${sound.shortStory ? `<p class="popup-shortstory">${sound.shortStory}</p>` : ''}
+        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p>` : ''}
+        <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
         <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
@@ -2318,6 +2322,43 @@ export class MapflyComponent implements OnInit, OnDestroy {
         });
       }
 
+      // Translate button
+      const titleEl = document.getElementById(`journey-title-${stepIndex}`);
+      const storyEl = document.getElementById(`journey-story-${stepIndex}`);
+      const translateContainer = document.getElementById(`journey-translate-container-${stepIndex}`);
+      if (translateContainer && titleEl) {
+        const title_i18n_obj = this.parseI18n(sound.title_i18n);
+        const story_i18n_obj = this.parseI18n(sound.shortStory_i18n);
+        const userLang = this.currentUserLanguage.toLowerCase().trim();
+        const translatedTitle = title_i18n_obj?.[userLang];
+        const translatedStory = story_i18n_obj?.[userLang];
+        const currentTitle = titleEl.textContent?.trim();
+        const currentStory = storyEl?.textContent?.trim();
+        const shouldShow =
+          (translatedTitle && translatedTitle !== currentTitle) ||
+          (translatedStory && translatedStory !== currentStory);
+
+        if (shouldShow) {
+          const btn = document.createElement('button');
+          btn.classList.add('translate-btn');
+          btn.style.marginLeft = '8px';
+          const iconSpan = document.createElement('span');
+          iconSpan.classList.add('material-icons');
+          iconSpan.textContent = 'translate';
+          const textSpan = document.createElement('span');
+          textSpan.classList.add('btn-label');
+          textSpan.textContent = this.translate.instant('common.action.translate');
+          btn.appendChild(iconSpan);
+          btn.appendChild(textSpan);
+          translateContainer.appendChild(btn);
+          btn.addEventListener('click', () => {
+            if (title_i18n_obj?.[userLang]) titleEl.textContent = title_i18n_obj[userLang];
+            if (storyEl && story_i18n_obj?.[userLang]) storyEl.textContent = story_i18n_obj[userLang];
+            btn.style.display = 'none';
+          });
+        }
+      }
+
       // Navigation buttons
       const prevBtn = document.getElementById(`journey-prev-${stepIndex}`);
       const nextBtn = document.getElementById(`journey-next-${stepIndex}`);
@@ -2374,7 +2415,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.journeyOverlayVisible.set(false);
 
         setTimeout(() => {
-          this.map.flyTo(targetLatLng, 17, {
+          this.map.flyTo(flyToLatLng, flyToZoom, {
             duration: 2,
             easeLinearity: 0.4,
           });
@@ -2391,13 +2432,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
       });
     } else {
       // Subsequent steps: direct fly
-      this.map.flyTo(targetLatLng, 15, {
+      this.map.flyTo(flyToLatLng, Math.min(flyToZoom - 1, 15), {
         duration: 1.8,
         easeLinearity: 0.3,
       });
 
       this.map.once('moveend', () => {
-        this.map.flyTo(targetLatLng, 17, {
+        this.map.flyTo(flyToLatLng, flyToZoom, {
           duration: 0.8,
           easeLinearity: 0.4,
         });

@@ -25,7 +25,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 800;
+  z-index: 1100;
   width: 360px;
   max-width: calc(100vw - 80px);
   animation: fadeInSearch 0.3s ease;
@@ -654,6 +654,10 @@
       font-size: 18px;
     }
   }
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    display: none !important;
+  }
 }
 
 // Journey Stepper Control
@@ -1270,15 +1274,54 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
-  @media (max-width: 700px) {
-    top: 55px;
-    padding: 6px 14px;
+  @media (max-width: 700px) and (orientation: portrait) {
+    top: 14px;
+    padding: 5px 12px;
     gap: 6px;
-    max-width: calc(100% - 32px);
-    white-space: normal;
-    flex-wrap: wrap;
+    max-width: calc(100% - 24px);
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    border-radius: 28px;
+    border-left: none;
+    pointer-events: auto;
+  }
+}
+
+.user-banner-globe {
+  display: none;
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    display: flex;
+    align-items: center;
     justify-content: center;
-    border-radius: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    pointer-events: auto;
+    transition: background 0.15s ease;
+
+    .material-icons {
+      font-size: 18px;
+    }
+
+    body.light-theme & {
+      background: rgba(25, 118, 210, 0.12);
+
+      .material-icons {
+        color: #1976d2;
+      }
+    }
+
+    body.dark-theme & {
+      background: rgba(144, 202, 249, 0.15);
+
+      .material-icons {
+        color: #90caf9;
+      }
+    }
   }
 }
 
@@ -1294,8 +1337,8 @@
     color: #90caf9;
   }
 
-  @media (max-width: 480px) {
-    font-size: 20px;
+  @media (max-width: 700px) and (orientation: portrait) {
+    font-size: 18px;
   }
 }
 
@@ -1304,6 +1347,7 @@
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 
   body.light-theme & {
     color: #2c2c3a;
@@ -1313,8 +1357,10 @@
     color: #e8e8f0;
   }
 
-  @media (max-width: 480px) {
-    font-size: 0.78rem;
+  @media (max-width: 700px) and (orientation: portrait) {
+    font-size: 0.76rem;
+    min-width: 0;
+    flex-shrink: 1;
   }
 }
 
@@ -1335,6 +1381,7 @@
 .user-banner-count {
   font-size: 0.82rem;
   font-weight: 500;
+  flex-shrink: 0;
 
   body.light-theme & {
     color: #666;
@@ -1344,7 +1391,7 @@
     color: #aaa;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 700px) and (orientation: portrait) {
     font-size: 0.72rem;
   }
 }
@@ -1395,13 +1442,8 @@
     }
   }
 
-  @media (max-width: 480px) {
-    padding: 8px 14px;
-    font-size: 0.8rem;
-
-    .material-icons {
-      font-size: 18px;
-    }
+  @media (max-width: 700px) and (orientation: portrait) {
+    display: none;
   }
 }
 

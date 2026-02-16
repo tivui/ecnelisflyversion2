@@ -45,6 +45,20 @@ $dark-theme: mat.define-theme(
   @include mat.typography-hierarchy($light-theme); // typography classes
 }
 
+/* Ensure Angular CDK / Material overlay panels appear above map banners and Leaflet controls */
+.cdk-overlay-container {
+  z-index: 3000 !important;
+}
+
+.cdk-overlay-pane {
+  z-index: 3000 !important;
+  pointer-events: auto;
+}
+
+.mat-mdc-autocomplete-panel {
+  z-index: 3100 !important;
+}
+
 .dark-theme {
   @include mat.all-component-themes($dark-theme);
   @include mat.typography-hierarchy($dark-theme);
@@ -408,3 +422,57 @@ body.dark-theme {
 }
 
 // (Mobile wizard no longer needs MatStepper overrides — stepper is not rendered on mobile)
+
+// =======================
+// Mobile compact form fields
+// =======================
+@media (max-width: 700px) and (orientation: portrait) {
+  .mat-mdc-form-field {
+    // Reduce container height from 56px to 44px
+    --mat-form-field-container-height: 44px;
+    // Reduce vertical padding for outlined/no-label variants
+    --mat-form-field-container-vertical-padding: 10px;
+    // Reduce padding for filled variant with label
+    --mat-form-field-filled-with-label-container-padding-top: 20px;
+    --mat-form-field-filled-with-label-container-padding-bottom: 4px;
+    // Slightly smaller text
+    --mat-form-field-container-text-size: 0.875rem;
+    // Smaller subscript (hints/errors)
+    --mat-form-field-subscript-text-size: 0.7rem;
+
+    // Reduce bottom spacing under fields
+    .mat-mdc-form-field-bottom-align::before {
+      height: 12px;
+    }
+  }
+
+  // Explicit height override for MDC text fields
+  .mdc-text-field--filled,
+  .mdc-text-field--outlined {
+    height: 44px;
+  }
+
+  // Compact font size for labels
+  .mat-mdc-floating-label {
+    font-size: 0.875rem;
+  }
+
+  // Smaller icons in form field prefixes/suffixes
+  .mat-mdc-form-field-icon-prefix > .mat-icon,
+  .mat-mdc-form-field-icon-suffix > .mat-icon {
+    padding: 0 8px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  // mat-select trigger compact
+  .mat-mdc-select {
+    font-size: 0.875rem;
+  }
+
+  // Textarea: keep auto-height but reduce min padding
+  .mat-mdc-form-field-type-mat-input .mat-mdc-form-field-textarea-control {
+    min-height: 60px;
+  }
+}

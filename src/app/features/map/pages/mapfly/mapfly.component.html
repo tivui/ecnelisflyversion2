@@ -216,6 +216,9 @@
   <!-- User filter banner -->
   @if (isUserMode() && !isEmptyResults() && !isLoading()) {
     <div class="user-banner">
+      <button class="user-banner-globe" (click)="goToFullMap()">
+        <span class="material-icons">public</span>
+      </button>
       <span class="material-icons user-banner-icon">person</span>
       <span class="user-banner-label">{{ 'mapfly.user.soundsOf' | translate:{ username: userFilterLabel() } }}</span>
       <span class="user-banner-divider"></span>
@@ -227,7 +230,7 @@
     </div>
   }
 
-  <!-- User mode: "Explore full map" button -->
+  <!-- User mode: "Explore full map" button (desktop only) -->
   @if (isUserMode() && !isEmptyResults() && !isLoading()) {
     <button class="user-explore-btn" (click)="goToFullMap()">
       <span class="material-icons">public</span>
