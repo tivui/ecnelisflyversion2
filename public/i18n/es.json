@@ -960,10 +960,16 @@
       "exploreFullMap": "Explorar el mapa completo"
     },
     "timeFilter": {
+      "title": "Filtrar por período",
       "all": "Todos",
       "latest10": "10 recientes",
       "week": "Semana",
       "month": "Mes"
+    },
+    "filter": {
+      "categories": "Categorías",
+      "hideAll": "Ocultar todo",
+      "showAll": "Mostrar todo"
     },
     "search": {
       "sounds": "Sonidos",

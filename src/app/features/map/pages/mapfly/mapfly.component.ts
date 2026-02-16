@@ -40,11 +40,13 @@ import { LikeService } from '../../../../core/services/like.service';
 import { AmbientAudioService } from '../../../../core/services/ambient-audio.service';
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 import { EphemeralJourneyService } from '../../../../core/services/ephemeral-journey.service';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 
 @Component({
   selector: 'app-mapfly',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, MatBottomSheetModule],
   templateUrl: './mapfly.component.html',
   styleUrls: ['./mapfly.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -63,6 +65,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly likeService = inject(LikeService);
   private readonly ambientAudio = inject(AmbientAudioService);
   private readonly ephemeralJourneyService = inject(EphemeralJourneyService);
+  private readonly bottomSheet = inject(MatBottomSheet);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -147,9 +150,48 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public hasWeekSounds = signal(false);
   public hasMonthSounds = signal(false);
   public normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[] = [];
-  // Mobile tooltip: first tap reveals label, second tap activates filter
-  public timeFilterTooltip = signal<string | null>(null);
-  private timeFilterTooltipTimer: ReturnType<typeof setTimeout> | null = null;
+  // Category visibility state (synced with Leaflet layers)
+  public categoryVisibility = signal<Record<string, boolean>>({
+    [CategoryKey.ANIMAL]: true,
+    [CategoryKey.NATURAL]: true,
+    [CategoryKey.AMBIANCE]: true,
+    [CategoryKey.MUSIC]: true,
+    [CategoryKey.HUMAN]: true,
+    [CategoryKey.FOOD]: true,
+    [CategoryKey.ITEM]: true,
+    [CategoryKey.SPORT]: true,
+    [CategoryKey.TRANSPORT]: true,
+  });
+  // Computed label for mobile trigger button
+  public activeTimeFilterLabel = computed(() => {
+    const key = `mapfly.timeFilter.${this.timeFilter()}`;
+    return this.translate.instant(key);
+  });
+  // Badge: count of hidden categories
+  public hiddenCategoryCount = computed(() => {
+    const vis = this.categoryVisibility();
+    return Object.values(vis).filter(v => !v).length;
+  });
+  // Desktop category panel
+  public desktopPanelOpen = signal(false);
+  public allCategoriesEnabled = computed(() => {
+    const vis = this.categoryVisibility();
+    return Object.values(vis).every(v => v);
+  });
+  public desktopCategories = computed(() => {
+    const vis = this.categoryVisibility();
+    return [
+      { key: CategoryKey.ANIMAL, labelKey: `categories.${CategoryKey.ANIMAL}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.ANIMAL}.png`, enabled: vis[CategoryKey.ANIMAL] },
+      { key: CategoryKey.NATURAL, labelKey: `categories.${CategoryKey.NATURAL}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.NATURAL}.png`, enabled: vis[CategoryKey.NATURAL] },
+      { key: CategoryKey.AMBIANCE, labelKey: `categories.${CategoryKey.AMBIANCE}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.AMBIANCE}.png`, enabled: vis[CategoryKey.AMBIANCE] },
+      { key: CategoryKey.MUSIC, labelKey: `categories.${CategoryKey.MUSIC}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.MUSIC}.png`, enabled: vis[CategoryKey.MUSIC] },
+      { key: CategoryKey.HUMAN, labelKey: `categories.${CategoryKey.HUMAN}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.HUMAN}.png`, enabled: vis[CategoryKey.HUMAN] },
+      { key: CategoryKey.FOOD, labelKey: `categories.${CategoryKey.FOOD}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.FOOD}.png`, enabled: vis[CategoryKey.FOOD] },
+      { key: CategoryKey.ITEM, labelKey: `categories.${CategoryKey.ITEM}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.ITEM}.png`, enabled: vis[CategoryKey.ITEM] },
+      { key: CategoryKey.SPORT, labelKey: `categories.${CategoryKey.SPORT}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.SPORT}.png`, enabled: vis[CategoryKey.SPORT] },
+      { key: CategoryKey.TRANSPORT, labelKey: `categories.${CategoryKey.TRANSPORT}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.TRANSPORT}.png`, enabled: vis[CategoryKey.TRANSPORT] },
+    ];
+  });
 
   // Unified search bar
   public searchMode = signal<'sounds' | 'places'>('sounds');
@@ -2527,19 +2569,84 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.hasMonthSounds.set(monthCount > 0);
   }
 
-  public onTimeFilterClick(filter: 'all' | 'latest10' | 'week' | 'month'): void {
-    const isMobile = window.matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
-    if (isMobile && this.timeFilterTooltip() !== filter) {
-      // First tap on mobile: show tooltip only
-      this.timeFilterTooltip.set(filter);
-      if (this.timeFilterTooltipTimer) clearTimeout(this.timeFilterTooltipTimer);
-      this.timeFilterTooltipTimer = setTimeout(() => this.timeFilterTooltip.set(null), 3000);
-      return;
+  public openTimeFilterSheet(): void {
+    const vis = this.categoryVisibility();
+    const categoryToggles: CategoryToggle[] = [
+      { key: CategoryKey.ANIMAL, labelKey: `categories.${CategoryKey.ANIMAL}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.ANIMAL}.png`, enabled: vis[CategoryKey.ANIMAL] },
+      { key: CategoryKey.NATURAL, labelKey: `categories.${CategoryKey.NATURAL}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.NATURAL}.png`, enabled: vis[CategoryKey.NATURAL] },
+      { key: CategoryKey.AMBIANCE, labelKey: `categories.${CategoryKey.AMBIANCE}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.AMBIANCE}.png`, enabled: vis[CategoryKey.AMBIANCE] },
+      { key: CategoryKey.MUSIC, labelKey: `categories.${CategoryKey.MUSIC}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.MUSIC}.png`, enabled: vis[CategoryKey.MUSIC] },
+      { key: CategoryKey.HUMAN, labelKey: `categories.${CategoryKey.HUMAN}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.HUMAN}.png`, enabled: vis[CategoryKey.HUMAN] },
+      { key: CategoryKey.FOOD, labelKey: `categories.${CategoryKey.FOOD}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.FOOD}.png`, enabled: vis[CategoryKey.FOOD] },
+      { key: CategoryKey.ITEM, labelKey: `categories.${CategoryKey.ITEM}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.ITEM}.png`, enabled: vis[CategoryKey.ITEM] },
+      { key: CategoryKey.SPORT, labelKey: `categories.${CategoryKey.SPORT}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.SPORT}.png`, enabled: vis[CategoryKey.SPORT] },
+      { key: CategoryKey.TRANSPORT, labelKey: `categories.${CategoryKey.TRANSPORT}`, iconUrl: `img/logos/overlays/layer_control_${CategoryKey.TRANSPORT}.png`, enabled: vis[CategoryKey.TRANSPORT] },
+    ];
+
+    this.bottomSheet.open(TimeFilterSheetComponent, {
+      data: {
+        current: this.timeFilter(),
+        counts: this.timeFilterCounts(),
+        hasWeek: this.hasWeekSounds(),
+        hasMonth: this.hasMonthSounds(),
+        categories: categoryToggles,
+        onTimeFilterChange: (filter: 'all' | 'latest10' | 'week' | 'month') => this.toggleTimeFilter(filter),
+        onCategoryToggle: (key: string, enabled: boolean) => this.setCategoryVisibility(key, enabled),
+        onCategoryToggleAll: (enabled: boolean) => this.setAllCategoriesVisibility(enabled),
+      } as TimeFilterSheetData,
+      panelClass: 'time-filter-sheet-panel',
+    });
+  }
+
+  private getCategoryFeatureGroup(key: string): L.FeatureGroup | null {
+    switch (key) {
+      case CategoryKey.ANIMAL: return this.fg1;
+      case CategoryKey.NATURAL: return this.fg2;
+      case CategoryKey.AMBIANCE: return this.fg3;
+      case CategoryKey.MUSIC: return this.fg4;
+      case CategoryKey.HUMAN: return this.fg5;
+      case CategoryKey.FOOD: return this.fg6;
+      case CategoryKey.ITEM: return this.fg7;
+      case CategoryKey.SPORT: return this.fg8;
+      case CategoryKey.TRANSPORT: return this.fg9;
+      default: return null;
     }
-    // Second tap (tooltip already visible) or desktop: activate filter
-    this.timeFilterTooltip.set(null);
-    if (this.timeFilterTooltipTimer) { clearTimeout(this.timeFilterTooltipTimer); this.timeFilterTooltipTimer = null; }
-    this.toggleTimeFilter(filter);
+  }
+
+  private setCategoryVisibility(key: string, enabled: boolean): void {
+    const fg = this.getCategoryFeatureGroup(key);
+    if (!fg) return;
+    if (enabled) {
+      if (!this.map.hasLayer(fg)) this.map.addLayer(fg);
+    } else {
+      if (this.map.hasLayer(fg)) this.map.removeLayer(fg);
+    }
+    this.categoryVisibility.update(v => ({ ...v, [key]: enabled }));
+  }
+
+  private setAllCategoriesVisibility(enabled: boolean): void {
+    const keys = Object.values(CategoryKey);
+    for (const key of keys) {
+      const fg = this.getCategoryFeatureGroup(key);
+      if (!fg) continue;
+      if (enabled) {
+        if (!this.map.hasLayer(fg)) this.map.addLayer(fg);
+      } else {
+        if (this.map.hasLayer(fg)) this.map.removeLayer(fg);
+      }
+    }
+    const vis: Record<string, boolean> = {};
+    for (const key of keys) vis[key] = enabled;
+    this.categoryVisibility.set(vis);
+  }
+
+  public toggleDesktopCategory(key: string): void {
+    const current = this.categoryVisibility()[key];
+    this.setCategoryVisibility(key, !current);
+  }
+
+  public toggleAllDesktopCategories(): void {
+    this.setAllCategoriesVisibility(!this.allCategoriesEnabled());
   }
 
   public toggleTimeFilter(filter: 'all' | 'latest10' | 'week' | 'month'): void {

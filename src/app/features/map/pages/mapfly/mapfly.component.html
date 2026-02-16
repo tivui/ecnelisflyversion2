@@ -237,29 +237,70 @@
 
   <!-- Time-based filter (normal mode only) -->
   @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0 && !isUserMode()) {
-    <div class="time-filter">
-      <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" [class.tooltip-visible]="timeFilterTooltip() === 'all'" [attr.data-label]="'mapfly.timeFilter.all' | translate" (click)="onTimeFilterClick('all')">
+    <!-- Desktop: horizontal chips (unchanged) -->
+    <div class="time-filter time-filter-desktop">
+      <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" (click)="toggleTimeFilter('all')">
         <span class="material-icons time-filter-icon">public</span>
         <span class="time-filter-label">{{ 'mapfly.timeFilter.all' | translate }}</span>
         <span class="time-filter-count">{{ timeFilterCounts().all }}</span>
       </button>
-      <button class="time-filter-chip" [class.active]="timeFilter() === 'latest10'" [class.tooltip-visible]="timeFilterTooltip() === 'latest10'" [attr.data-label]="'mapfly.timeFilter.latest10' | translate" (click)="onTimeFilterClick('latest10')">
+      <button class="time-filter-chip" [class.active]="timeFilter() === 'latest10'" (click)="toggleTimeFilter('latest10')">
         <span class="material-icons time-filter-icon">new_releases</span>
         <span class="time-filter-label">{{ 'mapfly.timeFilter.latest10' | translate }}</span>
       </button>
       @if (hasWeekSounds()) {
-        <button class="time-filter-chip" [class.active]="timeFilter() === 'week'" [class.tooltip-visible]="timeFilterTooltip() === 'week'" [attr.data-label]="'mapfly.timeFilter.week' | translate" (click)="onTimeFilterClick('week')">
+        <button class="time-filter-chip" [class.active]="timeFilter() === 'week'" (click)="toggleTimeFilter('week')">
           <span class="material-icons time-filter-icon">date_range</span>
           <span class="time-filter-label">{{ 'mapfly.timeFilter.week' | translate }}</span>
           <span class="time-filter-count">{{ timeFilterCounts().week }}</span>
         </button>
       }
       @if (hasMonthSounds()) {
-        <button class="time-filter-chip" [class.active]="timeFilter() === 'month'" [class.tooltip-visible]="timeFilterTooltip() === 'month'" [attr.data-label]="'mapfly.timeFilter.month' | translate" (click)="onTimeFilterClick('month')">
+        <button class="time-filter-chip" [class.active]="timeFilter() === 'month'" (click)="toggleTimeFilter('month')">
           <span class="material-icons time-filter-icon">calendar_month</span>
           <span class="time-filter-label">{{ 'mapfly.timeFilter.month' | translate }}</span>
           <span class="time-filter-count">{{ timeFilterCounts().month }}</span>
         </button>
+      }
+    </div>
+    <!-- Mobile: single trigger button → opens unified filter bottom sheet -->
+    <button class="time-filter-trigger" (click)="openTimeFilterSheet()">
+      <span class="material-icons time-filter-trigger-icon">tune</span>
+      <span class="time-filter-trigger-label">{{ activeTimeFilterLabel() }}</span>
+      @if (hiddenCategoryCount() > 0) {
+        <span class="filter-badge">{{ hiddenCategoryCount() }}</span>
+      }
+    </button>
+  }
+
+  <!-- Desktop: custom category panel (replaces Leaflet grouped layers control) -->
+  @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0 && !isUserMode()) {
+    <div class="desktop-category-panel">
+      <button class="desktop-category-trigger" (click)="desktopPanelOpen.set(!desktopPanelOpen())" [class.active]="desktopPanelOpen() || !allCategoriesEnabled()">
+        <span class="material-icons">layers</span>
+        @if (hiddenCategoryCount() > 0) {
+          <span class="desktop-category-badge">{{ hiddenCategoryCount() }}</span>
+        }
+      </button>
+      @if (desktopPanelOpen()) {
+        <div class="desktop-category-dropdown">
+          <div class="desktop-category-header">
+            <span class="material-icons desktop-category-header-icon">layers</span>
+            <span class="desktop-category-header-label">{{ 'mapfly.filter.categories' | translate }}</span>
+            <button class="desktop-toggle-all" (click)="toggleAllDesktopCategories()">
+              {{ allCategoriesEnabled() ? ('mapfly.filter.hideAll' | translate) : ('mapfly.filter.showAll' | translate) }}
+            </button>
+          </div>
+          @for (cat of desktopCategories(); track cat.key) {
+            <button class="desktop-category-row" [class.disabled]="!cat.enabled" (click)="toggleDesktopCategory(cat.key)">
+              <img [src]="cat.iconUrl" class="desktop-cat-icon" width="26" height="26" />
+              <span class="desktop-cat-label">{{ cat.labelKey | translate }}</span>
+              <div class="desktop-cat-toggle" [class.on]="cat.enabled">
+                <div class="desktop-cat-knob"></div>
+              </div>
+            </button>
+          }
+        </div>
       }
     </div>
   }

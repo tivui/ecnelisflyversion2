@@ -12,7 +12,7 @@ npx ng serve          # Dev server (localhost:4200)
 ```
 
 Warnings pre-existants a ignorer : budget bundle, duplicate Material theming, CommonJS modules (leaflet, qrcode, etc.).
-Budget `anyComponentStyle` : `maximumError: 55kb` dans `angular.json` (augmente de 50kb pour mapfly.component.scss).
+Budget `anyComponentStyle` : `maximumError: 70kb` dans `angular.json` (augmente pour mapfly.component.scss avec le panneau categories desktop).
 
 ## Architecture
 

@@ -262,7 +262,7 @@
   .unified-search {
     top: 6px;
     right: 6px;
-    left: 44px; // Leave space for zoom control + gap
+    left: 6px; // Full width — zoom controls hidden on mobile
     width: auto;
     max-width: none;
   }
@@ -2054,7 +2054,8 @@
 // =====================
 // Time-Based Filter (Normal Mode)
 // =====================
-.time-filter {
+// Desktop chips (hidden on mobile)
+.time-filter-desktop {
   position: absolute;
   top: 14px;
   left: 58px;
@@ -2065,23 +2066,344 @@
   animation: btn-fade-in 0.4s ease-out 0.5s both;
 
   @media (max-width: 700px) and (orientation: portrait) {
-    // Repositioned below the unified search bar
-    top: 42px;
-    left: 6px;
-    right: 6px;
-    justify-content: center;
-    gap: 4px;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: none;
   }
 }
 
-// Mobile: hide time filter when search bar is focused
+// Mobile trigger button (hidden on desktop)
+.time-filter-trigger {
+  display: none;
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: absolute;
+    top: 44px;
+    left: 6px;
+    z-index: 700;
+    padding: 7px 14px 7px 10px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    animation: btn-fade-in 0.4s ease-out 0.5s both;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+
+    body.light-theme & {
+      background: rgba(255, 255, 255, 0.92);
+      color: #1976d2;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(25, 118, 210, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    }
+
+    body.dark-theme & {
+      background: rgba(30, 30, 30, 0.85);
+      color: #90caf9;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(92, 107, 192, 0.20);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    &:active { transform: scale(0.95); }
+  }
+}
+
+.time-filter-trigger-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+}
+
+.time-filter-trigger-label {
+  line-height: 1;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  background: #e53935;
+  color: #fff;
+}
+
+// Mobile: hide trigger when search bar is focused
 @media (max-width: 700px) and (orientation: portrait) {
-  .unified-search.focused ~ .time-filter {
+  .unified-search.focused ~ .time-filter-trigger {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
   }
+}
+
+// Bottom sheet panel styling
+.time-filter-sheet-panel {
+  .mat-bottom-sheet-container {
+    border-radius: 16px 16px 0 0 !important;
+    padding: 0 !important;
+    max-height: 50vh;
+  }
+}
+
+body.dark-theme .time-filter-sheet-panel {
+  .mat-bottom-sheet-container {
+    background: #1e1e2e !important;
+  }
+}
+
+// =====================
+// Hide Leaflet grouped layers control globally (replaced by custom Angular panel)
+// =====================
+.leaflet-bottom.leaflet-right .leaflet-control-layers {
+  display: none !important;
+}
+
+// =====================
+// Desktop: Custom category panel
+// =====================
+.desktop-category-panel {
+  display: none;
+
+  @media (min-width: 701px) {
+    display: block;
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 700;
+    animation: btn-fade-in 0.4s ease-out 0.6s both;
+  }
+}
+
+.desktop-category-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+
+  .material-icons {
+    font-size: 22px;
+  }
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.94);
+    color: #555;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(63, 81, 181, 0.10);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.14);
+    }
+
+    &.active {
+      color: #1976d2;
+      border-color: rgba(25, 118, 210, 0.20);
+    }
+  }
+
+  body.dark-theme & {
+    background: rgba(30, 30, 46, 0.92);
+    color: #aaa;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(92, 107, 192, 0.18);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
+
+    &:hover {
+      background: rgba(36, 36, 54, 0.96);
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.40);
+    }
+
+    &.active {
+      color: #90caf9;
+      border-color: rgba(144, 202, 249, 0.25);
+    }
+  }
+}
+
+.desktop-category-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  background: #e53935;
+  color: #fff;
+}
+
+.desktop-category-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  border-radius: 16px;
+  padding: 6px 0 8px;
+  animation: dropdownSlideUp 0.2s ease;
+  max-height: 60vh;
+  overflow-y: auto;
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid rgba(63, 81, 181, 0.10);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  body.dark-theme & {
+    background: rgba(22, 22, 38, 0.97);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    border: 1px solid rgba(92, 107, 192, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 20, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
+  }
+}
+
+@keyframes dropdownSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.desktop-category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1976d2;
+
+  body.dark-theme & {
+    color: #90caf9;
+  }
+}
+
+.desktop-category-header-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.desktop-toggle-all {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(25, 118, 210, 0.18);
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #1976d2;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(25, 118, 210, 0.06);
+  }
+
+  body.dark-theme & {
+    color: #90caf9;
+    border-color: rgba(144, 202, 249, 0.18);
+
+    &:hover {
+      background: rgba(144, 202, 249, 0.08);
+    }
+  }
+}
+
+.desktop-category-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background 0.15s ease, opacity 0.2s ease;
+
+  &:hover {
+    body.light-theme & { background: rgba(0, 0, 0, 0.03); }
+    body.dark-theme & { background: rgba(255, 255, 255, 0.04); }
+  }
+
+  &.disabled { opacity: 0.45; }
+}
+
+.desktop-cat-icon {
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.desktop-cat-label {
+  flex: 1;
+  text-align: left;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: #444;
+
+  body.dark-theme & { color: #e0e0e0; }
+}
+
+.desktop-cat-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #ccc;
+  position: relative;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+
+  &.on { background: #1976d2; }
+
+  body.dark-theme & {
+    background: #555;
+    &.on { background: #5c9bd6; }
+  }
+}
+
+.desktop-cat-knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  .on & { transform: translateX(16px); }
 }
 
 .time-filter-chip {
@@ -2169,57 +2491,6 @@
     }
   }
 
-  .time-filter-label {
-    @media (max-width: 700px) and (orientation: portrait) {
-      display: none;
-    }
-  }
-
-  @media (max-width: 700px) and (orientation: portrait) {
-    padding: 6px 8px;
-    min-width: 32px;
-    justify-content: center;
-    gap: 3px;
-    position: relative;
-
-    .time-filter-count {
-      display: none;
-    }
-
-    // Tooltip on press (mobile only)
-    &::after {
-      content: attr(data-label);
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%) scale(0.9);
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 500;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s, transform 0.15s;
-
-      body.dark-theme & {
-        background: rgba(30, 30, 30, 0.92);
-        color: #ddd;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      }
-      body.light-theme & {
-        background: rgba(50, 50, 50, 0.9);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      }
-    }
-
-    // Show tooltip on first tap (class toggled by JS)
-    &.tooltip-visible::after {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
-    }
-  }
 }
 
 // =====================
@@ -2228,12 +2499,19 @@
 @media (max-width: 700px) and (orientation: portrait) {
   // Offset all bottom Leaflet controls above bottom nav
   .leaflet-bottom {
-    bottom: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(42px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   // Kill Leaflet's default 10px margin on bottom controls
   .leaflet-bottom .leaflet-control {
     margin-bottom: 2px !important;
+  }
+
+  // Center the base layer control horizontally
+  .leaflet-bottom.leaflet-left {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
   }
 
   // --- Base layer control: compact horizontal chips ---
@@ -2242,10 +2520,10 @@
     backdrop-filter: blur(16px) saturate(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border: 1px solid rgba(63, 81, 181, 0.10) !important;
-    border-radius: 22px !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-    padding: 4px 6px !important;
-    margin-left: 8px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08) !important;
+    padding: 2px 4px !important;
+    margin-left: 0 !important;
 
     body.dark-theme & {
       background: rgba(14, 14, 28, 0.92) !important;
@@ -2276,12 +2554,12 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      padding: 5px 10px !important;
+      padding: 3px 8px !important;
       margin: 0 !important;
-      border-radius: 16px !important;
-      font-size: 0.62rem !important;
+      border-radius: 12px !important;
+      font-size: 0.56rem !important;
       font-weight: 600 !important;
-      letter-spacing: 0.3px !important;
+      letter-spacing: 0.2px !important;
       cursor: pointer !important;
       transition: all 0.2s ease !important;
       white-space: nowrap !important;
@@ -2300,9 +2578,9 @@
 
       // Style for the text span
       span {
-        font-size: 0.62rem !important;
+        font-size: 0.56rem !important;
         font-weight: 600 !important;
-        letter-spacing: 0.3px !important;
+        letter-spacing: 0.2px !important;
       }
     }
 
@@ -2321,79 +2599,8 @@
     }
   }
 
-  // --- Grouped layers control (categories): offset + compact toggle ---
-  .leaflet-bottom.leaflet-right .leaflet-control-layers {
-    margin-right: 8px !important;
+  // Grouped layers control hidden on mobile (managed via bottom sheet)
+  // Also hidden on desktop via global rule below
 
-    // The toggle icon button
-    .leaflet-control-layers-toggle {
-      width: 36px !important;
-      height: 36px !important;
-      background-size: 20px 20px !important;
-      border-radius: 50% !important;
-      background-color: rgba(255, 255, 255, 0.92) !important;
-      backdrop-filter: blur(16px) !important;
-      -webkit-backdrop-filter: blur(16px) !important;
-      border: 1px solid rgba(63, 81, 181, 0.10) !important;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-
-      body.dark-theme & {
-        background-color: rgba(14, 14, 28, 0.92) !important;
-        border: 1px solid rgba(92, 107, 192, 0.15) !important;
-        box-shadow: 0 2px 16px rgba(0, 0, 20, 0.35) !important;
-      }
-    }
-  }
-
-  // --- Zoom control: compact glassmorphism buttons ---
-  .leaflet-control-zoom {
-    border: none !important;
-    border-radius: 14px !important;
-    overflow: hidden !important;
-    background: rgba(255, 255, 255, 0.92) !important;
-    backdrop-filter: blur(16px) saturate(1.4) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
-    border: 1px solid rgba(63, 81, 181, 0.10) !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-
-    body.dark-theme & {
-      background: rgba(14, 14, 28, 0.92) !important;
-      border: 1px solid rgba(92, 107, 192, 0.15) !important;
-      box-shadow: 0 2px 16px rgba(0, 0, 20, 0.35) !important;
-    }
-
-    a {
-      width: 26px !important;
-      height: 26px !important;
-      line-height: 26px !important;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      color: #333 !important;
-      background: transparent !important;
-      border: none !important;
-      border-bottom: none !important;
-      transition: background 0.15s ease !important;
-
-      &:active {
-        background: rgba(25, 118, 210, 0.12) !important;
-      }
-
-      body.dark-theme & {
-        color: #ccc !important;
-
-        &:active {
-          background: rgba(25, 118, 210, 0.20) !important;
-        }
-      }
-    }
-
-    // Thin separator between + and -
-    .leaflet-control-zoom-in {
-      border-bottom: 1px solid rgba(63, 81, 181, 0.08) !important;
-
-      body.dark-theme & {
-        border-bottom: 1px solid rgba(92, 107, 192, 0.12) !important;
-      }
-    }
-  }
+  // Zoom controls hidden globally in map.scss for mobile portrait
 }

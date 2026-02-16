@@ -1478,3 +1478,10 @@ body.dark-theme .leaflet-control-layers-toggle {
     justify-content: center;
   }
 }
+
+/* Hide zoom controls on mobile portrait (all maps) — pinch-to-zoom suffices */
+@media (max-width: 700px) and (orientation: portrait) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}

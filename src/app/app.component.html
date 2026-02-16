@@ -160,7 +160,7 @@
       <mat-icon>home</mat-icon>
       <span>{{ 'bottomNav.home' | translate }}</span>
     </a>
-    <button class="bottom-nav-item" [class.active]="activeRoute() === '/mapfly' || activeRoute().startsWith('/mapfly?')" (click)="goToMap()">
+    <button class="bottom-nav-item" [class.active]="(activeRoute() === '/mapfly' || activeRoute().startsWith('/mapfly?')) && !activeRoute().includes('featuredMode')" (click)="goToMap()">
       <mat-icon>public</mat-icon>
       <span>{{ 'bottomNav.map' | translate }}</span>
     </button>
