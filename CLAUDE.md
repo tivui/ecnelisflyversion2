@@ -70,10 +70,12 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 - **Desktop XL** (`@media min-width: 1920px`) : layout hero map pleine largeur + 4 secondary cards en ligne (voir section dediee)
 - **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) :
   - Container : `height: calc(100dvh - 48px - 56px - 14px - env(safe-area-inset-bottom, 0px))`, flex column
-  - Hero card Map : full-width, `clamp(140px, 30dvh, 240px)`
-  - Secondary cards : **grille 2x2** (`display: grid; grid-template-columns: 1fr 1fr; gap: 10px`)
+  - Header : logo 64px + titre + sous-titre (compact, visible)
+  - Hero card Map : glassmorphism blue-tinted (pas de video), icon 48px avec halo bleu
+  - Secondary cards : **scroll horizontal** (`display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory`), chaque card `flex: 0 0 75%`, glassmorphism
+  - Onboarding section : 3 piliers (explore, listen, contribute) + community stats (sons, pays, explorateurs)
+  - Scroll dots : actifs, indicateur horizontal (`width: 18px` actif, pill animee)
   - Carousel categories : glassmorphism indigo-tinted, `flex: 0 0 auto`
-  - Pastilles : grille pyramide 4+5, style premium (border neutre, pas de glow)
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
 
@@ -81,9 +83,10 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee quand `dataLoaded()` passe a `true` (classe `.ready` sur `.home-container`). Easing : `cubic-bezier(0.22, 1, 0.36, 1)`.
 
-- Stagger : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> secondary cards (0.33-0.49s) -> dots (0.45s) -> carousel (0.5s)
+- Stagger : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> secondary cards (0.33-0.49s) -> dots (0.45s) -> onboarding (0.48s) -> carousel (0.5s)
 - Desktop : `.hero-cards-secondary` utilise `display: contents`, donc les cards individuelles sont ciblees via `nth-child` pour le reveal
-- Mobile : accent line `.hero-content::after` a aussi son reveal dedie
+- Mobile : animation `fadeInRight` (translateX) pour les secondary cards (scroll horizontal), `fadeInUp` pour le reste
+- Mobile : jusqu'a 5 cards staggerees (`nth-child(1)` a 0.35s jusqu'a `nth-child(5)` a 0.63s)
 
 #### Gradients positionnels des secondary cards (desktop uniquement)
 
@@ -101,43 +104,47 @@ Les gradients dependent de la **position** dans la grille (pas du type de card).
 - **5 types dans le pool** : `featured`, `quiz`, `monthlyZone`, `monthlyJourney`, `article`
 - `featured` est toujours inclus si disponible (jamais exclu)
 - **Desktop (4 cards preparees)** : pool de {quiz, monthlyZone, monthlyJourney, article}, on en tire 3 au hasard (Fisher-Yates shuffle) + featured = 4 cards. CSS cache la 4eme sur desktop normal (`@media min-width: 701px and max-width: 1919px`), affiche les 4 en XL (`>=1920px`). Featured toujours en position 2
-- **Mobile (4 cards)** : pool de {quiz, monthlyZone, monthlyJourney, article}, on en tire 3 au hasard. Featured en 2e position dans la grille 2x2
+- **Mobile (toutes les cards)** : pool complet {quiz, monthlyZone, monthlyJourney, article}, TOUTES les cards disponibles sont affichees (le scroll horizontal gere n'importe quel nombre). Featured en 2e position
 - Si `featured` absent : les cards disponibles remplissent les positions sans contrainte
 - Logique dans `orderedSecondaryCards` signal, template via `@for` + `@switch`
 
-#### Grille mobile 2x2 (secondary cards)
+#### Scroll horizontal mobile (secondary cards)
 
-Design "Light Vibrant" — surfaces blanches pures, accents forts, hierarchie claire :
+Design "Glassmorphism" — surfaces semi-transparentes avec blur, accents forts, scroll horizontal snap :
 
-**Structure d'une tuile :**
+**Structure d'une card :**
 ```
-┌─ accent top bar (3px, gradient $primary-indigo → accent) ─┐
-│ [header row: icon circle + badge label]                    │
-│ Titre du contenu (1 ligne, ellipsis)                       │
-│ Description (2 lignes, visible)                            │
-│                                          Action →  (pill)  │
-└────────────────────────────────────────────────────────────┘
+┌─ accent top bar (3px, gradient, border-radius top) ──────┐
+│ [header row: icon circle + badge label]                   │
+│ Titre du contenu (1 ligne, ellipsis)                      │
+│ Description (2 lignes, visible)                           │
+│                                         Action →  (pill)  │
+└───────────────────────────────────────────────────────────┘
 ```
 
-**Surfaces (Light Vibrant) :**
-- Light : `background: #FFFFFF`, `border: 1px solid rgba(0, 0, 0, 0.08)`, `box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.09)`
-- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.94) 40%, rgba($primary-indigo, 0.10) 100%)`, `border: rgba(#5c6bc0, 0.16)`, `box-shadow: rgba(0,0,20,0.40)`
+**Surfaces (Glassmorphism) :**
+- Light : `background: rgba(255,255,255,0.72)`, `backdrop-filter: blur(20px) saturate(1.4)`, `border: 1px solid rgba(255,255,255,0.55)`, `box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)`
+- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.94) 40%, rgba($primary-indigo, 0.10) 100%)`, pas de backdrop-filter, `border: rgba(#5c6bc0, 0.16)`, `box-shadow: rgba(0,0,20,0.40)`
 
-**Background page :** `#F7F8FA` light (neutre propre) / gradients indigo dark
+**Background page (gradient mesh) :**
+- Light : `radial-gradient(blue 0.14) + radial-gradient(violet 0.10) + radial-gradient(orange 0.07) + linear-gradient(#e8efff → #f2f4fc → #f9f6f2 → #f0edfa)`
+- Dark : gradients indigo (inchanges)
 
-**Header row :** `transparent` light (blanc pur de la card, structure par border-bottom `rgba(0,0,0,0.06)` uniquement) / gradient indigo `0.18` dark. Negative margin bleed (`margin: -14px -12px 0`)
+**Scroll :** `scroll-snap-type: x mandatory`, `scroll-snap-align: center` par card, scrollbar masquee, `flex: 0 0 75%` (ou `70%` sur small phones)
+
+**Header row :** `transparent` light (glass card, structure par border-bottom `rgba(0,0,0,0.06)`) / gradient indigo `0.18` dark. Negative margin bleed (`margin: -8px -12px 0`)
 
 **Icon circles :** 36px, fond teinte accent a 14% (light) / 18-22% (dark), border accent 28% (light), box-shadow glow en dark. Couleurs icones assombries en light pour contraste
 
-**Badges :** pills `rgba($primary-indigo, 0.08)` + micro-border light / `rgba(#5c6bc0, 0.20)` dark, texte accent
+**Badges :** pills `rgba($primary-indigo, 0.08)` + micro-border light / `rgba(#5c6bc0, 0.20)` dark, texte accent, `font-size: 0.70rem`
 
 **Titres :** `color: #111827`, `font-weight: 800`, `font-size: 1rem` light / `#e8eaf6` dark
 
-**Descriptions :** `color: #6B7280`, `font-size: 0.72rem`, visible (2 lignes) light / `#9fa4be` dark
+**Descriptions :** `color: #6B7280`, `font-size: 0.76rem`, visible (2 lignes) light / `#9fa4be` dark
 
-**Spacing content :** `gap: 6px` entre titre, description et CTA
+**Spacing content :** `gap: 3px` entre titre, description et CTA
 
-**CTA pills :** `padding: 5px 14px`, `border-radius: 8px`, `font-weight: 700` avec couleurs d'accent saturees par card :
+**CTA pills :** `padding: 4px 12px`, `border-radius: 8px`, `font-weight: 700`, `font-size: 0.80rem` avec couleurs d'accent saturees par card :
 
 | Card | CTA bg (light) | CTA border (light) | CTA color (light) |
 |------|---------------|--------------------|--------------------|
@@ -149,13 +156,24 @@ Design "Light Vibrant" — surfaces blanches pures, accents forts, hierarchie cl
 
 Dark mode CTAs : `background: none; border: none` (texte accent uniquement)
 
-**Featured card distinction :** border violet `rgba(#7c4dff, 0.22)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
+**Featured card distinction :** border violet `rgba(#7c4dff, 0.18)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
 
-**Accent top bars :** gradient `$primary-indigo → accent color`, 3px. Dark: `brightness(1.2)` + glow
+**Accent top bars :** gradient `$primary-indigo → accent color`, 3px, `border-radius: 16px 16px 2px 2px` + `box-shadow` subtle. Dark: `brightness(1.2)` + glow
 
 #### CTA labels home (i18n)
 
 Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Decoller", EN "Take off", ES "Despegar" (court, on-brand "FLY"). La page voyages complete (`journeys.startJourney`) garde "Commencer le voyage" (plus de place).
+
+#### i18n Onboarding + Stats
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `home.stats.sounds` | sons | sounds | sonidos |
+| `home.stats.countries` | pays | countries | paises |
+| `home.stats.contributors` | explorateurs | explorers | exploradores |
+| `home.onboarding.explore` | Explorez les sons du monde | Explore the sounds of the world | Explora los sonidos del mundo |
+| `home.onboarding.listen` | Ecoutez des lieux uniques | Listen to unique places | Escucha lugares unicos |
+| `home.onboarding.contribute` | Partagez vos decouvertes | Share your discoveries | Comparte tus descubrimientos |
 
 #### Long Press mobile
 
@@ -168,21 +186,20 @@ Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Deco
 
 #### Carte mondiale mobile (hero card map)
 
+Design glassmorphism blue-tinted (video globe supprimee, logo supprime de la card).
+
 **Light :**
-- Video wash : gradient bleu sur toute la surface (`rgba(200,220,255,0.22) → 0.06`)
-- Orbs lumineux bleus, shimmer bleu-teinte
-- Bottom gradient : indigo profond (`rgba(15,25,60,0.72)`)
-- Accent bar top : 2.5px gradient `$primary-blue → $primary-indigo → #5c6bc0`
-- CTA "Explorer" : glassmorphism `rgba(255,255,255,0.22)` + border `rgba(255,255,255,0.35)` + double shadow (`rgba(0,0,0,0.15)` + `rgba(255,255,255,0.08)`)
-- Shadow 3 couches (dont bottom spread `rgba($primary-indigo, 0.08)` pour transition douce vers grille)
+- Background : `linear-gradient(135deg, rgba($primary-blue, 0.08) → rgba($primary-indigo, 0.04) → rgba(255,255,255,0.80))` + `backdrop-filter: blur(20px) saturate(1.4)`
+- Icon : `mat-icon public` 48px dans cercle bleu avec triple halo (`box-shadow: 0 0 0 6px rgba(blue,0.06), 0 0 0 12px rgba(blue,0.03), 0 4px 12px rgba(blue,0.12)`)
+- Accent bar top : 2.5px gradient `$primary-blue → $primary-indigo → $primary-violet`
+- Border : `rgba($primary-blue, 0.18)` + `inset 0 1px 0 rgba(255,255,255,0.7)`
+- Pas d'orbs, pas de shimmer, pas de video
 
 **Dark :**
-- Video wash quasi transparent (`rgba(15,20,40,0.10)`)
-- Orbs indigo discrets, shimmer indigo
-- Bottom gradient : `rgba(12,14,32,0.82)` indigo-deep
+- Background : `linear-gradient(145deg, rgba(14,20,48,0.96) → rgba($primary-blue, 0.12))`, pas de backdrop-filter
+- Icon : fond `rgba(#90caf9, 0.14)`, border `rgba(#90caf9, 0.25)`, glow bleu
 - Accent bar top : 3px gradient blue→indigo + `brightness(1.2)` + glow
-- Border : `rgba(#5c6bc0, 0.18)` + shadow indigo glow
-- CTA : `rgba($primary-indigo, 0.30)` + border `rgba(#5c6bc0, 0.30)`
+- Border : `rgba(#5c6bc0, 0.25)` + shadow indigo glow
 
 #### Footer carousel mobile
 
@@ -197,6 +214,30 @@ Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Deco
 - Accent line : indigo gradient + `brightness(1.1)` + glow
 - Header : icon `#7986cb` opacity 0.8, titre `#9fa8da` opacity 0.75
 - Chips : indigo-tinted glass, border `rgba(92,107,192,0.18)`, label `#e8eaf6`
+
+#### Onboarding + Community Stats (mobile uniquement)
+
+Section entre les scroll dots et le carousel. Visible uniquement en mobile portrait (`display: none` en desktop).
+
+**Structure :**
+```
+┌─ glassmorphism card ─────────────────────────────────┐
+│ [explore icon]   [headphones icon]   [mic icon]      │
+│  Explorez...      Ecoutez...          Partagez...    │
+├──────────────────────────────────────────────────────┤
+│ 42 sons · 12 pays · 8 explorateurs                   │
+└──────────────────────────────────────────────────────┘
+```
+
+**Glassmorphism card :** `rgba(255,255,255,0.60)`, `backdrop-filter: blur(16px) saturate(1.3)`, `border-radius: 14px`, `border: rgba(255,255,255,0.45)`. Dark : `rgba(20,20,38,0.70)` + `border: rgba(#5c6bc0, 0.14)`
+
+**Pillars :** 3 colonnes (explore, listen, contribute), icone 34px dans cercle `rgba($primary-indigo, 0.08)`, label `0.66rem` bold
+
+**Community stats :** compteurs dynamiques (sons, pays, contributeurs) via `SoundsService.getCommunityStats()`. Chiffres en `font-weight: 800`, couleur `#1a237e` light / `#e8eaf6` dark. Separateurs `·` en `rgba($primary-indigo, 0.3)`
+
+**Small phones** (`max-height: 800px`) : piliers masques (`display: none`), stats seules sans card wrapper (pas de glassmorphism, pas de border)
+
+**Signal :** `communityStats: signal<{ sounds, countries, contributors } | null>(null)`
 
 #### Description cards desktop
 
@@ -477,6 +518,22 @@ Chaque quiz peut avoir une icone Material associee, configurable par l'admin. Me
 
 - Cle `admin.quiz.dialog.icon` : FR "Icone", EN "Icon", ES "Icono"
 
+## Community Stats (`SoundsService.getCommunityStats()`)
+
+### Principe
+
+Compteurs communautaires affiches dans la section onboarding de la home page mobile : nombre total de sons publics, nombre de pays, nombre de contributeurs.
+
+### Architecture
+
+- **Methode** : `getCommunityStats()` dans `sounds.service.ts`
+- **Interface** : `CommunityStats { soundCount, countryCount, contributorCount }`
+- **Source** : pagination complete de `Sound.listSoundsByStatus({ status: 'public' })` avec `authMode: 'apiKey'`, `selectionSet: ['id', 'userId', 'city']`
+- **Comptage pays** : extraction du dernier segment de `city` (format "City, Country"), `toLowerCase()` + `Set` pour deduplication
+- **Comptage contributeurs** : `Set<string>` sur `userId`
+- **Cache** : 5 minutes (`cachedStats.ts` check)
+- **Chargement** : inclus dans le `Promise.allSettled` du `ngOnInit` de la home page
+
 ## Filtre temporel carte mondiale (Time Filter)
 
 ### Principe
@@ -530,6 +587,7 @@ Le logo de la toolbar est masque sur certaines pages pour eviter la redondance v
 
 - **Home page** (desktop) : classe `.hide-desktop-home` via `isHomePage()` ou `isCategoryMapPage()`
 - **Page de connexion** : classe `.hide-login` via `isLoginPage()` (la page affiche deja le logo Ecnelis FLY dans le formulaire d'authentification)
+- **Mobile portrait** : logo toolbar toujours masque (`display: none`), titre `.app-title` stylise en uppercase bold (`font-weight: 800`, `letter-spacing: 1.2px`, `color: #555` light / `#9a9ab0` dark)
 
 Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPage` — mis a jour via `Router.events` (`NavigationEnd`).
 
@@ -602,11 +660,13 @@ Logo interactif avec physique et synthese audio Web Audio API. Fonctionne sur mo
 
 ### Architecture
 
-- **Template** : `.hero-logo-tilt` wrapper (cursor grab/grabbing), `<img>` avec pointer events
+- **Template** : `.hero-logo-tilt` wrapper (cursor grab/grabbing), `<img>` avec pointer events + `(contextmenu)="$event.preventDefault()"` (empeche menu contextuel iOS/Android sur long press)
+- **Emplacement** : logo uniquement dans le header hero (supprime de l'interieur de la card map), 64px mobile / 80px desktop
 - **Physique** : `requestAnimationFrame` hors zone Angular (`NgZone.runOutsideAngular`)
 - **Audio** : `GooeyAudioService` — synthese pure Web Audio (OscillatorNode, GainNode, BiquadFilterNode, LFO)
 - **Clone** : pour flick, un clone `<img>` est cree dans le DOM pour animer independamment du layout
 - **Long press spin** : classe `.longpress-active` desactive `animation: none !important` pour eviter conflit CSS
+- **iOS** : `-webkit-touch-callout: none` sur `.hero-main-logo` pour empecher le callout natif
 
 ### Drone (long press) - courbe exponentielle
 
@@ -827,3 +887,4 @@ Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `
 ## Fichiers temporaires a ignorer
 
 - `preview-color-proposals.html` (preview design, pas partie de l'app)
+- `preview-glass-discovery.html` (preview design glassmorphism, pas partie de l'app)
