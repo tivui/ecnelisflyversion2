@@ -232,7 +232,7 @@
       mat-raised-button
       color="primary"
       (click)="save()"
-      [disabled]="saving() || infoForm.invalid"
+      [disabled]="saving() || infoForm.get('title')?.invalid"
     >
       @if (saving()) {
         <mat-spinner diameter="20"></mat-spinner>

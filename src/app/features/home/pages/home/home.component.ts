@@ -169,41 +169,23 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const hasFeatured = !!this.dailyFeatured();
 
-    if (isMobile) {
-      // Mobile scroll: show ALL available cards (scroll handles any count)
-      available = hasFeatured ? ['featured', ...pool] : [...pool];
-    } else {
-      // Desktop: up to 4 secondary cards (featured + 3 from shuffled pool).
-      // CSS hides 4th on non-XL; XL (≥1920px) shows all 4.
-      // Pool includes: quiz, article, monthlyJourney, monthlyZone — all equal priority.
-      const picked = pool.slice(0, 3);
-      available = hasFeatured ? ['featured', ...picked] : [...pool.slice(0, 4)];
-    }
+    // Both mobile (2x2 grid) and desktop: 4 cards max (featured + 3 from shuffled pool)
+    // CSS hides 4th on non-XL desktop; mobile shows all 4 in grid
+    const picked = pool.slice(0, 3);
+    available = hasFeatured ? ['featured', ...picked] : [...pool.slice(0, 4)];
 
     this.visibleCardTypes.set(new Set(available));
 
-    // Ordering
-    if (isMobile) {
-      // Mobile scroll: featured at position 2, rest shuffled around it
-      const nonFeatured = available.filter(t => t !== 'featured');
-      if (hasFeatured && nonFeatured.length >= 1) {
-        this.orderedSecondaryCards.set([nonFeatured[0], 'featured', ...nonFeatured.slice(1)]);
-      } else {
-        this.orderedSecondaryCards.set(available);
-      }
+    // Ordering: [pick1, featured, pick2, pick3] — featured always in position 2
+    const nonFeatured = available.filter(t => t !== 'featured');
+    if (hasFeatured && nonFeatured.length >= 3) {
+      this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1], nonFeatured[2]]);
+    } else if (hasFeatured && nonFeatured.length >= 2) {
+      this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1]]);
+    } else if (hasFeatured) {
+      this.orderedSecondaryCards.set([...nonFeatured, 'featured']);
     } else {
-      // Desktop: [pick1, featured, pick2, pick3] — featured always in position 2
-      // CSS hides 4th card on non-XL screens
-      const nonFeatured = available.filter(t => t !== 'featured');
-      if (hasFeatured && nonFeatured.length >= 3) {
-        this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1], nonFeatured[2]]);
-      } else if (hasFeatured && nonFeatured.length >= 2) {
-        this.orderedSecondaryCards.set([nonFeatured[0], 'featured', nonFeatured[1]]);
-      } else if (hasFeatured) {
-        this.orderedSecondaryCards.set([...nonFeatured, 'featured']);
-      } else {
-        this.orderedSecondaryCards.set(available);
-      }
+      this.orderedSecondaryCards.set(available);
     }
 
     this.dataLoaded.set(true);
