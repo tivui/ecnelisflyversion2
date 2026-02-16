@@ -1452,7 +1452,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     overflow: hidden;
 
     // Light mode: gradient mesh — visible warm-to-cool flow for glassmorphism depth
@@ -1487,18 +1487,18 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
-    padding: 4px 16px 0;
+    margin-bottom: 6px;
+    padding: 2px 16px 0;
 
     .hero-logo-tilt {
       display: inline-block;
-      margin-bottom: 4px;
-      margin-top: 12px;
+      margin-bottom: 2px;
+      margin-top: 6px;
     }
 
     .hero-main-logo {
-      width: 64px;
-      height: 64px;
+      width: 56px;
+      height: 56px;
       filter: drop-shadow(0 3px 10px rgba($primary-indigo, 0.25));
       cursor: grab;
 
@@ -1512,16 +1512,16 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-title {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 900;
       letter-spacing: 0.5px;
-      margin: 0 0 6px;
+      margin: 0 0 4px;
       line-height: 1.15;
     }
 
     .hero-subtitle {
       display: block;
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       color: #6B7280;
       font-weight: 500;
       margin: 0;
@@ -1546,7 +1546,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 6px;
     padding: 0;
     overflow: hidden;
     justify-content: flex-start;
@@ -1622,7 +1622,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px 12px 12px;
+      padding: 14px 12px 8px;
       background: transparent !important;
 
       :host-context(body.dark-theme) & {
@@ -1640,12 +1640,12 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       }
     }
 
-    // Icon: larger with blue halo glow
+    // Icon: blue halo glow
     .hero-card-icon {
       display: flex;
-      width: 48px;
-      height: 48px;
-      min-height: 48px;
+      width: 40px;
+      height: 40px;
+      min-height: 40px;
       background: rgba($primary-blue, 0.12);
       border: 1.5px solid rgba($primary-blue, 0.22);
       border-radius: 50%;
@@ -1678,14 +1678,14 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     // --- Content: centered below icon ---
     .hero-card-content {
       position: relative;
-      padding: 12px 14px 16px;
+      padding: 4px 12px 10px;
       background: transparent;
       border-left: none;
       text-align: center;
 
       h3 {
         color: #1a237e;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 800;
         text-shadow: none;
         margin: 0;
@@ -1698,9 +1698,10 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
     .hero-card-desc {
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 1;
       color: #5a6275;
       text-align: center;
+      font-size: 0.74rem;
 
       :host-context(body.dark-theme) & {
         color: #9fa4be;
