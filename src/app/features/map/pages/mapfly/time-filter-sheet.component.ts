@@ -119,11 +119,11 @@ interface FilterOption {
       padding-top: 14px;
     }
 
-    body.dark-theme .sheet-section-header {
+    :host-context(body.dark-theme) .sheet-section-header {
       color: #90caf9;
     }
 
-    body.dark-theme .section-categories {
+    :host-context(body.dark-theme) .section-categories {
       border-top-color: rgba(255, 255, 255, 0.08);
     }
 
@@ -143,7 +143,7 @@ interface FilterOption {
       &:active { opacity: 0.7; }
     }
 
-    body.dark-theme .toggle-all-btn {
+    :host-context(body.dark-theme) .toggle-all-btn {
       color: #90caf9;
       border-color: rgba(144, 202, 249, 0.20);
     }
@@ -181,8 +181,8 @@ interface FilterOption {
       }
     }
 
-    body.dark-theme .sheet-option {
-      color: #f5f5f5;
+    :host-context(body.dark-theme) .sheet-option {
+      color: #e8eaf6;
       &:active { background: rgba(92, 107, 192, 0.12); }
       &.active { background: rgba(25, 118, 210, 0.18); color: #90caf9; }
     }
@@ -195,8 +195,8 @@ interface FilterOption {
     }
 
     .sheet-option.active .option-icon { color: #1976d2; }
-    body.dark-theme .option-icon { color: #b0b0b0; }
-    body.dark-theme .sheet-option.active .option-icon { color: #90caf9; }
+    :host-context(body.dark-theme) .option-icon { color: #cfd8dc; }
+    :host-context(body.dark-theme) .sheet-option.active .option-icon { color: #90caf9; }
 
     .option-label { flex: 1; text-align: left; }
 
@@ -214,12 +214,12 @@ interface FilterOption {
       color: #1976d2;
     }
 
-    body.dark-theme .option-count {
-      background: rgba(255, 255, 255, 0.10);
-      color: #ddd;
+    :host-context(body.dark-theme) .option-count {
+      background: rgba(255, 255, 255, 0.12);
+      color: #e0e0e0;
     }
 
-    body.dark-theme .sheet-option.active .option-count {
+    :host-context(body.dark-theme) .sheet-option.active .option-count {
       background: rgba(25, 118, 210, 0.25);
       color: #90caf9;
     }
@@ -231,7 +231,7 @@ interface FilterOption {
       color: #1976d2;
     }
 
-    body.dark-theme .option-check { color: #90caf9; }
+    :host-context(body.dark-theme) .option-check { color: #90caf9; }
 
     /* ---- Categories ---- */
     .sheet-categories {
@@ -260,8 +260,8 @@ interface FilterOption {
       &.disabled { opacity: 0.45; }
     }
 
-    body.dark-theme .category-row {
-      &:active { background: rgba(255, 255, 255, 0.04); }
+    :host-context(body.dark-theme) .category-row {
+      &:active { background: rgba(255, 255, 255, 0.06); }
     }
 
     .category-icon {
@@ -277,7 +277,7 @@ interface FilterOption {
       color: #444;
     }
 
-    body.dark-theme .category-label { color: #f5f5f5; }
+    :host-context(body.dark-theme) .category-label { color: #e8eaf6; }
 
     .category-toggle {
       width: 40px;
@@ -291,7 +291,7 @@ interface FilterOption {
       &.on { background: #1976d2; }
     }
 
-    body.dark-theme .category-toggle {
+    :host-context(body.dark-theme) .category-toggle {
       background: #555;
       &.on { background: #5c9bd6; }
     }

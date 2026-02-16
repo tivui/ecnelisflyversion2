@@ -447,3 +447,39 @@
     gap: 10px;
   }
 }
+
+// Mobile wizard mode
+@media (max-width: 700px) and (orientation: portrait) {
+  .step-container {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+
+  .header-card {
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+
+  .upload-zone {
+    min-height: 180px;
+    border-radius: 12px;
+  }
+
+  .upload-content {
+    padding: 16px 12px;
+  }
+
+  .upload-constraints {
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .constraint-item {
+    padding: 4px 10px;
+
+    span {
+      font-size: 0.7rem;
+    }
+  }
+}

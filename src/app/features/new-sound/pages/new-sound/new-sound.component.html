@@ -20,12 +20,121 @@
 }
 
 @if (!quotaExceeded() && !quotaLoading()) {
+
+<!-- ============================================= -->
+<!-- MOBILE WIZARD MODE -->
+<!-- ============================================= -->
+@if (isMobileWizard()) {
+  <!-- Wizard header -->
+  <div class="mobile-wizard-header">
+    <div class="wizard-progress-bar">
+      <div class="wizard-progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+    <div class="wizard-step-info">
+      <mat-icon class="wizard-step-icon">{{ stepMeta[currentStepIndex()].icon }}</mat-icon>
+      <span class="wizard-step-label">{{ stepMeta[currentStepIndex()].labelKey | translate }}</span>
+      <span class="wizard-step-counter">{{ currentStepIndex() + 1 }}/{{ stepMeta.length }}</span>
+    </div>
+    <div class="wizard-dots">
+      @for (step of stepMeta; track step.labelKey; let i = $index) {
+        <button class="wizard-dot"
+          [class.active]="i === currentStepIndex()"
+          [class.completed]="i < currentStepIndex()"
+          (click)="goToStep(i)">
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Step 0: Upload sound (always rendered) -->
+  <div class="mobile-wizard-step" [class.wizard-step-active]="currentStepIndex() === 0">
+    <app-sound-upload-step
+      (uploaded)="onSoundUploaded($event)"
+    ></app-sound-upload-step>
+
+    <div class="stepper-actions">
+      <button mat-button (click)="goToStep(1)" [disabled]="!soundUploaded()">
+        {{ "common.action.next" | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 1: Place (lazy-created when first reached) -->
+  @if (maxStepReached() >= 1) {
+    <div class="mobile-wizard-step" [class.wizard-step-active]="currentStepIndex() === 1">
+      <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
+
+      <div class="stepper-actions">
+        <button mat-button (click)="goToStep(0)">
+          {{ "common.action.back" | translate }}
+        </button>
+        <button mat-button (click)="goToStep(2)" [disabled]="!selectedPlace()?.name">
+          {{ "common.action.next" | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 2: Sound Info (lazy-created when first reached) -->
+  @if (maxStepReached() >= 2) {
+    <div class="mobile-wizard-step" [class.wizard-step-active]="currentStepIndex() === 2">
+      <app-sound-data-info-step
+        (completed)="onSoundDataInfoCompleted($event)"
+      ></app-sound-data-info-step>
+
+      <div class="stepper-actions">
+        <button mat-button (click)="goToStep(1)">
+          {{ "common.action.back" | translate }}
+        </button>
+        <button mat-button (click)="goToStep(3)" [disabled]="!thirdFormGroup.valid">
+          {{ "common.action.next" | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Links & Metadata (lazy-created when first reached) -->
+  @if (maxStepReached() >= 3) {
+    <div class="mobile-wizard-step" [class.wizard-step-active]="currentStepIndex() === 3">
+      <app-sound-data-meta-step
+        (completed)="onSoundDataMetaCompleted($event)"
+      ></app-sound-data-meta-step>
+
+      <div class="stepper-actions">
+        <button mat-button (click)="goToStep(2)">
+          {{ "common.action.back" | translate }}
+        </button>
+        <button mat-button (click)="goToStep(4)">
+          {{ "common.action.next" | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 4: Confirmation (lazy-created when first reached) -->
+  @if (maxStepReached() >= 4) {
+    <div class="mobile-wizard-step" [class.wizard-step-active]="currentStepIndex() === 4">
+      <app-confirmation-step
+        [soundData]="getAllSoundData()"
+        (confirmed)="onConfirmed()"
+        (cancelled)="onCancelled()"
+        (highlightSteps)="onHighlightSteps($event)"
+      ></app-confirmation-step>
+    </div>
+  }
+}
+
+<!-- ============================================= -->
+<!-- DESKTOP STEPPER MODE -->
+<!-- ============================================= -->
+@if (!isMobileWizard()) {
 <mat-stepper
   class="new-sound-stepper mat-elevation-z8"
   [class.highlight-step-0]="isStepHighlighted(0)"
   [class.highlight-step-1]="isStepHighlighted(1)"
   [class.highlight-step-2]="isStepHighlighted(2)"
   [orientation]="(stepperOrientation | async)!"
+  (selectionChange)="currentStepIndex.set($event.selectedIndex)"
 >
   <!-- Step 1 : upload sound-->
   <mat-step class="mat-step-content step-0" [completed]="soundUploaded()">
@@ -116,4 +225,6 @@
     ></app-confirmation-step>
   </mat-step>
 </mat-stepper>
+}
+
 }
