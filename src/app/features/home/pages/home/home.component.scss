@@ -219,6 +219,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   height: 80px;
   margin-bottom: 16px;
   user-select: none;
+  -webkit-touch-callout: none; // Prevent iOS long-press context menu
 
   // Desktop hover: glow halo (animations handled by JS hover-* classes)
   @media (min-width: 701px) {

@@ -10,6 +10,7 @@
           (pointermove)="onLogoMove($event)"
           (pointerup)="onLogoUp($event)"
           (pointercancel)="onLogoCancel($event)"
+          (contextmenu)="$event.preventDefault()"
           style="touch-action: none;"
           draggable="false"
         />
