@@ -14,7 +14,9 @@
       "Bash(git add:*)",
       "Bash(npm install:*)",
       "Bash(aws cognito-idp admin-create-user:*)",
-      "Bash(aws cognito-idp admin-set-user-password:*)"
+      "Bash(aws cognito-idp admin-set-user-password:*)",
+      "Bash(taskkill:*)",
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx ng build:*)"
     ]
   }
 }

@@ -68,19 +68,24 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 - **Desktop base** : hero cards en grille (map + 3 secondary visible, 4eme cachee), Swiper carousel categories
 - **Desktop XL** (`@media min-width: 1920px`) : layout hero map pleine largeur + 4 secondary cards en ligne (voir section dediee)
-- **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) :
-  - **Layout scroll natif** : `height: auto`, `min-height: calc(100dvh - ...)`, `overflow-y: auto` (plus de viewport-fit)
+- **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) — **Design "Octopus Clean"** :
+  - **Layout scroll natif** : `height: auto`, `min-height: calc(100dvh - ...)`, `overflow-y: auto`, `gap: 20px` (spacieux)
   - **Aplatissement CSS** : `.hero-section` et `.hero-actions` en `display: contents`, reordonnancement via `order` :
-    1. `.hero-content` (order: 1) — Header : logo 64px + titre + sous-titre
-    2. `.hero-card-map` (order: 2) — Carte mondiale : icon 52px avec halo bleu, padding genereux
-    3. `.carousel-section` (order: 3) — Carousel categories avec accent top line
-    4. `.onboarding-section` (order: 4) — Header "NOTRE COMMUNAUTÉ" + 3 piliers + community stats
-    5. `.hero-cards-secondary` (order: 5) — Grille 2x2 (`grid-template-columns: 1fr 1fr`)
-  - **Scroll dots** : masques (`display: none`)
-  - **Blue side rails** : `border-left/right: 3px solid rgba($primary-blue, 0.18)`, `border-radius: 14px 14px 0 0` — cadrage brand premium
-  - **Background light** : clean cool gradient (`radial-gradient(#e3ecff 0.6) + linear-gradient(#f7f8fc → #f3f4f8 → #f7f8fc)`)
-  - **Titres premium** : `color: #2c3e6b`, `font-weight: 700` (adouci, pas noir)
-  - **CTA buttons** : `align-self: center; width: fit-content` (centres, compacts)
+    1. `.hero-content` (order: 1) — Header : logo 96px interactif (titre + sous-titre actuellement masques en test)
+    2. `.hero-card-map` (order: 2) — Carte mondiale : card horizontale (illustration mapfly_card.png + contenu + chevron)
+    3. `.alaune-section` (order: 4) — Bloc unifie "A la une" : illustration `highlights_card.png` + titre + carousel horizontal scroll-snap + dots
+    4. `.onboarding-section` (order: 5) — Stats inline uniquement (header + pillars masques, pas de card wrapper)
+    5. `.carousel-section` (order: 7) — Carousel categories : illustration `categories_card.png` + titre "Categories" + fleches scroll + chips
+  - **Scroll dots** : visibles dans `.alaune-section` (indicateurs de position carousel)
+  - **Pas de side rails** (supprimees pour style epure), `margin: 0`, `border-radius: 0`
+  - **Background light** : `linear-gradient(180deg, #f5f7fc, #eef1f8)` (simple, pas de radial)
+  - **Background dark** : `linear-gradient(180deg, #0a0b1a, #0f1024)` (profond, epure)
+  - **Border-radius cards** : 20px (Octopus-style)
+  - **Pas d'accent top bars** : toutes les `::before` accent bars supprimees pour bords propres
+  - **Descriptions cachees** : `.hero-card-desc { display: none }` sur toutes les cards mobile
+  - **Cards secondary** : fond blanc + `border-left` colore par type (3px), icons avec fond tinte par accent
+  - **CTA buttons** : `align-self: flex-start` (alignes a gauche), compacts
+  - **Sections "A la une" et "Categories"** : fond tinte `linear-gradient(180deg, #f0f2fa, #eaecf5)` (light) / gradient indigo `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` (dark), `border-radius: 22px`, illustrations positionnees en absolu top-left
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires (logo, gap, padding)
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
 
@@ -88,10 +93,10 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee quand `dataLoaded()` passe a `true` (classe `.ready` sur `.home-container`). Easing : `cubic-bezier(0.22, 1, 0.36, 1)`.
 
-- Stagger : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> carousel (0.33s) -> onboarding (0.40s) -> secondary cards staggerees (0.47s-0.62s)
+- Stagger desktop : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> secondary cards (0.33s-0.57s) -> onboarding (0.48s) -> carousel (0.50s)
+- Stagger mobile : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> alaune section (0.28s) -> stats (0.50s) -> carousel (0.55s)
 - Desktop : `.hero-cards-secondary` utilise `display: contents`, donc les cards individuelles sont ciblees via `nth-child` pour le reveal
-- Mobile : animation `fadeInRight` (translateX) pour les secondary cards (scroll horizontal), `fadeInUp` pour le reste
-- Mobile : jusqu'a 5 cards staggerees (`nth-child(1)` a 0.35s jusqu'a `nth-child(5)` a 0.63s)
+- Mobile : animation `fadeInUp` pour toutes les sections, cards staggerees individuellement via `nth-child`
 
 #### Gradients positionnels des secondary cards (desktop uniquement)
 
@@ -113,45 +118,59 @@ Les gradients dependent de la **position** dans la grille (pas du type de card).
 - Si `featured` absent : les cards disponibles remplissent les positions sans contrainte
 - Logique dans `orderedSecondaryCards` signal, template via `@for` + `@switch`
 
-#### Grille 2x2 mobile (secondary cards)
+#### Bloc "A la une" mobile (`.alaune-section`)
 
-Design clean — surfaces blanches avec accents forts, grille 2x2 :
+Section unifiee regroupant illustration + titre + carousel de secondary cards + dots de navigation.
 
-**Layout :** `display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 10px 6px` (hauteur naturelle, pas de overflow hidden)
-
-**Structure d'une card :**
+**Structure HTML :**
+```html
+<div class="alaune-section">
+  <img class="alaune-illustration" src="highlights_card.png" />
+  <h2 class="alaune-title">À la une</h2>
+  <div class="hero-cards-secondary" (scroll)="...">
+    <!-- cards carousel -->
+  </div>
+  <div class="scroll-dots"><!-- dots --></div>
+</div>
 ```
-┌─ accent top bar (3px, gradient, border-radius top) ──────┐
-│ [header row: icon circle + badge label]                   │
-│ Titre du contenu (1 ligne, ellipsis)                      │
-│ Description (2 lignes, visible)                           │
-│                    Action → (pill, centered)               │
-└───────────────────────────────────────────────────────────┘
-```
 
-**Surfaces :**
-- Light : `background: #ffffff`, `border: 1px solid rgba(0,0,0,0.06)`, soft shadows, pas de backdrop-filter
-- Dark : `background: linear-gradient(145deg, rgba(24,24,42,0.94) 40%, rgba($primary-indigo, 0.10) 100%)`, `border: rgba(#5c6bc0, 0.16)`, `box-shadow: rgba(0,0,20,0.40)`
+**Layout :** `display: flex; flex-direction: column; gap: 10px; border-radius: 22px; margin: 10px 16px 0`
 
-**Titres :** `color: #2c3e6b`, `font-weight: 700`, `font-size: 1.02rem` light / `#e8eaf6` dark
+**Illustration :** `highlights_card.png`, 58px, `position: absolute; top: 10px; left: 14px`
 
-**Descriptions :** `color: #6B7280`, `font-size: 0.76rem`, visible (2 lignes) light / `#9fa4be` dark
+**Titre :** `font-size: 1.08rem; font-weight: 800; padding-left: 80px; line-height: 58px` (aligne verticalement sur l'illustration)
 
-**CTA pills :** `padding: 5px 14px`, `border-radius: 8px`, `font-weight: 700`, `font-size: 0.82rem`, `align-self: center; width: fit-content` avec couleurs d'accent saturees par card :
+**Background light :** `linear-gradient(180deg, #f0f2fa, #eaecf5)` — surface teintee
+**Background dark :** `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` — gradient indigo profond
 
-| Card | CTA bg (light) | CTA border (light) | CTA color (light) |
-|------|---------------|--------------------|--------------------|
-| Featured | `rgba(#7c4dff, 0.16)` | `rgba(#7c4dff, 0.24)` | `#5a2dd0` |
-| Journey | `rgba(#5c6a8a, 0.16)` | `rgba(#5c6a8a, 0.24)` | `#3d4e6e` |
-| Article | `rgba($accent-article, 0.16)` | `rgba($accent-article, 0.24)` | `#5e4a30` |
-| Quiz | `rgba(#0d7c51, 0.16)` | `rgba(#0d7c51, 0.24)` | `#0a6340` |
-| Monthly Zone | `rgba(#b07c10, 0.16)` | `rgba(#b07c10, 0.24)` | `#7a580a` |
+**Carousel :** `scroll-snap-type: x mandatory`, cards en `scroll-snap-align: start`, `gap: 12px`, `padding: 0 16px`
 
-Dark mode CTAs : `background: none; border: none` (texte accent uniquement)
+**Cards :** fond blanc `#ffffff` + `border-left: 3px solid` colore par type + `border-radius: 20px`
+Dark : `background: rgba(255,255,255,0.06)` + `border-left` colore par type
 
-**Featured card distinction :** border violet `rgba(#7c4dff, 0.18)` light / `rgba(#b388ff, 0.18)` dark, box-shadow glow violet
+**Border-left per card type :**
+| Card | Border-left (light) | Border-left (dark) |
+|------|--------------------|--------------------|
+| Featured | `#7c4dff` | `rgba(#b388ff, 0.60)` |
+| Journey | `#5c6a8a` | `rgba(#a0b0cc, 0.50)` |
+| Quiz | `#0d7c51` | `rgba(#66bb6a, 0.50)` |
+| Article | `$accent-article` | `rgba($accent-article-light, 0.50)` |
+| Zone | `#b07c10` | `rgba(#fbbf24, 0.50)` |
 
-**Accent top bars :** gradient `$primary-indigo → accent color`, 3px, `border-radius: 16px 16px 2px 2px` + `box-shadow` subtle. Dark: `brightness(1.2)` + glow
+**Icon tints per card type (light / dark) :**
+| Card | Icon bg (light) | Icon color (light) | Icon bg (dark) | Icon color (dark) |
+|------|----------------|--------------------|---------------|-------------------|
+| Featured | `rgba(#7c4dff, 0.10)` | `#6a3de8` | `rgba(#b388ff, 0.18)` | `#b388ff` |
+| Journey | `rgba(#5c6a8a, 0.10)` | `#5c6a8a` | `rgba(#a0b0cc, 0.18)` | `#a0b0cc` |
+| Quiz | `rgba(#0d7c51, 0.10)` | `#0d7c51` | `rgba(#66bb6a, 0.18)` | `#66bb6a` |
+| Article | `rgba($accent-article, 0.10)` | `$accent-article` | `rgba($accent-article-light, 0.18)` | `$accent-article-light` |
+| Zone | `rgba(#b07c10, 0.10)` | `#b07c10` | `rgba(#fbbf24, 0.18)` | `#fbbf24` |
+
+**Descriptions :** cachees (`display: none`) — style minimaliste
+
+**Chevrons :** `carousel-card-chevron` sur chaque card (indicateur cliquable), `color: #9CA3AF` light / `rgba(255,255,255,0.20)` dark
+
+**Scroll dots :** cercles 8px, couleur `rgba($primary-indigo, 0.25)` / actif `$primary-indigo` (light), `rgba(255,255,255,0.20)` / actif `rgba(255,255,255,0.80)` (dark)
 
 #### CTA labels home (i18n)
 
@@ -168,6 +187,7 @@ Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Deco
 | `home.onboarding.explore` | Explorez les sons du monde | Explore the sounds of the world | Explora los sonidos del mundo |
 | `home.onboarding.listen` | Ecoutez des lieux uniques | Listen to unique places | Escucha lugares unicos |
 | `home.onboarding.contribute` | Partagez vos decouvertes | Share your discoveries | Comparte tus descubrimientos |
+| `home.categories.mobileTitle` | Categories | Categories | Categorias |
 
 #### Long Press mobile
 
@@ -180,63 +200,72 @@ Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Deco
 
 #### Carte mondiale mobile (hero card map)
 
-Design glassmorphism blue-tinted (video globe supprimee, logo supprime de la card).
+Design "Octopus Clean" — card horizontale avec illustration mapfly_card.png.
+
+**Layout :** `flex-direction: row` (illustration gauche + contenu centre + chevron droite), `border-radius: 20px`, `margin: 0 16px`
+
+**Illustration :** `mapfly_card.png`, positionnee a gauche dans `.map-card-illustration`
 
 **Light :**
-- Background : `linear-gradient(135deg, rgba($primary-blue, 0.08) → rgba($primary-indigo, 0.04) → rgba(255,255,255,0.80))` + `backdrop-filter: blur(20px) saturate(1.4)`
-- Icon : `mat-icon public` 52px dans cercle bleu avec triple halo (`box-shadow: 0 0 0 6px rgba(blue,0.06), 0 0 0 12px rgba(blue,0.03), 0 4px 12px rgba(blue,0.12)`)
-- Accent bar top : 2.5px gradient `$primary-blue → $primary-indigo → $primary-violet`
-- Border : `rgba($primary-blue, 0.18)` + `inset 0 1px 0 rgba(255,255,255,0.7)`
-- Pas d'orbs, pas de shimmer, pas de video
+- Background : `#ffffff`, pas de backdrop-filter
+- Pas d'accent top bar, pas d'orbs, pas de shimmer
+- Content : titre desktop masque, titre mobile "Mapfly" + sous-titre i18n
+- CTA : pill gradient `$primary-blue → $primary-indigo`, `border-radius: 22px`
+- Chevron : `chevron_right` en gris subtil
 
 **Dark :**
-- Background : `linear-gradient(145deg, rgba(14,20,48,0.96) → rgba($primary-blue, 0.12))`, pas de backdrop-filter
-- Icon : fond `rgba(#90caf9, 0.14)`, border `rgba(#90caf9, 0.25)`, glow bleu
-- Accent bar top : 3px gradient blue→indigo + `brightness(1.2)` + glow
-- Border : `rgba(#5c6bc0, 0.25)` + shadow indigo glow
+- Background : `rgba(18,18,34,0.94)`, `border: rgba(#5c6bc0, 0.15)`
+- Chevron et textes adaptes aux couleurs dark
 
-#### Carousel categories mobile (order: 3)
+#### Carousel categories mobile (order: 7)
 
-Section modernisee avec accent top line premium.
+Section en bas du scroll, design harmonise avec "A la une".
+
+**Structure HTML :**
+```html
+<section class="carousel-section">
+  <img class="categories-illustration" src="categories_card.png" />
+  <div class="carousel-header">
+    <h2 class="carousel-mobile-title">Catégories</h2>
+  </div>
+  <div class="categories-scroll-wrap">
+    <mat-icon class="scroll-hint scroll-hint-left">chevron_left</mat-icon>
+    <app-carousel-categories></app-carousel-categories>
+    <mat-icon class="scroll-hint scroll-hint-right">chevron_right</mat-icon>
+  </div>
+</section>
+```
+
+**Illustration :** `categories_card.png`, 80px, `position: absolute; top: 6px; left: 10px`
+
+**Titre mobile :** `font-size: 1.08rem; font-weight: 800; padding-left: 86px; line-height: 80px` (aligne sur illustration). Desktop title masque, remplace par titre court "Categories" (i18n `home.categories.mobileTitle`)
+
+**Scroll hints :** fleches chevron gauche/droite, cercles 28px, `color: rgba($primary-indigo, 0.35)` light / `rgba(#90caf9, 0.45)` dark, fond semi-transparent
 
 **Light :**
-- Background : `#ffffff`, `border-radius: 16px`, `overflow: hidden`
-- Accent top line : `::before` gradient `$primary-blue → $primary-indigo → $logo-orange` (2.5px, opacity 0.5)
-- Header : icon `$primary-indigo` opacity 0.6, titre `#3949ab` opacity 0.6
-- Chips : clean soft surface `background: #f5f6fa`, `border: 1px solid rgba(0,0,0,0.06)`, pas de backdrop-filter, shadow douce (`carousel-categories.component.scss`)
-- Chip label : `color: #374151`, `font-weight: 600`
+- Background : `linear-gradient(180deg, #f0f2fa, #eaecf5)` — surface teintee (meme que "A la une")
+- `border-radius: 22px`, `overflow: hidden`
+- Pas d'accent top line (supprimee)
+- `.carousel-icon` masque (illustration le remplace)
 
 **Dark :**
-- Background : gradient indigo profond (`rgba(16,18,36,0.94) → rgba(20,22,44,0.96)`)
-- Accent top line : gradient indigo + `brightness(1.1)` + glow
-- Header : icon `#7986cb` opacity 0.8, titre `#9fa8da` opacity 0.75
-- Chips : indigo-tinted glass, border `rgba(92,107,192,0.18)`, label `#e8eaf6`
+- Background : `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` — gradient indigo (meme que "A la une")
+- `border: 1px solid rgba(#5c6bc0, 0.18)`, padding supplementaire pour aeration
 
-#### Onboarding + Community Stats (mobile uniquement)
+**i18n `home.categories.mobileTitle` :** FR "Categories", EN "Categories", ES "Categorias"
 
-Section entre le carousel et les secondary cards (order: 4). Visible uniquement en mobile portrait (`display: none` en desktop, `display: flex !important` en mobile).
+#### Community Stats (mobile uniquement)
+
+Stats inline sans card wrapper (order: 5). Header et pillars masques. Visible uniquement en mobile portrait.
 
 **Structure :**
 ```
-┌─ accent top line (gradient blue→indigo→violet) ──────┐
-│ 🌍 NOTRE COMMUNAUTÉ  (header icon + titre uppercase) │
-│                                                       │
-│ [explore icon]   [headphones icon]   [mic icon]       │
-│  Explorez...      Ecoutez...          Partagez...     │
-├───────────────────────────────────────────────────────┤
-│ 548 sons · 111 pays · 177 explorateurs                │
-└───────────────────────────────────────────────────────┘
+548 sons · 111 pays · 177 explorateurs
 ```
 
-**Card :** `background: #ffffff`, `border-radius: 16px`, accent top line `::before` gradient `$primary-blue → $primary-indigo → $primary-violet` (2.5px, opacity 0.45). Dark : `rgba(20,20,38,0.70)` + `border: rgba(#5c6bc0, 0.14)`
+Pas de card wrapper — `background: transparent`, `border: none`, `box-shadow: none`. Header + pillars masques (`display: none`).
 
-**Header :** icon `public` 14px `$primary-indigo` opacity 0.6, titre `0.7rem` uppercase `#3949ab` opacity 0.6, `letter-spacing: 0.06em`
-
-**Pillars :** 3 colonnes (explore, listen, contribute), icone 34px dans cercle `rgba($primary-indigo, 0.08)`, label `0.66rem` bold
-
-**Community stats :** compteurs dynamiques (sons, pays, contributeurs) via `SoundsService.getCommunityStats()`. Chiffres en `font-weight: 800`, couleur `#1a237e` light / `#e8eaf6` dark. Separateurs `·` en `rgba($primary-indigo, 0.3)`
-
-**Small phones** (`max-height: 800px`) : piliers masques (`display: none`), stats seules sans card wrapper (pas de glassmorphism, pas de border)
+**Community stats :** compteurs dynamiques (sons, pays, contributeurs) via `SoundsService.getCommunityStats()`. Chiffres en `font-weight: 800`, couleur `#374151` light / `#c5cae9` dark. Separateurs `·` en `rgba(0,0,0,0.15)` light / `rgba(255,255,255,0.15)` dark
 
 **Signal :** `communityStats: signal<{ sounds, countries, contributors } | null>(null)`
 

@@ -19,9 +19,11 @@
       ],
       "exploreMap": "Mapa mundial",
       "exploreMapDesc": "Navega por todos los sonidos geolocalizados en un mapa interactivo",
+      "mapSubtitle": "Mapa sonoro mundial",
       "exploreZones": "Descubrir terruños",
       "exploreZonesDesc": "Explora regiones sonoras temáticas y únicas",
       "explore": "Explorar",
+      "alaune": "Destacados",
       "discover": "Descubrir",
       "soundOfTheDay": "Sonido del día",
       "listen": "Escuchar",
@@ -47,7 +49,8 @@
       "zones": "Terruños"
     },
     "categories": {
-      "title": "Explorar por categoría"
+      "title": "Explorar por categoría",
+      "mobileTitle": "Categorías"
     },
     "stats": {
       "sounds": "sonidos",

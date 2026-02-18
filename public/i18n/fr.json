@@ -19,9 +19,11 @@
       ],
       "exploreMap": "Carte mondiale",
       "exploreMapDesc": "Parcourez tous les sons géolocalisés sur une carte interactive",
+      "mapSubtitle": "Carte sonore mondiale",
       "exploreZones": "Découvrir les terroirs",
       "exploreZonesDesc": "Explorez des régions sonores thématiques et uniques",
       "explore": "Explorer",
+      "alaune": "À la une",
       "discover": "Découvrir",
       "soundOfTheDay": "Son du jour",
       "listen": "Écouter",
@@ -47,7 +49,8 @@
       "zones": "Terroirs"
     },
     "categories": {
-      "title": "Explorer par catégorie"
+      "title": "Explorer par catégorie",
+      "mobileTitle": "Catégories"
     },
     "stats": {
       "sounds": "sons",
