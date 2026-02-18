@@ -395,7 +395,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Gooey Living Logo — Interactive physics + synthesized audio
   // =====================================================================
 
-  logoState = signal<'idle' | 'dragging' | 'bouncing' | 'returning' | 'longpress'>('idle');
+  logoState = signal<'idle' | 'dragging' | 'bouncing' | 'returning' | 'longpress' | 'pinching'>('idle');
   logoCloneActive = signal(false);
   logoSquishing = signal(false);
   cloneSize = signal(100);
@@ -417,6 +417,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private justTapped = false;
   private activePointerId: number | null = null;
   private activeLogoEl: HTMLImageElement | null = null;
+  private isMobileTouch = false;
+
+  // Pinch state
+  private secondaryPointerId: number | null = null;
+  private pinchInitialDistance = 0;
+  private pinchInitialAngle = 0;
+  private pointer1 = { x: 0, y: 0 };
+  private pointer2 = { x: 0, y: 0 };
 
   // Physics constants
   private readonly SPRING_STIFFNESS = 0.08;
@@ -436,16 +444,44 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    const state = this.logoState();
-    if (state === 'bouncing' || state === 'returning') return;
-
     this.gooeyAudio.ensureContext();
+
+    const state = this.logoState();
+
+    // --- Second finger: start pinch ---
+    if (this.activePointerId !== null && this.secondaryPointerId === null
+        && event.pointerId !== this.activePointerId) {
+      if (state === 'idle' || state === 'dragging' || state === 'longpress') {
+        this.secondaryPointerId = event.pointerId;
+        this.pointer2 = { x: event.clientX, y: event.clientY };
+        this.pointer1 = { ...this.pointerCurrent };
+
+        this.clearLongPressTimer();
+        if (state === 'longpress') {
+          this.endLongPressForPinch();
+        }
+        if (state === 'dragging') {
+          this.gooeyAudio.stopStretch();
+          this.logoCloneActive.set(false);
+        }
+
+        this.startPinch();
+
+        const logoEl = (this.activeLogoEl || event.target) as HTMLImageElement;
+        logoEl.setPointerCapture(event.pointerId);
+      }
+      return;
+    }
+
+    // --- First finger: existing logic ---
+    if (state === 'bouncing' || state === 'returning') return;
 
     this.activePointerId = event.pointerId;
     this.gestureStarted = true;
     this.totalMovement = 0;
     this.pointerStart = { x: event.clientX, y: event.clientY, time: Date.now() };
     this.pointerCurrent = { x: event.clientX, y: event.clientY };
+    this.pointer1 = { x: event.clientX, y: event.clientY };
     this.pointerHistory = [{ x: event.clientX, y: event.clientY, time: Date.now() }];
 
     const logoEl = event.target as HTMLImageElement;
@@ -454,6 +490,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.logoHome = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     this.logoSize = rect.width;
     this.cloneSize.set(rect.width);
+    this.isMobileTouch = event.pointerType === 'touch' && window.innerWidth <= 700;
 
     this.longPressTimer = setTimeout(() => {
       if (this.gestureStarted && this.totalMovement < this.TAP_MAX_MOVEMENT) {
@@ -465,6 +502,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLogoMove(event: PointerEvent): void {
+    // --- Pinch move: update whichever pointer moved ---
+    if (this.logoState() === 'pinching') {
+      if (event.pointerId === this.activePointerId) {
+        this.pointer1 = { x: event.clientX, y: event.clientY };
+      } else if (event.pointerId === this.secondaryPointerId) {
+        this.pointer2 = { x: event.clientX, y: event.clientY };
+      }
+      return;
+    }
+
+    // --- Single-pointer move ---
     if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
 
     const dx = event.clientX - this.pointerStart.x;
@@ -475,6 +523,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.pointerHistory.length > 4) this.pointerHistory.shift();
 
     this.pointerCurrent = { x: event.clientX, y: event.clientY };
+    this.pointer1 = { x: event.clientX, y: event.clientY };
 
     if (this.totalMovement > this.TAP_MAX_MOVEMENT) {
       this.clearLongPressTimer();
@@ -489,6 +538,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLogoUp(event: PointerEvent): void {
+    // --- Pinch release: either finger lifted ---
+    if (this.logoState() === 'pinching') {
+      if (event.pointerId === this.activePointerId || event.pointerId === this.secondaryPointerId) {
+        this.endPinch();
+      }
+      return;
+    }
+
+    // --- Single-pointer up ---
     if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
     this.gestureStarted = false;
     this.activePointerId = null;
@@ -523,6 +581,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onLogoCancel(event: PointerEvent): void {
+    // --- Pinch cancel ---
+    if (this.logoState() === 'pinching') {
+      if (event.pointerId === this.activePointerId || event.pointerId === this.secondaryPointerId) {
+        this.endPinch();
+      }
+      return;
+    }
+
+    // --- Single-pointer cancel ---
     if (!this.gestureStarted || event.pointerId !== this.activePointerId) return;
     this.gestureStarted = false;
     this.activePointerId = null;
@@ -594,6 +661,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Kill CSS animation to allow JS transform (animation overrides inline styles)
     if (this.activeLogoEl) {
       this.activeLogoEl.classList.add('longpress-active');
+      if (this.isMobileTouch) {
+        this.activeLogoEl.classList.add('longpress-active-mobile');
+      }
     }
     if (!this.rAFId) this.startPhysicsLoop();
   }
@@ -601,17 +671,83 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private endLongPress(withPop: boolean): void {
     this.gooeyAudio.stopDrone();
     if (withPop) this.gooeyAudio.playPop();
-    this.logoState.set('idle');
     this.longPressStartTime = 0;
 
     const logoEl = this.activeLogoEl;
-    if (logoEl) {
+
+    if (logoEl && this.isMobileTouch) {
+      // Smooth spring return with elastic overshoot
+      logoEl.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      logoEl.style.transform = 'translateY(0) rotate(0deg) scaleX(1) scaleY(1)';
+      const cleanup = () => {
+        logoEl.style.transform = '';
+        logoEl.style.transition = '';
+        logoEl.classList.remove('longpress-active');
+        logoEl.classList.remove('longpress-active-mobile');
+        logoEl.removeEventListener('transitionend', cleanup);
+      };
+      logoEl.addEventListener('transitionend', cleanup, { once: true });
+      setTimeout(cleanup, 600); // fallback
+    } else if (logoEl) {
       logoEl.style.transform = '';
       logoEl.style.transition = '';
       logoEl.classList.remove('longpress-active');
     }
+
+    this.logoState.set('idle');
     this.activeLogoEl = null;
     this.stopPhysicsLoop();
+  }
+
+  private startPinch(): void {
+    const dx = this.pointer2.x - this.pointer1.x;
+    const dy = this.pointer2.y - this.pointer1.y;
+    this.pinchInitialDistance = Math.sqrt(dx * dx + dy * dy);
+    this.pinchInitialAngle = Math.atan2(dy, dx);
+
+    this.logoState.set('pinching');
+    this.gooeyAudio.startStretch(0);
+    navigator.vibrate?.(10);
+
+    if (this.activeLogoEl) {
+      this.activeLogoEl.classList.add('longpress-active');
+    }
+    if (!this.rAFId) this.startPhysicsLoop();
+  }
+
+  private endPinch(): void {
+    this.gooeyAudio.stopStretch();
+    this.gooeyAudio.playPop();
+    navigator.vibrate?.(8);
+
+    const logoEl = this.activeLogoEl;
+    if (logoEl) {
+      logoEl.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      logoEl.style.transform = 'scaleX(1) scaleY(1) rotate(0deg)';
+      const cleanup = () => {
+        logoEl.style.transform = '';
+        logoEl.style.transition = '';
+        logoEl.classList.remove('longpress-active');
+        logoEl.removeEventListener('transitionend', cleanup);
+      };
+      logoEl.addEventListener('transitionend', cleanup, { once: true });
+      setTimeout(cleanup, 500);
+    }
+
+    this.logoState.set('idle');
+    this.gestureStarted = false;
+    this.activePointerId = null;
+    this.secondaryPointerId = null;
+    this.activeLogoEl = null;
+    this.stopPhysicsLoop();
+  }
+
+  private endLongPressForPinch(): void {
+    this.gooeyAudio.stopDrone();
+    this.longPressStartTime = 0;
+    if (this.activeLogoEl) {
+      this.activeLogoEl.classList.remove('longpress-active-mobile');
+    }
   }
 
   // --- Physics Loop (outside Angular zone for performance) ---
@@ -640,6 +776,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             break;
           case 'longpress':
             this.updateLongPressVisual();
+            break;
+          case 'pinching':
+            this.updatePinchPhysics();
             break;
           default:
             this.stopPhysicsLoop();
@@ -780,9 +919,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private updateLongPressVisual(): void {
     if (!this.longPressStartTime) this.longPressStartTime = performance.now();
-
     const elapsed = (performance.now() - this.longPressStartTime) / 1000;
 
+    if (this.isMobileTouch) {
+      this.updateLongPressMobile(elapsed);
+    } else {
+      this.updateLongPressDesktop(elapsed);
+    }
+
+    this.gooeyAudio.updateDrone(elapsed);
+  }
+
+  private updateLongPressDesktop(elapsed: number): void {
     // Inflate: 0 → 1 over 1.5s
     const inflateProgress = Math.min(elapsed / 1.5, 1);
     const baseScale = 1 + inflateProgress * 0.3;
@@ -791,7 +939,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const pulse = 1 + Math.sin(elapsed * Math.PI * 2) * 0.03 * inflateProgress;
     const scale = baseScale * pulse;
 
-    // Spin: quadratic acceleration — starts barely moving, gets exciting
+    // Spin: quadratic acceleration
     const rotation = 30 * Math.pow(elapsed, 2.5);
 
     // Wobble: asymmetric goo stretch while spinning
@@ -805,9 +953,78 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       logoEl.style.transition = 'none';
       logoEl.style.transform = `rotate(${rotation.toFixed(1)}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
     }
+  }
 
-    // Drone pitch rises exponentially with spin duration
-    this.gooeyAudio.updateDrone(elapsed);
+  private updateLongPressMobile(elapsed: number): void {
+    // Escape upward: translateY(-110px) over 0.6s with ease-out cubic
+    const escapeProgress = Math.min(elapsed / 0.6, 1);
+    const easedEscape = 1 - Math.pow(1 - escapeProgress, 3);
+    const translateY = -110 * easedEscape;
+
+    // Scale aggressively: 1.0 → 2.8x over 1.5s (64px → ~180px, visible above thumb)
+    const scaleProgress = Math.min(elapsed / 1.5, 1);
+    const baseScale = 1 + scaleProgress * 1.8;
+
+    // Pulse: breathing
+    const pulse = 1 + Math.sin(elapsed * Math.PI * 2) * 0.04 * scaleProgress;
+    const scale = baseScale * pulse;
+
+    // Spin: same quadratic acceleration as desktop
+    const rotation = 30 * Math.pow(elapsed, 2.5);
+
+    // Wobble: slightly stronger on mobile
+    const wobbleAmount = 0.03 * scaleProgress;
+    const wobble = Math.sin(elapsed * 8) * wobbleAmount;
+    const scaleX = (scale + wobble).toFixed(3);
+    const scaleY = (scale - wobble).toFixed(3);
+
+    const logoEl = this.activeLogoEl;
+    if (logoEl) {
+      logoEl.style.transition = 'none';
+      logoEl.style.transform =
+        `translateY(${translateY.toFixed(1)}px) rotate(${rotation.toFixed(1)}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
+    }
+  }
+
+  private updatePinchPhysics(): void {
+    const dx = this.pointer2.x - this.pointer1.x;
+    const dy = this.pointer2.y - this.pointer1.y;
+    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+    const currentAngle = Math.atan2(dy, dx);
+
+    // Scale ratio clamped between 0.3 and 4.0
+    const rawScale = currentDistance / Math.max(this.pinchInitialDistance, 1);
+    const pinchScale = Math.max(0.3, Math.min(rawScale, 4.0));
+
+    // Anisotropic deformation: stretch along finger axis, compress perpendicular (Poisson effect)
+    const deviation = Math.abs(pinchScale - 1);
+    const anisotropy = Math.min(deviation * 0.6, 0.5);
+
+    let scaleAlongAxis: number;
+    let scalePerpendicular: number;
+
+    if (pinchScale >= 1) {
+      // Spreading fingers: stretch along axis, compress perpendicular
+      scaleAlongAxis = pinchScale * (1 + anisotropy * 0.3);
+      scalePerpendicular = pinchScale * (1 - anisotropy * 0.4);
+    } else {
+      // Pinching fingers: compress along axis, bulge perpendicular
+      scaleAlongAxis = pinchScale * (1 - anisotropy * 0.3);
+      scalePerpendicular = pinchScale * (1 + anisotropy * 0.5);
+    }
+
+    // Rotate coordinate system to align with finger axis
+    const rotDeg = currentAngle * 180 / Math.PI;
+
+    const logoEl = this.activeLogoEl;
+    if (logoEl) {
+      logoEl.style.transition = 'none';
+      logoEl.style.transform =
+        `rotate(${rotDeg.toFixed(1)}deg) scaleX(${scaleAlongAxis.toFixed(3)}) scaleY(${scalePerpendicular.toFixed(3)})`;
+    }
+
+    // Audio feedback: pitch proportional to stretch distance
+    this.gooeyAudio.updateStretch(Math.abs(currentDistance - this.pinchInitialDistance));
   }
 
   // --- Helpers ---
@@ -843,6 +1060,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearLongPressTimer();
     this.gooeyAudio.stopStretch();
     this.gooeyAudio.stopDrone();
+    this.activePointerId = null;
+    this.secondaryPointerId = null;
   }
 
 }
