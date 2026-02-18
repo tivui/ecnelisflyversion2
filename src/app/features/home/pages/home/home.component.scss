@@ -1428,8 +1428,8 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .hero-main-logo {
-      width: 64px;
-      height: 64px;
+      width: 96px;
+      height: 96px;
       filter: drop-shadow(0 3px 10px rgba($primary-indigo, 0.25));
       cursor: grab;
 
@@ -1445,14 +1445,14 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       &.longpress-active-mobile {
         animation: none !important;
         opacity: 1 !important;
-        filter: drop-shadow(0 20px 30px rgba($primary-indigo, 0.5))
-                drop-shadow(0 8px 16px rgba($primary-blue, 0.3))
-                drop-shadow(0 40px 50px rgba($primary-indigo, 0.25)) !important;
+        filter: drop-shadow(0 0 20px rgba($primary-indigo, 0.5))
+                drop-shadow(0 0 40px rgba($primary-blue, 0.3))
+                drop-shadow(0 0 60px rgba($primary-indigo, 0.25)) !important;
 
         :host-context(body.dark-theme) & {
-          filter: drop-shadow(0 20px 30px rgba(#90caf9, 0.4))
-                  drop-shadow(0 8px 16px rgba(#5c6bc0, 0.3))
-                  drop-shadow(0 40px 50px rgba(#90caf9, 0.2)) !important;
+          filter: drop-shadow(0 0 20px rgba(#90caf9, 0.4))
+                  drop-shadow(0 0 40px rgba(#5c6bc0, 0.3))
+                  drop-shadow(0 0 60px rgba(#90caf9, 0.2)) !important;
         }
       }
     }

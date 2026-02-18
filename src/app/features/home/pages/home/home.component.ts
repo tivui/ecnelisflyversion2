@@ -658,13 +658,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.longPressStartTime = 0;
     this.gooeyAudio.startDrone();
     navigator.vibrate?.(10);
-    // Kill CSS animation to allow JS transform (animation overrides inline styles)
+
     if (this.activeLogoEl) {
       this.activeLogoEl.classList.add('longpress-active');
-      if (this.isMobileTouch) {
-        this.activeLogoEl.classList.add('longpress-active-mobile');
-      }
     }
+
+    if (this.isMobileTouch) {
+      // Use the fixed-position clone (z-index: 9999) to escape toolbar stacking context
+      this.logoCloneActive.set(true);
+      this.position = { ...this.logoHome };
+    }
+
     if (!this.rAFId) this.startPhysicsLoop();
   }
 
@@ -675,19 +679,27 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const logoEl = this.activeLogoEl;
 
-    if (logoEl && this.isMobileTouch) {
-      // Smooth spring return with elastic overshoot
-      logoEl.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      logoEl.style.transform = 'translateY(0) rotate(0deg) scaleX(1) scaleY(1)';
-      const cleanup = () => {
-        logoEl.style.transform = '';
-        logoEl.style.transition = '';
+    if (this.isMobileTouch) {
+      // Animate clone back to scale 1, then hide it
+      const clone = this.bouncingLogoEl?.nativeElement;
+      if (clone) {
+        clone.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        const halfSize = this.logoSize / 2;
+        clone.style.transform = `translate(${this.logoHome.x - halfSize}px, ${this.logoHome.y - halfSize}px) scaleX(1) scaleY(1)`;
+        const cleanup = () => {
+          clone.style.transition = '';
+          clone.style.transform = '';
+          this.ngZone.run(() => this.logoCloneActive.set(false));
+          clone.removeEventListener('transitionend', cleanup);
+        };
+        clone.addEventListener('transitionend', cleanup, { once: true });
+        setTimeout(cleanup, 500);
+      } else {
+        this.logoCloneActive.set(false);
+      }
+      if (logoEl) {
         logoEl.classList.remove('longpress-active');
-        logoEl.classList.remove('longpress-active-mobile');
-        logoEl.removeEventListener('transitionend', cleanup);
-      };
-      logoEl.addEventListener('transitionend', cleanup, { once: true });
-      setTimeout(cleanup, 600); // fallback
+      }
     } else if (logoEl) {
       logoEl.style.transform = '';
       logoEl.style.transition = '';
@@ -745,8 +757,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private endLongPressForPinch(): void {
     this.gooeyAudio.stopDrone();
     this.longPressStartTime = 0;
-    if (this.activeLogoEl) {
-      this.activeLogoEl.classList.remove('longpress-active-mobile');
+    if (this.isMobileTouch) {
+      // Hide clone — pinch will transform the original logo
+      this.logoCloneActive.set(false);
+      const clone = this.bouncingLogoEl?.nativeElement;
+      if (clone) {
+        clone.style.transition = '';
+        clone.style.transform = '';
+      }
     }
   }
 
@@ -956,14 +974,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateLongPressMobile(elapsed: number): void {
-    // Escape upward: translateY(-110px) over 0.6s with ease-out cubic
-    const escapeProgress = Math.min(elapsed / 0.6, 1);
-    const easedEscape = 1 - Math.pow(1 - escapeProgress, 3);
-    const translateY = -110 * easedEscape;
-
-    // Scale aggressively: 1.0 → 2.8x over 1.5s (64px → ~180px, visible above thumb)
+    // Scale: 1.0 → 2.2x over 1.5s (96px → ~211px, visible beyond thumb without overflow)
     const scaleProgress = Math.min(elapsed / 1.5, 1);
-    const baseScale = 1 + scaleProgress * 1.8;
+    const baseScale = 1 + scaleProgress * 1.2;
 
     // Pulse: breathing
     const pulse = 1 + Math.sin(elapsed * Math.PI * 2) * 0.04 * scaleProgress;
@@ -972,17 +985,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Spin: same quadratic acceleration as desktop
     const rotation = 30 * Math.pow(elapsed, 2.5);
 
-    // Wobble: slightly stronger on mobile
-    const wobbleAmount = 0.03 * scaleProgress;
+    // Wobble: stronger on mobile for dramatic goo effect
+    const wobbleAmount = 0.035 * scaleProgress;
     const wobble = Math.sin(elapsed * 8) * wobbleAmount;
     const scaleX = (scale + wobble).toFixed(3);
     const scaleY = (scale - wobble).toFixed(3);
 
-    const logoEl = this.activeLogoEl;
-    if (logoEl) {
-      logoEl.style.transition = 'none';
-      logoEl.style.transform =
-        `translateY(${translateY.toFixed(1)}px) rotate(${rotation.toFixed(1)}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
+    // Use the fixed-position clone (above toolbar) instead of original logo
+    const clone = this.bouncingLogoEl?.nativeElement;
+    if (clone) {
+      const halfSize = this.logoSize / 2;
+      clone.style.transition = 'none';
+      clone.style.transform =
+        `translate(${this.logoHome.x - halfSize}px, ${this.logoHome.y - halfSize}px) rotate(${rotation.toFixed(1)}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
     }
   }
 
