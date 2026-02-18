@@ -85,7 +85,7 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
   - **Descriptions cachees** : `.hero-card-desc { display: none }` sur toutes les cards mobile
   - **Cards secondary** : fond blanc + `border-left` colore par type (3px), icons avec fond tinte par accent
   - **CTA buttons** : `align-self: flex-start` (alignes a gauche), compacts
-  - **Sections "A la une" et "Categories"** : fond tinte `linear-gradient(180deg, #f0f2fa, #eaecf5)` (light) / gradient indigo `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` (dark), `border-radius: 22px`, illustrations positionnees en absolu top-left
+  - **Sections "A la une" et "Categories"** : fond tinte `linear-gradient(180deg, #f0f2fa, #eaecf5)` (light) / `rgba(18, 18, 34, 0.94)` (dark, harmonise avec Mapfly card), `border-radius: 22px`, illustrations positionnees en absolu top-left
 - **Small phones** (`max-height: 800px`) : tailles reduites supplementaires (logo, gap, padding)
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
 
@@ -141,7 +141,7 @@ Section unifiee regroupant illustration + titre + carousel de secondary cards + 
 **Titre :** `font-size: 1.08rem; font-weight: 800; padding-left: 80px; line-height: 58px` (aligne verticalement sur l'illustration)
 
 **Background light :** `linear-gradient(180deg, #f0f2fa, #eaecf5)` — surface teintee
-**Background dark :** `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` — gradient indigo profond
+**Background dark :** `rgba(18, 18, 34, 0.94)` — surface plate harmonisee avec Mapfly card
 
 **Carousel :** `scroll-snap-type: x mandatory`, cards en `scroll-snap-align: start`, `gap: 12px`, `padding: 0 16px`
 
@@ -249,7 +249,7 @@ Section en bas du scroll, design harmonise avec "A la une".
 - `.carousel-icon` masque (illustration le remplace)
 
 **Dark :**
-- Background : `linear-gradient(145deg, #0d1030, #151c52, #1e266a)` — gradient indigo (meme que "A la une")
+- Background : `rgba(18, 18, 34, 0.94)` — surface plate (meme que "A la une" et Mapfly card)
 - `border: 1px solid rgba(#5c6bc0, 0.18)`, padding supplementaire pour aeration
 
 **i18n `home.categories.mobileTitle` :** FR "Categories", EN "Categories", ES "Categorias"
