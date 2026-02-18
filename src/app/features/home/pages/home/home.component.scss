@@ -1659,11 +1659,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     border: 1px solid rgba($primary-indigo, 0.08);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 
-    // Dark mode: indigo gradient
+    // Dark mode: flat surface matching Mapfly card
     :host-context(body.dark-theme) & {
-      background: linear-gradient(145deg, #0d1030 0%, #151c52 50%, #1e266a 100%);
-      border: 1px solid rgba(#5c6bc0, 0.18);
-      box-shadow: 0 4px 20px rgba(0, 0, 20, 0.50);
+      background: rgba(18, 18, 34, 0.94);
+      border: 1px solid rgba(#5c6bc0, 0.15);
+      box-shadow: 0 2px 16px rgba(0, 0, 20, 0.40);
     }
 
     // Illustration: breathing room
@@ -2154,11 +2154,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       display: none;
     }
 
-    // Dark: indigo gradient matching "À la une"
+    // Dark: flat surface matching Mapfly card
     :host-context(body.dark-theme) & {
-      background: linear-gradient(145deg, #0d1030 0%, #151c52 50%, #1e266a 100%);
-      border: 1px solid rgba(#5c6bc0, 0.18);
-      box-shadow: 0 4px 20px rgba(0, 0, 20, 0.50);
+      background: rgba(18, 18, 34, 0.94);
+      border: 1px solid rgba(#5c6bc0, 0.15);
+      box-shadow: 0 2px 16px rgba(0, 0, 20, 0.40);
 
       &::before {
         display: none;
