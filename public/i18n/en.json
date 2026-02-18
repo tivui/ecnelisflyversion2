@@ -19,9 +19,11 @@
       ],
       "exploreMap": "World Map",
       "exploreMapDesc": "Browse all geolocated sounds on an interactive map",
+      "mapSubtitle": "World sound map",
       "exploreZones": "Discover Terroirs",
       "exploreZonesDesc": "Explore unique thematic sound regions",
       "explore": "Explore",
+      "alaune": "Highlights",
       "discover": "Discover",
       "soundOfTheDay": "Sound of the Day",
       "listen": "Listen",
@@ -47,7 +49,8 @@
       "zones": "Terroirs"
     },
     "categories": {
-      "title": "Explore by category"
+      "title": "Explore by category",
+      "mobileTitle": "Categories"
     },
     "stats": {
       "sounds": "sounds",

@@ -23,134 +23,149 @@
     <div class="hero-actions">
       <!-- World Map Card (primary CTA — always visible) -->
       <a routerLink="/mapfly" class="hero-card hero-card-map" (click)="onMapCardClick($event)">
+        <img src="/img/logos/cards/mapfly_card.png" alt="" class="map-card-illustration" />
         <div class="hero-card-visual">
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
           </div>
         </div>
         <div class="hero-card-content">
-          <h3>{{ 'home.hero.exploreMap' | translate }}</h3>
+          <h3 class="map-desktop-title">{{ 'home.hero.exploreMap' | translate }}</h3>
+          <h3 class="map-mobile-title">Mapfly</h3>
+          <p class="map-mobile-subtitle">{{ 'home.hero.mapSubtitle' | translate }}</p>
           <p class="hero-card-desc">{{ 'home.hero.exploreMapDesc' | translate }}</p>
           <span class="hero-card-cta">
             {{ 'home.hero.explore' | translate }}
             <mat-icon>arrow_forward</mat-icon>
           </span>
         </div>
+        <mat-icon class="map-card-chevron">chevron_right</mat-icon>
       </a>
 
-      <!-- Secondary cards: 2x2 grid on mobile, 3-card row on desktop -->
-      <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
-        @for (cardType of orderedSecondaryCards(); track cardType) {
-          @switch (cardType) {
-            @case ('quiz') {
-              <a class="hero-card hero-card-quiz"
-                (click)="onCardClick('quiz')"
-                [routerLink]="'/quiz/' + monthlyQuiz()!.id">
-                <div class="hero-card-visual">
-                  <div class="hero-card-icon">
-                    <mat-icon>{{ monthlyQuiz()!.icon || 'quiz' }}</mat-icon>
+      <!-- "À la une" unified section (mobile: visual block with logo, title, carousel, dots) -->
+      <div class="alaune-section">
+        <img src="/img/logos/cards/highlights_card.png" alt="" class="alaune-illustration" />
+        <h2 class="alaune-title">{{ 'home.hero.alaune' | translate }}</h2>
+
+        <!-- Secondary cards: carousel on mobile, 3-card row on desktop -->
+        <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
+          @for (cardType of orderedSecondaryCards(); track cardType) {
+            @switch (cardType) {
+              @case ('quiz') {
+                <a class="hero-card hero-card-quiz"
+                  (click)="onCardClick('quiz')"
+                  [routerLink]="'/quiz/' + monthlyQuiz()!.id">
+                  <div class="hero-card-visual">
+                    <div class="hero-card-icon">
+                      <mat-icon>{{ monthlyQuiz()!.icon || 'quiz' }}</mat-icon>
+                    </div>
+                    <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
                   </div>
-                  <span class="quiz-badge">{{ 'home.hero.monthlyQuiz' | translate }}</span>
-                </div>
-                <div class="hero-card-content">
-                  <h3>{{ quizTitle() }}</h3>
-                  <p class="hero-card-desc">{{ quizDescription() }}</p>
-                  <span class="hero-card-cta" (click)="onCardCtaClick('quiz', $event)">
-                    {{ 'home.hero.play' | translate }}
-                    <mat-icon>arrow_forward</mat-icon>
-                  </span>
-                </div>
-              </a>
-            }
-            @case ('article') {
-              <a class="hero-card hero-card-article"
-                (click)="onCardClick('article')"
-                [routerLink]="'/articles/' + latestArticle()!.slug">
-                <div class="hero-card-visual">
-                  <div class="hero-card-icon">
-                    <mat-icon>menu_book</mat-icon>
+                  <div class="hero-card-content">
+                    <h3>{{ quizTitle() }}</h3>
+                    <p class="hero-card-desc">{{ quizDescription() }}</p>
+                    <span class="hero-card-cta" (click)="onCardCtaClick('quiz', $event)">
+                      {{ 'home.hero.play' | translate }}
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
                   </div>
-                  <span class="article-badge">{{ 'home.hero.newArticle' | translate }}</span>
-                </div>
-                <div class="hero-card-content">
-                  <h3>{{ articleTitle() }}</h3>
-                  <p class="hero-card-desc">{{ articleDescription() }}</p>
-                  <span class="hero-card-cta" (click)="onCardCtaClick('article', $event)">
-                    {{ 'home.hero.readArticle' | translate }}
-                    <mat-icon>arrow_forward</mat-icon>
-                  </span>
-                </div>
-              </a>
-            }
-            @case ('monthlyZone') {
-              <a class="hero-card hero-card-monthly-zone"
-                [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'"
-                (click)="onCardClick('monthlyZone')">
-                <div class="hero-card-visual">
-                  <div class="hero-card-icon">
-                    <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
+                  <mat-icon class="carousel-card-chevron">chevron_right</mat-icon>
+                </a>
+              }
+              @case ('article') {
+                <a class="hero-card hero-card-article"
+                  (click)="onCardClick('article')"
+                  [routerLink]="'/articles/' + latestArticle()!.slug">
+                  <div class="hero-card-visual">
+                    <div class="hero-card-icon">
+                      <mat-icon>menu_book</mat-icon>
+                    </div>
+                    <span class="article-badge">{{ 'home.hero.newArticle' | translate }}</span>
                   </div>
-                  <span class="monthly-zone-badge">{{ 'home.hero.monthlyZone' | translate }}</span>
-                </div>
-                <div class="hero-card-content">
-                  <h3>{{ monthlyZoneName() }}</h3>
-                  <p class="hero-card-desc">{{ monthlyZoneDescription() }}</p>
-                  <span class="hero-card-cta" (click)="onCardCtaClick('monthlyZone', $event)">
-                    {{ 'home.hero.explore' | translate }}
-                    <mat-icon>arrow_forward</mat-icon>
-                  </span>
-                </div>
-              </a>
-            }
-            @case ('monthlyJourney') {
-              <a class="hero-card hero-card-journey"
-                (click)="onCardClick('monthlyJourney')">
-                <div class="hero-card-visual">
-                  <div class="hero-card-icon">
-                    <mat-icon>route</mat-icon>
+                  <div class="hero-card-content">
+                    <h3>{{ articleTitle() }}</h3>
+                    <p class="hero-card-desc">{{ articleDescription() }}</p>
+                    <span class="hero-card-cta" (click)="onCardCtaClick('article', $event)">
+                      {{ 'home.hero.readArticle' | translate }}
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
                   </div>
-                  <span class="journey-badge">{{ 'home.hero.monthlyJourney' | translate }}</span>
-                </div>
-                <div class="hero-card-content">
-                  <h3>{{ monthlyJourneyName() }}</h3>
-                  <p class="hero-card-desc">{{ monthlyJourneyDescription() }}</p>
-                  <span class="hero-card-cta" (click)="onCardCtaClick('monthlyJourney', $event)">
-                    {{ 'home.hero.startJourney' | translate }}
-                    <mat-icon>arrow_forward</mat-icon>
-                  </span>
-                </div>
-              </a>
-            }
-            @case ('featured') {
-              <a class="hero-card hero-card-featured"
-                (click)="onCardClick('featured')">
-                <div class="hero-card-visual">
-                  <div class="hero-card-icon">
-                    <mat-icon>headphones</mat-icon>
+                  <mat-icon class="carousel-card-chevron">chevron_right</mat-icon>
+                </a>
+              }
+              @case ('monthlyZone') {
+                <a class="hero-card hero-card-monthly-zone"
+                  [style.--zone-color]="monthlyZone()!.zoneColor ?? '#b07c10'"
+                  (click)="onCardClick('monthlyZone')">
+                  <div class="hero-card-visual">
+                    <div class="hero-card-icon">
+                      <mat-icon>{{ monthlyZone()!.zoneIcon ?? 'terrain' }}</mat-icon>
+                    </div>
+                    <span class="monthly-zone-badge">{{ 'home.hero.monthlyZone' | translate }}</span>
                   </div>
-                  <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
-                </div>
-                <div class="hero-card-content">
-                  <h3>{{ dailyFeatured()!.soundTitle }}</h3>
-                  <p class="hero-card-desc">{{ teasingText() }}</p>
-                  <span class="hero-card-cta" (click)="onCardCtaClick('featured', $event)">
-                    {{ 'home.hero.listen' | translate }}
-                    <mat-icon>arrow_forward</mat-icon>
-                  </span>
-                </div>
-              </a>
+                  <div class="hero-card-content">
+                    <h3>{{ monthlyZoneName() }}</h3>
+                    <p class="hero-card-desc">{{ monthlyZoneDescription() }}</p>
+                    <span class="hero-card-cta" (click)="onCardCtaClick('monthlyZone', $event)">
+                      {{ 'home.hero.explore' | translate }}
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
+                  </div>
+                  <mat-icon class="carousel-card-chevron">chevron_right</mat-icon>
+                </a>
+              }
+              @case ('monthlyJourney') {
+                <a class="hero-card hero-card-journey"
+                  (click)="onCardClick('monthlyJourney')">
+                  <div class="hero-card-visual">
+                    <div class="hero-card-icon">
+                      <mat-icon>route</mat-icon>
+                    </div>
+                    <span class="journey-badge">{{ 'home.hero.monthlyJourney' | translate }}</span>
+                  </div>
+                  <div class="hero-card-content">
+                    <h3>{{ monthlyJourneyName() }}</h3>
+                    <p class="hero-card-desc">{{ monthlyJourneyDescription() }}</p>
+                    <span class="hero-card-cta" (click)="onCardCtaClick('monthlyJourney', $event)">
+                      {{ 'home.hero.startJourney' | translate }}
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
+                  </div>
+                  <mat-icon class="carousel-card-chevron">chevron_right</mat-icon>
+                </a>
+              }
+              @case ('featured') {
+                <a class="hero-card hero-card-featured"
+                  (click)="onCardClick('featured')">
+                  <div class="hero-card-visual">
+                    <div class="hero-card-icon">
+                      <mat-icon>headphones</mat-icon>
+                    </div>
+                    <span class="featured-badge">{{ 'home.hero.soundOfTheDay' | translate }}</span>
+                  </div>
+                  <div class="hero-card-content">
+                    <h3>{{ dailyFeatured()!.soundTitle }}</h3>
+                    <p class="hero-card-desc">{{ teasingText() }}</p>
+                    <span class="hero-card-cta" (click)="onCardCtaClick('featured', $event)">
+                      {{ 'home.hero.listen' | translate }}
+                      <mat-icon>arrow_forward</mat-icon>
+                    </span>
+                  </div>
+                  <mat-icon class="carousel-card-chevron">chevron_right</mat-icon>
+                </a>
+              }
             }
           }
-        }
+        </div>
+
+        <!-- Scroll dots -->
+        <div class="scroll-dots" aria-hidden="true">
+          @for (i of secondaryCardIndices(); track i) {
+            <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
+          }
+        </div>
       </div>
 
-    </div>
-
-    <!-- Scroll dots (horizontal scroll indicator) -->
-    <div class="scroll-dots" aria-hidden="true">
-      @for (i of secondaryCardIndices(); track i) {
-        <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
-      }
     </div>
   </section>
 
@@ -196,11 +211,17 @@
 
   <!-- Categories Carousel -->
   <section class="carousel-section">
+    <img src="/img/logos/cards/categories_card.png" alt="" class="categories-illustration" />
     <div class="carousel-header">
       <mat-icon class="carousel-icon">category</mat-icon>
-      <h2 class="carousel-title">{{ 'home.categories.title' | translate }}</h2>
+      <h2 class="carousel-title carousel-desktop-title">{{ 'home.categories.title' | translate }}</h2>
+      <h2 class="carousel-title carousel-mobile-title">{{ 'home.categories.mobileTitle' | translate }}</h2>
     </div>
-    <app-carousel-categories></app-carousel-categories>
+    <div class="categories-scroll-wrap">
+      <mat-icon class="scroll-hint scroll-hint-left">chevron_left</mat-icon>
+      <app-carousel-categories></app-carousel-categories>
+      <mat-icon class="scroll-hint scroll-hint-right">chevron_right</mat-icon>
+    </div>
   </section>
 </div>
 
