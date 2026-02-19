@@ -201,21 +201,21 @@
   background: none;
   border: none;
   text-decoration: none;
-  color: #555;
+  color: #6b7280;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: color 0.2s ease;
 
   mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
     transition: color 0.2s ease;
   }
 
   span {
-    font-size: 0.62rem;
-    font-weight: 500;
+    font-size: 0.64rem;
+    font-weight: 600;
     letter-spacing: 0.3px;
   }
 
@@ -224,6 +224,7 @@
 
     mat-icon {
       color: #1976d2;
+      font-variation-settings: 'FILL' 1;
     }
 
     :host-context(body.dark-theme) & {
