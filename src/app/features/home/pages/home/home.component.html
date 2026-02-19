@@ -15,7 +15,8 @@
           draggable="false"
         />
       </div>
-      <h1 class="hero-title" appFitText [fitTextMax]="34" [fitTextMin]="16">{{ 'home.hero.title' | translate }}</h1>
+      <h1 class="hero-title hero-title-desktop" appFitText [fitTextMax]="34" [fitTextMin]="16">{{ 'home.hero.title' | translate }}</h1>
+      <h1 class="hero-title hero-title-mobile">{{ 'home.hero.mobileTitle' | translate }}</h1>
       <p class="hero-subtitle">{{ randomSubtitle() }}</p>
     </div>
 
