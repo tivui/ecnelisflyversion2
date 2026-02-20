@@ -120,13 +120,17 @@
     position: sticky;
     top: 0;
     z-index: 50;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+
+    :host-context(body.dark-theme) & {
+      background: rgba(14, 14, 28, 0.96);
+    }
   }
 
   .toolbar-logo {
     height: 28px;
-  }
-
-  .toolbar-logo {
     display: none;
   }
 
@@ -171,9 +175,8 @@
     bottom: 0;
     left: 0;
     right: 0;
-    min-height: 56px;
+    height: 56px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    box-sizing: content-box;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(20px) saturate(1.5);
     -webkit-backdrop-filter: blur(20px) saturate(1.5);
@@ -201,21 +204,21 @@
   background: none;
   border: none;
   text-decoration: none;
-  color: #6b7280;
+  color: #555;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: color 0.2s ease;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
     transition: color 0.2s ease;
   }
 
   span {
-    font-size: 0.64rem;
-    font-weight: 600;
+    font-size: 0.62rem;
+    font-weight: 500;
     letter-spacing: 0.3px;
   }
 
@@ -224,7 +227,6 @@
 
     mat-icon {
       color: #1976d2;
-      font-variation-settings: 'FILL' 1;
     }
 
     :host-context(body.dark-theme) & {

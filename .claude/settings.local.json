@@ -16,7 +16,20 @@
       "Bash(aws cognito-idp admin-create-user:*)",
       "Bash(aws cognito-idp admin-set-user-password:*)",
       "Bash(taskkill:*)",
-      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx ng build:*)"
+      "Bash(NODE_OPTIONS=\"--max-old-space-size=4096\" npx ng build:*)",
+      "Bash(git checkout:*)",
+      "Bash(git --no-pager diff:*)",
+      "Bash(git --no-pager show:*)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" log --oneline -1)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager show HEAD:src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager show main:src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager grep -n \"home-container\\\\|overflow\\\\|min-height\\\\|padding-bottom\\\\|z-index\\\\|700px\\\\|portrait\" HEAD -- src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager grep -n \"home-container\\\\|overflow\\\\|min-height\\\\|padding-bottom\\\\|z-index\\\\|700px\\\\|portrait\" main -- src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager log --oneline -1 -- src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L1398,1470 HEAD -- src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L1470,1560 HEAD -- src/app/features/home/pages/home/home.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,135 main -- src/app/app.component.scss)",
+      "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,140 HEAD -- src/app/app.component.scss)"
     ]
   }
 }

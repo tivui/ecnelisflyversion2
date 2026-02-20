@@ -25,6 +25,7 @@
       <!-- World Map Card (primary CTA — always visible) -->
       <a routerLink="/mapfly" class="hero-card hero-card-map" (click)="onMapCardClick($event)">
         <img src="/img/logos/cards/mapfly_card.png" alt="" class="map-card-illustration" />
+        <mat-icon class="map-card-icon-mobile">public</mat-icon>
         <div class="hero-card-visual">
           <div class="hero-card-icon">
             <mat-icon>public</mat-icon>
@@ -46,11 +47,12 @@
       <!-- "À la une" unified section (mobile: visual block with logo, title, carousel, dots) -->
       <div class="alaune-section">
         <img src="/img/logos/cards/highlights_card.png" alt="" class="alaune-illustration" />
+        <mat-icon class="alaune-icon-mobile">auto_awesome</mat-icon>
         <h2 class="alaune-title">{{ 'home.hero.alaune' | translate }}</h2>
 
         <!-- Secondary cards: carousel on mobile, 3-card row on desktop -->
-        <div class="hero-cards-secondary" #secondaryScroll (scroll)="onSecondaryScroll($event)">
-          @for (cardType of orderedSecondaryCards(); track cardType) {
+        <div class="hero-cards-secondary" #secondaryScroll>
+          @for (cardType of repeatedCards(); track $index) {
             @switch (cardType) {
               @case ('quiz') {
                 <a class="hero-card hero-card-quiz"
@@ -159,12 +161,6 @@
           }
         </div>
 
-        <!-- Scroll dots -->
-        <div class="scroll-dots" aria-hidden="true">
-          @for (i of secondaryCardIndices(); track i) {
-            <span class="scroll-dot" [class.active]="i === activeCardIndex()"></span>
-          }
-        </div>
       </div>
 
     </div>
@@ -193,17 +189,17 @@
     @if (communityStats()) {
       <div class="community-stats">
         <span class="stat">
-          <strong>{{ communityStats()!.sounds }}</strong>
+          <strong>{{ displaySounds() }}</strong>
           {{ 'home.stats.sounds' | translate }}
         </span>
         <span class="stat-dot">&middot;</span>
         <span class="stat">
-          <strong>{{ communityStats()!.countries }}</strong>
+          <strong>{{ displayCountries() }}</strong>
           {{ 'home.stats.countries' | translate }}
         </span>
         <span class="stat-dot">&middot;</span>
         <span class="stat">
-          <strong>{{ communityStats()!.contributors }}</strong>
+          <strong>{{ displayContributors() }}</strong>
           {{ 'home.stats.contributors' | translate }}
         </span>
       </div>
@@ -213,6 +209,7 @@
   <!-- Categories Carousel -->
   <section class="carousel-section">
     <img src="/img/logos/cards/categories_card.png" alt="" class="categories-illustration" />
+    <mat-icon class="categories-icon-mobile">category</mat-icon>
     <div class="carousel-header">
       <mat-icon class="carousel-icon">category</mat-icon>
       <h2 class="carousel-title carousel-desktop-title">{{ 'home.categories.title' | translate }}</h2>
