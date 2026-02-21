@@ -51,12 +51,16 @@ export const handler: Schema['importSounds']['functionHandler'] = async (
           ? sound.flag.replace(/\.png$/i, '') // enlève le ".png"
           : undefined;
 
+        // Use a unique placeholder email per author to avoid OAuth merge
+        // conflicts (the old DB stored the admin's email for all sounds)
+        const safeEmail = `imported_${sound.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
+
         const created = await client.models.User.create({
           username: sound.username,
-          email: sound.email || undefined, // facultatif
+          email: safeEmail,
           country: countryCode,
-          language: 'fr', // valeur par défaut
-          theme: 'light', // valeur par défaut
+          language: 'fr',
+          theme: 'light',
         });
 
         if (created.errors && created.errors.length > 0) {

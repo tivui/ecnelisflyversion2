@@ -1089,6 +1089,40 @@ Grille responsive de cards `app-card-category` (composant reutilisable de la hom
 
 **Desktop** : inchange (cards horizontales avec clip-path, champ recherche sous-categories visible)
 
+## Import de sons — attribution des auteurs originaux
+
+### Probleme
+
+L'ancien projet stockait l'email de l'admin (`tivui64@gmail.com`) pour **tous** les sons, quel que soit l'auteur original. Lors de l'import via la Lambda, les User crees pour chaque auteur (ex: "reinsamba") avaient tous cet email admin. Le systeme de merge OAuth (liaison par email) fusionnait ensuite ces comptes vers l'admin, reassignant tous les sons a tivui64.
+
+### Correctif — Lambdas d'import (`import-sounds`, `process-import`)
+
+Email factice unique par auteur au lieu de l'email du JSON :
+```typescript
+const safeEmail = `imported_${sound.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
+```
+Empeche le merge OAuth de toucher les comptes importes.
+
+### Lambda de migration (`fix-imported-users`)
+
+Lambda one-shot pour corriger les sons existants. Lit le JSON d'import depuis S3, charge tous les sons de la table DynamoDB, puis pour chaque entree :
+1. Matche le Sound en base par `filename`
+2. Verifie si le `userId` pointe vers le bon User (meme `username`)
+3. Si non : cree/retrouve le User original et reassigne le `userId`
+4. Corrige le `country` si mauvaise casse (les drapeaux sont en majuscules : `DE.png`, `FR.png`)
+
+**Invocation :** Console AWS Lambda, test event `{"arguments": {"s3Key": "imports/all-sounds.json"}}` (format AppSync) ou `{"s3Key": "..."}` (invocation directe).
+
+**Fichiers :**
+- `amplify/functions/fix-imported-users/handler.ts` — handler (charge toute la table, index par filename)
+- `amplify/functions/fix-imported-users/resource.ts` — definition (900s timeout, 1024MB)
+- `amplify/backend.ts` — permissions S3 (lecture `imports/*`)
+- `amplify/data/resource.ts` — mutation GraphQL `fixImportedUsers` (ADMIN only)
+
+### Drapeaux (flags)
+
+Les fichiers de drapeaux sont en **MAJUSCULES** dans `public/img/flags/` (`DE.png`, `FR.png`, `CA.png`). Le champ `User.country` doit stocker le code en majuscules pour correspondre.
+
 ## Fichiers temporaires a ignorer
 
 - `preview-color-proposals.html` (preview design, pas partie de l'app)
