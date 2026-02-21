@@ -420,6 +420,36 @@ Chaque voyage sonore peut avoir une image de couverture configurable par l'admin
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
 
+#### Mobile Bottom Sheet (`sound-popup-sheet.component`)
+
+Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert au clic d'un marker quand `isMobilePortrait`.
+
+**Layout sheet-top :**
+- `.sheet-title-row` : titre + icone clap/compteur sur la meme ligne (`display: flex; flex-wrap: wrap; gap: 6px; padding-right: 32px`)
+- Audio player pleine largeur
+- `.sheet-actions-bar` : 3 boutons centres (`justify-content: center`) — zoom out, download, zoom in
+- Mode journey : like row separee (titre dans le header), navigation prev/next/finish
+
+**Bouton close contraste :** quand un header colore est present (featured violet, journey), le close button a un fond `rgba(255,255,255,0.20)` et icone blanche via `.featured-header ~ .sheet-close-btn` / `.journey-header ~ .sheet-close-btn`. Le close button est place APRES les headers dans le DOM pour que le selecteur `~` fonctionne (position absolute donc pas d'impact visuel).
+
+**Drapeau :** `::ng-deep .sheet-record-info img` force `18x13px !important` pour eviter les drapeaux surdimensionnes.
+
+**Traduction :** bouton centre (`align-self: center`), `margin-bottom: 6px`.
+
+**Nettoyage ngOnDestroy :** `this.activeSheetRef?.dismiss()` + `this.bottomSheet.dismiss()` pour fermer toute sheet ouverte lors de la navigation hors de mapfly.
+
+#### Centrage marker au-dessus de la bottom sheet
+
+`centerMarkerAboveSheet(lat, lng, zoom?)` : centre le marker dans la zone de carte visible (moitie superieure, au-dessus de la sheet). Utilise `map.project/unproject` pour calculer le decalage pixel (`sheetHeight / 2`). Appele :
+- A l'ouverture de la sheet (`openSoundSheet`)
+- Au clic des boutons zoom dans la sheet (callbacks `onZoomIn`/`onZoomOut`)
+
+#### Overlays cinematiques — pre-chargement i18n
+
+Les overlays featured et journey utilisent `await firstValueFrom(translate.use(currentLang))` avant d'afficher l'overlay (`overlayVisible.set(true)`) pour garantir que les traductions sont chargees et eviter un flash de la langue par defaut.
+
+Le `featuredLabel` passe a la bottom sheet est la cle i18n (`'home.hero.soundOfTheDay'`), traduite dans le template via `{{ data.featuredLabel | translate }}`. Le popup desktop utilise `translate.instant()` (cree apres l'animation, traductions deja chargees).
+
 #### Controles conditionnels par mode
 
 - **Mode categorie** (`isCategoryMode()`) : `groupedLayersControl` (selecteur de layers/categories) masque — inutile puisqu'on est deja dans une categorie filtree
