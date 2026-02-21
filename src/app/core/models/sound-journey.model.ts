@@ -7,6 +7,8 @@ export class SoundJourney {
   slug!: string;
   color?: string;
   coverImage?: string;
+  coverImagePosition?: string;
+  coverImageZoom?: number;
   isPublic?: boolean;
   sortOrder?: number;
   createdBy?: string;

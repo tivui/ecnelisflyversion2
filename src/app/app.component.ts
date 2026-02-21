@@ -221,9 +221,12 @@ export class AppComponent implements OnInit {
     const appUser = await this.appUserService.loadCurrentUser();
 
     // Load current user & groups
+    // Force token refresh to ensure cognito:groups claim is present for OAuth users
     await this.authService.loadCurrentUser();
-
-    // Check if current user is in ADMIN group
+    if (!this.authService.isInGroup('ADMIN') && this.authService.user()) {
+      // Retry with forced refresh — OAuth tokens may not include groups initially
+      await this.authService.loadGroups(true);
+    }
     this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
     let defaultLang: Language;
@@ -262,7 +265,10 @@ export class AppComponent implements OnInit {
           const appUser = await this.appUserService.loadCurrentUser();
 
           // Reload groups and update admin status
+          // Force token refresh to ensure cognito:groups claim is present
+          // (OAuth providers like Google may not include groups in the initial cached token)
           await this.authService.loadCurrentUser();
+          await this.authService.loadGroups(true);
           this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
           if (appUser?.language) {

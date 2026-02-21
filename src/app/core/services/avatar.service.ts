@@ -174,9 +174,19 @@ export class AvatarService {
     const options: Record<string, any> = { seed: resolvedSeed };
 
     // Apply custom options: wrap each value in an array for DiceBear
+    // Only include options that are valid for the current style to prevent
+    // stale options from a previous style breaking the render
     if (avatarOptions) {
+      const validDimensions = STYLE_OPTIONS[resolvedStyle] ?? [];
+      const validKeys = new Set(validDimensions.map(d => d.key));
+
       for (const [key, value] of Object.entries(avatarOptions)) {
-        if (value) {
+        if (value && validKeys.has(key)) {
+          const dim = validDimensions.find(d => d.key === key);
+          // For variant dimensions, also validate the value itself
+          if (dim?.type === 'variant' && dim.variants && !dim.variants.includes(value)) {
+            continue;
+          }
           options[key] = [value];
         }
       }

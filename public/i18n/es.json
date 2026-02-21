@@ -695,7 +695,13 @@
         "formInvalid": "Por favor completa todos los campos requeridos",
         "createSuccess": "Viaje creado con éxito",
         "updateSuccess": "Viaje actualizado con éxito",
-        "saveError": "Error al guardar el viaje"
+        "saveError": "Error al guardar el viaje",
+        "tabMedia": "Multimedia",
+        "coverImage": "Imagen de portada",
+        "coverImageHint": "Formato horizontal recomendado (1200×600)",
+        "uploadImage": "Arrastrar o hacer clic para agregar una imagen",
+        "dragToFrame": "Arrastrar para encuadrar",
+        "uploadError": "Error al subir"
       },
       "steps": {
         "title": "Etapas del viaje \"{{name}}\"",

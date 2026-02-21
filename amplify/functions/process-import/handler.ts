@@ -94,9 +94,13 @@ export const handler: Handler<ImportEvent> = async (event) => {
             ? sound.flag.replace(/\.png$/i, '')
             : undefined;
 
+          // Use a unique placeholder email per author to avoid OAuth merge
+          // conflicts (the old DB stored the admin's email for all sounds)
+          const safeEmail = `imported_${sound.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
+
           const created = await client.models.User.create({
             username: sound.username,
-            email: sound.email || undefined,
+            email: safeEmail,
             country: countryCode,
             language: 'fr',
             theme: 'light',

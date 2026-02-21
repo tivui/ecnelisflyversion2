@@ -698,7 +698,13 @@
         "formInvalid": "Please fill in all required fields",
         "createSuccess": "Journey created successfully",
         "updateSuccess": "Journey updated successfully",
-        "saveError": "Error saving journey"
+        "saveError": "Error saving journey",
+        "tabMedia": "Media",
+        "coverImage": "Cover image",
+        "coverImageHint": "Landscape format recommended (1200×600)",
+        "uploadImage": "Drop or click to add an image",
+        "dragToFrame": "Drag to frame",
+        "uploadError": "Upload error"
       },
       "steps": {
         "title": "Steps for journey \"{{name}}\"",

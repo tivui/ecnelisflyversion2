@@ -81,6 +81,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   monthlyJourney = signal<MonthlyJourney | null>(null);
   communityStats = signal<{ sounds: number; countries: number; contributors: number } | null>(null);
 
+  // Count-up animated values
+  displaySounds = signal(0);
+  displayCountries = signal(0);
+  displayContributors = signal(0);
+
   /** Exactly 3 secondary cards (map always primary = 4 total).
    *  Available: Son du jour, Quiz du mois, Terroir du mois, Article du mois.
    *  If all 4 are available, randomly exclude one. */
@@ -91,9 +96,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Ordered secondary cards: featured always centered for visual focus */
   orderedSecondaryCards = signal<string[]>([]);
 
+  /** Tripled cards for infinite scroll loop */
+  repeatedCards = computed(() => {
+    const cards = this.orderedSecondaryCards();
+    return [...cards, ...cards, ...cards];
+  });
+
   secondaryCardIndices = computed(() => {
     return Array.from({ length: this.orderedSecondaryCards().length }, (_, i) => i);
   });
+
+  private isRepositioning = false;
 
   private currentLang = toSignal(
     this.translate.onLangChange.pipe(map((e) => e.lang)),
@@ -147,6 +160,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         countries: s.countryCount,
         contributors: s.contributorCount,
       });
+      this.animateCountUp(s.soundCount, s.countryCount, s.contributorCount);
     }
 
     const isMobile = window.innerWidth <= 700;
@@ -191,15 +205,48 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataLoaded.set(true);
 
     setTimeout(() => {
-      if (this.secondaryScrollEl && !isMobile) {
+      if (this.secondaryScrollEl) {
         const el = this.secondaryScrollEl.nativeElement;
-        el.scrollLeft = 0;
-        this.updateActiveCard(el);
-        // Hint swipe: briefly scroll right then back to hint horizontal scrolling (desktop only)
+        const originalCount = this.orderedSecondaryCards().length;
+
+        // Scroll to first card of middle set (index = originalCount)
+        const cards = el.querySelectorAll('.hero-card') as NodeListOf<HTMLElement>;
+        if (cards.length > originalCount) {
+          const targetCard = cards[originalCount];
+          el.style.scrollBehavior = 'auto';
+          el.style.scrollSnapType = 'none';
+          el.scrollLeft = targetCard.offsetLeft - (el.clientWidth - targetCard.offsetWidth) / 2;
+          requestAnimationFrame(() => {
+            el.style.scrollSnapType = 'x mandatory';
+            el.style.scrollBehavior = 'smooth';
+          });
+        }
+
+        // After reveal animations complete (~1s), remove them so 3D coverflow CSS takes over
         setTimeout(() => {
-          el.scrollTo({ left: 40, behavior: 'smooth' });
-          setTimeout(() => el.scrollTo({ left: 0, behavior: 'smooth' }), 600);
+          el.querySelectorAll('.hero-card').forEach(card => {
+            (card as HTMLElement).style.animation = 'none';
+          });
+          this.updateActiveCard(el);
         }, 1200);
+
+        // Programmatic scroll listener outside Angular zone (avoids CD at 60fps)
+        this.ngZone.runOutsideAngular(() => {
+          el.addEventListener('scroll', () => {
+            if (this.isRepositioning) return;
+            if (!this.hasScrolled()) {
+              this.ngZone.run(() => this.hasScrolled.set(true));
+            }
+            this.updateActiveCard(el);
+          }, { passive: true });
+        });
+
+        if (!isMobile) {
+          setTimeout(() => {
+            el.scrollTo({ left: el.scrollLeft + 40, behavior: 'smooth' });
+            setTimeout(() => el.scrollTo({ left: el.scrollLeft - 40, behavior: 'smooth' }), 600);
+          }, 1200);
+        }
       }
     });
   }
@@ -208,24 +255,113 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Placeholder for future view-init logic
   }
 
-  onSecondaryScroll(event: Event) {
-    const el = event.target as HTMLElement;
-    if (!this.hasScrolled()) this.hasScrolled.set(true);
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) return;
-    const ratio = el.scrollLeft / maxScroll;
-    // Active card index based on scroll position
-    const cardCount = this.secondaryCardIndices().length;
-    const index = Math.round(ratio * (cardCount - 1));
-    this.activeCardIndex.set(Math.min(index, cardCount - 1));
-    this.updateActiveCard(el);
+  private animateCountUp(sounds: number, countries: number, contributors: number) {
+    const duration = 1200;
+    const start = performance.now();
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // ease-out cubic
+
+    this.ngZone.runOutsideAngular(() => {
+      const tick = (now: number) => {
+        const elapsed = Math.min((now - start) / duration, 1);
+        const factor = ease(elapsed);
+        this.ngZone.run(() => {
+          this.displaySounds.set(Math.round(sounds * factor));
+          this.displayCountries.set(Math.round(countries * factor));
+          this.displayContributors.set(Math.round(contributors * factor));
+        });
+        if (elapsed < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
   }
 
   private updateActiveCard(container: HTMLElement) {
-    const cards = container.querySelectorAll('.hero-card');
-    const idx = this.activeCardIndex();
+    const cards = container.querySelectorAll('.hero-card') as NodeListOf<HTMLElement>;
+    if (!cards.length) return;
+
+    const originalCount = this.orderedSecondaryCards().length;
+    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestIdx = 0;
+    let closestDist = Infinity;
+
     cards.forEach((card, i) => {
-      card.classList.toggle('card-in-view', i === idx);
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const signedDist = cardCenter - containerCenter;
+      const absDist = Math.abs(signedDist);
+
+      // Normalize: 0 = centered, 1 = one card-width away
+      const normalizeWidth = card.offsetWidth + 10;
+      const t = Math.min(absDist / normalizeWidth, 1.0);
+
+      // Cosine interpolation: smooth ease at center and edges
+      const factor = 0.5 * (1 + Math.cos(Math.PI * t));
+
+      // Interpolate scale (0.80 – 1.0) and opacity (0.35 – 1.0)
+      const scale = 0.80 + factor * 0.20;
+      const opacity = 0.35 + factor * 0.65;
+
+      // 3D Coverflow: rotateY based on signed distance (±42° max)
+      const rotateY = signedDist < 0
+        ? (1 - factor) * 42
+        : -(1 - factor) * 42;
+
+      card.style.setProperty('--card-scale', scale.toFixed(4));
+      card.style.setProperty('--card-opacity', opacity.toFixed(4));
+      card.style.setProperty('--card-rotateY', `${rotateY.toFixed(2)}deg`);
+
+      card.style.transformOrigin = signedDist < 0 ? 'right center'
+        : signedDist > 0 ? 'left center' : 'center center';
+
+      if (absDist < closestDist) {
+        closestDist = absDist;
+        closestIdx = i;
+      }
+    });
+
+    // Toggle .card-in-view on closest card
+    cards.forEach((card, i) => {
+      card.classList.toggle('card-in-view', i === closestIdx);
+    });
+
+    // Dot index: modulo to map tripled index → original index
+    const dotIdx = originalCount > 0 ? closestIdx % originalCount : 0;
+    if (this.activeCardIndex() !== dotIdx) {
+      this.ngZone.run(() => this.activeCardIndex.set(dotIdx));
+    }
+
+    // Infinite loop: reposition when scrolling into set 1 or set 3
+    if (originalCount >= 2) {
+      this.handleInfiniteLoop(container, cards, closestIdx, originalCount);
+    }
+  }
+
+  private handleInfiniteLoop(
+    container: HTMLElement,
+    cards: NodeListOf<HTMLElement>,
+    closestIdx: number,
+    originalCount: number,
+  ) {
+    // Set 1: 0..N-1, Set 2: N..2N-1, Set 3: 2N..3N-1
+    // If active card is in set 1 or set 3, jump to equivalent in set 2
+    if (closestIdx >= originalCount && closestIdx < 2 * originalCount) return; // already in set 2
+
+    const targetIdx = closestIdx < originalCount
+      ? closestIdx + originalCount   // set 1 → set 2
+      : closestIdx - originalCount;  // set 3 → set 2
+
+    const offset = cards[targetIdx].offsetLeft - cards[closestIdx].offsetLeft;
+
+    this.isRepositioning = true;
+    container.style.scrollBehavior = 'auto';
+    container.style.scrollSnapType = 'none';
+    container.scrollLeft += offset;
+
+    requestAnimationFrame(() => {
+      container.style.scrollSnapType = 'x mandatory';
+      container.style.scrollBehavior = 'smooth';
+      this.isRepositioning = false;
+      // Re-apply coverflow to reflect new positions
+      this.updateActiveCard(container);
     });
   }
 

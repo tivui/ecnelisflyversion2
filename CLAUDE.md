@@ -35,6 +35,7 @@ Design system : spectre blue -> indigo -> violet avec accents distincts par sect
 | `$primary-indigo` | `#3f51b5` | Zones |
 | `$primary-violet` | `#7e57c2` | Accent secondaire |
 | `$logo-orange` | `#F5A623` | Logo |
+| `$logo-dark-blue` | `#0d47a1` | Accent unifie mobile light (icones, titres, borders) |
 
 ### Accents CTA et border-left par type de card
 
@@ -68,35 +69,44 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
 
 - **Desktop base** : hero cards en grille (map + 3 secondary visible, 4eme cachee), Swiper carousel categories
 - **Desktop XL** (`@media min-width: 1920px`) : layout hero map pleine largeur + 4 secondary cards en ligne (voir section dediee)
-- **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) — **Design "Octopus Clean"** :
-  - **Layout scroll natif** : `height: auto`, `min-height: calc(100dvh - ...)`, `overflow-y: auto`, `gap: 20px` (spacieux)
+- **Mobile portrait** (`@media max-width: 700px, orientation: portrait`) — **Design "Premium Blue"** :
+  - **Layout scroll interne** : `height: calc(100dvh - 48px - 56px - env(safe-area-inset-bottom))`, `overflow-y: auto`, `gap: 24px`. Le scroll est interne au `.home-container` — `mat-sidenav-content` ne scroll PAS (toolbar et bottom nav restent fixes)
+  - **Toolbar sticky** : `position: sticky; top: 0; z-index: 50` + glassmorphism (`backdrop-filter: blur(20px)`) dans `app.component.scss`
+  - **Flex non-compressible** : toutes les sections ont `flex: 0 0 auto` (pas de compression flex sur petits ecrans, le scroll gere)
   - **Aplatissement CSS** : `.hero-section` et `.hero-actions` en `display: contents`, reordonnancement via `order` :
-    1. `.hero-content` (order: 1) — Header : logo 96px interactif (titre + sous-titre actuellement masques en test)
-    2. `.hero-card-map` (order: 2) — Carte mondiale : card horizontale (illustration mapfly_card.png + contenu + chevron)
-    3. `.alaune-section` (order: 4) — Bloc unifie "A la une" : illustration `highlights_card.png` + titre + carousel horizontal scroll-snap + dots
-    4. `.onboarding-section` (order: 5) — Stats inline uniquement (header + pillars masques, pas de card wrapper)
-    5. `.carousel-section` (order: 7) — Carousel categories : illustration `categories_card.png` + titre "Categories" + fleches scroll + chips
-  - **Scroll dots** : visibles dans `.alaune-section` (indicateurs de position carousel)
-  - **Pas de side rails** (supprimees pour style epure), `margin: 0`, `border-radius: 0`
-  - **Background light** : `linear-gradient(180deg, #f5f7fc, #eef1f8)` (simple, pas de radial)
-  - **Background dark** : `linear-gradient(180deg, #0a0b1a, #0f1024)` (profond, epure)
-  - **Border-radius cards** : 20px (Octopus-style)
+    1. `.hero-content` (order: 1) — Header : logo 80px interactif + titre "Ecoutez le monde"
+    2. `.hero-card-map` (order: 2) — Carte mondiale : card horizontale (mat-icon `public` + contenu + chevron)
+    3. `.onboarding-section` (order: 3) — Stats inline (548 sons · 111 pays · 177 explorateurs) + separateur gradient bleu→orange en `::after`
+    4. `.alaune-section` (order: 4) — Bloc unifie "A la une" : mat-icon `auto_awesome` + titre + carousel 3D coverflow infinite scroll (pas d'indicateur de position)
+    5. `.carousel-section` (order: 7) — Carousel categories : mat-icon `category` + titre "Categories" + fleches scroll + chips
+  - **Icones Material** : PNG illustrations remplacees par `<mat-icon>` (38x38px pour A la une/Categories, 64x64px pour Mapfly)
+    - **Light** : fond gradient `$logo-dark-blue (#0d47a1) → #1565c0`, icone blanche, box-shadow bleue
+    - **Dark** : fond gradient `#5c6bc0 → #7e57c2` (indigo→violet lumineux), icone blanche, glow violet
+  - **Couleur unifiee light** : `$logo-dark-blue (#0d47a1)` pour tous les titres bold, icones, borders, accents
+  - **Background light** : `#F1F2F6` + grain SVG quasi imperceptible (opacity 0.05, baseFrequency 0.65, taille 200px — direction sensorielle/artistique)
+  - **Background dark** : `linear-gradient(180deg, #080a18, #0c0e22, #0a0c1e)` + grain (opacity 0.035, baseFrequency 0.65, taille 200px)
+  - **Formes decoratives** : blob bleu (`$primary-blue`, 0.06 opacity) et blob orange (`$logo-orange`, 0.06 opacity) en pseudo-elements sur `.hero-content`, vague organique (`$primary-blue`, 0.02 opacity) en `::after` sur `.home-container`. Tous masques (`opacity: 0`) jusqu'a `.ready` puis fade-in via `transition`
+  - **Hierarchie des surfaces** (variation premium, pas de monotonie) :
+    - `.hero-card-map` : `border-radius: 26px`, shadow forte (hero immersif)
+    - `.alaune-section` : `border-radius: 26px`, fond `rgba($logo-dark-blue, 0.09→0.04)`, shadow profonde + `inset 0 1px` inner glow (spotlight editorial)
+    - `.carousel-section` : `border-radius: 18px`, fond `rgba($logo-dark-blue, 0.035)`, flat sans shadow (secondaire ancre)
+    - `.community-stats` : pas de container (transparent, pas de border/shadow — donnees flottantes)
+  - **Separateur Onboarding→A la une** : trait gradient `$logo-dark-blue 70% → $logo-orange 100%`, 85% largeur, opacity 0.25, margin-top 10px, en `::after` sur `.onboarding-section`
+  - **Pas d'indicateur de scroll** : l'effet 3D coverflow sert d'indicateur naturel de scrollabilite
   - **Pas d'accent top bars** : toutes les `::before` accent bars supprimees pour bords propres
   - **Descriptions cachees** : `.hero-card-desc { display: none }` sur toutes les cards mobile
-  - **Cards secondary** : fond blanc + `border-left` colore par type (3px), icons avec fond tinte par accent
-  - **CTA buttons** : `align-self: flex-start` (alignes a gauche), compacts
-  - **Sections "A la une" et "Categories"** : fond tinte `linear-gradient(180deg, #f0f2fa, #eaecf5)` (light) / `rgba(18, 18, 34, 0.94)` (dark, harmonise avec Mapfly card), `border-radius: 22px`, illustrations positionnees en absolu top-left
-- **Small phones** (`max-height: 800px`) : tailles reduites supplementaires (logo, gap, padding)
+  - **Cards secondary (carousel 3D)** : `min-width: 65vw`, `transform: perspective(600px) rotateY(var(--card-rotateY)) scale(var(--card-scale))`, `border-left` + `border-right: 4px solid` colore par type, infinite scroll (cards triplees), glow subtil sur card active
+- **Small phones** (`max-height: 700px`) : gap reduit (18px), logo 64px, padding compact
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
 
 #### Orchestrated Reveal (chargement)
 
-Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee quand `dataLoaded()` passe a `true` (classe `.ready` sur `.home-container`). Easing : `cubic-bezier(0.22, 1, 0.36, 1)`.
+Tous les elements demarrent a `opacity: 0` et apparaissent en cascade coordonnee quand `dataLoaded()` passe a `true` (classe `.ready` sur `.home-container`). Easing : `cubic-bezier(0.22, 1, 0.36, 1)`. Les formes decoratives (blobs, wave) sont aussi masquees (`opacity: 0`) et font un fade-in via `transition` quand `.ready` est applique.
 
-- Stagger desktop : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> secondary cards (0.33s-0.57s) -> onboarding (0.48s) -> carousel (0.50s)
-- Stagger mobile : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> alaune section (0.28s) -> stats (0.50s) -> carousel (0.55s)
+- Stagger desktop : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> alaune section (0.30s) -> secondary cards (0.35s) -> onboarding (0.48s) -> carousel (0.50s)
+- Stagger mobile : logo (0.05s) -> titre (0.12s) -> sous-titre (0.18s) -> carte map (0.25s) -> alaune section (0.28s) -> cards individuelles (0.28s-0.46s) -> stats (0.50s) -> carousel (0.55s)
 - Desktop : `.hero-cards-secondary` utilise `display: contents`, donc les cards individuelles sont ciblees via `nth-child` pour le reveal
-- Mobile : animation `fadeInUp` pour toutes les sections, cards staggerees individuellement via `nth-child`
+- Mobile : animation `fadeInUp` pour toutes les sections, cards staggerees individuellement via `nth-child`. Apres 1.2s les animations CSS sont desactivees (`style.animation = 'none'`) pour laisser le JS piloter les transforms 3D
 
 #### Gradients positionnels des secondary cards (desktop uniquement)
 
@@ -120,35 +130,38 @@ Les gradients dependent de la **position** dans la grille (pas du type de card).
 
 #### Bloc "A la une" mobile (`.alaune-section`)
 
-Section unifiee regroupant illustration + titre + carousel de secondary cards + dots de navigation.
+Section unifiee regroupant illustration + titre + carousel 3D coverflow infinite scroll.
 
 **Structure HTML :**
 ```html
 <div class="alaune-section">
-  <img class="alaune-illustration" src="highlights_card.png" />
+  <img class="alaune-illustration" />  <!-- masque en mobile -->
+  <mat-icon class="alaune-icon-mobile">auto_awesome</mat-icon>
   <h2 class="alaune-title">À la une</h2>
-  <div class="hero-cards-secondary" (scroll)="...">
-    <!-- cards carousel -->
+  <div class="hero-cards-secondary" #secondaryScroll>
+    <!-- cards carousel (repeatedCards = cards x3 pour infinite loop) -->
   </div>
-  <div class="scroll-dots"><!-- dots --></div>
 </div>
 ```
 
-**Layout :** `display: flex; flex-direction: column; gap: 10px; border-radius: 22px; margin: 10px 16px 0`
+**Layout :** `display: flex; flex-direction: column; gap: 10px; border-radius: 26px; margin: 4px 16px 0; padding: 14px 0 14px`
 
-**Illustration :** `highlights_card.png`, 58px, `position: absolute; top: 10px; left: 14px`
+**Icone :** `.alaune-icon-mobile` — mat-icon `auto_awesome`, 38x38px, `position: absolute; top: 10px; left: 14px`. PNG `.alaune-illustration` masque
 
-**Titre :** `font-size: 1.08rem; font-weight: 800; padding-left: 80px; line-height: 58px` (aligne verticalement sur l'illustration)
+**Titre :** `.alaune-title` — `font-size: 1.02rem; font-weight: 800; padding: 0 16px 0 60px; line-height: 38px` (aligne verticalement sur l'icone 38px). Couleur `$logo-dark-blue` (light) / `rgba(255,255,255,0.92)` (dark)
 
-**Background light :** `linear-gradient(180deg, #f0f2fa, #eaecf5)` — surface teintee
-**Background dark :** `rgba(18, 18, 34, 0.94)` — surface plate harmonisee avec Mapfly card
+**Background light :** `linear-gradient(160deg, rgba($logo-dark-blue, 0.09), rgba($logo-dark-blue, 0.04))` — surface teintee bleue premium elevee
+**Background dark :** `linear-gradient(160deg, rgba(18, 18, 34, 0.96), rgba(22, 24, 48, 0.94))` — surface deep harmonisee
+**Box-shadow light :** `0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba($logo-dark-blue,0.10), 0 20px 52px rgba($logo-dark-blue,0.06), inset 0 1px 0 rgba(255,255,255,0.60)` — inner glow premium
+**Border :** `1px solid rgba($logo-dark-blue, 0.14)` light / `rgba(#5c6bc0, 0.18)` dark
 
-**Carousel :** `scroll-snap-type: x mandatory`, cards en `scroll-snap-align: start`, `gap: 12px`, `padding: 0 16px`
+**Carousel 3D coverflow :** `scroll-snap-type: x mandatory`, `scroll-snap-align: center`, `gap: 10px`, `padding: 0 calc(50% - 32.5vw)`. Cards triplees (`repeatedCards` computed signal) pour infinite loop. Listener scroll programmatique via `ngZone.runOutsideAngular` (perf). Apres 1.2s les animations CSS reveal sont desactivees pour laisser JS piloter les transforms.
 
-**Cards :** fond blanc `#ffffff` + `border-left: 3px solid` colore par type + `border-radius: 20px`
-Dark : `background: rgba(255,255,255,0.06)` + `border-left` colore par type
+**Cards 3D :** `min-width: 65vw`, `transform: perspective(600px) rotateY(var(--card-rotateY)) scale(var(--card-scale))`, `opacity: var(--card-opacity)`. Interpolation cosinus (`factor = 0.5 * (1 + cos(π * t))`). `border-left` + `border-right: 4px solid` colore par type. `border-radius: 18px`. Card active : glow `0 0 20px rgba($primary-indigo, 0.08)` light / `rgba(#5c6bc0, 0.12)` dark.
+**Badges :** `white-space: normal` (retour a la ligne pour textes longs type ES), `letter-spacing: 0.3px`, `max-width: 80px`
+Dark : `background: rgba(255,255,255,0.06)` + borders colores par type
 
-**Border-left per card type :**
+**Border per card type (left + right) :**
 | Card | Border-left (light) | Border-left (dark) |
 |------|--------------------|--------------------|
 | Featured | `#7c4dff` | `rgba(#b388ff, 0.60)` |
@@ -170,7 +183,7 @@ Dark : `background: rgba(255,255,255,0.06)` + `border-left` colore par type
 
 **Chevrons :** `carousel-card-chevron` sur chaque card (indicateur cliquable), `color: #9CA3AF` light / `rgba(255,255,255,0.20)` dark
 
-**Scroll dots :** cercles 8px, couleur `rgba($primary-indigo, 0.25)` / actif `$primary-indigo` (light), `rgba(255,255,255,0.20)` / actif `rgba(255,255,255,0.80)` (dark)
+**Infinite scroll :** cards array triplees via `repeatedCards = computed(() => [...cards, ...cards, ...cards])`. Scroll demarre au set du milieu. `handleInfiniteLoop()` detecte les bords et repositionne invisiblement (desactive `scroll-snap-type` + `scroll-behavior` pendant le saut). Guard `isRepositioning` empeche la reentrance. `activeCardIndex` utilise modulo pour mapper sur les cards originales.
 
 #### CTA labels home (i18n)
 
@@ -200,21 +213,22 @@ Le CTA de la card Voyage sur la home utilise `home.hero.startJourney` : FR "Deco
 
 #### Carte mondiale mobile (hero card map)
 
-Design "Octopus Clean" — card horizontale avec illustration mapfly_card.png.
+Design "Premium Blue" — card horizontale avec mat-icon `public`.
 
-**Layout :** `flex-direction: row` (illustration gauche + contenu centre + chevron droite), `border-radius: 20px`, `margin: 0 16px`
+**Layout :** `flex-direction: row` (icone 64px gauche + contenu centre + chevron droite), `border-radius: 20px`, `margin: 20px 16px 0`
 
-**Illustration :** `mapfly_card.png`, positionnee a gauche dans `.map-card-illustration`
+**Icone :** `.map-card-icon-mobile` — mat-icon `public`, 64x64px, `border-radius: 16px`. PNG `.map-card-illustration` masque (`display: none !important`)
 
 **Light :**
-- Background : `#ffffff`, pas de backdrop-filter
-- Pas d'accent top bar, pas d'orbs, pas de shimmer
-- Content : titre desktop masque, titre mobile "Mapfly" + sous-titre i18n
-- CTA : pill gradient `$primary-blue → $primary-indigo`, `border-radius: 22px`
+- Background : `#ffffff`, `border: 1px solid rgba($primary-indigo, 0.08)`
+- Icone : gradient `$logo-dark-blue → #1565c0`, icone blanche, shadow bleue
+- Titre : `$logo-dark-blue`, sous-titre i18n
+- Multi-layer box-shadow premium
 - Chevron : `chevron_right` en gris subtil
 
 **Dark :**
-- Background : `rgba(18,18,34,0.94)`, `border: rgba(#5c6bc0, 0.15)`
+- Background : `rgba(18,18,34,0.94)`, `border: rgba(#5c6bc0, 0.18)`
+- Icone : gradient `#5c6bc0 → #7e57c2` (indigo→violet lumineux), glow violet
 - Chevron et textes adaptes aux couleurs dark
 
 #### Carousel categories mobile (order: 7)
@@ -224,9 +238,10 @@ Section en bas du scroll, design harmonise avec "A la une".
 **Structure HTML :**
 ```html
 <section class="carousel-section">
-  <img class="categories-illustration" src="categories_card.png" />
+  <img class="categories-illustration" />  <!-- masque en mobile -->
+  <mat-icon class="categories-icon-mobile">category</mat-icon>
   <div class="carousel-header">
-    <h2 class="carousel-mobile-title">Catégories</h2>
+    <h2 class="carousel-title carousel-mobile-title">Catégories</h2>
   </div>
   <div class="categories-scroll-wrap">
     <mat-icon class="scroll-hint scroll-hint-left">chevron_left</mat-icon>
@@ -236,36 +251,40 @@ Section en bas du scroll, design harmonise avec "A la une".
 </section>
 ```
 
-**Illustration :** `categories_card.png`, 80px, `position: absolute; top: 6px; left: 10px`
+**Icone :** `.categories-icon-mobile` — mat-icon `category`, 38x38px, `position: absolute; top: 10px; left: 14px`. PNG `.categories-illustration` masque. Memes styles que `.alaune-icon-mobile` (gradient, taille, position)
 
-**Titre mobile :** `font-size: 1.08rem; font-weight: 800; padding-left: 86px; line-height: 80px` (aligne sur illustration). Desktop title masque, remplace par titre court "Categories" (i18n `home.categories.mobileTitle`)
+**Titre mobile :** `.carousel-mobile-title` — `font-size: 1.02rem; font-weight: 800; line-height: 38px` (aligne verticalement sur l'icone 38px). `.carousel-header` a `padding: 0 16px 0 60px` pour deporter le texte a droite de l'icone. Memes proportions que `.alaune-title`
 
-**Scroll hints :** fleches chevron gauche/droite, cercles 28px, `color: rgba($primary-indigo, 0.35)` light / `rgba(#90caf9, 0.45)` dark, fond semi-transparent
+**Scroll hints :** fleches chevron gauche/droite, `color: rgba($logo-dark-blue, 0.45)` light / `rgba(#90caf9, 0.45)` dark, fond `rgba($logo-dark-blue, 0.06)`
 
 **Light :**
-- Background : `linear-gradient(180deg, #f0f2fa, #eaecf5)` — surface teintee (meme que "A la une")
-- `border-radius: 22px`, `overflow: hidden`
-- Pas d'accent top line (supprimee)
-- `.carousel-icon` masque (illustration le remplace)
+- Background : `rgba($logo-dark-blue, 0.035)` — surface flat secondaire (differente de "A la une")
+- `border: 1px solid rgba($logo-dark-blue, 0.07)`, `border-radius: 18px`
+- Pas de box-shadow (flat, ancre)
+- `.carousel-icon` masque (icone Material le remplace)
 
 **Dark :**
-- Background : `rgba(18, 18, 34, 0.94)` — surface plate (meme que "A la une" et Mapfly card)
-- `border: 1px solid rgba(#5c6bc0, 0.18)`, padding supplementaire pour aeration
+- Background : `rgba(18, 18, 34, 0.80)` — flat secondaire
+- `border: 1px solid rgba(#5c6bc0, 0.12)`
+- Pas de box-shadow
+- Icone : gradient `#5c6bc0 → #7e57c2` (indigo→violet lumineux)
 
 **i18n `home.categories.mobileTitle` :** FR "Categories", EN "Categories", ES "Categorias"
 
 #### Community Stats (mobile uniquement)
 
-Stats inline sans card wrapper (order: 5). Header et pillars masques. Visible uniquement en mobile portrait.
+Stats flottantes sans container (order: 3). Header et pillars masques. Visible uniquement en mobile portrait. Separateur gradient bleu→orange (`$logo-dark-blue 70% → $logo-orange 100%`, 85% largeur, opacity 0.25, margin-top 10px) en `::after`.
 
 **Structure :**
 ```
 548 sons · 111 pays · 177 explorateurs
 ```
 
-Pas de card wrapper — `background: transparent`, `border: none`, `box-shadow: none`. Header + pillars masques (`display: none`).
+Donnees flottantes — `background: transparent`, `border: none`, `box-shadow: none`, `border-radius: 0`, `padding: 20px 0`. Header + pillars masques (`display: none`).
 
-**Community stats :** compteurs dynamiques (sons, pays, contributeurs) via `SoundsService.getCommunityStats()`. Chiffres en `font-weight: 800`, couleur `#374151` light / `#c5cae9` dark. Separateurs `·` en `rgba(0,0,0,0.15)` light / `rgba(255,255,255,0.15)` dark
+**Community stats :** compteurs dynamiques (sons, pays, contributeurs) via `SoundsService.getCommunityStats()`. Chiffres en `font-weight: 900`, `font-size: 2.15rem`, couleur `$logo-dark-blue` light / `#e8eaf6` dark. Labels en `font-weight: 600`, `font-size: 0.68rem`, couleur `#6b7394` light / `#8b92b0` dark, `letter-spacing: 0.8px`. Separateurs : points ronds 4px (`border-radius: 50%`) en `rgba($logo-dark-blue, 0.20)` light / `rgba(#90caf9, 0.25)` dark
+
+**Count-up animation :** les chiffres s'animent de 0 a la valeur finale en 1.2s (ease-out cubic) via `requestAnimationFrame` hors zone Angular. Signals `displaySounds`, `displayCountries`, `displayContributors` pilotent l'affichage
 
 **Signal :** `communityStats: signal<{ sounds, countries, contributors } | null>(null)`
 
@@ -337,6 +356,43 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 | Border-left light | `rgba(#5c6a8a, 0.35)` | Bordure card |
 | Border-left dark | `rgba(#a0b0cc, 0.3)` | Bordure card dark |
 
+#### Image de couverture (`coverImage`)
+
+Chaque voyage sonore peut avoir une image de couverture configurable par l'admin, avec cadrage et zoom (meme pattern que les terroirs).
+
+**Schema & modele :**
+- `amplify/data/resource.ts` : champs `coverImage: a.string()`, `coverImagePosition: a.string().default('center')`, `coverImageZoom: a.integer().default(100)` sur le modele `SoundJourney`
+- `sound-journey.model.ts` : `coverImage?`, `coverImagePosition?`, `coverImageZoom?`
+- `MonthlyJourney` : `journeyCoverImage` (denormalise)
+
+**S3 Storage :**
+- Chemin : `journeys/images/${sanitizedFilename}`
+- Acces : `journeys/*` dans `amplify/storage/resource.ts` (read auth+guest, write/delete ADMIN)
+- Service : `uploadJourneyImage()`, `getJourneyFileUrl()` dans `sound-journey.service.ts`
+
+**Admin dialog (`journey-dialog`) :**
+- Onglet "Media" entre Info et Traductions
+- Drop zone + drag-to-frame (cadrage vertical) + zoom (molette/boutons) — meme UX que zone-dialog
+- Signals : `coverImageKey`, `coverImagePreviewUrl`, `coverImagePosition`, `coverImageZoom`, `imageUploadProgress`, `isDraggingImage`
+- Migration keywords (`top`/`center`/`bottom`) vers pourcentage a l'init
+
+**Liste publique (`journeys-list`) :**
+- `coverImageUrls: signal<Map<string, string>>` — URLs presignees resolues apres chargement
+- `getCoverImageUrl(journey)` — methode utilitaire pour le template
+- Si image : `<img class="journey-cover">` + `.journey-cover-overlay` (gradient assombrissant) au-dessus du gradient de fond
+- Si pas d'image : fallback gradient slate-indigo existant (inchange)
+- Image avec `object-fit: cover`, `object-position` et `transform: scale()` depuis les champs du modele
+
+**i18n (`admin.journeys.dialog.*`) :**
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `tabMedia` | Media | Media | Multimedia |
+| `coverImage` | Image de couverture | Cover image | Imagen de portada |
+| `coverImageHint` | Format paysage recommande (1200x600) | Landscape format recommended (1200x600) | Formato horizontal recomendado (1200x600) |
+| `uploadImage` | Deposer ou cliquer pour ajouter une image | Drop or click to add an image | Arrastrar o hacer clic para agregar una imagen |
+| `dragToFrame` | Glisser pour cadrer | Drag to frame | Arrastrar para encuadrar |
+| `uploadError` | Erreur lors de l'upload | Upload error | Error al subir |
+
 #### Liste des voyages (`journeys-list`)
 
 - Hero icon + journey cards + random card : tous en palette slate-indigo
@@ -363,6 +419,36 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 - **Featured mode** : animation cinematique fly-in, overlay violet, popup sans limitation de hauteur (maxHeight retire)
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
+
+#### Mobile Bottom Sheet (`sound-popup-sheet.component`)
+
+Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert au clic d'un marker quand `isMobilePortrait`.
+
+**Layout sheet-top :**
+- `.sheet-title-row` : titre + icone clap/compteur sur la meme ligne (`display: flex; flex-wrap: wrap; gap: 6px; padding-right: 32px`)
+- Audio player pleine largeur
+- `.sheet-actions-bar` : 3 boutons centres (`justify-content: center`) — zoom out, download, zoom in
+- Mode journey : like row separee (titre dans le header), navigation prev/next/finish
+
+**Bouton close contraste :** quand un header colore est present (featured violet, journey), le close button a un fond `rgba(255,255,255,0.20)` et icone blanche via `.featured-header ~ .sheet-close-btn` / `.journey-header ~ .sheet-close-btn`. Le close button est place APRES les headers dans le DOM pour que le selecteur `~` fonctionne (position absolute donc pas d'impact visuel).
+
+**Drapeau :** `::ng-deep .sheet-record-info img` force `18x13px !important` pour eviter les drapeaux surdimensionnes.
+
+**Traduction :** bouton centre (`align-self: center`), `margin-bottom: 6px`.
+
+**Nettoyage ngOnDestroy :** `this.activeSheetRef?.dismiss()` + `this.bottomSheet.dismiss()` pour fermer toute sheet ouverte lors de la navigation hors de mapfly.
+
+#### Centrage marker au-dessus de la bottom sheet
+
+`centerMarkerAboveSheet(lat, lng, zoom?)` : centre le marker dans la zone de carte visible (moitie superieure, au-dessus de la sheet). Utilise `map.project/unproject` pour calculer le decalage pixel (`sheetHeight / 2`). Appele :
+- A l'ouverture de la sheet (`openSoundSheet`)
+- Au clic des boutons zoom dans la sheet (callbacks `onZoomIn`/`onZoomOut`)
+
+#### Overlays cinematiques — pre-chargement i18n
+
+Les overlays featured et journey utilisent `await firstValueFrom(translate.use(currentLang))` avant d'afficher l'overlay (`overlayVisible.set(true)`) pour garantir que les traductions sont chargees et eviter un flash de la langue par defaut.
+
+Le `featuredLabel` passe a la bottom sheet est la cle i18n (`'home.hero.soundOfTheDay'`), traduite dans le template via `{{ data.featuredLabel | translate }}`. Le popup desktop utilise `translate.instant()` (cree apres l'animation, traductions deja chargees).
 
 #### Controles conditionnels par mode
 
@@ -619,7 +705,7 @@ Le logo de la toolbar est masque sur certaines pages pour eviter la redondance v
 
 - **Home page** (desktop) : classe `.hide-desktop-home` via `isHomePage()` ou `isCategoryMapPage()`
 - **Page de connexion** : classe `.hide-login` via `isLoginPage()` (la page affiche deja le logo Ecnelis FLY dans le formulaire d'authentification)
-- **Mobile portrait** : logo toolbar toujours masque (`display: none`), titre `.app-title` stylise en uppercase bold (`font-weight: 800`, `letter-spacing: 1.2px`, `color: #555` light / `#9a9ab0` dark)
+- **Mobile portrait** : logo toolbar toujours masque (`display: none`), titre `.app-title` stylise en uppercase bold (`font-weight: 800`, `letter-spacing: 1.2px`, `color: #555` light / `#9a9ab0` dark). Toolbar `position: sticky; top: 0; z-index: 50` + glassmorphism (`backdrop-filter: blur(20px)`)
 
 Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPage` — mis a jour via `Router.events` (`NavigationEnd`).
 
@@ -915,6 +1001,127 @@ De plus, des listeners `valueChanges` (debounce 300ms) sur les champs `title` et
 ## Admin icon — Hub listener
 
 Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `signedIn` (pas seulement dans `ngOnInit`) via `await authService.loadCurrentUser()` + `isAdmin.set(authService.isInGroup('ADMIN'))`. Reset a `false` dans le handler `signedOut`.
+
+## OAuth Account Linking (`app-user.service.ts`)
+
+### Principe
+
+Un meme utilisateur peut se connecter par email/password ET par Google OAuth. Les deux identites Cognito (sub differents) sont liees par email en base.
+
+### Architecture de liaison
+
+1. **Recherche par cognitoSub** (fast path) via index secondaire `getUserByCognitoSub`
+2. **Recherche par email** (normalise lowercase) via index secondaire `getUserByEmail`
+3. **Selection du compte principal** : scoring par richesse de donnees (`dataScore`) — avatarSeed (+10), avatarStyle (+5), likedSoundIds (+3), theme dark (+1), firstName/lastName (+1). En cas d'egalite, le plus ancien gagne
+4. **Re-fetch par cle primaire** (`User.get({ id })`) — les index secondaires peuvent omettre certains champs (ex: `avatarOptions`)
+5. **Liaison cognitoSub** : mise a jour locale uniquement (`userRecord.cognitoSub = cognitoSub`), pas de remplacement du record complet (evite la perte de champs)
+6. **Merge des doublons** : fire-and-forget en background, transfert des sons + liked sounds, neutralisation des doublons (`email: merged_xxx@deleted`)
+
+### Admin via OAuth
+
+L'admin est determine par le groupe Cognito `ADMIN` dans le JWT. Chaque identite Cognito est independante : un utilisateur admin par email/password ne sera PAS admin via OAuth (voulu). Admin uniquement par email/password.
+
+### Pieges connus
+
+- **Ne pas remplacer `userRecord`** apres `User.update({ cognitoSub })` — la reponse d'update peut omettre des champs comme `avatarOptions`
+- **`avatarOptions` doit etre sauvegarde dans un appel separe** — AppSync retourne `null` si inclus dans la meme mutation que les autres champs
+- **`'{}'` au lieu de `null`** pour effacer `avatarOptions` en base — DynamoDB peut ignorer les valeurs `null` dans les updates
+
+## Avatar — Validation cross-style (`avatar.service.ts`)
+
+### Probleme
+
+Les `avatarOptions` (eyes, mouth, hairColor, skinColor...) sont specifiques a chaque style DiceBear. Changer de style sans effacer les options laisse des valeurs incompatibles en base. Exemple : `mouth: "grimace"` (valide pour `avataaars`) est invalide pour `botttsNeutral`, causant un rendu sans yeux/bouche.
+
+### Solution — Filtrage dans `generateAvatarUri()`
+
+Avant de passer les options a DiceBear, le service filtre :
+1. **Cles valides** : seules les dimensions definies dans `STYLE_OPTIONS[currentStyle]` sont incluses
+2. **Valeurs valides** : pour les dimensions de type `variant`, la valeur doit exister dans `dim.variants[]`
+3. Les options invalides sont silencieusement ignorees (DiceBear utilise ses defauts)
+
+### Effacement en base
+
+- Changement de style dans le compte → `selectedAvatarOptions.set({})` (vide)
+- Sauvegarde : `avatarOptions: null` → persiste `'{}'` en base (pas `null` car DynamoDB peut l'ignorer)
+- Chargement : `avatarOptions === '{}'` → traite comme `null`
+
+### Styles avec options (`STYLE_OPTIONS`)
+
+| Style | Dimensions |
+|-------|-----------|
+| `initials` | backgroundColor |
+| `toonHead` | eyes, mouth, hair, clothes, skinColor, hairColor, clothesColor |
+| `bottts` | eyes, mouth, face, baseColor |
+| `botttsNeutral` | eyes, mouth, backgroundColor |
+| `funEmoji` | eyes, mouth, backgroundColor |
+| `personas` | eyes, mouth, body, skinColor, hairColor, clothingColor |
+| `avataaars` | eyes, mouth, skinColor, hairColor |
+| `avataaarsNeutral` | eyes, mouth, backgroundColor |
+
+6 styles sans options : `adventurer`, `adventurerNeutral`, `identicon`, `pixelArt`, `rings`, `shapes`
+
+## Page Categories (`features/categories/pages/categories-list/`)
+
+### Layout responsive mobile
+
+Grille responsive de cards `app-card-category` (composant reutilisable de la home page).
+
+**Breakpoints :**
+- **Desktop** : `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))` — multi-colonnes auto
+- **Grand mobile (431-700px)** : 3 colonnes, gap 12px
+- **Petit/moyen mobile (<= 430px)** : 2 colonnes, gap 10px (couvre Pixel 7 412px, iPhone 375px)
+
+**Card mobile (layout vertical)** :
+- `flex-direction: column` — icone overlay centree au-dessus, titre centre en dessous
+- `white-space: normal` — texte sur plusieurs lignes si necessaire (evite troncature)
+- Overlay 36px, dot 6px, `font-size: 0.72rem`, `border-radius: 12px`
+- Tap → ouvre `SubcategorySheetComponent` (MatBottomSheet)
+- `mat-card-content` (champ recherche) masque en mobile (`display: none`)
+- Active feedback : `transform: scale(0.97)`
+
+**Container :**
+- Background light : `#F1F2F6` (coherent home page)
+- Background dark : `linear-gradient(180deg, #080a18, #0c0e22, #0a0c1e)` (coherent home)
+- Hero compact : icone 40px, titre `1.1rem; font-weight: 800`, couleur `$logo-dark-blue`
+
+**Animation :** `fadeInUp` stagger par `nth-child` (0.05s * n), 9 cards
+
+**Desktop** : inchange (cards horizontales avec clip-path, champ recherche sous-categories visible)
+
+## Import de sons — attribution des auteurs originaux
+
+### Probleme
+
+L'ancien projet stockait l'email de l'admin (`tivui64@gmail.com`) pour **tous** les sons, quel que soit l'auteur original. Lors de l'import via la Lambda, les User crees pour chaque auteur (ex: "reinsamba") avaient tous cet email admin. Le systeme de merge OAuth (liaison par email) fusionnait ensuite ces comptes vers l'admin, reassignant tous les sons a tivui64.
+
+### Correctif — Lambdas d'import (`import-sounds`, `process-import`)
+
+Email factice unique par auteur au lieu de l'email du JSON :
+```typescript
+const safeEmail = `imported_${sound.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
+```
+Empeche le merge OAuth de toucher les comptes importes.
+
+### Lambda de migration (`fix-imported-users`)
+
+Lambda one-shot pour corriger les sons existants. Lit le JSON d'import depuis S3, charge tous les sons de la table DynamoDB, puis pour chaque entree :
+1. Matche le Sound en base par `filename`
+2. Verifie si le `userId` pointe vers le bon User (meme `username`)
+3. Si non : cree/retrouve le User original et reassigne le `userId`
+4. Corrige le `country` si mauvaise casse (les drapeaux sont en majuscules : `DE.png`, `FR.png`)
+
+**Invocation :** Console AWS Lambda, test event `{"arguments": {"s3Key": "imports/all-sounds.json"}}` (format AppSync) ou `{"s3Key": "..."}` (invocation directe).
+
+**Fichiers :**
+- `amplify/functions/fix-imported-users/handler.ts` — handler (charge toute la table, index par filename)
+- `amplify/functions/fix-imported-users/resource.ts` — definition (900s timeout, 1024MB)
+- `amplify/backend.ts` — permissions S3 (lecture `imports/*`)
+- `amplify/data/resource.ts` — mutation GraphQL `fixImportedUsers` (ADMIN only)
+
+### Drapeaux (flags)
+
+Les fichiers de drapeaux sont en **MAJUSCULES** dans `public/img/flags/` (`DE.png`, `FR.png`, `CA.png`). Le champ `User.country` doit stocker le code en majuscules pour correspondre.
 
 ## Fichiers temporaires a ignorer
 

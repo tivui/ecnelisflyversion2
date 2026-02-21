@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import L from 'leaflet';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { CategoryKey } from '../../../../../../amplify/data/categories';
 import { Sound } from '../../../../core/models/sound.model';
@@ -40,8 +40,9 @@ import { LikeService } from '../../../../core/services/like.service';
 import { AmbientAudioService } from '../../../../core/services/ambient-audio.service';
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 import { EphemeralJourneyService } from '../../../../core/services/ephemeral-journey.service';
-import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
+import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
 
 @Component({
   selector: 'app-mapfly',
@@ -215,6 +216,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
     sportfly: '#A24C06',
     transportfly: '#E8D000',
   };
+
+  // Mobile popup sheet
+  private readonly isMobilePortrait = window.matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
+  private activeSheetRef: MatBottomSheetRef<SoundPopupSheetComponent> | null = null;
+  private activeSelectionCircle: L.CircleMarker | null = null;
 
   private journeyData: SoundJourney | null = null;
   private journeySteps: SoundJourneyStep[] = [];
@@ -659,35 +665,58 @@ export class MapflyComponent implements OnInit, OnDestroy {
           }),
         });
 
-        m.bindPopup(`
-        <div class="popup-container">
-          <div class="popup-header-row">
-            <b class="popup-title" id="title-${s.filename}">${s.title}</b>
-            <div id="like-btn-${s.id}" class="popup-like-btn" data-sound-id="${s.id}" data-likes-count="${s.likesCount ?? 0}">
-              <img src="img/icon/${this.likeService.isLiked(s.id!) ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png" class="popup-like-icon" />
-              <span class="popup-like-count">${s.likesCount ?? 0}</span>
+        // --- Mobile: BottomSheet instead of Leaflet popup ---
+        if (this.isMobilePortrait) {
+          const sheetData: SoundPopupSheetData = {
+            type: 'normal',
+            sound: {
+              id: s.id, filename: s.filename, title: s.title, title_i18n: s.title_i18n,
+              shortStory: s.shortStory, shortStory_i18n: s.shortStory_i18n,
+              city: s.city, url: s.url, urlTitle: s.urlTitle,
+              secondaryUrl: s.secondaryUrl, secondaryUrlTitle: s.secondaryUrlTitle,
+              likesCount: s.likesCount, userId: s.userId, user: s.user,
+              latitude: s.latitude, longitude: s.longitude,
+            },
+            audioUrl: url, mimeType,
+            markerColor: this.categoryColors[category] || '#1976d2',
+            onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, Math.min(this.map.getZoom() + 2, 18)),
+            onZoomOut: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, Math.max(this.map.getZoom() - 2, 3)),
+            onAudioPlay: () => this.ambientAudio?.duck?.(),
+            onAudioPause: () => this.ambientAudio?.unduck?.(),
+          };
+          (m as any).__soundSheetData = sheetData;
+          m.on('click', () => this.openSoundSheet(sheetData));
+        } else {
+          m.bindPopup(`
+          <div class="popup-container">
+            <div class="popup-header-row">
+              <b class="popup-title" id="title-${s.filename}">${s.title}</b>
+              <div id="like-btn-${s.id}" class="popup-like-btn" data-sound-id="${s.id}" data-likes-count="${s.likesCount ?? 0}">
+                <img src="img/icon/${this.likeService.isLiked(s.id!) ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png" class="popup-like-icon" />
+                <span class="popup-like-count">${s.likesCount ?? 0}</span>
+              </div>
+            </div>
+            <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
+            <div id="btn-container-title-${s.filename}"></div>
+            <div id="btn-container-shortStory-${s.filename}"></div>
+            <div id="links-${s.filename}" class="popup-links"></div>
+            <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+            <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
+              <source src="${url}" type="${mimeType}">
+              Your browser does not support the audio element.
+            </audio>
+            <div id="btn-container-${s.filename}" class="popup-btn-group">
+              <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
+              <button class="download-btn material-icons" id="download-${s.filename}">download</button>
+              <button class="zoom-btn material-icons" id="zoom-in-${s.filename}">add</button>
             </div>
           </div>
-          <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
-          <div id="btn-container-title-${s.filename}"></div>
-          <div id="btn-container-shortStory-${s.filename}"></div>
-          <div id="links-${s.filename}" class="popup-links"></div>
-          <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-          <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-            <source src="${url}" type="${mimeType}">
-            Your browser does not support the audio element.
-          </audio>
-          <div id="btn-container-${s.filename}" class="popup-btn-group">
-            <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
-            <button class="download-btn material-icons" id="download-${s.filename}">download</button>
-            <button class="zoom-btn material-icons" id="zoom-in-${s.filename}">add</button>
-          </div>
-        </div>
-      `, {
-          maxWidth: 340,
-          minWidth: 280,
-          ...(window.innerWidth <= 700 ? { maxHeight: Math.round(window.innerHeight * 0.55) } : {}),
-        });
+        `, {
+            maxWidth: 340,
+            minWidth: 280,
+            ...(window.innerWidth <= 700 ? { maxHeight: Math.round(window.innerHeight * 0.55) } : {}),
+          });
+        }
 
         // Ajout au groupe correct
         this.fgAll.addLayer(m); // toujours dans "TOUT"
@@ -737,7 +766,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           }
         }
 
-        // --- Popup logic ---
+        // --- Popup logic (desktop only — mobile uses BottomSheet) ---
+        if (!this.isMobilePortrait) {
         m.on('popupopen', () => {
           const titleEl = document.getElementById(`title-${s.filename}`);
           const shortStoryEl = document.getElementById(
@@ -950,6 +980,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             translateSub.unsubscribe();
           });
         });
+        } // end if (!this.isMobilePortrait)
 
         // --- Add marker to cluster ---
         this.markerLookup[s.filename] = m; // lookup pour Fuse.js
@@ -1081,14 +1112,19 @@ export class MapflyComponent implements OnInit, OnDestroy {
       if (marker) {
         this.isSearchActive = true;
         this.markersCluster.zoomToShowLayer(marker, () => {
-          marker.openPopup();
-          // On mobile, shift map up so popup is well centered below search bar
-          if (window.innerWidth <= 700) {
-            setTimeout(() => {
-              // Shift up by 15% of viewport height to center popup visually
-              const offsetY = -Math.round(window.innerHeight * 0.15);
-              this.map.panBy([0, offsetY], { animate: true });
-            }, 300);
+          if (this.isMobilePortrait) {
+            const sheetData = (marker as any).__soundSheetData;
+            if (sheetData) this.openSoundSheet(sheetData);
+          } else {
+            marker.openPopup();
+            // On mobile, shift map up so popup is well centered below search bar
+            if (window.innerWidth <= 700) {
+              setTimeout(() => {
+                // Shift up by 15% of viewport height to center popup visually
+                const offsetY = -Math.round(window.innerHeight * 0.15);
+                this.map.panBy([0, offsetY], { animate: true });
+              }, 300);
+            }
           }
         });
         setTimeout(() => (this.isSearchActive = false), 2000);
@@ -1098,14 +1134,19 @@ export class MapflyComponent implements OnInit, OnDestroy {
       this.isSearchActive = true;
       this.map.setView([result.lat, result.lng], 17);
 
-      // Try to open nearest marker popup
+      // Try to open nearest marker popup/sheet
       this.fgAll.eachLayer((marker: any) => {
         const mLatLng = marker.getLatLng();
         if (
           Math.abs(mLatLng.lat - result.lat!) < 0.0001 &&
           Math.abs(mLatLng.lng - result.lng!) < 0.0001
         ) {
-          marker.openPopup();
+          if (this.isMobilePortrait) {
+            const sheetData = (marker as any).__soundSheetData;
+            if (sheetData) this.openSoundSheet(sheetData);
+          } else {
+            marker.openPopup();
+          }
         }
       });
       setTimeout(() => (this.isSearchActive = false), 1500);
@@ -1134,6 +1175,77 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }
     }
     return field;
+  }
+
+  // =====================================================
+  // Mobile popup BottomSheet
+  // =====================================================
+  private openSoundSheet(data: SoundPopupSheetData) {
+    if (this.activeSheetRef) {
+      this.activeSheetRef.dismiss();
+    }
+
+    // Remove previous selection circle
+    if (this.activeSelectionCircle) {
+      this.map.removeLayer(this.activeSelectionCircle);
+      this.activeSelectionCircle = null;
+    }
+
+    this.activeSheetRef = this.bottomSheet.open(SoundPopupSheetComponent, {
+      data,
+      hasBackdrop: false,
+      disableClose: true,
+      panelClass: 'sound-popup-sheet-panel',
+    });
+
+    // Add selection circle around the active marker (skip for journey — pulse circle already present)
+    if (data.type !== 'journey' && data.sound.latitude && data.sound.longitude) {
+      const color = data.markerColor || '#1976d2';
+      this.activeSelectionCircle = L.circleMarker(
+        [data.sound.latitude, data.sound.longitude],
+        {
+          radius: 22,
+          color,
+          weight: 2.5,
+          opacity: 0.7,
+          fillColor: color,
+          fillOpacity: 0.10,
+          className: 'marker-selection-ring',
+        }
+      ).addTo(this.map);
+    }
+
+    // Center marker in visible map area (above the sheet)
+    if (data.sound.latitude && data.sound.longitude) {
+      setTimeout(() => {
+        this.centerMarkerAboveSheet(data.sound.latitude!, data.sound.longitude!);
+      }, 100);
+    }
+
+    this.activeSheetRef.afterDismissed().subscribe(() => {
+      this.activeSheetRef = null;
+      // Remove selection circle on dismiss
+      if (this.activeSelectionCircle) {
+        this.map.removeLayer(this.activeSelectionCircle);
+        this.activeSelectionCircle = null;
+      }
+    });
+  }
+
+  /** Center a marker in the visible map area (top half, above the bottom sheet). */
+  private centerMarkerAboveSheet(lat: number, lng: number, zoom?: number) {
+    const mapSize = this.map.getSize();
+    const sheetHeight = mapSize.y * 0.5; // bottom sheet max-height: 50vh
+    const targetZoom = zoom ?? this.map.getZoom();
+
+    // Project marker to pixel coords at target zoom
+    const markerPoint = this.map.project(L.latLng(lat, lng), targetZoom);
+    // Offset center downward so marker sits at center of visible area
+    const offsetY = sheetHeight / 2;
+    const newCenterPoint = L.point(markerPoint.x, markerPoint.y + offsetY);
+    const newCenter = this.map.unproject(newCenterPoint, targetZoom);
+
+    this.map.setView(newCenter, targetZoom, { animate: true, duration: 0.4 });
   }
 
   private buildCategoryOverlays(): Record<
@@ -1781,7 +1893,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
     // Use satellite for the cinematic effect
     this.esri.addTo(this.map);
 
-    // Show cinematic overlay
+    // Ensure translations are loaded before showing overlay (avoids language flash)
+    await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
     this.featuredOverlayVisible.set(true);
 
     // Load the full sound record for popup details
@@ -1831,12 +1944,32 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const lang = this.currentUserLanguage.toLowerCase().trim();
     const displayTeasing = (soundTeasingI18n?.[lang]) || soundTeasing;
 
-    const featuredLabel = this.translate.instant('home.hero.soundOfTheDay');
+    const featuredLabel = 'home.hero.soundOfTheDay'; // i18n key — translated in template
+
+    // --- Build featured sheet data for mobile ---
+    const featuredSheetData: SoundPopupSheetData = {
+      type: 'featured',
+      sound: {
+        id: soundId, filename: soundFilename, title: soundTitle,
+        title_i18n: s?.title_i18n, shortStory: s?.shortStory, shortStory_i18n: s?.shortStory_i18n,
+        city: s?.city ?? soundCity, url: s?.url, urlTitle: s?.urlTitle,
+        secondaryUrl: s?.secondaryUrl, secondaryUrlTitle: s?.secondaryUrlTitle,
+        likesCount: s?.likesCount, userId: s?.userId, user: s?.user,
+        latitude: lat, longitude: lng,
+      },
+      audioUrl: url, mimeType,
+      featuredLabel, displayTeasing, soundTeasingI18n: soundTeasingI18n ?? undefined,
+      markerColor: '#7c4dff',
+      onZoomIn: () => this.centerMarkerAboveSheet(lat, lng, Math.min(this.map.getZoom() + 2, 18)),
+      onZoomOut: () => this.centerMarkerAboveSheet(lat, lng, Math.max(this.map.getZoom() - 2, 3)),
+    };
+
+    if (!this.isMobilePortrait) {
     marker.bindPopup(`
       <div class="popup-container featured-popup">
         <div class="featured-popup-header">
           <span class="material-icons featured-popup-icon">headphones</span>
-          <span class="featured-popup-badge">${featuredLabel}</span>
+          <span class="featured-popup-badge">${this.translate.instant(featuredLabel)}</span>
         </div>
         <div class="popup-header-row">
           <b class="popup-title" id="title-${soundFilename}">${soundTitle}</b>
@@ -2002,6 +2135,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
           document.body.removeChild(a);
         });
     });
+    } // end if (!this.isMobilePortrait) — featured popup
+
+    // Mobile: allow reopening sheet on marker click
+    if (this.isMobilePortrait) {
+      marker.on('click', () => this.openSoundSheet(featuredSheetData));
+    }
 
     marker.addTo(this.map);
 
@@ -2047,7 +2186,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
             pulseCircle.addTo(this.map);
 
             setTimeout(() => {
-              marker.openPopup();
+              if (this.isMobilePortrait) {
+                this.openSoundSheet(featuredSheetData);
+              } else {
+                marker.openPopup();
+              }
             }, 400);
 
             // Add zoom control after animation
@@ -2095,6 +2238,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.ephemeralJourneyService.clear();
 
     // Show overlay + stepper + fly (same as regular journey)
+    await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
     this.journeyOverlayVisible.set(true);
     this.createJourneyStepperControl();
     setTimeout(() => {
@@ -2166,6 +2310,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       this.journeySounds = await Promise.all(soundPromises);
 
       // Show overlay
+      await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
       this.journeyOverlayVisible.set(true);
 
       // Create stepper control
@@ -2243,6 +2388,28 @@ export class MapflyComponent implements OnInit, OnDestroy {
       </button>
     `;
 
+    // --- Build journey sheet data for mobile ---
+    const journeySheetData: SoundPopupSheetData = {
+      type: 'journey',
+      sound: {
+        id: sound.id, filename: sound.filename, title,
+        title_i18n: sound.title_i18n, shortStory: sound.shortStory, shortStory_i18n: sound.shortStory_i18n,
+        city: sound.city, url: sound.url, urlTitle: sound.urlTitle,
+        secondaryUrl: sound.secondaryUrl, secondaryUrlTitle: sound.secondaryUrlTitle,
+        likesCount: sound.likesCount, userId: sound.userId, user: sound.user,
+        latitude: sound.latitude, longitude: sound.longitude,
+      },
+      audioUrl: url, mimeType,
+      stepIndex, totalSteps: this.totalJourneySteps(), journeyColor: color, themeText,
+      markerColor: color,
+      onZoomIn: () => {},
+      onZoomOut: () => {},
+      onJourneyPrev: () => { this.activeSheetRef?.dismiss(); this.flyToJourneyStep(stepIndex - 1); },
+      onJourneyNext: () => { this.activeSheetRef?.dismiss(); this.flyToJourneyStep(stepIndex + 1); },
+      onJourneyFinish: () => { this.activeSheetRef?.dismiss(); this.router.navigate(['/journeys']); },
+    };
+
+    if (!this.isMobilePortrait) {
     marker.bindPopup(`
       <div class="popup-container journey-popup">
         <div class="journey-popup-header" style="background: linear-gradient(180deg, ${color} 0%, ${color}cc 100%);">
@@ -2383,6 +2550,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
         });
       }
     });
+    } // end if (!this.isMobilePortrait) — journey popup
+
+    // Mobile: allow reopening sheet on marker click
+    if (this.isMobilePortrait) {
+      marker.on('click', () => this.openSoundSheet(journeySheetData));
+    }
 
     this.journeyMarkers.push(marker);
 
@@ -2423,7 +2596,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
           this.map.once('moveend', () => {
             marker.addTo(this.map);
             pulseCircle.addTo(this.map);
-            setTimeout(() => marker.openPopup(), 400);
+            setTimeout(() => {
+              if (this.isMobilePortrait) {
+                this.openSoundSheet(journeySheetData);
+              } else {
+                marker.openPopup();
+              }
+            }, 400);
 
             // Add zoom control after animation
             L.control.zoom({ position: 'bottomright' }).addTo(this.map);
@@ -2446,7 +2625,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.map.once('moveend', () => {
           marker.addTo(this.map);
           pulseCircle.addTo(this.map);
-          setTimeout(() => marker.openPopup(), 300);
+          setTimeout(() => {
+            if (this.isMobilePortrait) {
+              this.openSoundSheet(journeySheetData);
+            } else {
+              marker.openPopup();
+            }
+          }, 300);
         });
       });
     }
@@ -2937,6 +3122,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Dismiss any open bottom sheet to prevent it persisting after navigation
+    this.activeSheetRef?.dismiss();
+    this.activeSheetRef = null;
+    this.bottomSheet.dismiss();
+
     this.stopTimeline();
     this.ambientAudio.destroy();
     this.queryParamsSub?.unsubscribe();

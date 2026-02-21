@@ -699,7 +699,13 @@
         "formInvalid": "Veuillez remplir tous les champs requis",
         "createSuccess": "Voyage créé avec succès",
         "updateSuccess": "Voyage mis à jour avec succès",
-        "saveError": "Erreur lors de l'enregistrement"
+        "saveError": "Erreur lors de l'enregistrement",
+        "tabMedia": "Média",
+        "coverImage": "Image de couverture",
+        "coverImageHint": "Format paysage recommandé (1200×600)",
+        "uploadImage": "Déposer ou cliquer pour ajouter une image",
+        "dragToFrame": "Glisser pour cadrer",
+        "uploadError": "Erreur lors de l'upload"
       },
       "steps": {
         "title": "Étapes du voyage \"{{name}}\"",

@@ -11,6 +11,7 @@ import { pickMonthlyZone } from '../functions/pick-monthly-zone/resource';
 import { pickMonthlyJourney } from '../functions/pick-monthly-journey/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
+import { fixImportedUsers } from '../functions/fix-imported-users/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -257,6 +258,8 @@ const schema = a
         slug: a.string().required(),
         color: a.string().default('#1976d2'),
         coverImage: a.string(),
+        coverImagePosition: a.string().default('center'),
+        coverImageZoom: a.integer().default(100),
         isPublic: a.boolean().default(true),
         sortOrder: a.integer().default(0),
         createdBy: a.id(),
@@ -601,6 +604,13 @@ const schema = a
       .authorization((allow) => [allow.groups(['ADMIN'])])
       .handler(a.handler.function(startImport)),
 
+    fixImportedUsers: a
+      .mutation()
+      .arguments({ s3Key: a.string().required() })
+      .returns(a.json())
+      .authorization((allow) => [allow.groups(['ADMIN'])])
+      .handler(a.handler.function(fixImportedUsers)),
+
     deleteSoundFile: a
       .mutation()
       .arguments({ filename: a.string().required() })
@@ -670,6 +680,7 @@ const schema = a
     allow.resource(pickMonthlyJourney),
     allow.resource(startImport),
     allow.resource(processImport),
+    allow.resource(fixImportedUsers),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

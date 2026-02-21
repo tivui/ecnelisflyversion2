@@ -35,6 +35,7 @@ export class JourneysListComponent implements OnInit {
 
   journeys = signal<SoundJourney[]>([]);
   loading = signal(true);
+  coverImageUrls = signal<Map<string, string>>(new Map());
 
   ngOnInit() {
     this.loadJourneys();
@@ -45,11 +46,31 @@ export class JourneysListComponent implements OnInit {
     try {
       const journeys = await this.journeyService.listPublicJourneys();
       this.journeys.set(journeys);
+
+      // Resolve cover image URLs
+      const urlMap = new Map<string, string>();
+      await Promise.allSettled(
+        journeys
+          .filter((j) => j.coverImage)
+          .map(async (j) => {
+            try {
+              const url = await this.journeyService.getJourneyFileUrl(j.coverImage!);
+              urlMap.set(j.id!, url);
+            } catch {
+              // Ignore failed URL resolutions
+            }
+          })
+      );
+      this.coverImageUrls.set(urlMap);
     } catch (error) {
       console.error('Error loading journeys:', error);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  getCoverImageUrl(journey: SoundJourney): string | undefined {
+    return this.coverImageUrls().get(journey.id!);
   }
 
   journeyName(journey: SoundJourney): string {

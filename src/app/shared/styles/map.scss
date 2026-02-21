@@ -1495,3 +1495,35 @@ body.dark-theme .leaflet-control-layers-toggle {
     display: none !important;
   }
 }
+
+/* ===================== */
+/* Sound popup BottomSheet (mobile) */
+/* ===================== */
+.sound-popup-sheet-panel {
+  .mat-bottom-sheet-container {
+    max-height: 50vh !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 0 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden;
+  }
+}
+
+body.dark-theme .sound-popup-sheet-panel {
+  .mat-bottom-sheet-container {
+    background: #1e1e2e !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* ===================== */
+/* Marker selection ring (mobile sheet) */
+/* ===================== */
+.marker-selection-ring {
+  animation: selectionPulse 2s ease-in-out infinite;
+}
+
+@keyframes selectionPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.3; }
+}
