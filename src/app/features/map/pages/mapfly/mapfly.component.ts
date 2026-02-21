@@ -1198,8 +1198,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       panelClass: 'sound-popup-sheet-panel',
     });
 
-    // Add selection circle around the active marker
-    if (data.sound.latitude && data.sound.longitude) {
+    // Add selection circle around the active marker (skip for journey — pulse circle already present)
+    if (data.type !== 'journey' && data.sound.latitude && data.sound.longitude) {
       const color = data.markerColor || '#1976d2';
       this.activeSelectionCircle = L.circleMarker(
         [data.sound.latitude, data.sound.longitude],
@@ -2551,6 +2551,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }
     });
     } // end if (!this.isMobilePortrait) — journey popup
+
+    // Mobile: allow reopening sheet on marker click
+    if (this.isMobilePortrait) {
+      marker.on('click', () => this.openSoundSheet(journeySheetData));
+    }
 
     this.journeyMarkers.push(marker);
 
