@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal, computed, ElementRef } from '@angular/core';
+import { Component, HostListener, inject, signal, computed, ElementRef, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   MAT_BOTTOM_SHEET_DATA,
@@ -8,6 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LikeService } from '../../../../core/services/like.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 
 export interface SoundPopupSheetData {
   type: 'normal' | 'featured' | 'journey';
@@ -102,11 +103,8 @@ export interface SoundPopupSheetData {
           </div>
         }
 
-        <!-- Audio -->
-        <audio controls controlsList="nodownload noplaybackrate" preload="metadata"
-               (play)="onAudioPlay()" (pause)="onAudioPause()" (ended)="onAudioPause()">
-          <source [src]="data.audioUrl" [type]="data.mimeType">
-        </audio>
+        <!-- WaveSurfer Audio Player -->
+        <div #waveformContainer class="ws-sheet-player"></div>
 
         <!-- Like row (journey only — title is in header) -->
         @if (data.type === 'journey') {
@@ -205,7 +203,7 @@ export interface SoundPopupSheetData {
   `,
   styleUrl: './sound-popup-sheet.component.scss',
 })
-export class SoundPopupSheetComponent {
+export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   data = inject<SoundPopupSheetData>(MAT_BOTTOM_SHEET_DATA);
   private sheetRef = inject(MatBottomSheetRef);
   private translateService = inject(TranslateService);
@@ -213,6 +211,9 @@ export class SoundPopupSheetComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private el = inject(ElementRef);
+
+  @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
+  private playerInstance: WaveSurferPlayerInstance | null = null;
 
   // Delegate click on username link inside [innerHTML]
   @HostListener('click', ['$event'])
@@ -276,6 +277,22 @@ export class SoundPopupSheetComponent {
       username: userLink,
     });
   });
+
+  ngAfterViewInit() {
+    const isDark = document.body.classList.contains('dark-theme');
+    this.playerInstance = createWaveSurferPlayer({
+      container: this.waveformContainer.nativeElement,
+      audioUrl: this.data.audioUrl,
+      isDarkTheme: isDark,
+      onPlay: () => this.onAudioPlay(),
+      onPause: () => this.onAudioPause(),
+    });
+  }
+
+  ngOnDestroy() {
+    this.playerInstance?.destroy();
+    this.playerInstance = null;
+  }
 
   close() {
     this.sheetRef.dismiss();

@@ -124,9 +124,10 @@
     margin-bottom: 8px;
   }
 
-  audio {
-    width: 100%;
+  /* WaveSurfer player container */
+  .ws-popup-player {
     margin-top: 8px;
+    width: 100%;
   }
 
   /* light theme */
@@ -326,6 +327,130 @@
       background: rgba(255, 255, 255, 0.20);
       color: #fff !important;
     }
+  }
+}
+
+/* ===================== */
+/* WaveSurfer custom player (popups + sheet) */
+/* ===================== */
+.ws-player {
+  width: 100%;
+}
+
+.ws-waveform {
+  width: 100%;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ws-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.ws-play-btn,
+.ws-mute-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+
+  .material-icons {
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+
+.ws-mute-btn {
+  width: 26px;
+  height: 26px;
+
+  .material-icons {
+    font-size: 16px;
+  }
+}
+
+.ws-spacer {
+  flex: 1;
+}
+
+.ws-time-current,
+.ws-time-total {
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ws-time-separator {
+  font-size: 0.7rem;
+}
+
+/* WaveSurfer light theme */
+body.light-theme {
+  .ws-play-btn {
+    background: rgba(25, 118, 210, 0.1);
+
+    .material-icons { color: #1976d2; }
+
+    &:hover { background: rgba(25, 118, 210, 0.18); }
+    &:active { background: rgba(25, 118, 210, 0.25); }
+  }
+
+  .ws-mute-btn {
+    background: transparent;
+
+    .material-icons { color: #666; }
+
+    &:hover { background: rgba(0, 0, 0, 0.06); }
+  }
+
+  .ws-time-current,
+  .ws-time-total {
+    color: #555;
+  }
+
+  .ws-time-separator {
+    color: #999;
+  }
+}
+
+/* WaveSurfer dark theme */
+body.dark-theme {
+  .ws-play-btn {
+    background: rgba(144, 202, 249, 0.12);
+
+    .material-icons { color: #90caf9; }
+
+    &:hover { background: rgba(144, 202, 249, 0.2); }
+    &:active { background: rgba(144, 202, 249, 0.28); }
+  }
+
+  .ws-mute-btn {
+    background: transparent;
+
+    .material-icons { color: #aaa; }
+
+    &:hover { background: rgba(255, 255, 255, 0.08); }
+  }
+
+  .ws-time-current,
+  .ws-time-total {
+    color: #bbb;
+  }
+
+  .ws-time-separator {
+    color: #777;
   }
 }
 

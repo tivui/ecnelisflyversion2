@@ -43,6 +43,7 @@ import { EphemeralJourneyService } from '../../../../core/services/ephemeral-jou
 import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
+import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 
 @Component({
   selector: 'app-mapfly',
@@ -701,10 +702,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-            <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-              <source src="${url}" type="${mimeType}">
-              Your browser does not support the audio element.
-            </audio>
+            <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
               <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
               <button class="download-btn material-icons" id="download-${s.filename}">download</button>
@@ -966,6 +964,22 @@ export class MapflyComponent implements OnInit, OnDestroy {
             });
           }
 
+          // --- WaveSurfer player ---
+          const wsContainer = document.getElementById(`ws-player-${s.filename}`);
+          if (wsContainer) {
+            this.activePopupPlayer?.destroy();
+            requestAnimationFrame(() => {
+              const isDark = document.body.classList.contains('dark-theme');
+              this.activePopupPlayer = createWaveSurferPlayer({
+                container: wsContainer,
+                audioUrl: url,
+                isDarkTheme: isDark,
+                onPlay: () => this.ambientAudio?.duck?.(),
+                onPause: () => this.ambientAudio?.unduck?.(),
+              });
+            });
+          }
+
           // --- Subscriptions ---
           const recordSub = this.appUserService.currentUser$.subscribe(() =>
             updateRecordInfo(),
@@ -978,6 +992,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           m.on('popupclose', () => {
             recordSub.unsubscribe();
             translateSub.unsubscribe();
+            this.activePopupPlayer?.destroy();
+            this.activePopupPlayer = null;
           });
         });
         } // end if (!this.isMobilePortrait)
@@ -1462,6 +1478,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   private popupAudioPlayHandler: ((e: Event) => void) | null = null;
   private popupAudioPauseHandler: ((e: Event) => void) | null = null;
+  private activePopupPlayer: WaveSurferPlayerInstance | null = null;
   private popupFadeTimer: ReturnType<typeof setInterval> | null = null;
   private fadingOutAudio: HTMLAudioElement | null = null;
 
@@ -1983,9 +2000,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-          <source src="${url}" type="${mimeType}">
-        </audio>
+        <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
           <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
           <button class="download-btn material-icons" id="download-${soundFilename}">download</button>
@@ -2134,6 +2149,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           a.click();
           document.body.removeChild(a);
         });
+
+      // --- WaveSurfer player ---
+      const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
+      if (wsContainer) {
+        this.activePopupPlayer?.destroy();
+        requestAnimationFrame(() => {
+          const isDark = document.body.classList.contains('dark-theme');
+          this.activePopupPlayer = createWaveSurferPlayer({
+            container: wsContainer,
+            audioUrl: url,
+            isDarkTheme: isDark,
+            onPlay: () => this.ambientAudio?.duck?.(),
+            onPause: () => this.ambientAudio?.unduck?.(),
+          });
+        });
+      }
+    });
+
+    marker.on('popupclose', () => {
+      this.activePopupPlayer?.destroy();
+      this.activePopupPlayer = null;
     });
     } // end if (!this.isMobilePortrait) — featured popup
 
@@ -2427,9 +2463,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-          <source src="${url}" type="${mimeType}">
-        </audio>
+        <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
           ${prevBtnHtml}
           ${nextBtnHtml}
@@ -2549,6 +2583,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           this.router.navigate(['/journeys']);
         });
       }
+
+      // --- WaveSurfer player ---
+      const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
+      if (wsContainer) {
+        this.activePopupPlayer?.destroy();
+        requestAnimationFrame(() => {
+          const isDark = document.body.classList.contains('dark-theme');
+          this.activePopupPlayer = createWaveSurferPlayer({
+            container: wsContainer,
+            audioUrl: url,
+            isDarkTheme: isDark,
+            onPlay: () => this.ambientAudio?.duck?.(),
+            onPause: () => this.ambientAudio?.unduck?.(),
+          });
+        });
+      }
+    });
+
+    marker.on('popupclose', () => {
+      this.activePopupPlayer?.destroy();
+      this.activePopupPlayer = null;
     });
     } // end if (!this.isMobilePortrait) — journey popup
 
@@ -3126,6 +3181,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.activeSheetRef?.dismiss();
     this.activeSheetRef = null;
     this.bottomSheet.dismiss();
+
+    this.activePopupPlayer?.destroy();
+    this.activePopupPlayer = null;
 
     this.stopTimeline();
     this.ambientAudio.destroy();
