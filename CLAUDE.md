@@ -356,6 +356,43 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 | Border-left light | `rgba(#5c6a8a, 0.35)` | Bordure card |
 | Border-left dark | `rgba(#a0b0cc, 0.3)` | Bordure card dark |
 
+#### Image de couverture (`coverImage`)
+
+Chaque voyage sonore peut avoir une image de couverture configurable par l'admin, avec cadrage et zoom (meme pattern que les terroirs).
+
+**Schema & modele :**
+- `amplify/data/resource.ts` : champs `coverImage: a.string()`, `coverImagePosition: a.string().default('center')`, `coverImageZoom: a.integer().default(100)` sur le modele `SoundJourney`
+- `sound-journey.model.ts` : `coverImage?`, `coverImagePosition?`, `coverImageZoom?`
+- `MonthlyJourney` : `journeyCoverImage` (denormalise)
+
+**S3 Storage :**
+- Chemin : `journeys/images/${sanitizedFilename}`
+- Acces : `journeys/*` dans `amplify/storage/resource.ts` (read auth+guest, write/delete ADMIN)
+- Service : `uploadJourneyImage()`, `getJourneyFileUrl()` dans `sound-journey.service.ts`
+
+**Admin dialog (`journey-dialog`) :**
+- Onglet "Media" entre Info et Traductions
+- Drop zone + drag-to-frame (cadrage vertical) + zoom (molette/boutons) — meme UX que zone-dialog
+- Signals : `coverImageKey`, `coverImagePreviewUrl`, `coverImagePosition`, `coverImageZoom`, `imageUploadProgress`, `isDraggingImage`
+- Migration keywords (`top`/`center`/`bottom`) vers pourcentage a l'init
+
+**Liste publique (`journeys-list`) :**
+- `coverImageUrls: signal<Map<string, string>>` — URLs presignees resolues apres chargement
+- `getCoverImageUrl(journey)` — methode utilitaire pour le template
+- Si image : `<img class="journey-cover">` + `.journey-cover-overlay` (gradient assombrissant) au-dessus du gradient de fond
+- Si pas d'image : fallback gradient slate-indigo existant (inchange)
+- Image avec `object-fit: cover`, `object-position` et `transform: scale()` depuis les champs du modele
+
+**i18n (`admin.journeys.dialog.*`) :**
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `tabMedia` | Media | Media | Multimedia |
+| `coverImage` | Image de couverture | Cover image | Imagen de portada |
+| `coverImageHint` | Format paysage recommande (1200x600) | Landscape format recommended (1200x600) | Formato horizontal recomendado (1200x600) |
+| `uploadImage` | Deposer ou cliquer pour ajouter une image | Drop or click to add an image | Arrastrar o hacer clic para agregar una imagen |
+| `dragToFrame` | Glisser pour cadrer | Drag to frame | Arrastrar para encuadrar |
+| `uploadError` | Erreur lors de l'upload | Upload error | Error al subir |
+
 #### Liste des voyages (`journeys-list`)
 
 - Hero icon + journey cards + random card : tous en palette slate-indigo
@@ -934,6 +971,93 @@ De plus, des listeners `valueChanges` (debounce 300ms) sur les champs `title` et
 ## Admin icon — Hub listener
 
 Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `signedIn` (pas seulement dans `ngOnInit`) via `await authService.loadCurrentUser()` + `isAdmin.set(authService.isInGroup('ADMIN'))`. Reset a `false` dans le handler `signedOut`.
+
+## OAuth Account Linking (`app-user.service.ts`)
+
+### Principe
+
+Un meme utilisateur peut se connecter par email/password ET par Google OAuth. Les deux identites Cognito (sub differents) sont liees par email en base.
+
+### Architecture de liaison
+
+1. **Recherche par cognitoSub** (fast path) via index secondaire `getUserByCognitoSub`
+2. **Recherche par email** (normalise lowercase) via index secondaire `getUserByEmail`
+3. **Selection du compte principal** : scoring par richesse de donnees (`dataScore`) — avatarSeed (+10), avatarStyle (+5), likedSoundIds (+3), theme dark (+1), firstName/lastName (+1). En cas d'egalite, le plus ancien gagne
+4. **Re-fetch par cle primaire** (`User.get({ id })`) — les index secondaires peuvent omettre certains champs (ex: `avatarOptions`)
+5. **Liaison cognitoSub** : mise a jour locale uniquement (`userRecord.cognitoSub = cognitoSub`), pas de remplacement du record complet (evite la perte de champs)
+6. **Merge des doublons** : fire-and-forget en background, transfert des sons + liked sounds, neutralisation des doublons (`email: merged_xxx@deleted`)
+
+### Admin via OAuth
+
+L'admin est determine par le groupe Cognito `ADMIN` dans le JWT. Chaque identite Cognito est independante : un utilisateur admin par email/password ne sera PAS admin via OAuth (voulu). Admin uniquement par email/password.
+
+### Pieges connus
+
+- **Ne pas remplacer `userRecord`** apres `User.update({ cognitoSub })` — la reponse d'update peut omettre des champs comme `avatarOptions`
+- **`avatarOptions` doit etre sauvegarde dans un appel separe** — AppSync retourne `null` si inclus dans la meme mutation que les autres champs
+- **`'{}'` au lieu de `null`** pour effacer `avatarOptions` en base — DynamoDB peut ignorer les valeurs `null` dans les updates
+
+## Avatar — Validation cross-style (`avatar.service.ts`)
+
+### Probleme
+
+Les `avatarOptions` (eyes, mouth, hairColor, skinColor...) sont specifiques a chaque style DiceBear. Changer de style sans effacer les options laisse des valeurs incompatibles en base. Exemple : `mouth: "grimace"` (valide pour `avataaars`) est invalide pour `botttsNeutral`, causant un rendu sans yeux/bouche.
+
+### Solution — Filtrage dans `generateAvatarUri()`
+
+Avant de passer les options a DiceBear, le service filtre :
+1. **Cles valides** : seules les dimensions definies dans `STYLE_OPTIONS[currentStyle]` sont incluses
+2. **Valeurs valides** : pour les dimensions de type `variant`, la valeur doit exister dans `dim.variants[]`
+3. Les options invalides sont silencieusement ignorees (DiceBear utilise ses defauts)
+
+### Effacement en base
+
+- Changement de style dans le compte → `selectedAvatarOptions.set({})` (vide)
+- Sauvegarde : `avatarOptions: null` → persiste `'{}'` en base (pas `null` car DynamoDB peut l'ignorer)
+- Chargement : `avatarOptions === '{}'` → traite comme `null`
+
+### Styles avec options (`STYLE_OPTIONS`)
+
+| Style | Dimensions |
+|-------|-----------|
+| `initials` | backgroundColor |
+| `toonHead` | eyes, mouth, hair, clothes, skinColor, hairColor, clothesColor |
+| `bottts` | eyes, mouth, face, baseColor |
+| `botttsNeutral` | eyes, mouth, backgroundColor |
+| `funEmoji` | eyes, mouth, backgroundColor |
+| `personas` | eyes, mouth, body, skinColor, hairColor, clothingColor |
+| `avataaars` | eyes, mouth, skinColor, hairColor |
+| `avataaarsNeutral` | eyes, mouth, backgroundColor |
+
+6 styles sans options : `adventurer`, `adventurerNeutral`, `identicon`, `pixelArt`, `rings`, `shapes`
+
+## Page Categories (`features/categories/pages/categories-list/`)
+
+### Layout responsive mobile
+
+Grille responsive de cards `app-card-category` (composant reutilisable de la home page).
+
+**Breakpoints :**
+- **Desktop** : `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))` — multi-colonnes auto
+- **Grand mobile (431-700px)** : 3 colonnes, gap 12px
+- **Petit/moyen mobile (<= 430px)** : 2 colonnes, gap 10px (couvre Pixel 7 412px, iPhone 375px)
+
+**Card mobile (layout vertical)** :
+- `flex-direction: column` — icone overlay centree au-dessus, titre centre en dessous
+- `white-space: normal` — texte sur plusieurs lignes si necessaire (evite troncature)
+- Overlay 36px, dot 6px, `font-size: 0.72rem`, `border-radius: 12px`
+- Tap → ouvre `SubcategorySheetComponent` (MatBottomSheet)
+- `mat-card-content` (champ recherche) masque en mobile (`display: none`)
+- Active feedback : `transform: scale(0.97)`
+
+**Container :**
+- Background light : `#F1F2F6` (coherent home page)
+- Background dark : `linear-gradient(180deg, #080a18, #0c0e22, #0a0c1e)` (coherent home)
+- Hero compact : icone 40px, titre `1.1rem; font-weight: 800`, couleur `$logo-dark-blue`
+
+**Animation :** `fadeInUp` stagger par `nth-child` (0.05s * n), 9 cards
+
+**Desktop** : inchange (cards horizontales avec clip-path, champ recherche sous-categories visible)
 
 ## Fichiers temporaires a ignorer
 

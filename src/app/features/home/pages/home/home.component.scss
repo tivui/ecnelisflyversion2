@@ -358,11 +358,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 .map-mobile-title,
 .map-mobile-subtitle,
 .map-card-chevron,
-.alaune-illustration,
 .alaune-icon-mobile,
 .alaune-title,
 .carousel-card-chevron,
-.categories-illustration,
 .categories-icon-mobile,
 .carousel-mobile-title,
 .scroll-hint,
@@ -1829,11 +1827,6 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
         0 0 12px rgba(#5c6bc0, 0.08);
     }
 
-    // Hide PNG illustration on mobile
-    .alaune-illustration {
-      display: none !important;
-    }
-
     // Material icon replacing the PNG
     .alaune-icon-mobile {
       display: flex !important;
@@ -2393,11 +2386,6 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       &::before {
         display: none;
       }
-    }
-
-    // Hide PNG illustration on mobile
-    .categories-illustration {
-      display: none !important;
     }
 
     // Material icon replacing the PNG

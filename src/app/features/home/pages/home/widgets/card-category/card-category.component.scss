@@ -265,6 +265,11 @@ mat-card-content {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     background: rgba(255, 255, 255, 0.75);
     border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
 
     &:hover {
       transform: none;
@@ -283,32 +288,40 @@ mat-card-content {
   }
 
   mat-card-header {
-    padding: 10px 12px;
-    gap: 8px;
+    padding: 12px 10px;
+    gap: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .category-overlay {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     filter: saturate(0.55) brightness(1.05);
     opacity: 0.9;
+    margin-bottom: 6px;
   }
 
   .category-label {
-    gap: 6px;
+    gap: 5px;
+    justify-content: center;
   }
 
   .category-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     opacity: 0.75;
   }
 
   mat-card-title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.01em;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
   }
 
   mat-card-content {

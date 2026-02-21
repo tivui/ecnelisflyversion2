@@ -4,6 +4,7 @@
 $accent: #ff9800;
 $primary-blue: #1976d2;
 $primary-indigo: #3f51b5;
+$logo-dark-blue: #0d47a1;
 
 // =====================
 // Container
@@ -23,8 +24,14 @@ $primary-indigo: #3f51b5;
       linear-gradient(180deg, #0d0d1a 0%, #111124 100%);
   }
 
-  @media (max-width: 700px) {
-    padding: 16px;
+  @media (max-width: 700px) and (orientation: portrait) {
+    padding: 16px 14px;
+    min-height: calc(100vh - 48px - 56px);
+    background: #F1F2F6;
+
+    :host-context(body.dark-theme) & {
+      background: linear-gradient(180deg, #080a18, #0c0e22, #0a0c1e);
+    }
   }
 }
 
@@ -38,9 +45,9 @@ $primary-indigo: #3f51b5;
   gap: 12px;
   margin-bottom: 32px;
 
-  @media (max-width: 700px) {
-    margin-bottom: 20px;
-    gap: 8px;
+  @media (max-width: 700px) and (orientation: portrait) {
+    margin-bottom: 16px;
+    gap: 6px;
   }
 }
 
@@ -61,15 +68,16 @@ $primary-indigo: #3f51b5;
     color: #fff;
   }
 
-  @media (max-width: 700px) {
-    width: 44px;
-    height: 44px;
+  @media (max-width: 700px) and (orientation: portrait) {
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(#e65100, 0.2), 0 0 0 2px rgba($accent, 0.15);
 
     mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
   }
 }
@@ -85,8 +93,14 @@ $primary-indigo: #3f51b5;
     color: #e8e8f0;
   }
 
-  @media (max-width: 700px) {
-    font-size: 1.2rem;
+  @media (max-width: 700px) and (orientation: portrait) {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: $logo-dark-blue;
+
+    :host-context(body.dark-theme) & {
+      color: rgba(255, 255, 255, 0.92);
+    }
   }
 }
 
@@ -100,8 +114,42 @@ $primary-indigo: #3f51b5;
   max-width: 960px;
   margin: 0 auto;
 
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  // Small phones (375px etc.): 2 columns compact
+  @media (max-width: 430px) and (orientation: portrait) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  // Large phones (431px-700px): 3 columns
+  @media (min-width: 431px) and (max-width: 700px) and (orientation: portrait) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+// =====================
+// Stagger entrance animation (mobile)
+// =====================
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  .categories-grid app-card-category {
+    opacity: 0;
+    animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+    @for $i from 1 through 9 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{0.05 * $i}s;
+      }
+    }
   }
 }
