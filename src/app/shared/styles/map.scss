@@ -101,6 +101,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    margin-top: 6px;
     margin-bottom: 6px;
   }
 
@@ -291,6 +292,43 @@
   }
 }
 
+/* Popup close button — circular style matching bottom sheet */
+.leaflet-popup-close-button {
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  line-height: 28px !important;
+  padding: 0 !important;
+  top: 6px !important;
+  right: 6px !important;
+  transition: background 0.15s ease;
+  text-decoration: none !important;
+
+  body.light-theme & {
+    color: #666 !important;
+    background: rgba(0, 0, 0, 0.06);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.12);
+      color: #333 !important;
+    }
+  }
+
+  body.dark-theme & {
+    color: #ddd !important;
+    background: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.20);
+      color: #fff !important;
+    }
+  }
+}
+
 /* Like button in popup */
 .popup-like-btn {
   display: flex;
@@ -330,6 +368,14 @@
 body.dark-theme .popup-like-btn {
   &:hover {
     background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .popup-like-icon {
+    filter: brightness(0) invert(0.75);
+  }
+
+  &.liked .popup-like-icon {
+    filter: none;
   }
 
   &.liked .popup-like-count {
@@ -620,7 +666,7 @@ body.dark-theme .leaflet-popup-tip {
 
 /* Dark mode: Leaflet layers toggle icon */
 body.dark-theme .leaflet-control-layers-toggle {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23b0b8cc'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23f5f5f5'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
 }
 
 /* Grouped overlays – alignement image + texte */
@@ -1532,7 +1578,7 @@ body.dark-theme .leaflet-control-layers-toggle {
   body.dark-theme & {
     background: rgba(14, 14, 28, 0.94) !important;
     backdrop-filter: blur(16px);
-    color: #f5f5f5;
+    color: #b0b8cc;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
   }
 
@@ -1567,7 +1613,7 @@ body.dark-theme .leaflet-control-layers-toggle {
     }
 
     body.dark-theme & {
-      color: #f5f5f5;
+      color: #b0b8cc;
       background: transparent;
 
       &:hover {
@@ -1591,6 +1637,7 @@ body.dark-theme .leaflet-control-layers-toggle {
 
       body.dark-theme & {
         accent-color: #90caf9;
+        color-scheme: dark;
       }
     }
   }

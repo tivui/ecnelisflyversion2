@@ -734,10 +734,14 @@ Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPag
 - **Quiz lobby** : `.start-section { bottom: 56px }` en mobile portrait
 - **Mapfly timeline bar** : `bottom: 70px` en mobile portrait (au-dessus du nav de 56px + marge)
 
-### Leaflet dark mode (map.scss)
+### Leaflet controls — Premium glassmorphism (map.scss)
 
-- **Layers control container** : `body.dark-theme .leaflet-control-layers { background: rgba(14, 14, 28, 0.92) }`
-- **Layers toggle icon** : SVG blanc data URI remplacant le sprite Leaflet sombre (invisible sur fond dark)
+Zoom (+/-) et layers switcher stylises avec glassmorphism light/dark, proportionnes aux controles natifs Leaflet (30x30px).
+
+- **Zoom** : `border-radius: 10px`, fond `rgba(255,255,255,0.92)` light / `rgba(14,14,28,0.88)` dark, `backdrop-filter: blur(12px)`, hover bleu. Masque en mobile portrait (pinch-to-zoom)
+- **Layers toggle** : 30x30px, `border-radius: 10px`, meme glassmorphism. SVG blanc data URI en dark (remplace sprite Leaflet)
+- **Layers expanded** : `border-radius: 8px`, padding compact `5px 8px`, font `0.7rem`, radios `12px`, `backdrop-filter: blur(16px)`. Texte `#1a1a2e` light / `#b0b8cc` dark (gris-bleu doux, harmonise avec le fond sombre). Labels avec hover bleu subtil, `accent-color: #1976d2` light / `#90caf9` dark. Inputs non coches : `color-scheme: dark` pour contour gris (pas blanc vif)
+- **Popup close button** : `.leaflet-popup-close-button` stylise en bouton circulaire 28px (meme design que le bottom sheet mobile). Light : fond `rgba(0,0,0,0.06)`, icone `#666`, hover `0.12`. Dark : fond `rgba(255,255,255,0.12)`, icone `#ddd`, hover `0.20`
 
 ## Conventions SCSS
 
