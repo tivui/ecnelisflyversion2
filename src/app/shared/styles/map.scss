@@ -246,47 +246,57 @@
   .popup-btn-group {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 6px;
+    gap: 10px;
+    margin-top: 4px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+
+    // Séparateur fin au-dessus des boutons d'action
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    body.dark-theme & {
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
 
     .zoom-btn,
     .download-btn {
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
+      transition: background 0.15s;
 
       font-size: 18px;
       line-height: 1;
 
       // --- Light theme ---
       body.light-theme & {
-        background-color: #e3f2fd;
-        color: #1e88e5;
+        background: rgba(25, 118, 210, 0.08);
+        color: #1976d2;
 
         &:hover {
-          background-color: #bbdefb;
+          background: rgba(25, 118, 210, 0.15);
         }
         &:active {
-          background-color: #90caf9;
+          background: rgba(25, 118, 210, 0.22);
         }
       }
 
       // --- Dark theme ---
       body.dark-theme & {
-        background-color: #424b5c;
+        background: rgba(144, 202, 249, 0.10);
         color: #90caf9;
 
         &:hover {
-          background-color: #5c667a;
+          background: rgba(144, 202, 249, 0.18);
         }
         &:active {
-          background-color: #748099;
+          background: rgba(144, 202, 249, 0.25);
         }
       }
     }
@@ -343,6 +353,49 @@
   border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
+  position: relative;
+}
+
+/* Skeleton equalizer loader */
+.ws-skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+
+  &.ws-skeleton-out {
+    opacity: 0;
+  }
+
+  span {
+    width: 3px;
+    border-radius: 2px;
+    animation: ws-eq-bounce 1.2s ease-in-out infinite;
+
+    &:nth-child(1) { height: 30%; animation-delay: 0s; }
+    &:nth-child(2) { height: 55%; animation-delay: 0.12s; }
+    &:nth-child(3) { height: 80%; animation-delay: 0.24s; }
+    &:nth-child(4) { height: 50%; animation-delay: 0.36s; }
+    &:nth-child(5) { height: 25%; animation-delay: 0.48s; }
+  }
+}
+
+@keyframes ws-eq-bounce {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+body.light-theme .ws-skeleton span {
+  background: #1976d2;
+}
+
+body.dark-theme .ws-skeleton span {
+  background: #90caf9;
 }
 
 .ws-controls {
@@ -472,7 +525,7 @@ body.dark-theme {
   }
 
   &.liked .popup-like-count {
-    color: #e65100;
+    color: #444;
     font-weight: 600;
   }
 
@@ -504,7 +557,7 @@ body.dark-theme .popup-like-btn {
   }
 
   &.liked .popup-like-count {
-    color: #ffab40;
+    color: #ddd;
   }
 
   .popup-like-count {

@@ -36,6 +36,14 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   waveformDiv.className = 'ws-waveform';
   wrapper.appendChild(waveformDiv);
 
+  // Skeleton equalizer loader
+  const skeleton = document.createElement('div');
+  skeleton.className = 'ws-skeleton';
+  for (let i = 0; i < 5; i++) {
+    skeleton.appendChild(document.createElement('span'));
+  }
+  waveformDiv.appendChild(skeleton);
+
   const controlsDiv = document.createElement('div');
   controlsDiv.className = 'ws-controls';
 
@@ -126,6 +134,11 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
 
   ws.on('decode', (duration: number) => {
     timeTotal.textContent = formatTime(duration);
+  });
+
+  ws.on('ready', () => {
+    skeleton.classList.add('ws-skeleton-out');
+    setTimeout(() => skeleton.remove(), 400);
   });
 
   // Play/Pause click
