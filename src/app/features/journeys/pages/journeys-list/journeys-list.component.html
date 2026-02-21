@@ -35,6 +35,16 @@
       @for (journey of journeys(); track journey.id) {
         <div class="journey-card" matRipple (click)="goToJourney(journey)">
           <div class="card-visual">
+            @if (getCoverImageUrl(journey)) {
+              <img
+                [src]="getCoverImageUrl(journey)"
+                [alt]="journeyName(journey)"
+                class="journey-cover"
+                [style.object-position]="'center ' + (journey.coverImagePosition || '50%')"
+                [style.transform]="'scale(' + (journey.coverImageZoom ? journey.coverImageZoom / 100 : 1) + ')'"
+              />
+              <div class="journey-cover-overlay"></div>
+            }
             <div class="card-icon-circle">
               <mat-icon>route</mat-icon>
             </div>

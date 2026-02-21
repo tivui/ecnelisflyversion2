@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -39,6 +40,7 @@ interface DialogData {
     MatSlideToggleModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatTabsModule,
     TranslateModule,
   ],
@@ -57,6 +59,16 @@ export class JourneyDialogComponent implements OnInit {
   saving = signal(false);
   isEditMode = signal(false);
 
+  // Media signals
+  coverImagePosition = signal('50%');
+  coverImageKey = signal<string | null>(null);
+  coverImagePreviewUrl = signal<string | null>(null);
+  imageUploadProgress = signal(0);
+  isDraggingImage = signal(false);
+  coverImageZoom = signal(100);
+  private dragStartY = 0;
+  private dragStartPercent = 50;
+
   ngOnInit() {
     this.isEditMode.set(!!this.data.journey);
 
@@ -74,6 +86,24 @@ export class JourneyDialogComponent implements OnInit {
       isPublic: [this.data.journey?.isPublic ?? true],
       sortOrder: [this.data.journey?.sortOrder ?? 0],
     });
+
+    // Load existing cover image
+    if (this.data.journey?.coverImagePosition) {
+      const pos = this.data.journey.coverImagePosition;
+      if (pos === 'top') this.coverImagePosition.set('0%');
+      else if (pos === 'bottom') this.coverImagePosition.set('100%');
+      else if (pos === 'center') this.coverImagePosition.set('50%');
+      else this.coverImagePosition.set(pos);
+    }
+    if (this.data.journey?.coverImageZoom) {
+      this.coverImageZoom.set(this.data.journey.coverImageZoom);
+    }
+    if (this.data.journey?.coverImage) {
+      this.coverImageKey.set(this.data.journey.coverImage);
+      this.journeyService
+        .getJourneyFileUrl(this.data.journey.coverImage)
+        .then((url) => this.coverImagePreviewUrl.set(url));
+    }
 
     // Auto-generate slug from name (only in create mode)
     this.form.get('name')?.valueChanges.subscribe((name) => {
@@ -121,6 +151,9 @@ export class JourneyDialogComponent implements OnInit {
             : undefined,
         slug: formValue.slug,
         color: formValue.color,
+        coverImage: this.coverImageKey() ?? undefined,
+        coverImagePosition: this.coverImagePosition(),
+        coverImageZoom: this.coverImageZoom(),
         isPublic: formValue.isPublic,
         sortOrder: formValue.sortOrder,
       };
@@ -152,6 +185,117 @@ export class JourneyDialogComponent implements OnInit {
     } finally {
       this.saving.set(false);
     }
+  }
+
+  // ============ MEDIA UPLOAD METHODS ============
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDropImage(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      this.uploadCoverImage(file);
+    }
+  }
+
+  onCoverImageSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.uploadCoverImage(file);
+  }
+
+  private uploadCoverImage(file: File) {
+    this.imageUploadProgress.set(1);
+    const { progress$, result } = this.journeyService.uploadJourneyImage(file);
+
+    progress$.subscribe((p) => this.imageUploadProgress.set(p));
+
+    result
+      .then(async ({ key }) => {
+        this.coverImageKey.set(key);
+        const url = await this.journeyService.getJourneyFileUrl(key);
+        this.coverImagePreviewUrl.set(url);
+        this.imageUploadProgress.set(100);
+      })
+      .catch((err) => {
+        console.error('Image upload error:', err);
+        this.snackBar.open(
+          this.translate.instant('admin.journeys.dialog.uploadError'),
+          '',
+          { duration: 3000 }
+        );
+        this.imageUploadProgress.set(0);
+      });
+  }
+
+  removeCoverImage() {
+    this.coverImageKey.set(null);
+    this.coverImagePreviewUrl.set(null);
+    this.imageUploadProgress.set(0);
+  }
+
+  // --- Image drag-to-frame ---
+  onImageDragStart(event: MouseEvent) {
+    event.preventDefault();
+    this.isDraggingImage.set(true);
+    this.dragStartY = event.clientY;
+    this.dragStartPercent = parseFloat(this.coverImagePosition()) || 50;
+  }
+
+  onImageTouchStart(event: TouchEvent) {
+    this.isDraggingImage.set(true);
+    this.dragStartY = event.touches[0].clientY;
+    this.dragStartPercent = parseFloat(this.coverImagePosition()) || 50;
+  }
+
+  onImageDragMove(event: MouseEvent) {
+    if (!this.isDraggingImage()) return;
+    event.preventDefault();
+    this.updateDragPosition(event.clientY);
+  }
+
+  onImageTouchMove(event: TouchEvent) {
+    if (!this.isDraggingImage()) return;
+    this.updateDragPosition(event.touches[0].clientY);
+  }
+
+  onImageDragEnd() {
+    this.isDraggingImage.set(false);
+  }
+
+  onImageWheel(event: WheelEvent) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -5 : 5;
+    this.adjustZoom(delta);
+  }
+
+  zoomIn() {
+    this.adjustZoom(10);
+  }
+
+  zoomOut() {
+    this.adjustZoom(-10);
+  }
+
+  resetZoom() {
+    this.coverImageZoom.set(100);
+  }
+
+  private adjustZoom(delta: number) {
+    const current = this.coverImageZoom();
+    const newZoom = Math.min(200, Math.max(100, current + delta));
+    this.coverImageZoom.set(newZoom);
+  }
+
+  private updateDragPosition(clientY: number) {
+    const delta = clientY - this.dragStartY;
+    const percentDelta = (delta / 200) * 100;
+    const newPercent = Math.min(100, Math.max(0, this.dragStartPercent + percentDelta));
+    this.coverImagePosition.set(`${Math.round(newPercent)}%`);
   }
 
   cancel() {

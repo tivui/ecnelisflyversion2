@@ -43,6 +43,82 @@
       </div>
     </mat-tab>
 
+    <!-- Media Tab -->
+    <mat-tab [label]="'admin.journeys.dialog.tabMedia' | translate">
+      <div class="tab-content media-tab">
+        <div class="media-section">
+          <h4>{{ 'admin.journeys.dialog.coverImage' | translate }}</h4>
+          <p class="media-hint">{{ 'admin.journeys.dialog.coverImageHint' | translate }}</p>
+
+          @if (coverImagePreviewUrl()) {
+            <div
+              class="media-preview image-preview image-draggable"
+              [class.dragging]="isDraggingImage()"
+              (mousedown)="onImageDragStart($event)"
+              (mousemove)="onImageDragMove($event)"
+              (mouseup)="onImageDragEnd()"
+              (mouseleave)="onImageDragEnd()"
+              (touchstart)="onImageTouchStart($event)"
+              (touchmove)="onImageTouchMove($event)"
+              (touchend)="onImageDragEnd()"
+              (wheel)="onImageWheel($event)"
+            >
+              <img
+                [src]="coverImagePreviewUrl()"
+                alt="Cover"
+                [style.object-position]="'center ' + coverImagePosition()"
+                [style.transform]="'scale(' + coverImageZoom() / 100 + ')'"
+                draggable="false"
+              />
+              <button mat-icon-button class="remove-media-btn" (click)="removeCoverImage(); $event.stopPropagation()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <div class="drag-hint">
+                <mat-icon>open_with</mat-icon>
+                <span>{{ 'admin.journeys.dialog.dragToFrame' | translate }}</span>
+              </div>
+            </div>
+            <div class="zoom-controls">
+              <button mat-icon-button (click)="zoomOut()" [disabled]="coverImageZoom() <= 100">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="zoom-label">{{ coverImageZoom() }}%</span>
+              <button mat-icon-button (click)="zoomIn()" [disabled]="coverImageZoom() >= 200">
+                <mat-icon>add</mat-icon>
+              </button>
+              @if (coverImageZoom() > 100) {
+                <button mat-icon-button (click)="resetZoom()" class="zoom-reset">
+                  <mat-icon>restart_alt</mat-icon>
+                </button>
+              }
+            </div>
+          } @else {
+            <div
+              class="drop-zone"
+              (click)="coverImageInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropImage($event)"
+            >
+              <mat-icon>image</mat-icon>
+              <span>{{ 'admin.journeys.dialog.uploadImage' | translate }}</span>
+            </div>
+          }
+
+          <input
+            #coverImageInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            (change)="onCoverImageSelected($event)"
+          />
+
+          @if (imageUploadProgress() > 0 && imageUploadProgress() < 100) {
+            <mat-progress-bar mode="determinate" [value]="imageUploadProgress()"></mat-progress-bar>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
     <!-- Translations Tab -->
     <mat-tab [label]="'admin.journeys.dialog.tabTranslations' | translate">
       <div class="tab-content">

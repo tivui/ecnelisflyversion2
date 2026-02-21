@@ -257,6 +257,8 @@ const schema = a
         slug: a.string().required(),
         color: a.string().default('#1976d2'),
         coverImage: a.string(),
+        coverImagePosition: a.string().default('center'),
+        coverImageZoom: a.integer().default(100),
         isPublic: a.boolean().default(true),
         sortOrder: a.integer().default(0),
         createdBy: a.id(),

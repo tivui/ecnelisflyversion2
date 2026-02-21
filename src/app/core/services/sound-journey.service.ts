@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
+import { getUrl, uploadData } from 'aws-amplify/storage';
+import { Observable } from 'rxjs';
 import { AmplifyService } from './amplify.service';
 import {
   SoundJourney,
   SoundJourneyStep,
   MonthlyJourney,
 } from '../models/sound-journey.model';
+import { generateUniqueFilename } from './filename.service';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +34,8 @@ export class SoundJourneyService {
       slug: raw.slug,
       color: raw.color,
       coverImage: raw.coverImage,
+      coverImagePosition: raw.coverImagePosition,
+      coverImageZoom: raw.coverImageZoom,
       isPublic: raw.isPublic,
       sortOrder: raw.sortOrder,
       createdBy: raw.createdBy,
@@ -97,6 +102,8 @@ export class SoundJourneyService {
       slug: journey.slug!,
       color: journey.color ?? '#1976d2',
       coverImage: journey.coverImage,
+      coverImagePosition: journey.coverImagePosition ?? 'center',
+      coverImageZoom: journey.coverImageZoom ?? 100,
       isPublic: journey.isPublic ?? true,
       sortOrder: journey.sortOrder ?? 0,
       createdBy: journey.createdBy,
@@ -127,6 +134,10 @@ export class SoundJourneyService {
     if (updates.color !== undefined) input['color'] = updates.color;
     if (updates.coverImage !== undefined)
       input['coverImage'] = updates.coverImage;
+    if (updates.coverImagePosition !== undefined)
+      input['coverImagePosition'] = updates.coverImagePosition;
+    if (updates.coverImageZoom !== undefined)
+      input['coverImageZoom'] = updates.coverImageZoom;
     if (updates.isPublic !== undefined) input['isPublic'] = updates.isPublic;
     if (updates.sortOrder !== undefined)
       input['sortOrder'] = updates.sortOrder;
@@ -362,6 +373,47 @@ export class SoundJourneyService {
       console.error('Error setting monthly journey:', result.errors);
       throw new Error('Failed to set monthly journey');
     }
+  }
+
+  // ── Journey File Storage ────────────────────────────
+
+  uploadJourneyImage(
+    file: File
+  ): { progress$: Observable<number>; result: Promise<{ key: string }> } {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let progressObserver: any;
+    const progress$ = new Observable<number>((observer) => {
+      progressObserver = observer;
+    });
+
+    const sanitized = generateUniqueFilename(file.name);
+    const key = `journeys/images/${sanitized}`;
+
+    const uploadTask = uploadData({
+      path: key,
+      data: file,
+      options: {
+        contentType: file.type,
+        onProgress: ({ transferredBytes, totalBytes }) => {
+          if (totalBytes && progressObserver) {
+            progressObserver.next(
+              Math.round((transferredBytes / totalBytes) * 100)
+            );
+          }
+        },
+      },
+    });
+
+    const result = uploadTask.result
+      .then(() => ({ key }))
+      .finally(() => progressObserver?.complete());
+
+    return { progress$, result };
+  }
+
+  async getJourneyFileUrl(key: string): Promise<string> {
+    const { url } = await getUrl({ path: key });
+    return url.toString();
   }
 
   // ── Utilities ────────────────────────────────────────

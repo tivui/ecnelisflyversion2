@@ -21,5 +21,10 @@ export const storage = defineStorage({
       allow.guest.to(['read']),
       allow.groups(['ADMIN']).to(['read', 'write', 'delete']),
     ],
+    'journeys/*': [
+      allow.authenticated.to(['read']),
+      allow.guest.to(['read']),
+      allow.groups(['ADMIN']).to(['read', 'write', 'delete']),
+    ],
   }),
 });
