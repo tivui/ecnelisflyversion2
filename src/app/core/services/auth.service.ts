@@ -36,14 +36,28 @@ export class AuthService {
       const { username, userId, signInDetails } = await getCurrentUser();
 
       // For email/password users, loginId is the email.
-      // For OAuth users (Google), loginId is undefined — fetch from user attributes.
+      // For OAuth users (Google), loginId is undefined — resolve email via multiple fallbacks.
       let email = signInDetails?.loginId;
       if (!email) {
+        // Fallback 1: ID token (most reliable for OAuth — always contains email claim)
         try {
-          const attrs = await fetchUserAttributes();
-          email = attrs.email;
+          const session = await fetchAuthSession();
+          const tokenEmail = session.tokens?.idToken?.payload?.['email'];
+          if (typeof tokenEmail === 'string') {
+            email = tokenEmail;
+          }
         } catch {
-          // Attributes not available — continue without email
+          // Session not available
+        }
+
+        // Fallback 2: user attributes
+        if (!email) {
+          try {
+            const attrs = await fetchUserAttributes();
+            email = attrs.email;
+          } catch {
+            // Attributes not available
+          }
         }
       }
 

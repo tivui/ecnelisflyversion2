@@ -20,14 +20,20 @@ export class AppUserService {
   private readonly _currentUser = new BehaviorSubject<AppUser | null>(null);
   public readonly currentUser$ = this._currentUser.asObservable();
 
+  /** Guard to prevent concurrent duplicate merges */
+  private _mergeInProgress = false;
+
   /** Synchronous snapshot of the current user */
   get currentUser(): AppUser | null {
     return this._currentUser.value;
   }
 
   /**
-   * Load or create the full AppUser
-   * Always resolves with a consistent AppUser | null
+   * Load or create the full AppUser.
+   * Handles account linking between email/password and OAuth (Google) logins:
+   * - Normalizes email to lowercase for reliable matching
+   * - Links accounts by cognitoSub when found by email
+   * - Merges duplicate User records if they exist
    */
   async loadCurrentUser(): Promise<AppUser | null> {
     try {
@@ -38,59 +44,136 @@ export class AppUserService {
       }
 
       const cognitoSub = currentAuthUser.sub;
-      const email =
+      const rawEmail =
         currentAuthUser.email ?? currentAuthUser.username ?? 'unknown@user';
+      const email = rawEmail.toLowerCase().trim();
 
-      let userRecord = null;
+      this.logService.info(
+        `[AccountLink] cognitoSub=${cognitoSub}, email=${email}, username=${currentAuthUser.username}`
+      );
+
+      let userRecord: any = null;
 
       // --------------------------------------------------
-      // 1️⃣ Recherche par cognitoSub (cas normal)
+      // 1️⃣ Recherche par cognitoSub (fast path)
       // --------------------------------------------------
-      const bySub =
-        await this.amplifyService.client.models.User.getUserByCognitoSub({
-          cognitoSub,
-        });
-
-      if (bySub.data.length > 0) {
-        userRecord = bySub.data[0];
-        this.logService.info(`User found by cognitoSub (${userRecord.id})`);
+      let subRecord: any = null;
+      try {
+        const bySub =
+          await this.amplifyService.client.models.User.getUserByCognitoSub({
+            cognitoSub,
+          });
+        if (bySub.data.length > 0) {
+          subRecord = bySub.data[0];
+        }
+      } catch (e) {
+        this.logService.error('cognitoSub search failed: ' + e);
       }
 
       // --------------------------------------------------
-      // 2️⃣ Sinon, recherche par email (cas legacy)
+      // 2️⃣ Recherche par email (liaison de compte + detection doublons)
       // --------------------------------------------------
-      if (!userRecord) {
-        const byEmail =
-          await this.amplifyService.client.models.User.getUserByEmail({
-            email,
-          });
-
-        if (byEmail.data.length > 0) {
-          userRecord = byEmail.data[0];
-
-          this.logService.info(
-            `User found by email (${userRecord.id}), linking cognitoSub`
-          );
-
-          // 🔗 Mise à jour du cognitoSub
-          const updated = await this.amplifyService.client.models.User.update({
-            id: userRecord.id,
-            cognitoSub,
-          });
-
-          console.log("updated", updated)
-
-          if (updated.data) {
-            userRecord = updated.data;
-          }
+      let emailRecords: any[] = [];
+      if (email !== 'unknown@user') {
+        try {
+          const byEmail =
+            await this.amplifyService.client.models.User.getUserByEmail({
+              email,
+            });
+          emailRecords = (byEmail.data ?? []).filter((r: any) => r !== null);
+        } catch (e) {
+          this.logService.error('Email search failed: ' + e);
         }
       }
 
       // --------------------------------------------------
-      // 3️⃣ Sinon, création
+      // 3️⃣ Choisir le compte PRINCIPAL (le plus ancien = le vrai compte)
+      //    Le cognitoSub peut pointer vers un doublon OAuth vide,
+      //    donc on choisit toujours le record le plus ancien.
+      // --------------------------------------------------
+      const allRecordsMap = new Map<string, any>();
+      if (subRecord) allRecordsMap.set(subRecord.id, subRecord);
+      for (const r of emailRecords) {
+        if (r && !allRecordsMap.has(r.id)) allRecordsMap.set(r.id, r);
+      }
+
+      if (allRecordsMap.size > 0) {
+        const allRecords = [...allRecordsMap.values()];
+
+        // Score each record: prefer the one with real user data
+        const dataScore = (r: any): number => {
+          let s = 0;
+          if (r.avatarSeed) s += 10;
+          if (r.avatarStyle) s += 5;
+          if (r.likedSoundIds) s += 3;
+          if (r.theme === 'dark') s += 1;
+          if (r.firstName || r.lastName) s += 1;
+          return s;
+        };
+
+        // Sort: highest data score first; on tie, oldest first
+        allRecords.sort((a, b) => {
+          const sa = dataScore(a);
+          const sb = dataScore(b);
+          if (sa !== sb) return sb - sa;
+          const dateA = a.createdAt
+            ? new Date(a.createdAt).getTime()
+            : 0;
+          const dateB = b.createdAt
+            ? new Date(b.createdAt).getTime()
+            : 0;
+          return dateA - dateB;
+        });
+
+        userRecord = allRecords[0];
+        this.logService.info(
+          `Primary user: ${userRecord.id} (score=${dataScore(userRecord)}, ` +
+            `${allRecords.length} total record(s), ` +
+            `email=${userRecord.email}, avatar=${userRecord.avatarSeed ?? 'none'})`
+        );
+
+        // Re-fetch primary by ID to get ALL fields (index queries may omit avatarOptions etc.)
+        try {
+          const full = await this.amplifyService.client.models.User.get({ id: userRecord.id });
+          if (full.data) {
+            userRecord = full.data;
+          }
+        } catch (e) {
+          this.logService.error('Full user fetch failed: ' + e);
+        }
+
+        // 4️⃣ Link cognitoSub to primary if it points elsewhere
+        //    Don't replace userRecord — the update response may omit fields like avatarOptions
+        if (userRecord.cognitoSub !== cognitoSub) {
+          try {
+            await this.amplifyService.client.models.User.update({
+              id: userRecord.id,
+              cognitoSub,
+            });
+            userRecord.cognitoSub = cognitoSub;
+            this.logService.info('cognitoSub linked to primary user');
+          } catch (e) {
+            this.logService.error('Failed to link cognitoSub: ' + e);
+          }
+        }
+
+        // 5️⃣ Merge duplicates in background (fire-and-forget)
+        const duplicates = allRecords.filter(
+          (r: any) => r.id !== userRecord!.id
+        );
+        if (duplicates.length > 0 && !this._mergeInProgress) {
+          this.logService.info(
+            `Found ${duplicates.length} duplicate(s), merging in background...`
+          );
+          this.mergeDuplicateUsers(userRecord, duplicates);
+        }
+      }
+
+      // --------------------------------------------------
+      // 5️⃣ Creation uniquement si aucun record trouve
       // --------------------------------------------------
       if (!userRecord) {
-        this.logService.info(`No user found, creating new AppUser`);
+        this.logService.info('No user found, creating new AppUser');
 
         const { language, country } = this.browserService.getLocale();
         const usernameFromEmail = email.split('@')[0];
@@ -119,7 +202,7 @@ export class AppUserService {
       }
 
       // --------------------------------------------------
-      // 4️⃣ Mapping vers AppUser
+      // 6️⃣ Mapping vers AppUser
       // --------------------------------------------------
       const appUser: AppUser = {
         id: userRecord.id,
@@ -138,7 +221,7 @@ export class AppUserService {
         avatarStyle: userRecord.avatarStyle,
         avatarSeed: userRecord.avatarSeed,
         avatarBgColor: userRecord.avatarBgColor,
-        avatarOptions: userRecord.avatarOptions
+        avatarOptions: userRecord.avatarOptions && userRecord.avatarOptions !== '{}'
           ? JSON.parse(userRecord.avatarOptions as string)
           : null,
       };
@@ -149,6 +232,86 @@ export class AppUserService {
       this.logService.error(error);
       this._currentUser.next(null);
       return null;
+    }
+  }
+
+  /**
+   * Merge duplicate User records into a primary record (runs in background).
+   * Transfers sounds and liked sounds, then neutralizes duplicates.
+   * Guarded against concurrent execution.
+   */
+  private async mergeDuplicateUsers(
+    primary: any,
+    duplicates: any[]
+  ): Promise<void> {
+    if (this._mergeInProgress) return;
+    this._mergeInProgress = true;
+
+    try {
+      for (const dup of duplicates) {
+        try {
+          // Transfer sounds from duplicate to primary
+          let nextToken: string | null | undefined = null;
+          do {
+            const soundsResult: any =
+              await this.amplifyService.client.models.Sound.listSoundsByUserAndStatus(
+                { userId: dup.id },
+                nextToken ? { nextToken } : {}
+              );
+            for (const sound of soundsResult.data ?? []) {
+              if (sound) {
+                try {
+                  await this.amplifyService.client.models.Sound.update({
+                    id: sound.id,
+                    userId: primary.id,
+                  });
+                } catch {
+                  // Sound transfer failed, skip
+                }
+              }
+            }
+            nextToken = soundsResult.nextToken;
+          } while (nextToken);
+
+          // Merge liked sounds
+          if (dup.likedSoundIds) {
+            try {
+              const dupLikes: string[] = JSON.parse(dup.likedSoundIds);
+              const primaryLikes: string[] = primary.likedSoundIds
+                ? JSON.parse(primary.likedSoundIds)
+                : [];
+              const mergedLikes = [
+                ...new Set([...primaryLikes, ...dupLikes]),
+              ];
+              await this.amplifyService.client.models.User.update({
+                id: primary.id,
+                likedSoundIds: JSON.stringify(mergedLikes),
+              });
+            } catch {
+              // Liked sounds merge failed, skip
+            }
+          }
+
+          // Neutralize the duplicate (clear identifiers so it's never found again)
+          try {
+            await this.amplifyService.client.models.User.update({
+              id: dup.id,
+              email: `merged_${dup.id}@deleted`,
+              cognitoSub: `merged_${dup.id}`,
+            });
+          } catch {
+            // Neutralize failed, skip
+          }
+        } catch {
+          // Skip this duplicate and continue
+        }
+      }
+
+      this.logService.info(
+        `Background merge complete: ${duplicates.length} duplicate(s) processed`
+      );
+    } finally {
+      this._mergeInProgress = false;
     }
   }
 
@@ -221,7 +384,6 @@ export class AppUserService {
     if (!current) return null;
 
     try {
-      // Separate avatarOptions — persisted separately to avoid AppSync auth issues
       const { avatarOptions, ...otherFields } = fields;
 
       const updated = await this.amplifyService.client.models.User.update({
@@ -236,15 +398,17 @@ export class AppUserService {
         return current;
       }
 
-      // Try persisting avatarOptions separately (fails silently if field not deployed)
+      // Persist avatarOptions in a separate call (AppSync auth requires it)
+      let avatarOptionsSaved = false;
       if (avatarOptions !== undefined) {
         try {
           await this.amplifyService.client.models.User.update({
             id: current.id,
-            avatarOptions: avatarOptions ? JSON.stringify(avatarOptions) : null,
+            avatarOptions: avatarOptions ? JSON.stringify(avatarOptions) : '{}',
           });
-        } catch {
-          // Field may not be deployed yet — avatar options will only persist in memory
+          avatarOptionsSaved = true;
+        } catch (e) {
+          this.logService.error('avatarOptions save failed: ' + e);
         }
       }
 
