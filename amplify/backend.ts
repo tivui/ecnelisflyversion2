@@ -13,7 +13,6 @@ import { pickMonthlyZone } from './functions/pick-monthly-zone/resource';
 import { pickMonthlyJourney } from './functions/pick-monthly-journey/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
-import { fixImportedUsers } from './functions/fix-imported-users/resource';
 
 const backend = defineBackend({
   auth,
@@ -27,7 +26,6 @@ const backend = defineBackend({
   pickMonthlyJourney,
   startImport,
   processImport,
-  fixImportedUsers,
 });
 
 // TODO: Configurer SES quand le domaine ecnelisfly.com sera rattaché
@@ -105,17 +103,3 @@ processImportLambda.addEnvironment(
   storageBucket.bucketName,
 );
 
-// ➡ Permissions pour fix-imported-users : lire les fichiers JSON depuis S3
-const fixImportedUsersLambda = backend.fixImportedUsers.resources.lambda as LambdaFunction;
-
-fixImportedUsersLambda.addToRolePolicy(
-  new PolicyStatement({
-    actions: ['s3:GetObject'],
-    resources: [`${storageBucket.bucketArn}/imports/*`],
-  }),
-);
-
-fixImportedUsersLambda.addEnvironment(
-  'ECNELISFLY_STORAGE_BUCKET_NAME',
-  storageBucket.bucketName,
-);

@@ -101,6 +101,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    margin-top: 6px;
     margin-bottom: 6px;
   }
 
@@ -291,6 +292,43 @@
   }
 }
 
+/* Popup close button — circular style matching bottom sheet */
+.leaflet-popup-close-button {
+  width: 28px !important;
+  height: 28px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+  font-size: 18px !important;
+  line-height: 28px !important;
+  padding: 0 !important;
+  top: 6px !important;
+  right: 6px !important;
+  transition: background 0.15s ease;
+  text-decoration: none !important;
+
+  body.light-theme & {
+    color: #666 !important;
+    background: rgba(0, 0, 0, 0.06);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.12);
+      color: #333 !important;
+    }
+  }
+
+  body.dark-theme & {
+    color: #ddd !important;
+    background: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.20);
+      color: #fff !important;
+    }
+  }
+}
+
 /* Like button in popup */
 .popup-like-btn {
   display: flex;
@@ -330,6 +368,14 @@
 body.dark-theme .popup-like-btn {
   &:hover {
     background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .popup-like-icon {
+    filter: brightness(0) invert(0.75);
+  }
+
+  &.liked .popup-like-icon {
+    filter: none;
   }
 
   &.liked .popup-like-count {
@@ -618,87 +664,19 @@ body.dark-theme .leaflet-popup-tip {
   border-radius: 0.25em;
 }
 
-/* Dark mode: Leaflet layers control (container + toggle icon) */
-body.dark-theme .leaflet-control-layers {
-  background: rgba(14, 14, 28, 0.92) !important;
-}
-
+/* Dark mode: Leaflet layers toggle icon */
 body.dark-theme .leaflet-control-layers-toggle {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23b0b8cc'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
-}
-
-/* Overlays group control (Leaflet) */
-
-.leaflet-control-layers-expanded {
-  /* light theme */
-  body.light-theme & {
-    background-color: #e7eaee;
-    color: #1a1a1a;
-  }
-
-  /* dark theme */
-  body.dark-theme & {
-    background-color: #2c2c3e;
-    color: #f5f5f5;
-  }
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23f5f5f5'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
 }
 
 /* Grouped overlays – alignement image + texte */
 .leaflet-control-layers-overlays label {
-  display: flex !important; /* forcé, car Leaflet met display: block */
-  align-items: center !important;
-  gap: 6px;
-  padding: 4px 6px;
-  cursor: pointer;
-  font-family: "Arial", sans-serif;
-  font-size: 13px;
-  line-height: 1.3;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-
-  /* hover */
-  &:hover {
-    background-color: rgba(30, 136, 229, 0.1);
-  }
-
-  /* icône + texte */
-  span {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px;
-  }
-
   img {
     width: 28px;
     height: 28px;
     object-fit: contain;
     flex-shrink: 0;
   }
-
-  input[type='checkbox'] {
-    margin-right: 6px;
-    flex-shrink: 0;
-    transform: translateY(-1px); /* petit ajustement vertical */
-  }
-
-  /* light / dark theme */
-  body.light-theme & {
-    color: #1a1a1a;
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-
-  body.dark-theme & {
-    color: #f5f5f5;
-    background-color: rgba(40, 40, 50, 0.8);
-  }
-}
-
-/* Optional: checkbox + label alignment */
-.leaflet-control-layers-overlays input[type="checkbox"] {
-  margin: 0; /* supprime marges par défaut */
-  margin-right: 4px; /* espace entre checkbox et image */
-  flex-shrink: 0; /* ne rétrécit pas */
-  cursor: pointer;
 }
 
 /* global styling */
@@ -1486,6 +1464,182 @@ body.dark-theme .leaflet-control-layers-toggle {
   .zone-modal-explore-btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ===================== */
+/* Zoom controls — Premium glassmorphism */
+/* ===================== */
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+
+  body.dark-theme & {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out {
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    body.light-theme & {
+      background: rgba(255, 255, 255, 0.92);
+      color: #1a1a2e;
+      backdrop-filter: blur(12px);
+
+      &:hover {
+        background: rgba(25, 118, 210, 0.1);
+        color: #1976d2;
+      }
+    }
+
+    body.dark-theme & {
+      background: rgba(14, 14, 28, 0.88);
+      color: #b0b8cc;
+      backdrop-filter: blur(12px);
+
+      &:hover {
+        background: rgba(144, 202, 249, 0.12);
+        color: #90caf9;
+      }
+    }
+  }
+
+  .leaflet-control-zoom-in {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+
+    body.dark-theme & {
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+}
+
+/* ===================== */
+/* Layers control — Premium glassmorphism */
+/* ===================== */
+.leaflet-control-layers {
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+
+  body.dark-theme & {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  }
+}
+
+.leaflet-control-layers-toggle {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  transition: background-color 0.2s ease;
+
+  body.light-theme & {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(12px);
+
+    &:hover {
+      background-color: rgba(25, 118, 210, 0.1) !important;
+    }
+  }
+
+  body.dark-theme & {
+    background-color: rgba(14, 14, 28, 0.88) !important;
+    backdrop-filter: blur(12px);
+
+    &:hover {
+      background-color: rgba(144, 202, 249, 0.12) !important;
+    }
+  }
+}
+
+.leaflet-control-layers-expanded {
+  padding: 5px 8px !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.7rem;
+
+  body.light-theme & {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(16px);
+    color: #1a1a2e;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  body.dark-theme & {
+    background: rgba(14, 14, 28, 0.94) !important;
+    backdrop-filter: blur(16px);
+    color: #b0b8cc;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .leaflet-control-layers-separator {
+    border-top-color: rgba(0, 0, 0, 0.08);
+    margin: 6px 0;
+
+    body.dark-theme & {
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  label {
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 5px;
+    margin: 1px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: background-color 0.15s ease;
+
+    body.light-theme & {
+      color: #1a1a2e;
+      background: transparent;
+
+      &:hover {
+        background: rgba(25, 118, 210, 0.08);
+      }
+    }
+
+    body.dark-theme & {
+      color: #b0b8cc;
+      background: transparent;
+
+      &:hover {
+        background: rgba(144, 202, 249, 0.08);
+      }
+    }
+
+    span {
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type='radio'],
+    input[type='checkbox'] {
+      accent-color: #1976d2;
+      width: 12px;
+      height: 12px;
+      margin: 0;
+      cursor: pointer;
+
+      body.dark-theme & {
+        accent-color: #90caf9;
+        color-scheme: dark;
+      }
+    }
   }
 }
 

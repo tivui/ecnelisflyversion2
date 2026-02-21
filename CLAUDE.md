@@ -727,16 +727,21 @@ Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPag
 - **Plein ecran** : `width: 100vw; max-width: 100vw; box-shadow: none` en mobile portrait
 - **Desktop** : `width: 320px; max-width: 85vw`
 - **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
+- **Small phones** (`@media max-height: 700px`) : espacements compacts — header padding reduit, close-btn margin reduit, nav padding/gap reduits, nav-item padding compact (11px 16px) + font 0.92rem, featured-sound padding/margin reduits, footer padding reduit. Permet a tout le contenu de tenir sans scroll sur 375x667
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
 
 - **Quiz lobby** : `.start-section { bottom: 56px }` en mobile portrait
 - **Mapfly timeline bar** : `bottom: 70px` en mobile portrait (au-dessus du nav de 56px + marge)
 
-### Leaflet dark mode (map.scss)
+### Leaflet controls — Premium glassmorphism (map.scss)
 
-- **Layers control container** : `body.dark-theme .leaflet-control-layers { background: rgba(14, 14, 28, 0.92) }`
-- **Layers toggle icon** : SVG blanc data URI remplacant le sprite Leaflet sombre (invisible sur fond dark)
+Zoom (+/-) et layers switcher stylises avec glassmorphism light/dark, proportionnes aux controles natifs Leaflet (30x30px).
+
+- **Zoom** : `border-radius: 10px`, fond `rgba(255,255,255,0.92)` light / `rgba(14,14,28,0.88)` dark, `backdrop-filter: blur(12px)`, hover bleu. Masque en mobile portrait (pinch-to-zoom)
+- **Layers toggle** : 30x30px, `border-radius: 10px`, meme glassmorphism. SVG blanc data URI en dark (remplace sprite Leaflet)
+- **Layers expanded** : `border-radius: 8px`, padding compact `5px 8px`, font `0.7rem`, radios `12px`, `backdrop-filter: blur(16px)`. Texte `#1a1a2e` light / `#b0b8cc` dark (gris-bleu doux, harmonise avec le fond sombre). Labels avec hover bleu subtil, `accent-color: #1976d2` light / `#90caf9` dark. Inputs non coches : `color-scheme: dark` pour contour gris (pas blanc vif)
+- **Popup close button** : `.leaflet-popup-close-button` stylise en bouton circulaire 28px (meme design que le bottom sheet mobile). Light : fond `rgba(0,0,0,0.06)`, icone `#666`, hover `0.12`. Dark : fond `rgba(255,255,255,0.12)`, icone `#ddd`, hover `0.20`
 
 ## Conventions SCSS
 
@@ -1102,22 +1107,6 @@ Email factice unique par auteur au lieu de l'email du JSON :
 const safeEmail = `imported_${sound.username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
 ```
 Empeche le merge OAuth de toucher les comptes importes.
-
-### Lambda de migration (`fix-imported-users`)
-
-Lambda one-shot pour corriger les sons existants. Lit le JSON d'import depuis S3, charge tous les sons de la table DynamoDB, puis pour chaque entree :
-1. Matche le Sound en base par `filename`
-2. Verifie si le `userId` pointe vers le bon User (meme `username`)
-3. Si non : cree/retrouve le User original et reassigne le `userId`
-4. Corrige le `country` si mauvaise casse (les drapeaux sont en majuscules : `DE.png`, `FR.png`)
-
-**Invocation :** Console AWS Lambda, test event `{"arguments": {"s3Key": "imports/all-sounds.json"}}` (format AppSync) ou `{"s3Key": "..."}` (invocation directe).
-
-**Fichiers :**
-- `amplify/functions/fix-imported-users/handler.ts` — handler (charge toute la table, index par filename)
-- `amplify/functions/fix-imported-users/resource.ts` — definition (900s timeout, 1024MB)
-- `amplify/backend.ts` — permissions S3 (lecture `imports/*`)
-- `amplify/data/resource.ts` — mutation GraphQL `fixImportedUsers` (ADMIN only)
 
 ### Drapeaux (flags)
 
