@@ -44,6 +44,7 @@ import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angula
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
+import 'leaflet-minimap';
 
 @Component({
   selector: 'app-mapfly',
@@ -266,6 +267,180 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   private groupedLayersControl: any;
+  private minimapControl: L.Control.MiniMap | null = null;
+  private minimapTileLayer: L.TileLayer | null = null;
+
+  private createMinimapTileLayer(): L.TileLayer {
+    if (this.map.hasLayer(this.mapbox)) {
+      return L.tileLayer(
+        `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${environment.mapboxToken}`,
+        { maxZoom: 21, maxNativeZoom: 19 },
+      );
+    }
+    if (this.map.hasLayer(this.esri)) {
+      return L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 21, maxNativeZoom: 19 },
+      );
+    }
+    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 21,
+      maxNativeZoom: 18,
+    });
+  }
+
+  private initMinimap(): void {
+    if (this.minimapControl || !this.map) return;
+
+    this.minimapTileLayer = this.createMinimapTileLayer();
+
+    this.minimapControl = new L.Control.MiniMap(this.minimapTileLayer, {
+      position: 'bottomleft',
+      toggleDisplay: true,
+      minimized: true,
+      width: this.isMobilePortrait ? 100 : 150,
+      height: this.isMobilePortrait ? 80 : 120,
+      collapsedWidth: this.isMobilePortrait ? 30 : 36,
+      collapsedHeight: this.isMobilePortrait ? 30 : 36,
+      zoomLevelFixed: 2,
+      zoomAnimation: true,
+      autoToggleDisplay: false,
+      aimingRectOptions: {
+        color: '#ef4444',
+        weight: 2,
+        fillColor: '#ef4444',
+        fillOpacity: 0.15,
+        dashArray: '4 4',
+        interactive: false,
+      },
+      shadowRectOptions: {
+        color: '#1976d2',
+        weight: 1,
+        fillOpacity: 0.05,
+        interactive: false,
+      },
+      strings: { hideText: '', showText: '' },
+      mapOptions: {
+        attributionControl: false,
+        zoomControl: false,
+      },
+    });
+
+    this.minimapControl.addTo(this.map);
+
+    // Native tooltip + accessibility, remove href to avoid localhost URL in status bar
+    const toggleBtn = document.querySelector('.leaflet-control-minimap a[class*="minimap-toggle"]');
+    if (toggleBtn) {
+      const label = this.translate.instant('mapfly.minimap.toggle');
+      toggleBtn.setAttribute('title', label);
+      toggleBtn.setAttribute('aria-label', label);
+      toggleBtn.removeAttribute('href');
+    }
+
+    // Hide minimap at low zoom levels (world view) — it adds no value
+    const minimapContainer = (this.minimapControl as any).getContainer() as HTMLElement;
+    const MINIMAP_MIN_ZOOM = 5;
+    const updateMinimapVisibility = () => {
+      if (!minimapContainer) return;
+      const zoom = this.map.getZoom();
+      minimapContainer.style.display = zoom >= MINIMAP_MIN_ZOOM ? '' : 'none';
+    };
+    updateMinimapVisibility();
+    this.map.on('zoomend', updateMinimapVisibility);
+
+    // Center dot indicator on the minimap — always visible even when aimingRect is tiny
+    const miniMap = (this.minimapControl as any)._miniMap as L.Map;
+    if (miniMap) {
+      const centerDot = L.circleMarker(this.map.getCenter(), {
+        radius: 5,
+        color: '#ef4444',
+        fillColor: '#ef4444',
+        fillOpacity: 0.9,
+        weight: 2,
+        interactive: false,
+      }).addTo(miniMap);
+
+      this.map.on('move', () => {
+        centerDot.setLatLng(this.map.getCenter());
+      });
+    }
+  }
+
+  private syncMinimapLayer(): void {
+    if (!this.minimapControl) return;
+    const newLayer = this.createMinimapTileLayer();
+    this.minimapControl.changeLayer(newLayer);
+    this.minimapTileLayer = newLayer;
+  }
+
+  /** Desktop: replace hover expand with click-only toggle on base layers control */
+  private setupClickOnlyBaseLayers(): void {
+    if (this.isMobilePortrait || !this.baseLayersControl) return;
+    const ctrl = this.baseLayersControl as any;
+    const container = ctrl.getContainer() as HTMLElement;
+    if (!container) return;
+
+    // Override expand at method level — only allow when triggered by our click handler
+    const originalExpand = ctrl.expand.bind(ctrl);
+    const originalCollapse = ctrl.collapse.bind(ctrl);
+    let clickTriggered = false;
+
+    ctrl.expand = function () {
+      if (clickTriggered) {
+        clickTriggered = false;
+        return originalExpand();
+      }
+      return this;
+    };
+
+    // Native tooltip on toggle button
+    const toggle = container.querySelector('.leaflet-control-layers-toggle') as HTMLElement;
+    if (toggle) {
+      const layerLabel = this.translate.instant('mapfly.baselayers.title');
+      toggle.setAttribute('title', layerLabel);
+      toggle.setAttribute('aria-label', layerLabel);
+      toggle.removeAttribute('href');
+
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (container.classList.contains('leaflet-control-layers-expanded')) {
+          originalCollapse();
+        } else {
+          clickTriggered = true;
+          originalExpand();
+        }
+      });
+    }
+
+    // Collapse after selecting a base layer
+    container.querySelectorAll('input[type="radio"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        setTimeout(() => originalCollapse(), 250);
+      });
+    });
+
+    // Collapse when clicking elsewhere on the map
+    this.map.on('click', () => {
+      if (container.classList.contains('leaflet-control-layers-expanded')) {
+        originalCollapse();
+      }
+    });
+  }
+
+  /** Native tooltip on categories toggle (bottom-right) */
+  private setupCategoriesToggleTooltip(): void {
+    if (!this.groupedLayersControl) return;
+    const container = (this.groupedLayersControl as any).getContainer() as HTMLElement;
+    if (!container) return;
+    const toggle = container.querySelector('.leaflet-control-layers-toggle') as HTMLElement;
+    if (toggle) {
+      const label = this.translate.instant('mapfly.categories.toggle');
+      toggle.setAttribute('title', label);
+      toggle.setAttribute('aria-label', label);
+    }
+  }
+
   private markersCluster!: L.MarkerClusterGroup;
   private fgAll!: L.FeatureGroup;
   private fg1!: L.FeatureGroup;
@@ -403,8 +578,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
         };
 
         this.baseLayersControl = L.control
-          .layers(baseMaps, {}, { collapsed: false, position: 'bottomleft' })
+          .layers(baseMaps, {}, { collapsed: !this.isMobilePortrait, position: 'bottomleft' })
           .addTo(this.map);
+        this.setupClickOnlyBaseLayers();
       });
 
     // Met à jour dynamiquement les libellés si la langue change
@@ -426,6 +602,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
           },
         );
         this.groupedLayersControl.addTo(this.map);
+        this.setupCategoriesToggleTooltip();
       }
 
       // Supprime le contrôle existant
@@ -436,9 +613,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
         .layers(
           this.getTranslatedBaseMaps(),
           {},
-          { collapsed: false, position: 'bottomleft' },
+          { collapsed: !this.isMobilePortrait, position: 'bottomleft' },
         )
         .addTo(this.map);
+      this.setupClickOnlyBaseLayers();
 
       // Mise à jour label controleur overlays
 
@@ -481,6 +659,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // 🎨 Écoute changement de fond de carte
     this.map.on('baselayerchange', (e: any) => {
+      // Sync minimap tile layer (both manual and auto switches)
+      this.syncMinimapLayer();
+
       if (isAutoBaseSwitch) {
         // ✅ ignore les changements automatiques dus au zoom
         isAutoBaseSwitch = false;
@@ -1040,7 +1221,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
           },
         );
         this.groupedLayersControl.addTo(this.map);
+        this.setupCategoriesToggleTooltip();
       }
+
+      // 🛰 MiniMap radar
+      this.initMinimap();
 
       // --- 🔍 Préparation des données pour Fuse (unified search bar) ---
       const soundsForSearch = sounds.map((s) => {
@@ -3184,6 +3369,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     this.activePopupPlayer?.destroy();
     this.activePopupPlayer = null;
+
+    if (this.minimapControl) {
+      this.minimapControl.remove();
+      this.minimapControl = null;
+      this.minimapTileLayer = null;
+    }
 
     this.stopTimeline();
     this.ambientAudio.destroy();

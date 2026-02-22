@@ -18,7 +18,8 @@ Budget `anyComponentStyle` : `maximumError: 80kb` dans `angular.json` (augmente 
 
 - **Angular 18** : standalone components, signals (`signal()`, `computed()`, `toSignal()`)
 - **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth)
-- **Carte** : Leaflet + leaflet.markercluster + leaflet-search
+- **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
+- **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
 - **i18n** : @ngx-translate (FR/EN, fichiers JSON dans assets/i18n/)
 - **UI** : Angular Material (MatDialog, MatBottomSheet, MatIcon)
 - **Theming** : light/dark via `body.light-theme` / `body.dark-theme`, SCSS `:host-context(body.dark-theme)`
@@ -155,7 +156,7 @@ Section unifiee regroupant illustration + titre + carousel 3D coverflow infinite
 **Box-shadow light :** `0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba($logo-dark-blue,0.10), 0 20px 52px rgba($logo-dark-blue,0.06), inset 0 1px 0 rgba(255,255,255,0.60)` — inner glow premium
 **Border :** `1px solid rgba($logo-dark-blue, 0.14)` light / `rgba(#5c6bc0, 0.18)` dark
 
-**Carousel 3D coverflow :** `scroll-snap-type: x mandatory`, `scroll-snap-align: center`, `gap: 10px`, `padding: 0 calc(50% - 32.5vw)`. Cards triplees (`repeatedCards` computed signal) pour infinite loop. Listener scroll programmatique via `ngZone.runOutsideAngular` (perf). Apres 1.2s les animations CSS reveal sont desactivees pour laisser JS piloter les transforms.
+**Carousel 3D coverflow :** `scroll-snap-type: x mandatory`, `scroll-snap-align: center`, `gap: 10px`, `padding: 0 calc(50% - 32.5vw)`. Cards triplees (`repeatedCards` computed signal) pour infinite loop. Listener scroll RAF-throttle via `ngZone.runOutsideAngular` (perf). `overflow-y: hidden` (pas `visible` — CSS spec force `auto` si l'autre axe est `auto`). Pas de `scroll-behavior: smooth` (cause emballement en grand geste). Pas de `scroll-snap-stop: always` (rigidifie le scroll). Apres 1.2s les animations CSS reveal sont desactivees pour laisser JS piloter les transforms.
 
 **Cards 3D :** `min-width: 65vw`, `transform: perspective(600px) rotateY(var(--card-rotateY)) scale(var(--card-scale))`, `opacity: var(--card-opacity)`. Interpolation cosinus (`factor = 0.5 * (1 + cos(π * t))`). `border-left` + `border-right: 4px solid` colore par type. `border-radius: 18px`. Card active : glow `0 0 20px rgba($primary-indigo, 0.08)` light / `rgba(#5c6bc0, 0.12)` dark.
 **Badges :** `white-space: normal` (retour a la ligne pour textes longs type ES), `letter-spacing: 0.3px`, `max-width: 80px`
@@ -183,7 +184,9 @@ Dark : `background: rgba(255,255,255,0.06)` + borders colores par type
 
 **Chevrons :** `carousel-card-chevron` sur chaque card (indicateur cliquable), `color: #9CA3AF` light / `rgba(255,255,255,0.20)` dark
 
-**Infinite scroll :** cards array triplees via `repeatedCards = computed(() => [...cards, ...cards, ...cards])`. Scroll demarre au set du milieu. `handleInfiniteLoop()` detecte les bords et repositionne invisiblement (desactive `scroll-snap-type` + `scroll-behavior` pendant le saut). Guard `isRepositioning` empeche la reentrance. `activeCardIndex` utilise modulo pour mapper sur les cards originales.
+**Infinite scroll :** cards array triplees via `repeatedCards = computed(() => [...cards, ...cards, ...cards])`. Scroll demarre au set du milieu. `repositionIfNeeded()` detecte les bords et repositionne invisiblement — appele uniquement quand le scroll est au repos (debounce 150ms), jamais pendant le scroll actif (evite le clignotement). Desactive `scroll-snap-type` pendant le saut. Guard `isRepositioning` empeche la reentrance. `activeCardIndex` utilise modulo pour mapper sur les cards originales.
+
+**Scroll performance :** Le scroll listener est RAF-throttle (`requestAnimationFrame` avec annulation du frame precedent). `updateActiveCard()` met a jour les CSS custom properties (scale, opacity, rotateY) a chaque frame. Pas de transition CSS sur `transform`/`opacity` (updates instantanees a 60fps, pas de delai). Seul `box-shadow` a une transition (glow card active).
 
 #### CTA labels home (i18n)
 
@@ -426,11 +429,11 @@ Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert
 
 **Layout sheet-top :**
 - `.sheet-title-row` : titre + icone clap/compteur sur la meme ligne (`display: flex; flex-wrap: wrap; gap: 6px; padding-right: 32px`)
-- Audio player pleine largeur
+- WaveSurfer player pleine largeur (waveform + controles play/time/mute)
 - `.sheet-actions-bar` : 3 boutons centres (`justify-content: center`) — zoom out, download, zoom in
 - Mode journey : like row separee (titre dans le header), navigation prev/next/finish
 
-**Bouton close contraste :** quand un header colore est present (featured violet, journey), le close button a un fond `rgba(255,255,255,0.20)` et icone blanche via `.featured-header ~ .sheet-close-btn` / `.journey-header ~ .sheet-close-btn`. Le close button est place APRES les headers dans le DOM pour que le selecteur `~` fonctionne (position absolute donc pas d'impact visuel).
+**Bouton close contraste :** quand un header colore est present (featured violet, journey), le close button a un fond sombre `rgba(0,0,0,0.30)` et icone blanche via `.featured-header ~ .sheet-close-btn` / `.journey-header ~ .sheet-close-btn`. Positionne a `top: 22px` pour etre centre verticalement sur la banniere coloree (vs `top: 6px` par defaut). Le close button est place APRES les headers dans le DOM pour que le selecteur `~` fonctionne (position absolute donc pas d'impact visuel). Dark theme : fond `rgba(0,0,0,0.40)` (overlay sombre fonctionne sur toute banniere coloree).
 
 **Drapeau :** `::ng-deep .sheet-record-info img` force `18x13px !important` pour eviter les drapeaux surdimensionnes.
 
@@ -739,9 +742,123 @@ Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPag
 Zoom (+/-) et layers switcher stylises avec glassmorphism light/dark, proportionnes aux controles natifs Leaflet (30x30px).
 
 - **Zoom** : `border-radius: 10px`, fond `rgba(255,255,255,0.92)` light / `rgba(14,14,28,0.88)` dark, `backdrop-filter: blur(12px)`, hover bleu. Masque en mobile portrait (pinch-to-zoom)
-- **Layers toggle** : 30x30px, `border-radius: 10px`, meme glassmorphism. SVG blanc data URI en dark (remplace sprite Leaflet)
+- **Base layers toggle** (bottom-left) : icone carte pliee (map SVG) grise (`#555555` light / `#9a9ab0` dark), 36x36px desktop, `cursor: pointer`. Desktop : `collapsed: !isMobilePortrait` (toggle bouton), ouverture au **clic uniquement** (override `expand()` avec flag `clickTriggered`). Mobile : toujours expanded (chips horizontaux)
+- **Categories toggle** (bottom-right) : icone stacked layers grise, meme dimensions et couleurs que base layers
 - **Layers expanded** : `border-radius: 8px`, padding compact `5px 8px`, font `0.7rem`, radios `12px`, `backdrop-filter: blur(16px)`. Texte `#1a1a2e` light / `#b0b8cc` dark (gris-bleu doux, harmonise avec le fond sombre). Labels avec hover bleu subtil, `accent-color: #1976d2` light / `#90caf9` dark. Inputs non coches : `color-scheme: dark` pour contour gris (pas blanc vif)
 - **Popup close button** : `.leaflet-popup-close-button` stylise en bouton circulaire 28px (meme design que le bottom sheet mobile). Light : fond `rgba(0,0,0,0.06)`, icone `#666`, hover `0.12`. Dark : fond `rgba(255,255,255,0.12)`, icone `#ddd`, hover `0.20`
+- **Tooltips** : natifs (`title` attribute) sur les 3 boutons (radar, base layers, categories). Pas de tooltips CSS custom (incompatible `overflow: hidden` du minimap container)
+
+### Minimap / Radar (`leaflet-minimap` v3.6.1)
+
+Preview miniature de la carte pour reperage global. Plugin `leaflet-minimap` avec styles custom dans `map.scss`.
+
+#### Configuration (`mapfly.component.ts` — `initMinimap()`)
+
+- **Position** : `bottomleft`
+- **Taille desktop** : 150x120 deploye, 36x36 collapse
+- **Taille mobile** : 100x80 deploye, 30x30 collapse
+- **Etat initial** : `minimized: true` (toujours collapse au demarrage)
+- **Zoom** : `zoomLevelFixed: 2` (vue mondiale fixe pour reperage global)
+- **Point indicateur** : `L.circleMarker` rouge (#ef4444, radius 5) ajoute sur le minimap interne (`_miniMap`), suit le centre de la carte principale via `map.on('move')`
+- **Masquage auto** : minimap masque quand zoom principal < 5 (vue monde, le radar n'apporte rien). Reapparait a zoom >= 5
+- **TypeScript definitions** : `src/types/leaflet-minimap.d.ts`
+
+#### Icones toggle (CSS)
+
+- **Deploye** : overlay sombre semi-transparent (`rgba(0,0,0,0.30)`) coin haut-droit, chevron blanc (CSS border trick, `rotate(-135deg)`), `border-radius: 0 8px 0 0`
+- **Collapse** : icone radar SVG grise (`#555555` light / `#9a9ab0` dark), fond glassmorphism transparent, container masque (`:has(a[class*="minimized-"])` → `border: none; background: transparent; box-shadow: none`)
+- **Container** : `border-radius: 10px`, overflow hidden, aimingRect rouge (`#ef4444`, dash `4 4`)
+
+#### Positionnement desktop
+
+- Dans le `.leaflet-bottom.leaflet-left` naturel de Leaflet, empile avec le base layers toggle
+- Desktop : base layers toggle (36x36) au-dessus du radar toggle (36x36), `margin-bottom: 8px`
+
+#### Positionnement mobile (`map.scss` + `mapfly.component.scss`)
+
+- **Minimap** : `position: fixed; left: 6px; bottom: calc(58px + safe-area); margin: 0; z-index: 600` — bas-gauche juste au-dessus de la bottom nav
+- **Base layers chips** : centres horizontalement via flexbox sur `.leaflet-bottom.leaflet-left` (`display: flex; justify-content: center`). Pas de `transform: translateX(-50%)` (casserait `position: fixed` du minimap enfant)
+- **Interaction radar/chips** : quand minimap deploye, les chips glissent a droite (`:has(.leaflet-control-minimap a:not([class*="minimized-"])) { justify-content: flex-end }`). Quand collapse, retour au centre. Transition fluide 0.3s
+
+#### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `mapfly.minimap.toggle` | Carte radar | Radar map | Mapa radar |
+| `mapfly.baselayers.title` | Fond de carte | Base map | Mapa base |
+| `mapfly.categories.toggle` | Categories | Categories | Categorias |
+
+### WaveSurfer Audio Player (`wavesurfer-player.service.ts`)
+
+Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cliquable. Utilise dans les popups Leaflet desktop ET le bottom sheet mobile.
+
+#### Architecture
+
+- **Utilitaire factory** (pas injectable Angular) : `createWaveSurferPlayer(config)` → `WaveSurferPlayerInstance`
+- Pas dans le DI Angular car utilise aussi dans les popups Leaflet (HTML strings + wiring JS post-open)
+- Le service cree le DOM complet : `.ws-player` > `.ws-waveform` + `.ws-controls`
+
+#### Structure DOM
+
+```
+.ws-player
+  .ws-waveform          ← waveform 32px cliquable (seek)
+    .ws-skeleton         ← equalizer loader (5 barres animees, retire au ready)
+  .ws-controls
+    .ws-play-btn         ← play/pause (material-icons)
+    .ws-time-current     ← 0:00
+    .ws-time-separator   ← /
+    .ws-time-total       ← 0:32
+    .ws-spacer           ← flex: 1
+    .ws-mute-btn         ← mute toggle (material-icons)
+```
+
+#### Couleurs
+
+| Element | Light | Dark |
+|---------|-------|------|
+| Waveform non lue | `rgba(0,0,0,0.20)` | `rgba(255,255,255,0.50)` |
+| Waveform lue | `#1976d2` | `#90caf9` |
+| Play btn fond | `rgba(25,118,210,0.1)` | `rgba(144,202,249,0.12)` |
+| Play btn icone | `#1976d2` | `#90caf9` |
+| Mute icone | `#666` | `#aaa` |
+| Temps | `#555` | `#bbb` |
+
+#### Skeleton equalizer loader
+
+5 barres animees (`ws-eq-bounce`, stagger 0.12s) aux couleurs accent du player (`#1976d2` light / `#90caf9` dark). S'affichent immediatement a l'ouverture du popup/sheet, disparaissent en fade-out (0.35s) quand wavesurfer emet `ready`. Element retire du DOM apres 400ms.
+
+#### Integration desktop (popups Leaflet)
+
+- Propriete `activePopupPlayer: WaveSurferPlayerInstance | null`
+- HTML : `<div class="ws-popup-player" id="ws-player-${id}"></div>`
+- `popupopen` : `requestAnimationFrame(() => createWaveSurferPlayer(...))` — attend que le DOM popup soit pret
+- `popupclose` : `activePopupPlayer.destroy()` + null
+- 3 types : normal, featured, journey — meme pattern
+
+#### Integration mobile (bottom sheet Angular)
+
+- `@ViewChild('waveformContainer')` + `WaveSurferPlayerInstance`
+- `ngAfterViewInit` : `createWaveSurferPlayer(...)` avec container, audioUrl, theme, callbacks
+- `ngOnDestroy` : `playerInstance.destroy()`
+
+#### Popup action buttons (desktop)
+
+- Separateur fin (`border-top: 1px solid`) entre le player et les boutons d'action
+- Boutons zoom/download : fond transparent teinte (meme style que play btn), sans bordure
+- Light : `rgba(25,118,210,0.08)` fond, `#1976d2` icone
+- Dark : `rgba(144,202,249,0.10)` fond, `#90caf9` icone
+
+#### Like count (popup desktop)
+
+- Light liked : `#444` (gris fonce discret, pas de couleur vive)
+- Dark liked : `#ddd` (gris clair)
+- Coherent avec le bottom sheet mobile (`#555` / `#aaa`)
+
+#### Ambient ducking
+
+- Callbacks `onPlay`/`onPause` preserves pour le ducking du son ambient
+- `destroy()` appelle `onPause()` avant `ws.destroy()` (wavesurfer n'emet pas pause au destroy)
 
 ## Conventions SCSS
 

@@ -5,14 +5,16 @@
 // =====================
 .map-container {
   .leaflet-control-zoom,
-  .leaflet-control-layers {
+  .leaflet-control-layers,
+  .leaflet-control-minimap {
     opacity: 0;
     transition: opacity 0.4s ease;
   }
 
   &:not(.map-loading) {
     .leaflet-control-zoom,
-    .leaflet-control-layers {
+    .leaflet-control-layers,
+    .leaflet-control-minimap {
       opacity: 1;
     }
   }
@@ -99,6 +101,13 @@
     background: linear-gradient(135deg, #1976d2, #1565c0);
     color: #fff;
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.25);
+
+    body.dark-theme & {
+      background: rgba(25, 118, 210, 0.80);
+      color: #fff;
+      border: 1px solid rgba(100, 180, 255, 0.45);
+      box-shadow: 0 0 14px rgba(25, 118, 210, 0.40);
+    }
   }
 
   &:not(.active):active {
@@ -2520,16 +2529,17 @@ body.dark-theme .time-filter-sheet-panel {
       background: rgba(0, 0, 0, 0.06);
       color: #888;
     }
+  }
 
-    .active & {
-      body.dark-theme & {
-        background: rgba(255, 255, 255, 0.2);
-        color: #fff;
-      }
-      body.light-theme & {
-        background: rgba(255, 255, 255, 0.25);
-        color: #fff;
-      }
+  // Active count — must use &.active (same element) not .active & (ancestor)
+  &.active .time-filter-count {
+    body.dark-theme & {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    body.light-theme & {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
     }
   }
 
@@ -2549,11 +2559,21 @@ body.dark-theme .time-filter-sheet-panel {
     margin-bottom: 2px !important;
   }
 
-  // Center the base layer control horizontally
+  // Center the base layer control horizontally using flexbox (not transform,
+  // which would break position:fixed on the minimap child)
   .leaflet-bottom.leaflet-left {
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    right: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    transform: none !important;
+    transition: justify-content 0.3s ease;
+  }
+
+  // When minimap is expanded → shift base layers to the right
+  .leaflet-bottom.leaflet-left:has(.leaflet-control-minimap a:not([class*="minimized-"])) {
+    justify-content: flex-end !important;
+    padding-right: 6px !important;
   }
 
   // --- Base layer control: compact horizontal chips ---

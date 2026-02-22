@@ -924,12 +924,17 @@
     "loading": "Cargando...",
     "record-info": "Grabado en {{city}} por {{username}}",
     "baselayers": {
+      "title": "Mapa base",
       "esri": "SATELITE",
       "osm": "CALLES",
       "mapbox": "SATELITE + CALLES"
     },
+    "minimap": {
+      "toggle": "Mapa radar"
+    },
     "categories": {
-      "all": "TODO"
+      "all": "TODO",
+      "toggle": "Categorías"
     },
     "zone": {
       "showInfo": "Ver información",

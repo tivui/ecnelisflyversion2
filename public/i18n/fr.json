@@ -927,12 +927,17 @@
     "loading": "Chargement...",
     "record-info": "Enregistré à {{city}} par {{username}}",
     "baselayers": {
+      "title": "Fond de carte",
       "esri": "SATELLITE",
       "osm": "RUES",
       "mapbox": "SATELLITE + RUES"
     },
+    "minimap": {
+      "toggle": "Carte radar"
+    },
     "categories": {
-      "all": "TOUT"
+      "all": "TOUT",
+      "toggle": "Catégories"
     },
     "zone": {
       "showInfo": "Voir les informations",

@@ -926,12 +926,17 @@
     "loading": "Loading...",
     "record-info": "Recorded in {{city}} by {{username}}",
     "baselayers": {
+      "title": "Base map",
       "esri": "SATELLITE",
       "osm": "STREETS",
       "mapbox": "SATELLITE + STREETS"
     },
+    "minimap": {
+      "toggle": "Radar map"
+    },
     "categories": {
-      "all": "ALL"
+      "all": "ALL",
+      "toggle": "Categories"
     },
     "zone": {
       "showInfo": "Show information",
