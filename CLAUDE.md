@@ -96,7 +96,7 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
   - **Pas d'indicateur de scroll** : l'effet 3D coverflow sert d'indicateur naturel de scrollabilite
   - **Pas d'accent top bars** : toutes les `::before` accent bars supprimees pour bords propres
   - **Descriptions cachees** : `.hero-card-desc { display: none }` sur toutes les cards mobile
-  - **Cards secondary (carousel 3D)** : `min-width: 65vw`, `transform: perspective(600px) rotateY(var(--card-rotateY)) scale(var(--card-scale))`, `border-left` + `border-right: 4px solid` colore par type, infinite scroll (cards triplees), glow subtil sur card active
+  - **Cards secondary (carousel 3D)** : `min-width: 65vw`, `transform: perspective(600px) rotateY(±25° max) scale(0.80–1.0)`, `transform-origin: center center` (fixe, jamais de flip — evite clignotement bords), `backface-visibility: hidden`, `border-left` + `border-right: 4px solid` colore par type, infinite scroll (cards triplees), glow subtil sur card active
 - **Small phones** (`max-height: 700px`) : gap reduit (18px), logo 64px, padding compact
 - Chargement : `Promise.allSettled` pour afficher toutes les cards simultanement
 
@@ -158,7 +158,7 @@ Section unifiee regroupant illustration + titre + carousel 3D coverflow infinite
 
 **Carousel 3D coverflow :** `scroll-snap-type: x mandatory`, `scroll-snap-align: center`, `gap: 10px`, `padding: 0 calc(50% - 32.5vw)`. Cards triplees (`repeatedCards` computed signal) pour infinite loop. Listener scroll RAF-throttle via `ngZone.runOutsideAngular` (perf). `overflow-y: hidden` (pas `visible` — CSS spec force `auto` si l'autre axe est `auto`). Pas de `scroll-behavior: smooth` (cause emballement en grand geste). Pas de `scroll-snap-stop: always` (rigidifie le scroll). Apres 1.2s les animations CSS reveal sont desactivees pour laisser JS piloter les transforms.
 
-**Cards 3D :** `min-width: 65vw`, `transform: perspective(600px) rotateY(var(--card-rotateY)) scale(var(--card-scale))`, `opacity: var(--card-opacity)`. Interpolation cosinus (`factor = 0.5 * (1 + cos(π * t))`). `border-left` + `border-right: 4px solid` colore par type. `border-radius: 18px`. Card active : glow `0 0 20px rgba($primary-indigo, 0.08)` light / `rgba(#5c6bc0, 0.12)` dark.
+**Cards 3D :** `min-width: 65vw`, `transform: perspective(600px) rotateY(±25°) scale(0.80–1.0)`, `opacity: 0.35–1.0`. `transform-origin: center center` fixe (pas de flip `left`/`right` — le flip causait un clignotement de bande noire/blanche aux bords). `backface-visibility: hidden` (elimine artefacts rendering 3D). Interpolation cosinus (`factor = 0.5 * (1 + cos(π * t))`). `border-left` + `border-right: 4px solid` colore par type. `border-radius: 18px`. Card active : glow `0 0 20px rgba($primary-indigo, 0.08)` light / `rgba(#5c6bc0, 0.12)` dark.
 **Badges :** `white-space: normal` (retour a la ligne pour textes longs type ES), `letter-spacing: 0.3px`, `max-width: 80px`
 Dark : `background: rgba(255,255,255,0.06)` + borders colores par type
 
@@ -755,8 +755,7 @@ Preview miniature de la carte pour reperage global. Plugin `leaflet-minimap` ave
 #### Configuration (`mapfly.component.ts` — `initMinimap()`)
 
 - **Position** : `bottomleft`
-- **Taille desktop** : 150x120 deploye, 36x36 collapse
-- **Taille mobile** : 100x80 deploye, 30x30 collapse
+- **Taille** : 150x120 deploye (desktop et mobile identiques), 36x36 collapse desktop, 30x30 collapse mobile
 - **Etat initial** : `minimized: true` (toujours collapse au demarrage)
 - **Zoom** : `zoomLevelFixed: 2` (vue mondiale fixe pour reperage global)
 - **Point indicateur** : `L.circleMarker` rouge (#ef4444, radius 5) ajoute sur le minimap interne (`_miniMap`), suit le centre de la carte principale via `map.on('move')`

@@ -1922,9 +1922,12 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       -webkit-tap-highlight-color: transparent;
       will-change: transform, opacity;
 
-      // 3D Coverflow: dramatic perspective + rotation driven by JS
+      // 3D Coverflow: perspective + rotation driven by JS (center origin avoids flip flicker)
       transform: perspective(600px) rotateY(var(--card-rotateY, 0deg)) scale(var(--card-scale, 0.80));
+      transform-origin: center center;
       opacity: var(--card-opacity, 0.35);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
 
       // Only animate box-shadow (glow on active card); transform/opacity driven by JS at 60fps
       transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
