@@ -43,6 +43,8 @@ import { EphemeralJourneyService } from '../../../../core/services/ephemeral-jou
 import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
+import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
+import 'leaflet-minimap';
 
 @Component({
   selector: 'app-mapfly',
@@ -265,6 +267,180 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   private groupedLayersControl: any;
+  private minimapControl: L.Control.MiniMap | null = null;
+  private minimapTileLayer: L.TileLayer | null = null;
+
+  private createMinimapTileLayer(): L.TileLayer {
+    if (this.map.hasLayer(this.mapbox)) {
+      return L.tileLayer(
+        `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${environment.mapboxToken}`,
+        { maxZoom: 21, maxNativeZoom: 19 },
+      );
+    }
+    if (this.map.hasLayer(this.esri)) {
+      return L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 21, maxNativeZoom: 19 },
+      );
+    }
+    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 21,
+      maxNativeZoom: 18,
+    });
+  }
+
+  private initMinimap(): void {
+    if (this.minimapControl || !this.map) return;
+
+    this.minimapTileLayer = this.createMinimapTileLayer();
+
+    this.minimapControl = new L.Control.MiniMap(this.minimapTileLayer, {
+      position: 'bottomleft',
+      toggleDisplay: true,
+      minimized: true,
+      width: this.isMobilePortrait ? 100 : 150,
+      height: this.isMobilePortrait ? 80 : 120,
+      collapsedWidth: this.isMobilePortrait ? 30 : 36,
+      collapsedHeight: this.isMobilePortrait ? 30 : 36,
+      zoomLevelFixed: 2,
+      zoomAnimation: true,
+      autoToggleDisplay: false,
+      aimingRectOptions: {
+        color: '#ef4444',
+        weight: 2,
+        fillColor: '#ef4444',
+        fillOpacity: 0.15,
+        dashArray: '4 4',
+        interactive: false,
+      },
+      shadowRectOptions: {
+        color: '#1976d2',
+        weight: 1,
+        fillOpacity: 0.05,
+        interactive: false,
+      },
+      strings: { hideText: '', showText: '' },
+      mapOptions: {
+        attributionControl: false,
+        zoomControl: false,
+      },
+    });
+
+    this.minimapControl.addTo(this.map);
+
+    // Native tooltip + accessibility, remove href to avoid localhost URL in status bar
+    const toggleBtn = document.querySelector('.leaflet-control-minimap a[class*="minimap-toggle"]');
+    if (toggleBtn) {
+      const label = this.translate.instant('mapfly.minimap.toggle');
+      toggleBtn.setAttribute('title', label);
+      toggleBtn.setAttribute('aria-label', label);
+      toggleBtn.removeAttribute('href');
+    }
+
+    // Hide minimap at low zoom levels (world view) — it adds no value
+    const minimapContainer = (this.minimapControl as any).getContainer() as HTMLElement;
+    const MINIMAP_MIN_ZOOM = 5;
+    const updateMinimapVisibility = () => {
+      if (!minimapContainer) return;
+      const zoom = this.map.getZoom();
+      minimapContainer.style.display = zoom >= MINIMAP_MIN_ZOOM ? '' : 'none';
+    };
+    updateMinimapVisibility();
+    this.map.on('zoomend', updateMinimapVisibility);
+
+    // Center dot indicator on the minimap — always visible even when aimingRect is tiny
+    const miniMap = (this.minimapControl as any)._miniMap as L.Map;
+    if (miniMap) {
+      const centerDot = L.circleMarker(this.map.getCenter(), {
+        radius: 5,
+        color: '#ef4444',
+        fillColor: '#ef4444',
+        fillOpacity: 0.9,
+        weight: 2,
+        interactive: false,
+      }).addTo(miniMap);
+
+      this.map.on('move', () => {
+        centerDot.setLatLng(this.map.getCenter());
+      });
+    }
+  }
+
+  private syncMinimapLayer(): void {
+    if (!this.minimapControl) return;
+    const newLayer = this.createMinimapTileLayer();
+    this.minimapControl.changeLayer(newLayer);
+    this.minimapTileLayer = newLayer;
+  }
+
+  /** Desktop: replace hover expand with click-only toggle on base layers control */
+  private setupClickOnlyBaseLayers(): void {
+    if (this.isMobilePortrait || !this.baseLayersControl) return;
+    const ctrl = this.baseLayersControl as any;
+    const container = ctrl.getContainer() as HTMLElement;
+    if (!container) return;
+
+    // Override expand at method level — only allow when triggered by our click handler
+    const originalExpand = ctrl.expand.bind(ctrl);
+    const originalCollapse = ctrl.collapse.bind(ctrl);
+    let clickTriggered = false;
+
+    ctrl.expand = function () {
+      if (clickTriggered) {
+        clickTriggered = false;
+        return originalExpand();
+      }
+      return this;
+    };
+
+    // Native tooltip on toggle button
+    const toggle = container.querySelector('.leaflet-control-layers-toggle') as HTMLElement;
+    if (toggle) {
+      const layerLabel = this.translate.instant('mapfly.baselayers.title');
+      toggle.setAttribute('title', layerLabel);
+      toggle.setAttribute('aria-label', layerLabel);
+      toggle.removeAttribute('href');
+
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (container.classList.contains('leaflet-control-layers-expanded')) {
+          originalCollapse();
+        } else {
+          clickTriggered = true;
+          originalExpand();
+        }
+      });
+    }
+
+    // Collapse after selecting a base layer
+    container.querySelectorAll('input[type="radio"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        setTimeout(() => originalCollapse(), 250);
+      });
+    });
+
+    // Collapse when clicking elsewhere on the map
+    this.map.on('click', () => {
+      if (container.classList.contains('leaflet-control-layers-expanded')) {
+        originalCollapse();
+      }
+    });
+  }
+
+  /** Native tooltip on categories toggle (bottom-right) */
+  private setupCategoriesToggleTooltip(): void {
+    if (!this.groupedLayersControl) return;
+    const container = (this.groupedLayersControl as any).getContainer() as HTMLElement;
+    if (!container) return;
+    const toggle = container.querySelector('.leaflet-control-layers-toggle') as HTMLElement;
+    if (toggle) {
+      const label = this.translate.instant('mapfly.categories.toggle');
+      toggle.setAttribute('title', label);
+      toggle.setAttribute('aria-label', label);
+    }
+  }
+
   private markersCluster!: L.MarkerClusterGroup;
   private fgAll!: L.FeatureGroup;
   private fg1!: L.FeatureGroup;
@@ -402,8 +578,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
         };
 
         this.baseLayersControl = L.control
-          .layers(baseMaps, {}, { collapsed: false, position: 'bottomleft' })
+          .layers(baseMaps, {}, { collapsed: !this.isMobilePortrait, position: 'bottomleft' })
           .addTo(this.map);
+        this.setupClickOnlyBaseLayers();
       });
 
     // Met à jour dynamiquement les libellés si la langue change
@@ -425,6 +602,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
           },
         );
         this.groupedLayersControl.addTo(this.map);
+        this.setupCategoriesToggleTooltip();
       }
 
       // Supprime le contrôle existant
@@ -435,9 +613,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
         .layers(
           this.getTranslatedBaseMaps(),
           {},
-          { collapsed: false, position: 'bottomleft' },
+          { collapsed: !this.isMobilePortrait, position: 'bottomleft' },
         )
         .addTo(this.map);
+      this.setupClickOnlyBaseLayers();
 
       // Mise à jour label controleur overlays
 
@@ -480,6 +659,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
     // 🎨 Écoute changement de fond de carte
     this.map.on('baselayerchange', (e: any) => {
+      // Sync minimap tile layer (both manual and auto switches)
+      this.syncMinimapLayer();
+
       if (isAutoBaseSwitch) {
         // ✅ ignore les changements automatiques dus au zoom
         isAutoBaseSwitch = false;
@@ -701,10 +883,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-            <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-              <source src="${url}" type="${mimeType}">
-              Your browser does not support the audio element.
-            </audio>
+            <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
               <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
               <button class="download-btn material-icons" id="download-${s.filename}">download</button>
@@ -966,6 +1145,22 @@ export class MapflyComponent implements OnInit, OnDestroy {
             });
           }
 
+          // --- WaveSurfer player ---
+          const wsContainer = document.getElementById(`ws-player-${s.filename}`);
+          if (wsContainer) {
+            this.activePopupPlayer?.destroy();
+            requestAnimationFrame(() => {
+              const isDark = document.body.classList.contains('dark-theme');
+              this.activePopupPlayer = createWaveSurferPlayer({
+                container: wsContainer,
+                audioUrl: url,
+                isDarkTheme: isDark,
+                onPlay: () => this.ambientAudio?.duck?.(),
+                onPause: () => this.ambientAudio?.unduck?.(),
+              });
+            });
+          }
+
           // --- Subscriptions ---
           const recordSub = this.appUserService.currentUser$.subscribe(() =>
             updateRecordInfo(),
@@ -978,6 +1173,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
           m.on('popupclose', () => {
             recordSub.unsubscribe();
             translateSub.unsubscribe();
+            this.activePopupPlayer?.destroy();
+            this.activePopupPlayer = null;
           });
         });
         } // end if (!this.isMobilePortrait)
@@ -1024,7 +1221,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
           },
         );
         this.groupedLayersControl.addTo(this.map);
+        this.setupCategoriesToggleTooltip();
       }
+
+      // 🛰 MiniMap radar
+      this.initMinimap();
 
       // --- 🔍 Préparation des données pour Fuse (unified search bar) ---
       const soundsForSearch = sounds.map((s) => {
@@ -1462,6 +1663,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   private popupAudioPlayHandler: ((e: Event) => void) | null = null;
   private popupAudioPauseHandler: ((e: Event) => void) | null = null;
+  private activePopupPlayer: WaveSurferPlayerInstance | null = null;
   private popupFadeTimer: ReturnType<typeof setInterval> | null = null;
   private fadingOutAudio: HTMLAudioElement | null = null;
 
@@ -1983,9 +2185,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-          <source src="${url}" type="${mimeType}">
-        </audio>
+        <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
           <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
           <button class="download-btn material-icons" id="download-${soundFilename}">download</button>
@@ -2134,6 +2334,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           a.click();
           document.body.removeChild(a);
         });
+
+      // --- WaveSurfer player ---
+      const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
+      if (wsContainer) {
+        this.activePopupPlayer?.destroy();
+        requestAnimationFrame(() => {
+          const isDark = document.body.classList.contains('dark-theme');
+          this.activePopupPlayer = createWaveSurferPlayer({
+            container: wsContainer,
+            audioUrl: url,
+            isDarkTheme: isDark,
+            onPlay: () => this.ambientAudio?.duck?.(),
+            onPause: () => this.ambientAudio?.unduck?.(),
+          });
+        });
+      }
+    });
+
+    marker.on('popupclose', () => {
+      this.activePopupPlayer?.destroy();
+      this.activePopupPlayer = null;
     });
     } // end if (!this.isMobilePortrait) — featured popup
 
@@ -2427,9 +2648,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        <audio controls controlsList="nodownload noplaybackrate" preload="metadata">
-          <source src="${url}" type="${mimeType}">
-        </audio>
+        <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
           ${prevBtnHtml}
           ${nextBtnHtml}
@@ -2549,6 +2768,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           this.router.navigate(['/journeys']);
         });
       }
+
+      // --- WaveSurfer player ---
+      const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
+      if (wsContainer) {
+        this.activePopupPlayer?.destroy();
+        requestAnimationFrame(() => {
+          const isDark = document.body.classList.contains('dark-theme');
+          this.activePopupPlayer = createWaveSurferPlayer({
+            container: wsContainer,
+            audioUrl: url,
+            isDarkTheme: isDark,
+            onPlay: () => this.ambientAudio?.duck?.(),
+            onPause: () => this.ambientAudio?.unduck?.(),
+          });
+        });
+      }
+    });
+
+    marker.on('popupclose', () => {
+      this.activePopupPlayer?.destroy();
+      this.activePopupPlayer = null;
     });
     } // end if (!this.isMobilePortrait) — journey popup
 
@@ -3126,6 +3366,15 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.activeSheetRef?.dismiss();
     this.activeSheetRef = null;
     this.bottomSheet.dismiss();
+
+    this.activePopupPlayer?.destroy();
+    this.activePopupPlayer = null;
+
+    if (this.minimapControl) {
+      this.minimapControl.remove();
+      this.minimapControl = null;
+      this.minimapTileLayer = null;
+    }
 
     this.stopTimeline();
     this.ambientAudio.destroy();

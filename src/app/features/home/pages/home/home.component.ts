@@ -213,12 +213,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         const cards = el.querySelectorAll('.hero-card') as NodeListOf<HTMLElement>;
         if (cards.length > originalCount) {
           const targetCard = cards[originalCount];
-          el.style.scrollBehavior = 'auto';
           el.style.scrollSnapType = 'none';
           el.scrollLeft = targetCard.offsetLeft - (el.clientWidth - targetCard.offsetWidth) / 2;
           requestAnimationFrame(() => {
             el.style.scrollSnapType = 'x mandatory';
-            el.style.scrollBehavior = 'smooth';
           });
         }
 
@@ -231,13 +229,28 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 1200);
 
         // Programmatic scroll listener outside Angular zone (avoids CD at 60fps)
+        // RAF-throttled to sync with display refresh and eliminate jitter.
+        // Infinite loop reposition is deferred to scroll-idle (150ms debounce)
+        // to avoid any visible flash during active scrolling.
         this.ngZone.runOutsideAngular(() => {
+          let rafId = 0;
+          let idleTimer = 0;
           el.addEventListener('scroll', () => {
             if (this.isRepositioning) return;
             if (!this.hasScrolled()) {
               this.ngZone.run(() => this.hasScrolled.set(true));
             }
-            this.updateActiveCard(el);
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+              this.updateActiveCard(el, false); // visuals only, no reposition
+              rafId = 0;
+            });
+            // Debounce: reposition only after scroll stops
+            if (idleTimer) clearTimeout(idleTimer);
+            idleTimer = window.setTimeout(() => {
+              this.repositionIfNeeded(el);
+              idleTimer = 0;
+            }, 150);
           }, { passive: true });
         });
 
@@ -275,7 +288,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private updateActiveCard(container: HTMLElement) {
+  private updateActiveCard(container: HTMLElement, allowReposition = true) {
     const cards = container.querySelectorAll('.hero-card') as NodeListOf<HTMLElement>;
     if (!cards.length) return;
 
@@ -328,22 +341,32 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.activeCardIndex() !== dotIdx) {
       this.ngZone.run(() => this.activeCardIndex.set(dotIdx));
     }
-
-    // Infinite loop: reposition when scrolling into set 1 or set 3
-    if (originalCount >= 2) {
-      this.handleInfiniteLoop(container, cards, closestIdx, originalCount);
-    }
   }
 
-  private handleInfiniteLoop(
-    container: HTMLElement,
-    cards: NodeListOf<HTMLElement>,
-    closestIdx: number,
-    originalCount: number,
-  ) {
-    // Set 1: 0..N-1, Set 2: N..2N-1, Set 3: 2N..3N-1
-    // If active card is in set 1 or set 3, jump to equivalent in set 2
-    if (closestIdx >= originalCount && closestIdx < 2 * originalCount) return; // already in set 2
+  /** Reposition from set 1/3 back to set 2 — called only when scroll is idle */
+  private repositionIfNeeded(container: HTMLElement) {
+    if (this.isRepositioning) return;
+
+    const cards = container.querySelectorAll('.hero-card') as NodeListOf<HTMLElement>;
+    if (!cards.length) return;
+
+    const originalCount = this.orderedSecondaryCards().length;
+    if (originalCount < 2) return;
+
+    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestIdx = 0;
+    let closestDist = Infinity;
+
+    cards.forEach((card, i) => {
+      const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - containerCenter);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestIdx = i;
+      }
+    });
+
+    // Already in set 2 — nothing to do
+    if (closestIdx >= originalCount && closestIdx < 2 * originalCount) return;
 
     const targetIdx = closestIdx < originalCount
       ? closestIdx + originalCount   // set 1 → set 2
@@ -352,16 +375,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const offset = cards[targetIdx].offsetLeft - cards[closestIdx].offsetLeft;
 
     this.isRepositioning = true;
-    container.style.scrollBehavior = 'auto';
     container.style.scrollSnapType = 'none';
     container.scrollLeft += offset;
 
+    // Update visuals for new position, then re-enable snap
     requestAnimationFrame(() => {
-      container.style.scrollSnapType = 'x mandatory';
-      container.style.scrollBehavior = 'smooth';
-      this.isRepositioning = false;
-      // Re-apply coverflow to reflect new positions
-      this.updateActiveCard(container);
+      this.updateActiveCard(container, false);
+      requestAnimationFrame(() => {
+        container.style.scrollSnapType = 'x mandatory';
+        this.isRepositioning = false;
+      });
     });
   }
 

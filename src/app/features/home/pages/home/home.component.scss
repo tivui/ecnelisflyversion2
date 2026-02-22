@@ -1884,11 +1884,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     margin-bottom: 6px;
     margin: 0;
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    scroll-snap-stop: always;
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
     scrollbar-width: none;
     height: auto;
     max-height: none;
@@ -1922,14 +1920,13 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       width: auto;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      touch-action: pan-x;
       will-change: transform, opacity;
 
       // 3D Coverflow: dramatic perspective + rotation driven by JS
       transform: perspective(600px) rotateY(var(--card-rotateY, 0deg)) scale(var(--card-scale, 0.80));
       opacity: var(--card-opacity, 0.35);
 
-      // Only box-shadow transitions via CSS (transform/opacity driven by JS per-frame)
+      // Only animate box-shadow (glow on active card); transform/opacity driven by JS at 60fps
       transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
       // Light: premium blue-tinted surface

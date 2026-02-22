@@ -71,17 +71,31 @@
   }
 }
 
-// Close button on colored headers (featured/journey) — needs stronger contrast
+// Close button on colored headers (featured/journey) — centered on the colored header
 .featured-header ~ .sheet-close-btn,
 .journey-header ~ .sheet-close-btn {
-  background: rgba(255, 255, 255, 0.20);
+  top: 22px;
+  background: rgba(0, 0, 0, 0.30);
 
   &:active {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.45);
   }
 
   .material-icons {
     color: #fff;
+  }
+
+  // Same style in dark — dark overlay works on any colored header
+  :host-context(body.dark-theme) & {
+    background: rgba(0, 0, 0, 0.40);
+
+    &:active {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .material-icons {
+      color: #fff;
+    }
   }
 }
 
@@ -178,12 +192,10 @@
 }
 
 // =====================
-// Audio
+// WaveSurfer Player
 // =====================
-audio {
+.ws-sheet-player {
   width: 100%;
-  height: 36px;
-  margin: 0;
 }
 
 // =====================

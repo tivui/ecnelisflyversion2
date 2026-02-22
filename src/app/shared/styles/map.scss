@@ -124,9 +124,10 @@
     margin-bottom: 8px;
   }
 
-  audio {
-    width: 100%;
+  /* WaveSurfer player container */
+  .ws-popup-player {
     margin-top: 8px;
+    width: 100%;
   }
 
   /* light theme */
@@ -245,47 +246,57 @@
   .popup-btn-group {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 6px;
+    gap: 10px;
+    margin-top: 4px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+
+    // Séparateur fin au-dessus des boutons d'action
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    body.dark-theme & {
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
 
     .zoom-btn,
     .download-btn {
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
+      transition: background 0.15s;
 
       font-size: 18px;
       line-height: 1;
 
       // --- Light theme ---
       body.light-theme & {
-        background-color: #e3f2fd;
-        color: #1e88e5;
+        background: rgba(25, 118, 210, 0.08);
+        color: #1976d2;
 
         &:hover {
-          background-color: #bbdefb;
+          background: rgba(25, 118, 210, 0.15);
         }
         &:active {
-          background-color: #90caf9;
+          background: rgba(25, 118, 210, 0.22);
         }
       }
 
       // --- Dark theme ---
       body.dark-theme & {
-        background-color: #424b5c;
+        background: rgba(144, 202, 249, 0.10);
         color: #90caf9;
 
         &:hover {
-          background-color: #5c667a;
+          background: rgba(144, 202, 249, 0.18);
         }
         &:active {
-          background-color: #748099;
+          background: rgba(144, 202, 249, 0.25);
         }
       }
     }
@@ -329,6 +340,173 @@
   }
 }
 
+/* ===================== */
+/* WaveSurfer custom player (popups + sheet) */
+/* ===================== */
+.ws-player {
+  width: 100%;
+}
+
+.ws-waveform {
+  width: 100%;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Skeleton equalizer loader */
+.ws-skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+
+  &.ws-skeleton-out {
+    opacity: 0;
+  }
+
+  span {
+    width: 3px;
+    border-radius: 2px;
+    animation: ws-eq-bounce 1.2s ease-in-out infinite;
+
+    &:nth-child(1) { height: 30%; animation-delay: 0s; }
+    &:nth-child(2) { height: 55%; animation-delay: 0.12s; }
+    &:nth-child(3) { height: 80%; animation-delay: 0.24s; }
+    &:nth-child(4) { height: 50%; animation-delay: 0.36s; }
+    &:nth-child(5) { height: 25%; animation-delay: 0.48s; }
+  }
+}
+
+@keyframes ws-eq-bounce {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+body.light-theme .ws-skeleton span {
+  background: #1976d2;
+}
+
+body.dark-theme .ws-skeleton span {
+  background: #90caf9;
+}
+
+.ws-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.ws-play-btn,
+.ws-mute-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+
+  .material-icons {
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+
+.ws-mute-btn {
+  width: 26px;
+  height: 26px;
+
+  .material-icons {
+    font-size: 16px;
+  }
+}
+
+.ws-spacer {
+  flex: 1;
+}
+
+.ws-time-current,
+.ws-time-total {
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ws-time-separator {
+  font-size: 0.7rem;
+}
+
+/* WaveSurfer light theme */
+body.light-theme {
+  .ws-play-btn {
+    background: rgba(25, 118, 210, 0.1);
+
+    .material-icons { color: #1976d2; }
+
+    &:hover { background: rgba(25, 118, 210, 0.18); }
+    &:active { background: rgba(25, 118, 210, 0.25); }
+  }
+
+  .ws-mute-btn {
+    background: transparent;
+
+    .material-icons { color: #666; }
+
+    &:hover { background: rgba(0, 0, 0, 0.06); }
+  }
+
+  .ws-time-current,
+  .ws-time-total {
+    color: #555;
+  }
+
+  .ws-time-separator {
+    color: #999;
+  }
+}
+
+/* WaveSurfer dark theme */
+body.dark-theme {
+  .ws-play-btn {
+    background: rgba(144, 202, 249, 0.12);
+
+    .material-icons { color: #90caf9; }
+
+    &:hover { background: rgba(144, 202, 249, 0.2); }
+    &:active { background: rgba(144, 202, 249, 0.28); }
+  }
+
+  .ws-mute-btn {
+    background: transparent;
+
+    .material-icons { color: #aaa; }
+
+    &:hover { background: rgba(255, 255, 255, 0.08); }
+  }
+
+  .ws-time-current,
+  .ws-time-total {
+    color: #bbb;
+  }
+
+  .ws-time-separator {
+    color: #777;
+  }
+}
+
 /* Like button in popup */
 .popup-like-btn {
   display: flex;
@@ -347,7 +525,7 @@
   }
 
   &.liked .popup-like-count {
-    color: #e65100;
+    color: #444;
     font-weight: 600;
   }
 
@@ -379,7 +557,7 @@ body.dark-theme .popup-like-btn {
   }
 
   &.liked .popup-like-count {
-    color: #ffab40;
+    color: #ddd;
   }
 
   .popup-like-count {
@@ -664,9 +842,35 @@ body.dark-theme .leaflet-popup-tip {
   border-radius: 0.25em;
 }
 
-/* Dark mode: Leaflet layers toggle icon */
-body.dark-theme .leaflet-control-layers-toggle {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23f5f5f5'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
+/* Base layers toggle (bottom-left) — map icon (carte pliée), grey discret */
+.leaflet-bottom.leaflet-left .leaflet-control-layers-toggle {
+  background-size: 20px 20px !important;
+  background-position: center !important;
+}
+/* Desktop: match radar button size (36x36) */
+@media (min-width: 701px) {
+  .leaflet-bottom.leaflet-left .leaflet-control-layers-toggle {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
+body.light-theme .leaflet-bottom.leaflet-left .leaflet-control-layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23555555'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z'/%3E%3C/svg%3E") !important;
+}
+body.dark-theme .leaflet-bottom.leaflet-left .leaflet-control-layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%239a9ab0'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z'/%3E%3C/svg%3E") !important;
+}
+
+/* Categories toggle (bottom-right) — stacked layers icon, grey discret */
+.leaflet-bottom.leaflet-right .leaflet-control-layers-toggle {
+  background-size: 18px 18px !important;
+  background-position: center !important;
+}
+body.light-theme .leaflet-bottom.leaflet-right .leaflet-control-layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%23555555'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
+}
+body.dark-theme .leaflet-bottom.leaflet-right .leaflet-control-layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24' fill='%239a9ab0'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z'/%3E%3C/svg%3E") !important;
 }
 
 /* Grouped overlays – alignement image + texte */
@@ -1529,10 +1733,13 @@ body.dark-theme .leaflet-control-layers-toggle {
 .leaflet-control-layers {
   border: none !important;
   border-radius: 10px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+
+  body.light-theme & {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(25, 118, 210, 0.08) !important;
+  }
 
   body.dark-theme & {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(92, 107, 192, 0.15) !important;
   }
 }
 
@@ -1541,6 +1748,7 @@ body.dark-theme .leaflet-control-layers-toggle {
   height: 30px !important;
   border-radius: 10px !important;
   border: none !important;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 
   body.light-theme & {
@@ -1681,3 +1889,173 @@ body.dark-theme .sound-popup-sheet-panel {
   0%, 100% { opacity: 0.7; }
   50% { opacity: 0.3; }
 }
+
+/* ===================== */
+/* MiniMap — Plugin base + Glassmorphism overlay */
+/* ===================== */
+
+// Base plugin styles (replaces Control.MiniMap.css to avoid SVG/PNG import errors)
+.leaflet-control-minimap {
+  border: solid rgba(255, 255, 255, 1.0) 3px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border-radius: 12px;
+  background: #f8f8f9;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+
+  .leaflet-container {
+    border-radius: 10px;
+  }
+
+  body.light-theme & {
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.12),
+      0 0 0 1px rgba(63, 81, 181, 0.10);
+  }
+
+  body.dark-theme & {
+    border-color: rgba(92, 107, 192, 0.25);
+    background: #0e0e1c;
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(92, 107, 192, 0.18);
+  }
+}
+
+// Toggle button base — shared by deployed + collapsed states
+.leaflet-control-minimap a {
+  z-index: 99999;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+  font-size: 0 !important;
+  background-image: none !important;
+  background-size: unset !important;
+
+  &::after {
+    content: '';
+    display: block;
+  }
+}
+
+// Toggle — DEPLOYED state: dark overlay inset in bottom-left corner, white chevron
+.leaflet-control-minimap a:not([class*="minimized-"]) {
+  background-color: rgba(0, 0, 0, 0.30) !important;
+  backdrop-filter: blur(4px);
+  border-radius: 0 8px 0 0 !important;
+
+  &::after {
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid rgba(255, 255, 255, 0.85);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+    transform: rotate(-135deg);
+    margin: 2px 0 0 2px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.50) !important;
+    &::after {
+      border-color: #fff;
+    }
+  }
+}
+
+// Toggle button position per corner
+.leaflet-control-minimap-toggle-display {
+  position: absolute;
+  border-radius: 0 8px 0 0;
+}
+.leaflet-control-minimap-toggle-display-bottomleft {
+  bottom: 0;
+  left: 0;
+}
+.leaflet-control-minimap-toggle-display-bottomright {
+  bottom: 0;
+  right: 0;
+}
+
+// Minimized: show radar SVG icon instead of chevron — discreet grey
+$radar-icon-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='2' fill='%23555555' stroke='none'/%3E%3Cpath d='M16.24 7.76a6 6 0 0 1 0 8.49'/%3E%3Cpath d='M7.76 16.24a6 6 0 0 1 0-8.49'/%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'/%3E%3Cpath d='M4.93 19.07a10 10 0 0 1 0-14.14'/%3E%3C/svg%3E");
+$radar-icon-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239a9ab0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='2' fill='%239a9ab0' stroke='none'/%3E%3Cpath d='M16.24 7.76a6 6 0 0 1 0 8.49'/%3E%3Cpath d='M7.76 16.24a6 6 0 0 1 0-8.49'/%3E%3Cpath d='M19.07 4.93a10 10 0 0 1 0 14.14'/%3E%3Cpath d='M4.93 19.07a10 10 0 0 1 0-14.14'/%3E%3C/svg%3E");
+
+// Hide container styling when collapsed — only the button is visible
+.leaflet-control-minimap:has(a[class*="minimized-"]) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.leaflet-control-minimap a[class*="minimized-"] {
+  border-radius: 10px !important;
+
+  // Replace chevron with radar SVG
+  &::after {
+    width: 18px;
+    height: 18px;
+    border: none;
+    transform: none;
+    margin: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  body.light-theme & {
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.10),
+      0 0 0 1px rgba(0, 0, 0, 0.06);
+
+    &::after { background-image: $radar-icon-light; }
+
+    &:hover {
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.18);
+      transform: scale(1.05);
+    }
+  }
+
+  body.dark-theme & {
+    background-color: rgba(20, 20, 36, 0.92) !important;
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(92, 107, 192, 0.18);
+
+    &::after { background-image: $radar-icon-dark; }
+
+    &:hover {
+      box-shadow: 0 3px 14px rgba(144, 202, 249, 0.20);
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Desktop
+@media (min-width: 701px) {
+  .leaflet-control-minimap {
+    margin-bottom: 8px !important;
+  }
+}
+
+// Mobile portrait
+@media (max-width: 700px) and (orientation: portrait) {
+  .leaflet-control-minimap {
+    position: fixed !important;
+    left: 6px !important;
+    right: auto !important;
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px)) !important;
+    transform: none !important;
+    margin: 0 !important;
+    z-index: 600;
+    border-radius: 10px !important;
+
+    .leaflet-container {
+      border-radius: 8px;
+    }
+  }
+}
+

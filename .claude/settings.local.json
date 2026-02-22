@@ -30,7 +30,8 @@
       "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L1470,1560 HEAD -- src/app/features/home/pages/home/home.component.scss)",
       "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,135 main -- src/app/app.component.scss)",
       "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,140 HEAD -- src/app/app.component.scss)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(git log:*)"
     ]
   }
 }
