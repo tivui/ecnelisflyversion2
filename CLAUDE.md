@@ -431,8 +431,22 @@ Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert
 **Layout sheet-top :**
 - `.sheet-title-row` : titre + icone clap/compteur sur la meme ligne (`display: flex; flex-wrap: wrap; gap: 6px; padding-right: 32px`)
 - WaveSurfer player pleine largeur (waveform + controles play/time/mute)
-- `.sheet-actions-bar` : boutons groupes avec dividers (`justify-content: center`) — layout `— | download share | +` (voir section "Boutons d'action popups"). Download masque si `license === 'READ_ONLY'`
-- Mode journey : like row separee (titre dans le header), navigation prev/next/finish
+- `.sheet-actions-bar` : boutons groupes avec dividers (`justify-content: center`) — layout `— | download share radar | +` (voir section "Boutons d'action popups"). Download masque si `license === 'READ_ONLY'`
+- Mode journey : like row separee (titre dans le header), navigation prev/next/finish, bouton radar centre sous la navigation (`.sheet-radar-row`)
+
+**Radar mini-carte embarquee (tous les modes) :**
+- Bouton `.radar-toggle-btn` (32x32px, icone `radar`) present sur tous les types de bottom sheet (normal, featured, journey)
+- Normal/Featured : dans le `.btn-scope` central de la barre d'actions, a cote de download/share
+- Journey : dans `.sheet-radar-row` centree sous la navigation prev/next
+- Au clic : `radarActive` signal toggle → `@if (radarActive())` rend un `<div class="sheet-radar-map">` (120px, full width, border-radius 10px)
+- Mini-carte Leaflet autonome creee dans `initRadarMap()` : tuiles ESRI satellite (`World_Imagery`), zoom 2, `L.circleMarker` rouge (#ef4444) a la position du son, toutes interactions desactivees (dragging, zoom, etc.)
+- Destruction propre dans `destroyRadarMap()` et `ngOnDestroy()`
+- Aucune dependance au minimap natif Leaflet — la carte est directement dans le DOM de la bottom sheet (CDK overlay), donc aucun probleme de z-index/stacking context
+
+**Zoom fort (aligne sur desktop) :**
+- `onZoomIn` : `centerMarkerAboveSheet(lat, lng, 17)` — zoom directement au niveau 17
+- `onZoomOut` : `centerMarkerAboveSheet(latAjuste, lng, 2)` — zoom directement au niveau 2 (vue mondiale). Ajustement latitude : `lat > 20 ? lat : lat + 30` (meme logique que le desktop)
+- Journey : zoom in/out fonctionnels (n'etaient que des no-op avant)
 
 **Licence :** badge centre `sheet-license-badge` avec tooltip tap-triggered (signal `showLicenseTooltip`, methode `toggleLicenseTooltip()`). Voir section "Licences de sons".
 
@@ -771,7 +785,9 @@ Zoom (+/-) et layers switcher stylises avec glassmorphism light/dark, proportion
 
 ### Minimap / Radar (`leaflet-minimap` v3.6.1)
 
-Preview miniature de la carte pour reperage global. Plugin `leaflet-minimap` avec styles custom dans `map.scss`.
+Preview miniature de la carte pour reperage global. Deux implementations distinctes :
+- **Desktop** : plugin `leaflet-minimap` natif avec toggle collapse/expand (styles custom dans `map.scss`)
+- **Mobile (bottom sheet)** : mini-carte Leaflet autonome embarquee dans `sound-popup-sheet.component.ts` (tuiles ESRI satellite, voir section "Mobile Bottom Sheet" ci-dessus)
 
 #### Configuration (`mapfly.component.ts` — `initMinimap()`)
 
@@ -871,6 +887,7 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 - Dark : `rgba(144,202,249,0.10)` fond, `#90caf9` icone
 - Download masque si `license === 'READ_ONLY'`
 - Share : Web Share API + clipboard fallback (voir section "Partage de son")
+- **Zoom fort** : zoom in → `setView([lat+offset, lng], 17)`, zoom out → `setView([latAjuste, lng], 2)` — meme comportement que mobile
 
 #### Like count (popup desktop)
 
@@ -1343,20 +1360,20 @@ Format : `{origin}/mapfly?lat={lat}&lng={lng}&zoom=17&soundFilename={encodeURICo
 
 ### Convention de disposition
 
-Layout : `— | download share | +` (zoom minus a gauche, actions au centre, zoom plus a droite)
+**Desktop** : `— | download share | +` (zoom minus a gauche, actions au centre, zoom plus a droite)
+**Mobile** : `— | download share radar | +` (idem + bouton radar dans le groupe central)
 
-**Structure HTML :**
+**Structure HTML (mobile) :**
 ```
-.popup-btn-group / .sheet-actions-bar
-  .btn-scope           ← zoom out seul
-    button.zoom-btn    ← remove (-)
-  .btn-divider         ← separateur vertical 1px
-  .btn-scope           ← actions centrales
-    button.download-btn ← download (si license != READ_ONLY)
-    button.share-btn   ← share
-  .btn-divider         ← separateur vertical 1px
-  .btn-scope           ← zoom in seul
-    button.zoom-btn    ← add (+)
+.sheet-actions-bar
+  button.sheet-action-btn  ← remove (-)
+  .btn-divider             ← separateur vertical 1px
+  .btn-scope               ← actions centrales
+    button.sheet-action-btn ← download (si license != READ_ONLY)
+    button.sheet-action-btn ← share
+    button.radar-toggle-btn ← radar (toggle mini-carte satellite)
+  .btn-divider             ← separateur vertical 1px
+  button.sheet-action-btn  ← add (+)
 ```
 
 ### Dimensions
