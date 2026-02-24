@@ -50,6 +50,8 @@
         <h2 class="alaune-title">{{ 'home.hero.alaune' | translate }}</h2>
 
         <!-- Secondary cards: carousel on mobile, 3-card row on desktop -->
+        <div class="alaune-scroll-wrap">
+          <mat-icon class="scroll-hint alaune-hint-left">chevron_left</mat-icon>
         <div class="hero-cards-secondary" #secondaryScroll>
           @for (cardType of repeatedCards(); track $index) {
             @switch (cardType) {
@@ -158,6 +160,8 @@
               }
             }
           }
+        </div>
+          <mat-icon class="scroll-hint alaune-hint-right">chevron_right</mat-icon>
         </div>
 
       </div>

@@ -1883,11 +1883,12 @@ body.dark-theme .sound-popup-sheet-panel {
 /* ===================== */
 .marker-selection-ring {
   animation: selectionPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px currentColor);
 }
 
 @keyframes selectionPulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 0.3; }
+  0%, 100% { opacity: 0.9; stroke-width: 3; }
+  50% { opacity: 0.5; stroke-width: 2.5; }
 }
 
 /* ===================== */

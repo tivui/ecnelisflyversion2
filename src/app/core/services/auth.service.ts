@@ -111,6 +111,16 @@ export class AuthService {
   async signOut() {
     await signOut();
     this._user.set(null);
+    this._groups.set([]);
+  }
+
+  /**
+   * Clear user and groups signals (used by Hub signedOut handler
+   * when signOut is triggered externally, e.g. via Amplify Authenticator).
+   */
+  clearUser() {
+    this._user.set(null);
+    this._groups.set([]);
   }
 
  /**

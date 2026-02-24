@@ -313,17 +313,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const scale = 0.80 + factor * 0.20;
       const opacity = 0.35 + factor * 0.65;
 
-      // 3D Coverflow: rotateY based on signed distance (±42° max)
+      // 3D Coverflow: rotateY based on signed distance (±25° max)
       const rotateY = signedDist < 0
-        ? (1 - factor) * 42
-        : -(1 - factor) * 42;
+        ? (1 - factor) * 25
+        : -(1 - factor) * 25;
 
       card.style.setProperty('--card-scale', scale.toFixed(4));
       card.style.setProperty('--card-opacity', opacity.toFixed(4));
       card.style.setProperty('--card-rotateY', `${rotateY.toFixed(2)}deg`);
-
-      card.style.transformOrigin = signedDist < 0 ? 'right center'
-        : signedDist > 0 ? 'left center' : 'center center';
 
       if (absDist < closestDist) {
         closestDist = absDist;

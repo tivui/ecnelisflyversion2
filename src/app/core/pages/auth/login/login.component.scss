@@ -6,6 +6,19 @@
   justify-content: center;
   min-height: calc(100vh - 64px); // hauteur totale - toolbar
   padding: 24px 16px;
+
+  // Mobile portrait: account for bottom nav (56px) + toolbar (48px)
+  @media (max-width: 700px) and (orientation: portrait) {
+    min-height: calc(100dvh - 48px - 56px - env(safe-area-inset-bottom));
+    padding: 12px 16px 24px;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  // Small phones (375x667 etc.)
+  @media (max-width: 700px) and (max-height: 700px) and (orientation: portrait) {
+    padding: 8px 16px 20px;
+  }
 }
 
 .login-branding {
@@ -13,6 +26,14 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 24px;
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 700px) and (max-height: 700px) and (orientation: portrait) {
+    margin-bottom: 10px;
+  }
 }
 
 .login-logo {
@@ -21,6 +42,11 @@
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  @media (max-width: 700px) and (max-height: 700px) and (orientation: portrait) {
+    width: 60px;
+    height: 60px;
+  }
 }
 
 .login-title {
@@ -32,5 +58,10 @@
 
   :host-context(body.dark-theme) & {
     color: #f0f0f0;
+  }
+
+  @media (max-width: 700px) and (max-height: 700px) and (orientation: portrait) {
+    margin: 8px 0 0;
+    font-size: 1.2rem;
   }
 }
