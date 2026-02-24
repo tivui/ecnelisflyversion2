@@ -29,6 +29,7 @@ import { Router } from '@angular/router';
 import { AvatarService, AvatarStyleOption } from '../../../../../core/services/avatar.service';
 import { UserAvatarComponent } from '../../../../../shared/components/user-avatar/user-avatar.component';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { APP_VERSION } from '../../../../../../environments/version';
 
 import * as countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
@@ -67,6 +68,7 @@ export class AccountComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  readonly appVersion = APP_VERSION;
   readonly avatarService = inject(AvatarService);
 
   public appUser = signal<AppUser | null>(null);

@@ -453,3 +453,15 @@ form {
     border-color: rgba(255, 255, 255, 0.15);
   }
 }
+
+.app-version {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #bbb;
+  margin: 16px 0 0;
+  letter-spacing: 0.5px;
+
+  :host-context(body.dark-theme) & {
+    color: #555;
+  }
+}

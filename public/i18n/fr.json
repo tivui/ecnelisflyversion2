@@ -748,10 +748,24 @@
         "actions": "Actions"
       },
       "actions": {
+        "leaderboard": "Classement",
         "questions": "Questions",
         "monthly": "Quiz du mois",
         "edit": "Modifier",
         "delete": "Supprimer"
+      },
+      "leaderboard": {
+        "title": "Classement",
+        "noScores": "Aucun score enregistré",
+        "deleteOne": "Supprimer ce score",
+        "deleteAll": "Supprimer tous les scores",
+        "deleteAllTitle": "Supprimer tous les scores",
+        "deleteAllMessage": "Êtes-vous sûr de vouloir supprimer tous les scores du quiz \"{{name}}\" ? Cette action est irréversible.",
+        "deleteAllConfirm": "Tout supprimer",
+        "deleteSuccess": "Score supprimé",
+        "deleteAllSuccess": "{{count}} scores supprimés",
+        "deleteError": "Erreur lors de la suppression",
+        "loadError": "Erreur lors du chargement du classement"
       },
       "status": {
         "draft": "Brouillon",
@@ -984,6 +998,10 @@
     "user": {
       "soundsOf": "Sons de {{username}}",
       "exploreFullMap": "Explorer la carte complète"
+    },
+    "share": {
+      "button": "Partager",
+      "copied": "Lien copié !"
     },
     "timeFilter": {
       "title": "Filtrer par période",
@@ -1315,5 +1333,9 @@
     "weeklyExceeded": "Vous avez atteint la limite de {{limit}} sons par semaine",
     "monthlyExceeded": "Vous avez atteint la limite de {{limit}} sons par mois",
     "backToDashboard": "Retour au tableau de bord"
+  },
+  "notFound": {
+    "message": "Cette page n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
   }
 }

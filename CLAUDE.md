@@ -20,7 +20,8 @@ Budget `anyComponentStyle` : `maximumError: 80kb` dans `angular.json` (augmente 
 - **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth)
 - **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
 - **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
-- **i18n** : @ngx-translate (FR/EN, fichiers JSON dans assets/i18n/)
+- **i18n** : @ngx-translate (FR/EN/ES, fichiers JSON dans public/i18n/)
+- **Versioning** : `APP_VERSION` importe depuis `src/environments/version.ts` (lit `package.json`)
 - **UI** : Angular Material (MatDialog, MatBottomSheet, MatIcon)
 - **Theming** : light/dark via `body.light-theme` / `body.dark-theme`, SCSS `:host-context(body.dark-theme)`
 
@@ -430,8 +431,12 @@ Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert
 **Layout sheet-top :**
 - `.sheet-title-row` : titre + icone clap/compteur sur la meme ligne (`display: flex; flex-wrap: wrap; gap: 6px; padding-right: 32px`)
 - WaveSurfer player pleine largeur (waveform + controles play/time/mute)
-- `.sheet-actions-bar` : 3 boutons centres (`justify-content: center`) — zoom out, download, zoom in
+- `.sheet-actions-bar` : boutons groupes avec dividers (`justify-content: center`) — layout `— | download share | +` (voir section "Boutons d'action popups"). Download masque si `license === 'READ_ONLY'`
 - Mode journey : like row separee (titre dans le header), navigation prev/next/finish
+
+**Licence :** badge centre `sheet-license-badge` avec tooltip tap-triggered (signal `showLicenseTooltip`, methode `toggleLicenseTooltip()`). Voir section "Licences de sons".
+
+**Partage :** bouton share dans le groupe central des actions. Methode `share()` : Web Share API + clipboard fallback. Voir section "Partage de son".
 
 **Bouton close contraste :** quand un header colore est present (featured violet, journey), le close button a un fond sombre `rgba(0,0,0,0.30)` et icone blanche via `.featured-header ~ .sheet-close-btn` / `.journey-header ~ .sheet-close-btn`. Positionne a `top: 22px` pour etre centre verticalement sur la banniere coloree (vs `top: 6px` par defaut). Le close button est place APRES les headers dans le DOM pour que le selecteur `~` fonctionne (position absolute donc pas d'impact visuel). Dark theme : fond `rgba(0,0,0,0.40)` (overlay sombre fonctionne sur toute banniere coloree).
 
@@ -860,9 +865,12 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 #### Popup action buttons (desktop)
 
 - Separateur fin (`border-top: 1px solid`) entre le player et les boutons d'action
-- Boutons zoom/download : fond transparent teinte (meme style que play btn), sans bordure
+- Layout groupe : `— | download share | +` avec `.btn-scope` et `.btn-divider` (voir section "Boutons d'action popups")
+- Boutons zoom/download/share : fond transparent teinte (meme style que play btn), sans bordure
 - Light : `rgba(25,118,210,0.08)` fond, `#1976d2` icone
 - Dark : `rgba(144,202,249,0.10)` fond, `#90caf9` icone
+- Download masque si `license === 'READ_ONLY'`
+- Share : Web Share API + clipboard fallback (voir section "Partage de son")
 
 #### Like count (popup desktop)
 
@@ -1249,6 +1257,166 @@ Empeche le merge OAuth de toucher les comptes importes.
 ### Drapeaux (flags)
 
 Les fichiers de drapeaux sont en **MAJUSCULES** dans `public/img/flags/` (`DE.png`, `FR.png`, `CA.png`). Le champ `User.country` doit stocker le code en majuscules pour correspondre.
+
+## Versioning de l'application
+
+### Source de verite
+
+- `package.json` : version `2.0.0`
+- `src/environments/version.ts` : exporte `APP_VERSION` (lit `packageJson.version`)
+- Pour bumper la version : modifier uniquement `package.json`, le reste suit automatiquement
+
+### Affichage
+
+- **Sidenav mobile** : footer du menu, `v{{ appVersion }}` via `sidenav-menu.component`
+- **Page compte** : affiche dans la section infos
+- Import : `import { APP_VERSION } from '../../../../environments/version'`
+
+## Page 404 (`core/pages/not-found/`)
+
+- Composant standalone minimal (stateless, pas de logique)
+- Route wildcard : `{ path: '**', loadComponent: () => import(...NotFoundComponent) }` dans `app.routes.ts`
+- Design : illustration Material icon `explore_off`, bouton retour accueil
+- Dark/light mode supporte
+- i18n : `notFound.message`, `notFound.backHome` (FR/EN/ES)
+
+## Licences de sons
+
+### Types de licence
+
+| Licence | Label | Telechargement |
+|---------|-------|---------------|
+| `READ_ONLY` | Lecture seule | Bloque (bouton masque) |
+| `PUBLIC_DOMAIN` | Domaine public | Autorise |
+| `CC_BY` | CC BY | Autorise |
+| `CC_BY_NC` | CC BY-NC | Autorise |
+
+### Badge et tooltip
+
+- **Desktop (popups Leaflet)** : badge `<span class="popup-license-badge">` avec icone `copyright` + label traduit + `<span class="license-tooltip">` (tooltip CSS custom, hover-triggered)
+- **Mobile (bottom sheet)** : badge `<span class="sheet-license-badge">` avec tooltip tap-triggered via signal `showLicenseTooltip` + methode `toggleLicenseTooltip()`
+- **Design tooltip** : dark bg / light text en light mode (`#1a1a2e` / `#f0f0f5`), inverse en dark mode (`#e8e8f0` / `#1a1a2e`), fleche CSS (`::after` border trick)
+- Badge centre horizontalement (desktop `margin: auto`, mobile `align-self: center`)
+
+### Blocage download READ_ONLY
+
+- Popups desktop (normal + featured) : `${s.license !== 'READ_ONLY' ? '<button class="download-btn...">download</button>' : ''}`
+- Bottom sheet mobile : `@if (data.sound.license !== 'READ_ONLY') { <button> }`
+
+### i18n
+
+Cles `sound.licenses.*` et `sound.licenses.*_tooltip` pour chaque type (FR/EN/ES)
+
+## Detection theme systeme (`prefers-color-scheme`)
+
+- Au demarrage (`app.component.ts` `ngOnInit`), detecte `window.matchMedia('(prefers-color-scheme: dark)').matches`
+- Applique le theme OS comme defaut initial (`isDark.set(prefersDark)` + `applyTheme()`)
+- Ce defaut est ecrase ensuite si l'utilisateur a une preference sauvegardee en base (champ `User.theme`)
+- L'ordre dans `ngOnInit` : 1) detecter OS theme → 2) charger user → 3) appliquer preference user si existe
+
+## Partage de son (Share)
+
+### URL de partage
+
+Format : `{origin}/mapfly?lat={lat}&lng={lng}&zoom=17&soundFilename={encodeURIComponent(filename)}`
+
+### Strategie de fallback
+
+1. **Web Share API** (`navigator.share()`) si disponible (mobile natif) — ouvre le dialog de partage natif
+2. **Clipboard API** (`navigator.clipboard.writeText()`) en fallback — copie l'URL + snackbar "Lien copie"
+3. Si les deux echouent : erreur silencieuse
+
+### Implementation
+
+- **Desktop (popups Leaflet)** : bouton `share-btn` dans `.btn-scope` central, handler post-popup via `getElementById`
+- **Mobile (bottom sheet)** : methode `share()` dans `sound-popup-sheet.component.ts`
+- 3 popups (normal, featured, journey) + bottom sheet — tous utilisent le meme pattern
+
+### i18n
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `mapfly.share.button` | Partager | Share | Compartir |
+| `mapfly.share.copied` | Lien copie ! | Link copied! | Enlace copiado! |
+
+## Boutons d'action popups — layout et hierarchie
+
+### Convention de disposition
+
+Layout : `— | download share | +` (zoom minus a gauche, actions au centre, zoom plus a droite)
+
+**Structure HTML :**
+```
+.popup-btn-group / .sheet-actions-bar
+  .btn-scope           ← zoom out seul
+    button.zoom-btn    ← remove (-)
+  .btn-divider         ← separateur vertical 1px
+  .btn-scope           ← actions centrales
+    button.download-btn ← download (si license != READ_ONLY)
+    button.share-btn   ← share
+  .btn-divider         ← separateur vertical 1px
+  .btn-scope           ← zoom in seul
+    button.zoom-btn    ← add (+)
+```
+
+### Dimensions
+
+| Element | Desktop | Mobile |
+|---------|---------|--------|
+| Boutons | 30x30px | 32x32px |
+| Icones | 16px | 18px |
+| Divider | 1px × 20px | 1px × 18px |
+| Gap intra-groupe | 6px | 8px |
+| Gap inter-groupes | 10px | 10px |
+
+### Divider
+
+- Light : `rgba(0,0,0,0.12)`
+- Dark : `rgba(255,255,255,0.12)`
+
+## Gestion des scores quiz (admin)
+
+### Composant (`quiz-admin-list.component`)
+
+Section extensible sous le tableau des quiz. Bouton `leaderboard` dans la colonne actions toggle un panneau en dessous.
+
+### Signals
+
+```typescript
+expandedQuizId = signal<string | null>(null);
+expandedQuiz = computed(() => quizzes().find(q => q.id === expandedQuizId()));
+leaderboardAttempts = signal<QuizAttempt[]>([]);
+leaderboardLoading = signal(false);
+deletingAttemptId = signal<string | null>(null);
+```
+
+### Methodes
+
+| Methode | Action |
+|---------|--------|
+| `toggleLeaderboard(quiz)` | Charge/masque les attempts d'un quiz |
+| `deleteAttempt(attempt)` | Supprime un score individuel |
+| `deleteAllAttempts(quiz)` | Confirmation dialog + suppression de tous les scores |
+
+### Service (`quiz.service.ts`)
+
+| Methode | Signature | Details |
+|---------|-----------|---------|
+| `getQuizAttempts(quizId)` | → `Promise<QuizAttempt[]>` | Limit 500, tri score DESC |
+| `deleteAttempt(id)` | → `Promise<void>` | Suppression unitaire |
+| `deleteAllAttempts(quizId)` | → `Promise<number>` | Boucle sur getQuizAttempts + deleteAttempt, retourne le nombre supprime |
+
+### UI leaderboard panel
+
+- Loading : spinner Material
+- Vide : icone `emoji_events` + message
+- Liste : rang + username + score/maxScore + etoiles + date + bouton delete
+- Header : titre + bouton "Supprimer tous" (avec confirmation dialog)
+- Ligne en cours de suppression : `opacity: 0.4; pointer-events: none`
+
+### i18n
+
+Cles `admin.quiz.leaderboard.*` : title, noScores, deleteOne, deleteAll, deleteAllTitle, deleteAllMessage, deleteAllConfirm, deleteSuccess, deleteAllSuccess, deleteError, loadError (FR/EN/ES)
 
 ## Fichiers temporaires a ignorer
 

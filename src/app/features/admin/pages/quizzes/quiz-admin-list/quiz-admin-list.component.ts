@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 
 import { QuizService } from '../../../../quiz/services/quiz.service';
-import { Quiz } from '../../../../quiz/models/quiz.model';
+import { Quiz, QuizAttempt } from '../../../../quiz/models/quiz.model';
 import { QuizEditDialogComponent } from '../quiz-edit-dialog/quiz-edit-dialog.component';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -44,6 +44,16 @@ export class QuizAdminListComponent implements OnInit {
   quizzes = signal<Quiz[]>([]);
   loading = signal(true);
   displayedColumns = ['title', 'difficulty', 'status', 'questionCount', 'totalPlays', 'actions'];
+
+  // Leaderboard management
+  expandedQuizId = signal<string | null>(null);
+  expandedQuiz = computed(() => {
+    const id = this.expandedQuizId();
+    return id ? this.quizzes().find(q => q.id === id) ?? null : null;
+  });
+  leaderboardAttempts = signal<QuizAttempt[]>([]);
+  leaderboardLoading = signal(false);
+  deletingAttemptId = signal<string | null>(null);
 
   ngOnInit() {
     this.loadQuizzes();
@@ -150,6 +160,88 @@ export class QuizAdminListComponent implements OnInit {
     } catch (error) {
       console.error('Error setting monthly quiz:', error);
     }
+  }
+
+  async toggleLeaderboard(quiz: Quiz) {
+    if (this.expandedQuizId() === quiz.id) {
+      this.expandedQuizId.set(null);
+      this.leaderboardAttempts.set([]);
+      return;
+    }
+    this.expandedQuizId.set(quiz.id);
+    this.leaderboardLoading.set(true);
+    try {
+      const attempts = await this.quizService.getQuizAttempts(quiz.id);
+      this.leaderboardAttempts.set(attempts);
+    } catch (error) {
+      console.error('Error loading leaderboard:', error);
+      this.snackBar.open(
+        this.translate.instant('admin.quiz.leaderboard.loadError'),
+        '',
+        { duration: 3000 },
+      );
+    } finally {
+      this.leaderboardLoading.set(false);
+    }
+  }
+
+  async deleteAttempt(attempt: QuizAttempt) {
+    this.deletingAttemptId.set(attempt.id);
+    try {
+      await this.quizService.deleteAttempt(attempt.id);
+      this.leaderboardAttempts.update(list => list.filter(a => a.id !== attempt.id));
+      this.snackBar.open(
+        this.translate.instant('admin.quiz.leaderboard.deleteSuccess'),
+        '',
+        { duration: 2500 },
+      );
+    } catch (error) {
+      console.error('Error deleting attempt:', error);
+      this.snackBar.open(
+        this.translate.instant('admin.quiz.leaderboard.deleteError'),
+        '',
+        { duration: 3000 },
+      );
+    } finally {
+      this.deletingAttemptId.set(null);
+    }
+  }
+
+  async deleteAllAttempts(quiz: Quiz) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.translate.instant('admin.quiz.leaderboard.deleteAllTitle'),
+        message: this.translate.instant('admin.quiz.leaderboard.deleteAllMessage', {
+          name: this.getLocalizedTitle(quiz),
+        }),
+        confirmText: this.translate.instant('admin.quiz.leaderboard.deleteAllConfirm'),
+        cancelText: this.translate.instant('common.action.cancel'),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        this.leaderboardLoading.set(true);
+        try {
+          const count = await this.quizService.deleteAllAttempts(quiz.id);
+          this.leaderboardAttempts.set([]);
+          this.snackBar.open(
+            this.translate.instant('admin.quiz.leaderboard.deleteAllSuccess', { count }),
+            '',
+            { duration: 3000 },
+          );
+        } catch (error) {
+          console.error('Error deleting all attempts:', error);
+          this.snackBar.open(
+            this.translate.instant('admin.quiz.leaderboard.deleteError'),
+            '',
+            { duration: 3000 },
+          );
+        } finally {
+          this.leaderboardLoading.set(false);
+        }
+      }
+    });
   }
 
   getLocalizedTitle(quiz: Quiz): string {

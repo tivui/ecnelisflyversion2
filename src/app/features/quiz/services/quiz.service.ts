@@ -466,6 +466,39 @@ export class QuizService {
     return quizAttempts.length > 0 ? quizAttempts[0] : null;
   }
 
+  // ============ ADMIN: MANAGE ATTEMPTS ============
+
+  async getQuizAttempts(quizId: string): Promise<QuizAttempt[]> {
+    const result = await (
+      this.client.models.QuizAttempt.listAttemptsByQuizAndScore as any
+    )({
+      quizId,
+      sortDirection: 'DESC',
+      limit: 500,
+    });
+    if (result.errors?.length) {
+      console.error('Error listing quiz attempts:', result.errors);
+      throw new Error('Failed to list quiz attempts');
+    }
+    return (result.data ?? []).map((a: any) => this.mapAttempt(a));
+  }
+
+  async deleteAttempt(id: string): Promise<void> {
+    const result = await this.client.models.QuizAttempt.delete({ id });
+    if (result.errors?.length) {
+      console.error('Error deleting attempt:', result.errors);
+      throw new Error('Failed to delete attempt');
+    }
+  }
+
+  async deleteAllAttempts(quizId: string): Promise<number> {
+    const attempts = await this.getQuizAttempts(quizId);
+    for (const a of attempts) {
+      await this.deleteAttempt(a.id);
+    }
+    return attempts.length;
+  }
+
   // ============ MONTHLY QUIZ ============
 
   async getMonthlyQuiz(): Promise<{ monthly: MonthlyQuiz; quiz: Quiz } | null> {
