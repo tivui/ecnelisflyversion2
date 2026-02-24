@@ -350,6 +350,85 @@
 }
 
 // =====================
+// Radar row (centered button — journey mode)
+// =====================
+.sheet-radar-row {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+// =====================
+// Radar toggle
+// =====================
+.radar-toggle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 19px;
+    color: #666;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &.active {
+    background: rgba(25, 118, 210, 0.12);
+    border-color: rgba(25, 118, 210, 0.3);
+
+    .material-icons {
+      color: #1976d2;
+    }
+  }
+
+  :host-context(body.dark-theme) & {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+
+    .material-icons {
+      color: #aaa;
+    }
+
+    &.active {
+      background: rgba(144, 202, 249, 0.15);
+      border-color: rgba(144, 202, 249, 0.3);
+
+      .material-icons {
+        color: #90caf9;
+      }
+    }
+  }
+}
+
+// =====================
+// Embedded radar mini-map
+// =====================
+.sheet-radar-map {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 6px;
+
+  :host-context(body.dark-theme) & {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// =====================
 // Scrollable content (story, links, info)
 // =====================
 .sheet-content {

@@ -10,6 +10,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
+import L from 'leaflet';
 
 export interface SoundPopupSheetData {
   type: 'normal' | 'featured' | 'journey';
@@ -132,6 +133,9 @@ export interface SoundPopupSheetData {
               <button class="sheet-action-btn" (click)="share()">
                 <span class="material-icons">share</span>
               </button>
+              <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
+                <span class="material-icons">radar</span>
+              </button>
             </div>
             <span class="btn-divider"></span>
             <button class="sheet-action-btn" (click)="data.onZoomIn()">
@@ -163,6 +167,16 @@ export interface SoundPopupSheetData {
               </button>
             }
           </div>
+          <div class="sheet-radar-row">
+            <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
+              <span class="material-icons">radar</span>
+            </button>
+          </div>
+        }
+
+        <!-- Embedded radar mini-map (all modes) -->
+        @if (radarActive()) {
+          <div class="sheet-radar-map"></div>
         }
       </div>
 
@@ -259,6 +273,8 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   likesCount = signal(this.data.sound.likesCount ?? 0);
   isLiked = signal(this.data.sound.id ? this.likeService.isLiked(this.data.sound.id) : false);
   showLicenseTooltip = signal(false);
+  radarActive = signal(false);
+  private radarMap: L.Map | null = null;
 
   likeIcon = computed(() =>
     this.isLiked()
@@ -316,6 +332,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyRadarMap();
     this.playerInstance?.destroy();
     this.playerInstance = null;
   }
@@ -397,6 +414,64 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
 
   onAudioPause() {
     this.data.onAudioPause?.();
+  }
+
+  toggleRadar() {
+    const willShow = !this.radarActive();
+    this.radarActive.set(willShow);
+
+    if (willShow) {
+      // Wait for Angular to render the container, then init the map
+      setTimeout(() => this.initRadarMap(), 50);
+    } else {
+      this.destroyRadarMap();
+    }
+  }
+
+  private initRadarMap(): void {
+    if (this.radarMap) return;
+    const container = this.el.nativeElement.querySelector('.sheet-radar-map');
+    if (!container) return;
+
+    const lat = this.data.sound.latitude ?? 0;
+    const lng = this.data.sound.longitude ?? 0;
+
+    this.radarMap = L.map(container, {
+      center: [lat, lng],
+      zoom: 2,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      boxZoom: false,
+      keyboard: false,
+    });
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+    }).addTo(this.radarMap);
+
+    // Red dot at the sound's location
+    L.circleMarker([lat, lng], {
+      radius: 6,
+      color: '#ef4444',
+      fillColor: '#ef4444',
+      fillOpacity: 0.9,
+      weight: 2,
+      interactive: false,
+    }).addTo(this.radarMap);
+
+    // Ensure tiles render correctly after DOM insertion
+    setTimeout(() => this.radarMap?.invalidateSize(), 100);
+  }
+
+  private destroyRadarMap(): void {
+    if (this.radarMap) {
+      this.radarMap.remove();
+      this.radarMap = null;
+    }
   }
 
   private parseI18n(field?: string | Record<string, string>): Record<string, string> | undefined {

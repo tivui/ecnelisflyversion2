@@ -112,6 +112,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public isAmbientMuted = signal(false);
   public ambientSoundLabel = signal('');
   public ambientLabelExpanded = signal(false);
+
   private zonePolygonGlowLayer: L.Polygon | null = null;
 
   // Timeline mode
@@ -863,8 +864,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
             },
             audioUrl: url, mimeType,
             markerColor: this.categoryColors[category] || '#1976d2',
-            onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, Math.min(this.map.getZoom() + 2, 18)),
-            onZoomOut: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, Math.max(this.map.getZoom() - 2, 3)),
+            onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, 17),
+            onZoomOut: () => this.centerMarkerAboveSheet(s.latitude! > 20 ? s.latitude! : s.latitude! + 30, s.longitude!, 2),
             onAudioPlay: () => this.ambientAudio?.duck?.(),
             onAudioPause: () => this.ambientAudio?.unduck?.(),
           };
@@ -2184,8 +2185,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       audioUrl: url, mimeType,
       featuredLabel, displayTeasing, soundTeasingI18n: soundTeasingI18n ?? undefined,
       markerColor: '#7c4dff',
-      onZoomIn: () => this.centerMarkerAboveSheet(lat, lng, Math.min(this.map.getZoom() + 2, 18)),
-      onZoomOut: () => this.centerMarkerAboveSheet(lat, lng, Math.max(this.map.getZoom() - 2, 3)),
+      onZoomIn: () => this.centerMarkerAboveSheet(lat, lng, 17),
+      onZoomOut: () => this.centerMarkerAboveSheet(lat > 20 ? lat : lat + 30, lng, 2),
     };
 
     if (!this.isMobilePortrait) {
@@ -2500,6 +2501,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
     await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
     this.journeyOverlayVisible.set(true);
     this.createJourneyStepperControl();
+
+    // Init minimap radar (starts minimized, togglable from journey UI)
+    this.initMinimap();
+
     setTimeout(() => {
       this.flyToJourneyStep(0);
     }, 1800);
@@ -2574,6 +2579,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
       // Create stepper control
       this.createJourneyStepperControl();
+
+      // Init minimap radar (starts minimized, togglable from journey UI)
+      this.initMinimap();
 
       // Start cinematic fly to first step
       setTimeout(() => {
@@ -2661,8 +2669,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
       audioUrl: url, mimeType,
       stepIndex, totalSteps: this.totalJourneySteps(), journeyColor: color, themeText,
       markerColor: color,
-      onZoomIn: () => {},
-      onZoomOut: () => {},
+      onZoomIn: () => this.centerMarkerAboveSheet(sound.latitude!, sound.longitude!, 17),
+      onZoomOut: () => this.centerMarkerAboveSheet(sound.latitude! > 20 ? sound.latitude! : sound.latitude! + 30, sound.longitude!, 2),
       onJourneyPrev: () => { this.activeSheetRef?.dismiss(); this.flyToJourneyStep(stepIndex - 1); },
       onJourneyNext: () => { this.activeSheetRef?.dismiss(); this.flyToJourneyStep(stepIndex + 1); },
       onJourneyFinish: () => { this.activeSheetRef?.dismiss(); this.router.navigate(['/journeys']); },
