@@ -1399,18 +1399,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
       panelClass: 'sound-popup-sheet-panel',
     });
 
-    // Add selection circle around the active marker (skip for journey — pulse circle already present)
-    if (data.type !== 'journey' && data.sound.latitude && data.sound.longitude) {
+    // Add selection circle around the active marker (skip for journey/featured — pulse circle already present)
+    if (data.type !== 'journey' && data.type !== 'featured' && data.sound.latitude && data.sound.longitude) {
       const color = data.markerColor || '#1976d2';
       this.activeSelectionCircle = L.circleMarker(
         [data.sound.latitude, data.sound.longitude],
         {
           radius: 22,
           color,
-          weight: 2.5,
-          opacity: 0.7,
+          weight: 3,
+          opacity: 0.9,
           fillColor: color,
-          fillOpacity: 0.10,
+          fillOpacity: 0.15,
           className: 'marker-selection-ring',
         }
       ).addTo(this.map);
@@ -1423,12 +1423,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }, 100);
     }
 
+    // Capture reference to THIS circle so the callback only cleans up its own circle
+    const circleForThisSheet = this.activeSelectionCircle;
     this.activeSheetRef.afterDismissed().subscribe(() => {
-      this.activeSheetRef = null;
-      // Remove selection circle on dismiss
-      if (this.activeSelectionCircle) {
-        this.map.removeLayer(this.activeSelectionCircle);
-        this.activeSelectionCircle = null;
+      // Only clean up if the circle hasn't been replaced by a newer openSoundSheet call
+      if (this.activeSelectionCircle === circleForThisSheet) {
+        this.activeSheetRef = null;
+        if (this.activeSelectionCircle) {
+          this.map.removeLayer(this.activeSelectionCircle);
+          this.activeSelectionCircle = null;
+        }
       }
     });
   }

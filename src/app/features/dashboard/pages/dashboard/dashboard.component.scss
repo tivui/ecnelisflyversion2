@@ -65,6 +65,14 @@
 
 .admin-toggle {
   font-size: 14px;
+
+  :host-context(body.dark-theme) & {
+    color: rgba(255, 255, 255, 0.85);
+
+    ::ng-deep .mdc-label {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
 }
 
 .my-map-btn {
@@ -222,7 +230,7 @@
 }
 
 // Dark mode
-:host-context(.dark-theme) {
+:host-context(body.dark-theme) {
   .admin-toggle {
     color: rgba(255, 255, 255, 0.7);
   }

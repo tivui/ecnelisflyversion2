@@ -93,7 +93,7 @@ Le violet `#7c4dff` est la couleur identitaire du "Son du jour", utilisee dans :
     - `.carousel-section` : `border-radius: 18px`, fond `rgba($logo-dark-blue, 0.035)`, flat sans shadow (secondaire ancre)
     - `.community-stats` : pas de container (transparent, pas de border/shadow — donnees flottantes)
   - **Separateur Onboarding→A la une** : trait gradient `$logo-dark-blue 70% → $logo-orange 100%`, 85% largeur, opacity 0.25, margin-top 10px, en `::after` sur `.onboarding-section`
-  - **Pas d'indicateur de scroll** : l'effet 3D coverflow sert d'indicateur naturel de scrollabilite
+  - **Indicateurs de scroll A la une** : chevrons `<` `>` en position absolue sur les bords du carousel (`.alaune-scroll-wrap`), styles `.scroll-hint` + `.alaune-hint-left/.alaune-hint-right`. Chevrons internes aux cards (`.carousel-card-chevron`) masques en mobile pour eviter le doublon
   - **Pas d'accent top bars** : toutes les `::before` accent bars supprimees pour bords propres
   - **Descriptions cachees** : `.hero-card-desc { display: none }` sur toutes les cards mobile
   - **Cards secondary (carousel 3D)** : `min-width: 65vw`, `transform: perspective(600px) rotateY(±25° max) scale(0.80–1.0)`, `transform-origin: center center` (fixe, jamais de flip — evite clignotement bords), `backface-visibility: hidden`, `border-left` + `border-right: 4px solid` colore par type, infinite scroll (cards triplees), glow subtil sur card active
@@ -447,6 +447,14 @@ Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert
 - A l'ouverture de la sheet (`openSoundSheet`)
 - Au clic des boutons zoom dans la sheet (callbacks `onZoomIn`/`onZoomOut`)
 
+#### Cercle de selection marker (mobile)
+
+`L.circleMarker` ajoute autour du marker actif quand une bottom sheet s'ouvre (`openSoundSheet`). Skip en mode journey et featured (pulse circle deja present).
+
+**Styles :** `radius: 22`, `weight: 3`, `opacity: 0.9`, `fillOpacity: 0.15`, classe CSS `marker-selection-ring` avec animation `selectionPulse` (0.9↔0.5 opacity) + `drop-shadow` halo colore (visibilite sur fonds satellite sombres).
+
+**Race condition (piege connu) :** quand on enchaine 2 sons, le `afterDismissed` de l'ancienne sheet se declenche apres la creation du nouveau cercle. Le callback capture une reference locale (`circleForThisSheet`) et ne nettoie que si `activeSelectionCircle === circleForThisSheet` — ne touche jamais un cercle cree par un appel ulterieur.
+
 #### Overlays cinematiques — pre-chargement i18n
 
 Les overlays featured et journey utilisent `await firstValueFrom(translate.use(currentLang))` avant d'afficher l'overlay (`overlayVisible.set(true)`) pour garantir que les traductions sont chargees et eviter un flash de la langue par defaut.
@@ -701,6 +709,14 @@ normalModeMarkerMap: { createdAt: Date; marker: L.Marker }[]
 ### i18n
 
 Cles `mapfly.timeFilter.*` : `all`, `latest10`, `week`, `month` (FR/EN/ES)
+
+## Page de connexion (`core/pages/auth/login/`)
+
+### Mobile portrait
+
+- `min-height: calc(100dvh - 48px - 56px - env(safe-area-inset-bottom))` (toolbar + bottom nav)
+- `justify-content: flex-start` + `overflow-y: auto` (scrollable si formulaire trop grand)
+- **Small phones** (`max-height: 700px`) : logo 60px, titre 1.2rem, paddings compacts
 
 ## Toolbar — masquage conditionnel du logo
 
@@ -1055,6 +1071,10 @@ Toujours vers `/mapfly` avec coordonnees, quel que soit le statut. Snackbar info
 
 Le header (titre + boutons "Ma carte" / "+ Ajouter un son") reste au-dessus des onglets.
 
+### Dark mode (piege connu)
+
+Le `mat-slide-toggle` admin ("Voir tous les sons") necessite `::ng-deep .mdc-label` pour styler le texte du label en dark mode — Angular Material encapsule le label dans un element interne que le selecteur `.admin-toggle { color }` seul ne peut pas atteindre. Selecteur : `:host-context(body.dark-theme)` (pas `.dark-theme` seul).
+
 ### Stats visuelles (`dashboard-stats` widget)
 
 Composant `app-dashboard-stats` avec `@swimlane/ngx-charts` :
@@ -1122,6 +1142,8 @@ De plus, des listeners `valueChanges` (debounce 300ms) sur les champs `title` et
 ## Admin icon — Hub listener
 
 Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `signedIn` (pas seulement dans `ngOnInit`) via `await authService.loadCurrentUser()` + `isAdmin.set(authService.isInGroup('ADMIN'))`. Reset a `false` dans le handler `signedOut`.
+
+**Piege connu (signedOut) :** le bouton deconnexion appelle `authenticator.signOut()` (Amplify Authenticator), pas `authService.signOut()`. Le handler Hub `signedOut` doit appeler `authService.clearUser()` en plus de `appUserService.clearCurrentUser()` — sinon `authService.user()` reste non-null et `isAuthenticated()` renvoie `true` apres deconnexion, causant des echecs GraphQL (`userPool` avec tokens invalides).
 
 ## OAuth Account Linking (`app-user.service.ts`)
 

@@ -297,6 +297,7 @@ export class AppComponent implements OnInit {
         case 'signedOut': {
           const previousUsername = this.appUserService.currentUser?.username ?? '';
           this.appUserService.clearCurrentUser();
+          this.authService.clearUser();
           this.isAdmin.set(false);
 
           this.router.navigate(['/home'], { replaceUrl: true });

@@ -368,8 +368,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   display: none;
 }
 
-// Desktop: alaune-section is transparent (display: contents)
-.alaune-section {
+// Desktop: alaune-section and its scroll wrapper are transparent (display: contents)
+.alaune-section,
+.alaune-scroll-wrap {
   display: contents;
 }
 
@@ -1872,6 +1873,30 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
   }
 
+  // --- À la une scroll wrapper with arrow indicators ---
+  .alaune-scroll-wrap {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0;
+  }
+
+  .alaune-hint-left,
+  .alaune-hint-right {
+    display: flex;
+    position: absolute;
+    z-index: 5;
+    opacity: 0.6;
+  }
+
+  .alaune-hint-left {
+    left: 6px;
+  }
+
+  .alaune-hint-right {
+    right: 6px;
+  }
+
   // =============================================================
   // Carousel cards inside alaune-section
   // =============================================================
@@ -2142,7 +2167,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     // Content (center)
     .hero-card .hero-card-content {
       flex: 1;
-      padding: 12px 0 12px 12px;
+      padding: 12px 14px 12px 12px;
       gap: 3px;
       justify-content: center;
       border-left: none !important;
@@ -2175,21 +2200,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     .hero-card .hero-card-desc { display: none; }
     .hero-card .hero-card-cta { display: none; }
 
-    // Chevron (right side) — harmonized blue
+    // Chevron hidden — scroll hints on alaune-section replace per-card chevrons
     .carousel-card-chevron {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: rgba($logo-dark-blue, 0.30);
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
-
-      :host-context(body.dark-theme) & {
-        color: rgba(255, 255, 255, 0.20);
-      }
+      display: none;
     }
 
     // Per-card icon accents removed — icons are monochrome, only border-left carries color
@@ -2364,8 +2377,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     border-radius: 18px;
     margin-left: 16px;
     margin-right: 16px;
-    padding-top: 12px;
-    padding-bottom: 10px;
+    padding-top: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 32px;
     box-shadow: none;
 
     // No accent top line
