@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 
 import { FeaturedSoundService } from '../../../core/services/featured-sound.service';
+import { APP_VERSION } from '../../../../environments/version';
 import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
 import { Language } from '../../../core/models/i18n.model';
 
@@ -38,6 +39,7 @@ export class SidenavMenuComponent {
   languageChanged = output<Language>();
 
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
+  readonly appVersion = APP_VERSION;
 
   constructor() {
     effect(() => {

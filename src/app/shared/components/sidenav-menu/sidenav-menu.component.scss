@@ -412,3 +412,15 @@
     color: #666;
   }
 }
+
+.footer-version {
+  display: block;
+  font-size: 0.65rem;
+  color: #bbb;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+
+  :host-context(body.dark-theme) & {
+    color: #555;
+  }
+}

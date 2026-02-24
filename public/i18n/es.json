@@ -744,10 +744,24 @@
         "actions": "Acciones"
       },
       "actions": {
+        "leaderboard": "Clasificación",
         "questions": "Preguntas",
         "monthly": "Quiz del mes",
         "edit": "Editar",
         "delete": "Eliminar"
+      },
+      "leaderboard": {
+        "title": "Clasificación",
+        "noScores": "Ninguna puntuación registrada",
+        "deleteOne": "Eliminar esta puntuación",
+        "deleteAll": "Eliminar todas las puntuaciones",
+        "deleteAllTitle": "Eliminar todas las puntuaciones",
+        "deleteAllMessage": "¿Estás seguro de que quieres eliminar todas las puntuaciones del quiz \"{{name}}\"? Esta acción no se puede deshacer.",
+        "deleteAllConfirm": "Eliminar todo",
+        "deleteSuccess": "Puntuación eliminada",
+        "deleteAllSuccess": "{{count}} puntuaciones eliminadas",
+        "deleteError": "Error al eliminar la puntuación",
+        "loadError": "Error al cargar la clasificación"
       },
       "status": {
         "draft": "Borrador",
@@ -974,6 +988,10 @@
     "user": {
       "soundsOf": "Sonidos de {{username}}",
       "exploreFullMap": "Explorar el mapa completo"
+    },
+    "share": {
+      "button": "Compartir",
+      "copied": "¡Enlace copiado!"
     },
     "timeFilter": {
       "title": "Filtrar por período",
@@ -1281,5 +1299,9 @@
   "update": {
     "available": "Una nueva versión está disponible",
     "reload": "Recargar"
+  },
+  "notFound": {
+    "message": "Esta página no existe o ha sido movida.",
+    "backHome": "Volver al inicio"
   }
 }

@@ -41,6 +41,7 @@ import { AmbientAudioService } from '../../../../core/services/ambient-audio.ser
 import { SoundJourney, SoundJourneyStep } from '../../../../core/models/sound-journey.model';
 import { EphemeralJourneyService } from '../../../../core/services/ephemeral-journey.service';
 import { MatBottomSheet, MatBottomSheetModule, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
@@ -69,6 +70,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly ambientAudio = inject(AmbientAudioService);
   private readonly ephemeralJourneyService = inject(EphemeralJourneyService);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly snackBar = inject(MatSnackBar);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -857,7 +859,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
               city: s.city, url: s.url, urlTitle: s.urlTitle,
               secondaryUrl: s.secondaryUrl, secondaryUrlTitle: s.secondaryUrlTitle,
               likesCount: s.likesCount, userId: s.userId, user: s.user,
-              latitude: s.latitude, longitude: s.longitude,
+              latitude: s.latitude, longitude: s.longitude, license: s.license,
             },
             audioUrl: url, mimeType,
             markerColor: this.categoryColors[category] || '#1976d2',
@@ -883,10 +885,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+            ${s.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + s.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + s.license + '_tooltip')}</span></span>` : ''}
             <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
               <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
-              <button class="download-btn material-icons" id="download-${s.filename}">download</button>
+              <span class="btn-divider"></span>
+              <div class="btn-scope">
+                ${s.license !== 'READ_ONLY' ? `<button class="download-btn material-icons" id="download-${s.filename}">download</button>` : ''}
+                <button class="share-btn material-icons" id="share-${s.filename}">share</button>
+              </div>
+              <span class="btn-divider"></span>
               <button class="zoom-btn material-icons" id="zoom-in-${s.filename}">add</button>
             </div>
           </div>
@@ -1117,6 +1125,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
+            });
+
+          // --- Share button ---
+          const shareBtn = document.getElementById(`share-${s.filename}`);
+          if (shareBtn)
+            shareBtn.addEventListener('click', () => {
+              const shareUrl = `${window.location.origin}/mapfly?lat=${s.latitude}&lng=${s.longitude}&zoom=17&soundFilename=${encodeURIComponent(s.filename)}`;
+              navigator.clipboard.writeText(shareUrl).then(() => {
+                this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
+              }).catch(() => {});
             });
 
           // --- Like button ---
@@ -2161,7 +2179,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         city: s?.city ?? soundCity, url: s?.url, urlTitle: s?.urlTitle,
         secondaryUrl: s?.secondaryUrl, secondaryUrlTitle: s?.secondaryUrlTitle,
         likesCount: s?.likesCount, userId: s?.userId, user: s?.user,
-        latitude: lat, longitude: lng,
+        latitude: lat, longitude: lng, license: s?.license,
       },
       audioUrl: url, mimeType,
       featuredLabel, displayTeasing, soundTeasingI18n: soundTeasingI18n ?? undefined,
@@ -2189,10 +2207,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        ${s?.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + s.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + s.license + '_tooltip')}</span></span>` : ''}
         <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
           <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
-          <button class="download-btn material-icons" id="download-${soundFilename}">download</button>
+          <span class="btn-divider"></span>
+          <div class="btn-scope">
+            ${s?.license !== 'READ_ONLY' ? `<button class="download-btn material-icons" id="download-${soundFilename}">download</button>` : ''}
+            <button class="share-btn material-icons" id="share-${soundFilename}">share</button>
+          </div>
+          <span class="btn-divider"></span>
           <button class="zoom-btn material-icons" id="zoom-in-${soundFilename}">add</button>
         </div>
       </div>
@@ -2337,6 +2361,16 @@ export class MapflyComponent implements OnInit, OnDestroy {
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
+        });
+
+      // --- Share button ---
+      const shareBtn = document.getElementById(`share-${soundFilename}`);
+      if (shareBtn)
+        shareBtn.addEventListener('click', () => {
+          const shareUrl = `${window.location.origin}/mapfly?lat=${lat}&lng=${lng}&zoom=17&soundFilename=${encodeURIComponent(soundFilename)}`;
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
+          }).catch(() => {});
         });
 
       // --- WaveSurfer player ---
@@ -2622,7 +2656,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         city: sound.city, url: sound.url, urlTitle: sound.urlTitle,
         secondaryUrl: sound.secondaryUrl, secondaryUrlTitle: sound.secondaryUrlTitle,
         likesCount: sound.likesCount, userId: sound.userId, user: sound.user,
-        latitude: sound.latitude, longitude: sound.longitude,
+        latitude: sound.latitude, longitude: sound.longitude, license: sound.license,
       },
       audioUrl: url, mimeType,
       stepIndex, totalSteps: this.totalJourneySteps(), journeyColor: color, themeText,
@@ -2652,6 +2686,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        ${sound.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + sound.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + sound.license + '_tooltip')}</span></span>` : ''}
         <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
           ${prevBtnHtml}

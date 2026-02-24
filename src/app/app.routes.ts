@@ -124,5 +124,11 @@ export const routes: Routes = [
       ),
   },
 
-  { path: '**', redirectTo: 'home' },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./core/pages/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent,
+      ),
+  },
 ];

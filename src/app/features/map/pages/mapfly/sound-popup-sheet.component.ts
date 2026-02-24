@@ -8,6 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LikeService } from '../../../../core/services/like.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 
 export interface SoundPopupSheetData {
@@ -30,6 +31,7 @@ export interface SoundPopupSheetData {
     user?: { username?: string; country?: string };
     latitude?: number;
     longitude?: number;
+    license?: string;
   };
   audioUrl: string;
   mimeType: string;
@@ -120,9 +122,18 @@ export interface SoundPopupSheetData {
             <button class="sheet-action-btn" (click)="data.onZoomOut()">
               <span class="material-icons">remove</span>
             </button>
-            <button class="sheet-action-btn" (click)="download()">
-              <span class="material-icons">download</span>
-            </button>
+            <span class="btn-divider"></span>
+            <div class="btn-scope">
+              @if (data.sound.license !== 'READ_ONLY') {
+                <button class="sheet-action-btn" (click)="download()">
+                  <span class="material-icons">download</span>
+                </button>
+              }
+              <button class="sheet-action-btn" (click)="share()">
+                <span class="material-icons">share</span>
+              </button>
+            </div>
+            <span class="btn-divider"></span>
             <button class="sheet-action-btn" (click)="data.onZoomIn()">
               <span class="material-icons">add</span>
             </button>
@@ -198,6 +209,19 @@ export interface SoundPopupSheetData {
         @if (data.sound.user?.username) {
           <p class="sheet-record-info" [innerHTML]="recordInfoHtml()"></p>
         }
+
+        <!-- License badge -->
+        @if (data.sound.license) {
+          <span class="sheet-license-badge" (click)="toggleLicenseTooltip()">
+            <span class="material-icons license-icon">copyright</span>
+            {{ 'sound.licenses.' + data.sound.license | translate }}
+            @if (showLicenseTooltip()) {
+              <span class="license-tooltip">
+                {{ 'sound.licenses.' + data.sound.license + '_tooltip' | translate }}
+              </span>
+            }
+          </span>
+        }
       </div>
     </div>
   `,
@@ -210,6 +234,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private likeService = inject(LikeService);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
   private el = inject(ElementRef);
 
   @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
@@ -233,6 +258,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   isTranslated = signal(false);
   likesCount = signal(this.data.sound.likesCount ?? 0);
   isLiked = signal(this.data.sound.id ? this.likeService.isLiked(this.data.sound.id) : false);
+  showLicenseTooltip = signal(false);
 
   likeIcon = computed(() =>
     this.isLiked()
@@ -298,6 +324,10 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     this.sheetRef.dismiss();
   }
 
+  toggleLicenseTooltip() {
+    this.showLicenseTooltip.update(v => !v);
+  }
+
   async toggleLike() {
     if (!this.auth.user() || !this.data.sound.id) return;
     const currentCount = this.likesCount();
@@ -326,6 +356,31 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  }
+
+  async share() {
+    const s = this.data.sound;
+    const url = `${window.location.origin}/mapfly?lat=${s.latitude}&lng=${s.longitude}&zoom=17&soundFilename=${encodeURIComponent(s.filename)}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: s.title, url });
+        return;
+      } catch {
+        // User cancelled or not supported — fallback to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      this.snackBar.open(
+        this.translateService.instant('mapfly.share.copied'),
+        undefined,
+        { duration: 2500 },
+      );
+    } catch {
+      // Clipboard not available
+    }
   }
 
   navigateToUser() {

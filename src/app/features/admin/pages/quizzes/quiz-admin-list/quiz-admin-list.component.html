@@ -68,6 +68,14 @@
           <div class="actions">
             <button
               mat-icon-button
+              [matTooltip]="'admin.quiz.actions.leaderboard' | translate"
+              (click)="toggleLeaderboard(quiz)"
+              [class.active-action]="expandedQuizId() === quiz.id"
+            >
+              <mat-icon>leaderboard</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               [matTooltip]="'admin.quiz.actions.questions' | translate"
               (click)="openQuestions(quiz)"
             >
@@ -102,5 +110,66 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+
+    <!-- Leaderboard panel (below the table, for expanded quiz) -->
+    @if (expandedQuizId()) {
+      <div class="leaderboard-panel">
+        <div class="leaderboard-header">
+          <div class="leaderboard-title-row">
+            <mat-icon>leaderboard</mat-icon>
+            <h3>{{ 'admin.quiz.leaderboard.title' | translate }}</h3>
+          </div>
+          @if (leaderboardAttempts().length > 0) {
+            <button
+              mat-stroked-button
+              color="warn"
+              (click)="deleteAllAttempts(expandedQuiz()!)"
+              [disabled]="leaderboardLoading()"
+            >
+              <mat-icon>delete_sweep</mat-icon>
+              {{ 'admin.quiz.leaderboard.deleteAll' | translate }}
+            </button>
+          }
+        </div>
+
+        @if (leaderboardLoading()) {
+          <div class="leaderboard-loading">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        } @else if (leaderboardAttempts().length === 0) {
+          <div class="leaderboard-empty">
+            <mat-icon>emoji_events</mat-icon>
+            <p>{{ 'admin.quiz.leaderboard.noScores' | translate }}</p>
+          </div>
+        } @else {
+          <div class="leaderboard-list">
+            @for (attempt of leaderboardAttempts(); track attempt.id; let i = $index) {
+              <div class="leaderboard-row" [class.deleting]="deletingAttemptId() === attempt.id">
+                <span class="leaderboard-rank">{{ i + 1 }}</span>
+                <span class="leaderboard-username">{{ attempt.username || '—' }}</span>
+                <span class="leaderboard-score">{{ attempt.score }} / {{ attempt.maxScore }}</span>
+                <span class="leaderboard-stars">
+                  @for (s of [].constructor(attempt.stars); track $index) {
+                    <mat-icon class="star-icon">star</mat-icon>
+                  }
+                </span>
+                @if (attempt.completedAt) {
+                  <span class="leaderboard-date">{{ attempt.completedAt | date: 'dd/MM/yy' }}</span>
+                }
+                <button
+                  mat-icon-button
+                  color="warn"
+                  [matTooltip]="'admin.quiz.leaderboard.deleteOne' | translate"
+                  (click)="deleteAttempt(attempt)"
+                  [disabled]="deletingAttemptId() === attempt.id"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   }
 </div>

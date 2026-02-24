@@ -31,7 +31,12 @@
       "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,135 main -- src/app/app.component.scss)",
       "Bash(git -C \"c:/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2\" --no-pager blame -L118,140 HEAD -- src/app/app.component.scss)",
       "Bash(git status:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 log --oneline --all -- amplify/data/resource.ts)",
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show main:amplify/data/resource.ts)",
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 log --all --oneline)",
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 diff main HEAD -- amplify/data/resource.ts)",
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show fda664d:amplify/data/resource.ts)"
     ]
   }
 }

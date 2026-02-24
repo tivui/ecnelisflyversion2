@@ -747,10 +747,24 @@
         "actions": "Actions"
       },
       "actions": {
+        "leaderboard": "Leaderboard",
         "questions": "Questions",
         "monthly": "Monthly quiz",
         "edit": "Edit",
         "delete": "Delete"
+      },
+      "leaderboard": {
+        "title": "Leaderboard",
+        "noScores": "No scores recorded",
+        "deleteOne": "Delete this score",
+        "deleteAll": "Delete all scores",
+        "deleteAllTitle": "Delete all scores",
+        "deleteAllMessage": "Are you sure you want to delete all scores for the quiz \"{{name}}\"? This action cannot be undone.",
+        "deleteAllConfirm": "Delete all",
+        "deleteSuccess": "Score deleted",
+        "deleteAllSuccess": "{{count}} scores deleted",
+        "deleteError": "Error deleting score",
+        "loadError": "Error loading leaderboard"
       },
       "status": {
         "draft": "Draft",
@@ -983,6 +997,10 @@
     "user": {
       "soundsOf": "Sounds by {{username}}",
       "exploreFullMap": "Explore full map"
+    },
+    "share": {
+      "button": "Share",
+      "copied": "Link copied!"
     },
     "timeFilter": {
       "title": "Filter by period",
@@ -1315,5 +1333,9 @@
     "weeklyExceeded": "You've reached the limit of {{limit}} sounds per week",
     "monthlyExceeded": "You've reached the limit of {{limit}} sounds per month",
     "backToDashboard": "Back to dashboard"
+  },
+  "notFound": {
+    "message": "This page doesn't exist or has been moved.",
+    "backHome": "Back to home"
   }
 }

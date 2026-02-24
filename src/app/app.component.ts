@@ -217,6 +217,11 @@ export class AppComponent implements OnInit {
     // 🔄 Listen for app updates (Service Worker)
     this.appUpdateService.init();
 
+    // 🎨 Detect OS theme preference as initial default (overridden later if user has a stored preference)
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.isDark.set(prefersDark);
+    this.applyTheme(prefersDark ? 'dark' : 'light');
+
     // 1️⃣ Try to load user from backend (if authenticated)
     const appUser = await this.appUserService.loadCurrentUser();
 

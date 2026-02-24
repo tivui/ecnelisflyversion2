@@ -243,9 +243,83 @@
     }
   }
 
+  .popup-license-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin: 4px auto 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(25, 118, 210, 0.08);
+    color: #555;
+    cursor: help;
+    position: relative;
+
+    body.dark-theme & {
+      background: rgba(144, 202, 249, 0.1);
+      color: #aaa;
+    }
+
+    .license-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 260px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 400;
+      line-height: 1.4;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+
+      // Arrow
+      &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+      }
+
+      body.light-theme & {
+        background: #1a1a2e;
+        color: #f0f0f5;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+
+        &::after {
+          border-top-color: #1a1a2e;
+        }
+      }
+
+      body.dark-theme & {
+        background: #e8e8f0;
+        color: #1a1a2e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+        &::after {
+          border-top-color: #e8e8f0;
+        }
+      }
+    }
+
+    &:hover .license-tooltip {
+      display: block;
+    }
+  }
+
   .popup-btn-group {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
     margin-top: 4px;
     padding-top: 8px;
@@ -258,11 +332,27 @@
       border-top-color: rgba(255, 255, 255, 0.08);
     }
 
+    .btn-scope {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.12);
+
+      body.dark-theme & {
+        background: rgba(255, 255, 255, 0.12);
+      }
+    }
+
     .zoom-btn,
-    .download-btn {
+    .download-btn,
+    .share-btn {
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border: none;
       cursor: pointer;
       display: flex;
