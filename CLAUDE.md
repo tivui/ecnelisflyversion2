@@ -45,7 +45,7 @@ Design system : spectre blue -> indigo -> violet avec accents distincts par sect
 |------|------------------------|-------------|
 | Map | `#1976d2` / `#90caf9` | blue |
 | Featured (Son du jour) | `#6a3de8` / `#b388ff` | violet `#7c4dff` |
-| Journey (Voyages sonores) | `#5c6a8a` / `#a0b0cc` | slate-indigo `#5c6a8a` |
+| Journey (Voyages sonores) | `#5c6a8a` / `#8fb4d8` | slate-indigo `#5c6a8a` |
 | Quiz | `#0d7c51` / `#66bb6a` | emerald |
 | Article | `#8b6f47` / `#c4a882` | terre |
 | Monthly Zone (Terroir) | `#b07c10` / `#fbbf24` | amber |
@@ -167,7 +167,7 @@ Dark : `background: rgba(255,255,255,0.06)` + borders colores par type
 | Card | Border-left (light) | Border-left (dark) |
 |------|--------------------|--------------------|
 | Featured | `#7c4dff` | `rgba(#b388ff, 0.60)` |
-| Journey | `#5c6a8a` | `rgba(#a0b0cc, 0.50)` |
+| Journey | `#5c6a8a` | `rgba(#8fb4d8, 0.50)` |
 | Quiz | `#0d7c51` | `rgba(#66bb6a, 0.50)` |
 | Article | `$accent-article` | `rgba($accent-article-light, 0.50)` |
 | Zone | `#b07c10` | `rgba(#fbbf24, 0.50)` |
@@ -176,7 +176,7 @@ Dark : `background: rgba(255,255,255,0.06)` + borders colores par type
 | Card | Icon bg (light) | Icon color (light) | Icon bg (dark) | Icon color (dark) |
 |------|----------------|--------------------|---------------|-------------------|
 | Featured | `rgba(#7c4dff, 0.10)` | `#6a3de8` | `rgba(#b388ff, 0.18)` | `#b388ff` |
-| Journey | `rgba(#5c6a8a, 0.10)` | `#5c6a8a` | `rgba(#a0b0cc, 0.18)` | `#a0b0cc` |
+| Journey | `rgba(#5c6a8a, 0.10)` | `#5c6a8a` | `rgba(#8fb4d8, 0.18)` | `#8fb4d8` |
 | Quiz | `rgba(#0d7c51, 0.10)` | `#0d7c51` | `rgba(#66bb6a, 0.18)` | `#66bb6a` |
 | Article | `rgba($accent-article, 0.10)` | `$accent-article` | `rgba($accent-article-light, 0.18)` | `$accent-article-light` |
 | Zone | `rgba(#b07c10, 0.10)` | `#b07c10` | `rgba(#fbbf24, 0.18)` | `#fbbf24` |
@@ -354,11 +354,11 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 | Role | Valeur | Usage |
 |------|--------|-------|
 | `$accent` | `#5c6a8a` | Accent principal light |
-| `$accent-light` | `#a0b0cc` | Accent dark mode |
+| `$accent-light` | `#8fb4d8` | Accent dark mode |
 | `$accent-dark` | `#2e3548` | Extremite sombre des gradients |
 | Gradient card | `#2e3548 -> #5c6a8a` | Visual des cards |
 | Border-left light | `rgba(#5c6a8a, 0.35)` | Bordure card |
-| Border-left dark | `rgba(#a0b0cc, 0.3)` | Bordure card dark |
+| Border-left dark | `rgba(#8fb4d8, 0.3)` | Bordure card dark |
 
 #### Image de couverture (`coverImage`)
 
@@ -406,7 +406,7 @@ Chaque voyage sonore peut avoir une image de couverture configurable par l'admin
 
 - MatBottomSheet ouvert depuis la journeys-list
 - Slider pour nombre de sons (1-10), chips pour filtre categorie
-- Couleurs inline : header/slider/bouton en slate-indigo (`#2e3548`, `#5c6a8a`, `#a0b0cc`)
+- Couleurs inline : header/slider/bouton en slate-indigo (`#2e3548`, `#5c6a8a`, `#8fb4d8`)
 - `softenColor(hex)` : adoucit les couleurs vives de categorie pour les popups/indicateurs sur la carte (mix 55% original + 45% dark base `#1e1e2e`)
 - Couleur par defaut (toutes categories) : `#5c6a8a`
 - Stocke les sons dans `EphemeralJourneyService` puis navigue vers `/mapfly?ephemeralJourney=true`
@@ -440,6 +440,8 @@ Popup son mobile via `MatBottomSheet` (au lieu du popup Leaflet desktop). Ouvert
 - Journey : dans `.sheet-radar-row` centree sous la navigation prev/next
 - Au clic : `radarActive` signal toggle → `@if (radarActive())` rend un `<div class="sheet-radar-map">` (120px, full width, border-radius 10px)
 - Mini-carte Leaflet autonome creee dans `initRadarMap()` : tuiles ESRI satellite (`World_Imagery`), zoom 2, `L.circleMarker` rouge (#ef4444) a la position du son, toutes interactions desactivees (dragging, zoom, etc.)
+- **Label pays** : tooltip Leaflet permanent (`L.Tooltip`) affiche le nom du pays extrait de `city` (dernier segment apres virgule). Glassmorphism light/dark (`.radar-country-label`)
+- **Visibilite** : meme regle que le minimap desktop — radar masque quand zoom < 5. Signal `currentZoom` mis a jour par `zoomIn()`/`zoomOut()`, computed `showRadar = currentZoom() >= 5`. Auto-fermeture du radar au zoom out (vue mondiale)
 - Destruction propre dans `destroyRadarMap()` et `ngOnDestroy()`
 - Aucune dependance au minimap natif Leaflet — la carte est directement dans le DOM de la bottom sheet (CDK overlay), donc aucun probleme de z-index/stacking context
 
@@ -823,6 +825,15 @@ Preview miniature de la carte pour reperage global. Deux implementations distinc
 | `mapfly.minimap.toggle` | Carte radar | Radar map | Mapa radar |
 | `mapfly.baselayers.title` | Fond de carte | Base map | Mapa base |
 | `mapfly.categories.toggle` | Categories | Categories | Categorias |
+
+### Fond de carte automatique mobile
+
+Sur mobile portrait, le fond de carte bascule automatiquement selon le zoom, sans tenir compte du choix manuel de l'utilisateur :
+- **Zoom <= 6** : ESRI World Imagery (satellite pur, vue mondiale)
+- **Zoom > 6** : Mapbox satellite-streets (satellite avec labels rues)
+- Le parametre URL `basemap` est ignore en mobile (toujours auto satellite)
+- Desktop : le comportement est inchange (bascule auto sauf si l'utilisateur a choisi manuellement)
+- Le handler `zoomend` gere aussi le retrait de la couche OSM si elle etait active
 
 ### WaveSurfer Audio Player (`wavesurfer-player.service.ts`)
 
@@ -1237,10 +1248,10 @@ Grille responsive de cards `app-card-category` (composant reutilisable de la hom
 
 **Breakpoints :**
 - **Desktop** : `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))` — multi-colonnes auto
-- **Grand mobile (431-700px)** : 3 colonnes, gap 12px
-- **Petit/moyen mobile (<= 430px)** : 2 colonnes, gap 10px (couvre Pixel 7 412px, iPhone 375px)
+- **Grands mobiles (390-700px)** : 1 colonne, gap 8px — layout horizontal (icone a gauche, titre a droite) via `::ng-deep` overrides depuis `categories-list.component.scss`
+- **Petits mobiles (< 390px)** : 2 colonnes grille, gap 12px — layout vertical compact (icone centree au-dessus, titre en dessous)
 
-**Card mobile (layout vertical)** :
+**Card petit mobile (layout vertical, < 390px)** :
 - `flex-direction: column` — icone overlay centree au-dessus, titre centre en dessous
 - `white-space: normal` — texte sur plusieurs lignes si necessaire (evite troncature)
 - Overlay 36px, dot 6px, `font-size: 0.72rem`, `border-radius: 12px`
@@ -1248,10 +1259,17 @@ Grille responsive de cards `app-card-category` (composant reutilisable de la hom
 - `mat-card-content` (champ recherche) masque en mobile (`display: none`)
 - Active feedback : `transform: scale(0.97)`
 
+**Card grand mobile (layout horizontal, 390-700px)** :
+- `::ng-deep` overrides dans `categories-list.component.scss` (le composant `card-category` est partage avec la home page)
+- `mat-card-header: flex-direction: row` — icone 40px a gauche + titre a droite
+- `mat-card-title: font-size: 0.88rem; text-align: left; white-space: nowrap`
+- `border-radius: 14px`, padding `12px 16px`
+
 **Container :**
 - Background light : `#F1F2F6` (coherent home page)
 - Background dark : `linear-gradient(180deg, #080a18, #0c0e22, #0a0c1e)` (coherent home)
 - Hero compact : icone 40px, titre `1.1rem; font-weight: 800`, couleur `$logo-dark-blue`
+- Hero icon : memes couleurs que la home page — light `$logo-dark-blue → #1565c0`, dark `#5c6bc0 → #7e57c2` (indigo→violet)
 
 **Animation :** `fadeInUp` stagger par `nth-child` (0.05s * n), 9 cards
 
@@ -1307,6 +1325,9 @@ Les fichiers de drapeaux sont en **MAJUSCULES** dans `public/img/flags/` (`DE.pn
 | `PUBLIC_DOMAIN` | Domaine public | Autorise |
 | `CC_BY` | CC BY | Autorise |
 | `CC_BY_NC` | CC BY-NC | Autorise |
+| `CC_BY_SA` | CC BY-SA | Autorise |
+
+Note : `CC_BY_SA` n'est pas dans l'enum `LicenseType` du schema backend mais existe sur des sons importes de l'ancien projet. Les traductions i18n sont presentes pour toutes les licences.
 
 ### Badge et tooltip
 

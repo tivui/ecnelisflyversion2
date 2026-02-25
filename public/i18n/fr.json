@@ -439,7 +439,10 @@
       "CC_BY_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer correctement l’auteur.",
 
       "CC_BY_NC": "CC BY-NC",
-      "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur."
+      "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur.",
+
+      "CC_BY_SA": "CC BY-SA",
+      "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
     },
     "link-url": "URL",
     "link-title": "Titre du lien",

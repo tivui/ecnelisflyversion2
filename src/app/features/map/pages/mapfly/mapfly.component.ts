@@ -522,13 +522,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
     let userHasSelectedBase = false; // ⚑ drapeau
     let activeBaseLayer: L.TileLayer;
 
-    // Si un basemap est passé dans les query params → on le respecte
-    if (params.has(MAP_QUERY_KEYS.basemap)) {
+    // Mobile : toujours satellite auto (ESRI bas zoom / Mapbox haut zoom)
+    // Desktop : respecte le basemap param si présent
+    if (!this.isMobilePortrait && params.has(MAP_QUERY_KEYS.basemap)) {
       activeBaseLayer =
         baseLayers[basemapKey as keyof typeof baseLayers] ?? this.osm;
       userHasSelectedBase = true;
     } else {
-      // Pas de param → comportement automatique selon le zoom initial
+      // Comportement automatique selon le zoom initial
       if (zoom <= 4) {
         activeBaseLayer = this.esri; // satellite lointain
       } else {
@@ -671,7 +672,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         return;
       }
 
-      userHasSelectedBase = true; // ⚑ l’utilisateur a choisi manuellement
+      userHasSelectedBase = true; // ⚑ l'utilisateur a choisi manuellement
 
       let newBasemapKey = 'osm'; // fallback
       if (e.layer === this.esri) newBasemapKey = 'esri';
@@ -685,9 +686,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
       });
     });
 
-    // 🔭 Changement automatique du fond si l’utilisateur n’a pas choisi manuellement
+    // 🔭 Changement automatique du fond selon le zoom
+    // Mobile : toujours actif (ESRI ↔ Mapbox satellite-streets)
+    // Desktop : seulement si l'utilisateur n'a pas choisi manuellement
     this.map.on('zoomend', () => {
-      if (userHasSelectedBase || this.isSearchActive) return;
+      if (this.isSearchActive) return;
+      if (!this.isMobilePortrait && userHasSelectedBase) return;
 
       const currentZoom = this.map.getZoom();
       const thresholdZoom = 6;
@@ -695,18 +699,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // Recalcule à chaque fois quelle couche est réellement visible
       const hasEsri = this.map.hasLayer(this.esri);
       const hasMapbox = this.map.hasLayer(this.mapbox);
+      const hasOsm = this.map.hasLayer(this.osm);
 
-      // Si on est trop zoomé → Mapbox
+      // Si on est trop zoomé → Mapbox satellite-streets
       if (currentZoom > thresholdZoom && !hasMapbox) {
         if (hasEsri) this.map.removeLayer(this.esri);
+        if (hasOsm) this.map.removeLayer(this.osm);
         isAutoBaseSwitch = true;
         this.map.addLayer(this.mapbox);
         activeBaseLayer = this.mapbox;
       }
 
-      // Si on dézoome → Esri
+      // Si on dézoome → Esri satellite
       else if (currentZoom <= thresholdZoom && !hasEsri) {
         if (hasMapbox) this.map.removeLayer(this.mapbox);
+        if (hasOsm) this.map.removeLayer(this.osm);
         isAutoBaseSwitch = true;
         this.map.addLayer(this.esri);
         activeBaseLayer = this.esri;
@@ -864,13 +871,17 @@ export class MapflyComponent implements OnInit, OnDestroy {
             },
             audioUrl: url, mimeType,
             markerColor: this.categoryColors[category] || '#1976d2',
+            mapZoom: this.map.getZoom(),
             onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, 17),
             onZoomOut: () => this.centerMarkerAboveSheet(s.latitude! > 20 ? s.latitude! : s.latitude! + 30, s.longitude!, 2),
             onAudioPlay: () => this.ambientAudio?.duck?.(),
             onAudioPause: () => this.ambientAudio?.unduck?.(),
           };
           (m as any).__soundSheetData = sheetData;
-          m.on('click', () => this.openSoundSheet(sheetData));
+          m.on('click', () => {
+            sheetData.mapZoom = this.map.getZoom();
+            this.openSoundSheet(sheetData);
+          });
         } else {
           m.bindPopup(`
           <div class="popup-container">
@@ -2185,6 +2196,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       audioUrl: url, mimeType,
       featuredLabel, displayTeasing, soundTeasingI18n: soundTeasingI18n ?? undefined,
       markerColor: '#7c4dff',
+      mapZoom: this.map.getZoom(),
       onZoomIn: () => this.centerMarkerAboveSheet(lat, lng, 17),
       onZoomOut: () => this.centerMarkerAboveSheet(lat > 20 ? lat : lat + 30, lng, 2),
     };
@@ -2669,6 +2681,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       audioUrl: url, mimeType,
       stepIndex, totalSteps: this.totalJourneySteps(), journeyColor: color, themeText,
       markerColor: color,
+      mapZoom: this.map.getZoom(),
       onZoomIn: () => this.centerMarkerAboveSheet(sound.latitude!, sound.longitude!, 17),
       onZoomOut: () => this.centerMarkerAboveSheet(sound.latitude! > 20 ? sound.latitude! : sound.latitude! + 30, sound.longitude!, 2),
       onJourneyPrev: () => { this.activeSheetRef?.dismiss(); this.flyToJourneyStep(stepIndex - 1); },
