@@ -18,6 +18,7 @@ export class StorageService {
   async getSoundUrl(filename: string): Promise<string> {
     const { url } = await getUrl({
       path: `${this.basePath}${filename}`,
+      options: { expiresIn: 3600 },
     });
     return url.toString();
   }

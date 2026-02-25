@@ -7,6 +7,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LikeService } from '../../../../core/services/like.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { StorageService } from '../../../../core/services/storage.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
@@ -257,6 +258,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private el = inject(ElementRef);
+  private storageService = inject(StorageService);
 
   @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
   private playerInstance: WaveSurferPlayerInstance | null = null;
@@ -337,6 +339,11 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
       isDarkTheme: isDark,
       onPlay: () => this.onAudioPlay(),
       onPause: () => this.onAudioPause(),
+      getRefreshUrl: async () => {
+        const freshUrl = await this.storageService.getSoundUrl(this.data.sound.filename);
+        this.data.audioUrl = freshUrl;
+        return freshUrl;
+      },
     });
   }
 
@@ -375,9 +382,10 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     this.isTranslated.set(true);
   }
 
-  download() {
+  async download() {
+    const freshUrl = await this.storageService.getSoundUrl(this.data.sound.filename);
     const a = document.createElement('a');
-    a.href = this.data.audioUrl;
+    a.href = freshUrl;
     a.download = this.data.sound.filename;
     document.body.appendChild(a);
     a.click();

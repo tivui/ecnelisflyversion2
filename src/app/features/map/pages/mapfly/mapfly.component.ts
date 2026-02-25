@@ -1130,9 +1130,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
               ),
             );
           if (downloadBtn)
-            downloadBtn.addEventListener('click', () => {
+            downloadBtn.addEventListener('click', async () => {
+              const freshUrl = await this.storageService.getSoundUrl(s.filename);
               const a = document.createElement('a');
-              a.href = url;
+              a.href = freshUrl;
               a.download = s.filename;
               document.body.appendChild(a);
               a.click();
@@ -1187,6 +1188,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 isDarkTheme: isDark,
                 onPlay: () => this.ambientAudio?.duck?.(),
                 onPause: () => this.ambientAudio?.unduck?.(),
+                getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
               });
             });
           }
@@ -2367,9 +2369,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
           this.map.setView([lat > 20 ? lat : lat + 30, lng], 2),
         );
       if (downloadBtn)
-        downloadBtn.addEventListener('click', () => {
+        downloadBtn.addEventListener('click', async () => {
+          const freshUrl = await this.storageService.getSoundUrl(soundFilename);
           const a = document.createElement('a');
-          a.href = url;
+          a.href = freshUrl;
           a.download = soundFilename;
           document.body.appendChild(a);
           a.click();
@@ -2398,6 +2401,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             isDarkTheme: isDark,
             onPlay: () => this.ambientAudio?.duck?.(),
             onPause: () => this.ambientAudio?.unduck?.(),
+            getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
           });
         });
       }
@@ -2841,6 +2845,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             isDarkTheme: isDark,
             onPlay: () => this.ambientAudio?.duck?.(),
             onPause: () => this.ambientAudio?.unduck?.(),
+            getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
           });
         });
       }

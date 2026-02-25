@@ -6,12 +6,16 @@ export interface WaveSurferPlayerConfig {
   isDarkTheme: boolean;
   onPlay?: () => void;
   onPause?: () => void;
+  /** Called when audio fails to load (expired URL, network error). Return a fresh URL to retry. */
+  getRefreshUrl?: () => Promise<string>;
 }
 
 export interface WaveSurferPlayerInstance {
   ws: WaveSurfer;
   el: HTMLElement;
   destroy: () => void;
+  /** Reload the player with a fresh URL (e.g. after presigned URL expiry). */
+  loadUrl: (newUrl: string) => void;
 }
 
 function formatTime(seconds: number): string {
@@ -110,6 +114,52 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     cursorColor,
   });
 
+  // Error overlay (shown when audio fetch fails — e.g. expired presigned URL)
+  let errorOverlay: HTMLDivElement | null = null;
+
+  function showErrorOverlay() {
+    if (errorOverlay) return;
+    errorOverlay = document.createElement('div');
+    errorOverlay.className = 'ws-error-overlay';
+
+    const icon = document.createElement('span');
+    icon.className = 'material-icons ws-error-icon';
+    icon.textContent = 'cloud_off';
+    errorOverlay.appendChild(icon);
+
+    if (config.getRefreshUrl) {
+      const retryBtn = document.createElement('button');
+      retryBtn.className = 'ws-retry-btn';
+      retryBtn.type = 'button';
+      const retryIcon = document.createElement('span');
+      retryIcon.className = 'material-icons';
+      retryIcon.textContent = 'refresh';
+      retryBtn.appendChild(retryIcon);
+
+      retryBtn.addEventListener('click', async () => {
+        retryBtn.disabled = true;
+        retryIcon.textContent = 'sync';
+        retryIcon.classList.add('ws-spin');
+        try {
+          const freshUrl = await config.getRefreshUrl!();
+          instance.loadUrl(freshUrl);
+        } catch {
+          retryBtn.disabled = false;
+          retryIcon.textContent = 'refresh';
+          retryIcon.classList.remove('ws-spin');
+        }
+      });
+      errorOverlay.appendChild(retryBtn);
+    }
+
+    waveformDiv.appendChild(errorOverlay);
+  }
+
+  function hideErrorOverlay() {
+    errorOverlay?.remove();
+    errorOverlay = null;
+  }
+
   // Event wiring
   let isMuted = false;
 
@@ -141,6 +191,11 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     setTimeout(() => skeleton.remove(), 400);
   });
 
+  ws.on('error', () => {
+    if (ws.isPlaying()) onPause?.();
+    showErrorOverlay();
+  });
+
   // Play/Pause click
   playBtn.addEventListener('click', () => {
     ws.playPause();
@@ -153,15 +208,29 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     muteIcon.textContent = isMuted ? 'volume_off' : 'volume_up';
   });
 
-  return {
+  const instance: WaveSurferPlayerInstance = {
     ws,
     el: wrapper,
-    destroy: () => {
-      // Ensure ambient is unducked if playing
-      if (ws.isPlaying()) {
-        onPause?.();
+    loadUrl: (newUrl: string) => {
+      hideErrorOverlay();
+      // Re-add skeleton for loading state
+      const reloadSkeleton = document.createElement('div');
+      reloadSkeleton.className = 'ws-skeleton';
+      for (let i = 0; i < 5; i++) {
+        reloadSkeleton.appendChild(document.createElement('span'));
       }
+      waveformDiv.prepend(reloadSkeleton);
+      ws.once('ready', () => {
+        reloadSkeleton.classList.add('ws-skeleton-out');
+        setTimeout(() => reloadSkeleton.remove(), 400);
+      });
+      ws.load(newUrl);
+    },
+    destroy: () => {
+      if (ws.isPlaying()) onPause?.();
       ws.destroy();
     },
   };
+
+  return instance;
 }
