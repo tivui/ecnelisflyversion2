@@ -441,6 +441,12 @@
     box-shadow:
       0 1px 8px rgba(0, 0, 0, 0.22),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    // Fond sombre explicite pour que les barres rgba(255,255,255,0.50) restent visibles
+    .ws-waveform {
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: 5px;
+    }
   }
 }
 

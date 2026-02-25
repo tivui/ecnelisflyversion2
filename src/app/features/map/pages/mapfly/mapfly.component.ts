@@ -969,6 +969,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
         // --- Popup logic (desktop only — mobile uses BottomSheet) ---
         if (!this.isMobilePortrait) {
         m.on('popupopen', () => {
+          // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
+          // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
+          // le flag _isRepositioningMarker permet de l'ignorer.
+          if (this.markersCluster.hasLayer(m)) {
+            this._isRepositioningMarker = true;
+            this.markersCluster.removeLayer(m); // popupclose intermédiaire ignoré via flag
+            this._isRepositioningMarker = false;
+            if (!this.map.hasLayer(m)) this.map.addLayer(m);
+            m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
+            return;
+          }
+
           const titleEl = document.getElementById(`title-${s.filename}`);
           const shortStoryEl = document.getElementById(
             `shortStory-${s.filename}`,
@@ -1191,6 +1203,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 onPause: () => this.ambientAudio?.unduck?.(),
                 getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
               });
+              this.startThemeObserver();
             });
           }
 
@@ -1207,8 +1220,20 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
           // --- Cleanup ---
           m.on('popupclose', () => {
+            // Ignorer le close intermédiaire déclenché pendant le repositionnement hors cluster
+            if (this._isRepositioningMarker) return;
+
+            // Remettre le marker dans le cluster quand la popup se ferme réellement
+            if (this.map.hasLayer(m)) {
+              this.map.removeLayer(m);
+              if (!this.markersCluster.hasLayer(m)) {
+                this.markersCluster.addLayer(m);
+              }
+            }
+
             recordSub.unsubscribe();
             translateSub.unsubscribe();
+            this.stopThemeObserver();
             this.activePopupPlayer?.destroy();
             this.activePopupPlayer = null;
           });
@@ -1403,6 +1428,28 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   /** Traduit un code de licence — fallback vers le code brut si la clé est manquante */
   /** Câble le bouton "Lire plus / Lire moins" sur un paragraphe de description popup */
+
+  /** Démarre un MutationObserver qui met à jour les couleurs WaveSurfer au changement de thème */
+  private startThemeObserver(): void {
+    this._themeObserver?.disconnect();
+    this._themeObserver = new MutationObserver(() => {
+      if (!this.activePopupPlayer) return;
+      const isDark = document.body.classList.contains('dark-theme');
+      this.activePopupPlayer.ws.setOptions({
+        waveColor: isDark ? 'rgba(255,255,255,0.50)' : 'rgba(0,0,0,0.20)',
+        progressColor: isDark ? '#90caf9' : '#1976d2',
+        cursorColor: isDark ? '#90caf9' : '#1976d2',
+      });
+    });
+    this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /** Arrête l'observer de thème */
+  private stopThemeObserver(): void {
+    this._themeObserver?.disconnect();
+    this._themeObserver = null;
+  }
+
   private wireReadMore(storyId: string, btnId: string): void {
     const storyEl = document.getElementById(storyId);
     const btn = document.getElementById(btnId) as HTMLButtonElement | null;
@@ -1737,6 +1784,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private popupAudioPlayHandler: ((e: Event) => void) | null = null;
   private popupAudioPauseHandler: ((e: Event) => void) | null = null;
   private activePopupPlayer: WaveSurferPlayerInstance | null = null;
+  /** Flag: true pendant le déplacement d'un marker hors du cluster (popupclose intermédiaire à ignorer) */
+  private _isRepositioningMarker = false;
+  /** Observer qui met à jour les couleurs WaveSurfer quand le thème change pendant qu'une popup est ouverte */
+  private _themeObserver: MutationObserver | null = null;
   private popupFadeTimer: ReturnType<typeof setInterval> | null = null;
   private fadingOutAudio: HTMLAudioElement | null = null;
 
@@ -2444,11 +2495,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
           });
+          this.startThemeObserver();
         });
       }
     });
 
     marker.on('popupclose', () => {
+      this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
     });
@@ -2891,11 +2944,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
           });
+          this.startThemeObserver();
         });
       }
     });
 
     marker.on('popupclose', () => {
+      this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
     });
