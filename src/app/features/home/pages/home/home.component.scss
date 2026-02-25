@@ -768,7 +768,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
   .hero-card-cta {
     color: #5c6a8a;
-    :host-context(body.dark-theme) & { color: #a0b0cc; }
+    :host-context(body.dark-theme) & { color: #8fb4d8; }
   }
 }
 
@@ -1228,7 +1228,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     background: linear-gradient(90deg, $primary-indigo 0%, #7c4dff 50%, #b388ff 100%);
   }
   .hero-cards-secondary .hero-card-journey::before {
-    background: linear-gradient(90deg, $primary-indigo 0%, #5c6a8a 50%, #a0b0cc 100%);
+    background: linear-gradient(90deg, $primary-indigo 0%, #5c6a8a 50%, #8fb4d8 100%);
   }
   .hero-cards-secondary .hero-card-article::before {
     background: linear-gradient(90deg, $primary-indigo 0%, $accent-article 50%, $accent-article-light 100%);
@@ -1294,8 +1294,8 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
     :host-context(body.dark-theme) & {
       background: rgba(#5c6a8a, 0.16);
-      border-color: rgba(#a0b0cc, 0.25);
-      color: #a0b0cc !important;
+      border-color: rgba(#8fb4d8, 0.25);
+      color: #8fb4d8 !important;
     }
   }
 
@@ -2020,7 +2020,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     // Per-card border accent colors (dark) — left + right
     :host-context(body.dark-theme) & {
       .hero-card-featured { border-left-color: rgba(#b388ff, 0.60); border-right-color: rgba(#b388ff, 0.60); }
-      .hero-card-journey { border-left-color: rgba(#a0b0cc, 0.50); border-right-color: rgba(#a0b0cc, 0.50); }
+      .hero-card-journey { border-left-color: rgba(#8fb4d8, 0.50); border-right-color: rgba(#8fb4d8, 0.50); }
       .hero-card-quiz { border-left-color: rgba(#66bb6a, 0.50); border-right-color: rgba(#66bb6a, 0.50); }
       .hero-card-article { border-left-color: rgba($accent-article-light, 0.50); border-right-color: rgba($accent-article-light, 0.50); }
       .hero-card-monthly-zone { border-left-color: rgba(#fbbf24, 0.50); border-right-color: rgba(#fbbf24, 0.50); }
@@ -2113,8 +2113,8 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
         mat-icon { color: #b388ff; }
       }
       .hero-card-journey .hero-card-icon {
-        background: rgba(#a0b0cc, 0.18);
-        mat-icon { color: #a0b0cc; }
+        background: rgba(#8fb4d8, 0.18);
+        mat-icon { color: #8fb4d8; }
       }
       .hero-card-quiz .hero-card-icon {
         background: rgba(#66bb6a, 0.18);

@@ -51,6 +51,9 @@ export interface SoundPopupSheetData {
   // Marker color (for selection circle)
   markerColor?: string;
 
+  // Current map zoom level (for radar visibility)
+  mapZoom?: number;
+
   // Callbacks to mapfly (map actions)
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -120,7 +123,7 @@ export interface SoundPopupSheetData {
         <!-- Action buttons centered (non-journey) -->
         @if (data.type !== 'journey') {
           <div class="sheet-actions-bar">
-            <button class="sheet-action-btn" (click)="data.onZoomOut()">
+            <button class="sheet-action-btn" (click)="zoomOut()">
               <span class="material-icons">remove</span>
             </button>
             <span class="btn-divider"></span>
@@ -133,12 +136,14 @@ export interface SoundPopupSheetData {
               <button class="sheet-action-btn" (click)="share()">
                 <span class="material-icons">share</span>
               </button>
-              <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
-                <span class="material-icons">radar</span>
-              </button>
+              @if (showRadar()) {
+                <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
+                  <span class="material-icons">radar</span>
+                </button>
+              }
             </div>
             <span class="btn-divider"></span>
-            <button class="sheet-action-btn" (click)="data.onZoomIn()">
+            <button class="sheet-action-btn" (click)="zoomIn()">
               <span class="material-icons">add</span>
             </button>
           </div>
@@ -167,11 +172,13 @@ export interface SoundPopupSheetData {
               </button>
             }
           </div>
-          <div class="sheet-radar-row">
-            <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
-              <span class="material-icons">radar</span>
-            </button>
-          </div>
+          @if (showRadar()) {
+            <div class="sheet-radar-row">
+              <button class="radar-toggle-btn" [class.active]="radarActive()" (click)="toggleRadar()">
+                <span class="material-icons">radar</span>
+              </button>
+            </div>
+          }
         }
 
         <!-- Embedded radar mini-map (all modes) -->
@@ -275,6 +282,8 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   showLicenseTooltip = signal(false);
   radarActive = signal(false);
   private radarMap: L.Map | null = null;
+  currentZoom = signal(this.data.mapZoom ?? 17);
+  showRadar = computed(() => this.currentZoom() >= 5);
 
   likeIcon = computed(() =>
     this.isLiked()
@@ -416,6 +425,21 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     this.data.onAudioPause?.();
   }
 
+  zoomIn() {
+    this.data.onZoomIn();
+    this.currentZoom.set(17);
+  }
+
+  zoomOut() {
+    this.data.onZoomOut();
+    this.currentZoom.set(2);
+    // Auto-close radar at world view (same rule as desktop)
+    if (this.radarActive()) {
+      this.radarActive.set(false);
+      this.destroyRadarMap();
+    }
+  }
+
   toggleRadar() {
     const willShow = !this.radarActive();
     this.radarActive.set(willShow);
@@ -454,7 +478,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     }).addTo(this.radarMap);
 
     // Red dot at the sound's location
-    L.circleMarker([lat, lng], {
+    const marker = L.circleMarker([lat, lng], {
       radius: 6,
       color: '#ef4444',
       fillColor: '#ef4444',
@@ -462,6 +486,18 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
       weight: 2,
       interactive: false,
     }).addTo(this.radarMap);
+
+    // Country label from city field ("City, Country" format)
+    const country = this.extractCountry();
+    if (country) {
+      const isDark = document.body.classList.contains('dark-theme');
+      marker.bindTooltip(country, {
+        permanent: true,
+        direction: 'right',
+        offset: [8, 0],
+        className: isDark ? 'radar-country-label dark' : 'radar-country-label',
+      });
+    }
 
     // Ensure tiles render correctly after DOM insertion
     setTimeout(() => this.radarMap?.invalidateSize(), 100);
@@ -472,6 +508,13 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
       this.radarMap.remove();
       this.radarMap = null;
     }
+  }
+
+  private extractCountry(): string {
+    const city = this.data.sound.city;
+    if (!city) return '';
+    const parts = city.split(',');
+    return parts.length > 1 ? parts[parts.length - 1].trim() : city.trim();
   }
 
   private parseI18n(field?: string | Record<string, string>): Record<string, string> | undefined {
