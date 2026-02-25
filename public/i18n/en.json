@@ -441,7 +441,10 @@
       "CC_BY_NC_tooltip": "You may share and adapt the content for non-commercial purposes only, with attribution to the author.",
 
       "CC_BY_SA": "CC BY-SA",
-      "CC_BY_SA_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license."
+      "CC_BY_SA_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
+
+      "CC_BY_SA_NDH": "CC BY-SA",
+      "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license."
     },
     "link-url": "URL",
     "link-title": "Link title",

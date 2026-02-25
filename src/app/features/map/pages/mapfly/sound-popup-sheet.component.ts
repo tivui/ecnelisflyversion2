@@ -236,10 +236,10 @@ export interface SoundPopupSheetData {
         @if (data.sound.license) {
           <span class="sheet-license-badge" (click)="toggleLicenseTooltip()">
             <span class="material-icons license-icon">copyright</span>
-            {{ 'sound.licenses.' + data.sound.license | translate }}
-            @if (showLicenseTooltip()) {
+            {{ licenseLabel(data.sound.license!) }}
+            @if (showLicenseTooltip() && licenseTooltip(data.sound.license!)) {
               <span class="license-tooltip">
-                {{ 'sound.licenses.' + data.sound.license + '_tooltip' | translate }}
+                {{ licenseTooltip(data.sound.license!) }}
               </span>
             }
           </span>
@@ -359,6 +359,20 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
 
   toggleLicenseTooltip() {
     this.showLicenseTooltip.update(v => !v);
+  }
+
+  /** Traduit un code de licence — fallback vers le code brut si la clé est manquante */
+  licenseLabel(license: string): string {
+    const key = `sound.licenses.${license}`;
+    const t = this.translateService.instant(key);
+    return t === key ? license : t;
+  }
+
+  /** Traduit le tooltip d'une licence — chaîne vide si clé manquante */
+  licenseTooltip(license: string): string {
+    const key = `sound.licenses.${license}_tooltip`;
+    const t = this.translateService.instant(key);
+    return t === key ? '' : t;
   }
 
   async toggleLike() {
