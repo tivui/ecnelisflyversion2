@@ -442,7 +442,10 @@
       "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur.",
 
       "CC_BY_SA": "CC BY-SA",
-      "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
+      "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
+
+      "CC_BY_SA_NDH": "CC BY-SA",
+      "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
     },
     "link-url": "URL",
     "link-title": "Titre du lien",
@@ -1005,6 +1008,10 @@
     "share": {
       "button": "Partager",
       "copied": "Lien copié !"
+    },
+    "popup": {
+      "readMore": "Lire plus",
+      "readLess": "Lire moins"
     },
     "timeFilter": {
       "title": "Filtrer par période",

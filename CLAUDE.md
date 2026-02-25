@@ -879,9 +879,45 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 
 - Propriete `activePopupPlayer: WaveSurferPlayerInstance | null`
 - HTML : `<div class="ws-popup-player" id="ws-player-${id}"></div>`
-- `popupopen` : `requestAnimationFrame(() => createWaveSurferPlayer(...))` — attend que le DOM popup soit pret
-- `popupclose` : `activePopupPlayer.destroy()` + null
+- `popupopen` : `requestAnimationFrame(() => { createWaveSurferPlayer(...); startThemeObserver(); })` — attend que le DOM popup soit pret, puis demarre l'observer de theme
+- `popupclose` : `stopThemeObserver(); activePopupPlayer.destroy(); null`
 - 3 types : normal, featured, journey — meme pattern
+
+#### Encadrement WaveSurfer desktop (`.ws-popup-player`)
+
+Container stylise dans `map.scss` (desktop uniquement, absent du bottom sheet mobile) :
+- `border-radius: 10px`, `padding: 10px 12px`, `margin-bottom: 2px`
+- Light : fond `rgba(25,118,210,0.04)`, border `rgba(25,118,210,0.12)`, `.ws-waveform { background: rgba(255,255,255,0.82) }` (contraste pour barres grises)
+- Dark : fond `rgba(255,255,255,0.04)`, border `rgba(255,255,255,0.08)`, `.ws-waveform { background: rgba(0,0,0,0.28) }` (contraste pour barres blanches)
+
+#### Mise a jour couleurs au changement de theme
+
+`startThemeObserver()` / `stopThemeObserver()` dans `mapfly.component.ts` :
+- `MutationObserver` sur `document.body` (`attributeFilter: ['class']`)
+- Au changement de classe thème, appelle `activePopupPlayer.ws.setOptions({ waveColor, progressColor, cursorColor })` avec les bonnes couleurs
+- Observer demarre au `popupopen` (apres creation WaveSurfer), s'arrete au `popupclose`
+- Evite de fermer/rouvrir la popup pour actualiser les couleurs des waves
+
+#### Description tronquee — "Lire plus / Lire moins"
+
+- `p.popup-shortstory` : `max-height: 5.6em; overflow: hidden; transition: max-height 0.35s ease` (4 lignes max)
+- `.expanded` : `max-height: 1000px` (expansion)
+- Bouton `.popup-read-more-btn` : affiche uniquement si `scrollHeight > clientHeight + 2` (verifie le debordement reel)
+- Methode `wireReadMore(storyId, btnId)` dans `mapfly.component.ts` : cable le toggle Lire plus/moins
+- Appelee dans les 3 callbacks `popupopen` (normal, featured, journey)
+- i18n : `mapfly.popup.readMore` / `mapfly.popup.readLess` (FR/EN/ES)
+
+#### Anti-clustering popup (piege connu)
+
+Quand un marker passe dans un cluster pendant que sa popup est ouverte, Leaflet ferme la popup.
+
+**Solution** : au `popupopen`, le marker est retire de `markersCluster` et ajoute directement au `map` (non-clusterisable). Au `popupclose`, il est remis dans `markersCluster`.
+
+- `_isRepositioningMarker: boolean` — flag pour ignorer le `popupclose` synchrone declenche par `markersCluster.removeLayer(m)`
+- `markersCluster.removeLayer(m)` declenche `popupclose` de facon synchrone en JS (single-thread) → le flag est lu avant que la ligne suivante s'execute
+- `m.openPopup()` re-declenche `popupopen` sur le marker hors-cluster → WaveSurfer initialise normalement au 2eme appel
+- Au `popupclose` reel : `map.removeLayer(m)` + `markersCluster.addLayer(m)` — marker retourne au comportement cluster normal
+- Concerne uniquement les markers normaux (fgAll/fg1-fg9) — featured et journey sont deja sur `map` directement
 
 #### Integration mobile (bottom sheet Angular)
 

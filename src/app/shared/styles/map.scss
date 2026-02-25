@@ -121,7 +121,29 @@
     line-height: 1.4;
     text-align: justify;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    max-height: 5.6em; // 4 lignes × 1.4 line-height — collapsed by default
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+
+    &.expanded {
+      max-height: 1000px;
+    }
+  }
+
+  .popup-read-more-btn {
+    display: none; // affiché par JS uniquement si le texte déborde
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0 0 6px;
+    letter-spacing: 0.01em;
+
+    body.light-theme & { color: #1976d2; }
+    body.dark-theme & { color: #90caf9; }
+    &:hover { text-decoration: underline; }
   }
 
   /* WaveSurfer player container */
@@ -248,7 +270,7 @@
     align-items: center;
     justify-content: center;
     width: fit-content;
-    margin: 4px auto 0;
+    margin: 4px auto 12px;
     font-size: 0.7rem;
     font-weight: 600;
     padding: 3px 8px;
@@ -339,7 +361,7 @@
 
     .btn-divider {
       width: 1px;
-      height: 20px;
+      height: 24px;
       background: rgba(0, 0, 0, 0.12);
 
       body.dark-theme & {
@@ -351,8 +373,8 @@
     .download-btn,
     .share-btn {
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       border: none;
       cursor: pointer;
       display: flex;
@@ -361,7 +383,7 @@
       padding: 0;
       transition: background 0.15s;
 
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1;
 
       // --- Light theme ---
@@ -389,6 +411,41 @@
           background: rgba(144, 202, 249, 0.25);
         }
       }
+    }
+  }
+}
+
+/* WaveSurfer popup container — desktop only (classe absente du bottom sheet mobile) */
+.ws-popup-player {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+
+  body.light-theme & {
+    background: rgba(25, 118, 210, 0.04);
+    border: 1px solid rgba(25, 118, 210, 0.12);
+    box-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.80);
+
+    // Fond blanc sur le canvas pour que les barres rgba(0,0,0,0.20) restent visibles
+    .ws-waveform {
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 5px;
+    }
+  }
+
+  body.dark-theme & {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 1px 8px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    // Fond sombre explicite pour que les barres rgba(255,255,255,0.50) restent visibles
+    .ws-waveform {
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: 5px;
     }
   }
 }

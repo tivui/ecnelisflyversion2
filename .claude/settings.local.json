@@ -36,7 +36,9 @@
       "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show main:amplify/data/resource.ts)",
       "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 log --all --oneline)",
       "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 diff main HEAD -- amplify/data/resource.ts)",
-      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show fda664d:amplify/data/resource.ts)"
+      "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show fda664d:amplify/data/resource.ts)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }

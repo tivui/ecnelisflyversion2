@@ -893,11 +893,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
               </div>
             </div>
             <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
+            <button class="popup-read-more-btn" id="rmb-${s.filename}"></button>
             <div id="btn-container-title-${s.filename}"></div>
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-            ${s.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + s.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + s.license + '_tooltip')}</span></span>` : ''}
+            ${s.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(s.license)}<span class="license-tooltip">${this.licenseTooltip(s.license)}</span></span>` : ''}
             <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
               <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
@@ -968,6 +969,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
         // --- Popup logic (desktop only — mobile uses BottomSheet) ---
         if (!this.isMobilePortrait) {
         m.on('popupopen', () => {
+          // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
+          // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
+          // le flag _isRepositioningMarker permet de l'ignorer.
+          if (this.markersCluster.hasLayer(m)) {
+            this._isRepositioningMarker = true;
+            this.markersCluster.removeLayer(m); // popupclose intermédiaire ignoré via flag
+            this._isRepositioningMarker = false;
+            if (!this.map.hasLayer(m)) this.map.addLayer(m);
+            m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
+            return;
+          }
+
           const titleEl = document.getElementById(`title-${s.filename}`);
           const shortStoryEl = document.getElementById(
             `shortStory-${s.filename}`,
@@ -1190,8 +1203,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 onPause: () => this.ambientAudio?.unduck?.(),
                 getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
               });
+              this.startThemeObserver();
             });
           }
+
+          // --- Read more toggle ---
+          this.wireReadMore(`shortStory-${s.filename}`, `rmb-${s.filename}`);
 
           // --- Subscriptions ---
           const recordSub = this.appUserService.currentUser$.subscribe(() =>
@@ -1203,8 +1220,20 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
           // --- Cleanup ---
           m.on('popupclose', () => {
+            // Ignorer le close intermédiaire déclenché pendant le repositionnement hors cluster
+            if (this._isRepositioningMarker) return;
+
+            // Remettre le marker dans le cluster quand la popup se ferme réellement
+            if (this.map.hasLayer(m)) {
+              this.map.removeLayer(m);
+              if (!this.markersCluster.hasLayer(m)) {
+                this.markersCluster.addLayer(m);
+              }
+            }
+
             recordSub.unsubscribe();
             translateSub.unsubscribe();
+            this.stopThemeObserver();
             this.activePopupPlayer?.destroy();
             this.activePopupPlayer = null;
           });
@@ -1395,6 +1424,61 @@ export class MapflyComponent implements OnInit, OnDestroy {
   clearSearch() {
     this.searchQuery.set('');
     this.searchResults.set([]);
+  }
+
+  /** Traduit un code de licence — fallback vers le code brut si la clé est manquante */
+  /** Câble le bouton "Lire plus / Lire moins" sur un paragraphe de description popup */
+
+  /** Démarre un MutationObserver qui met à jour les couleurs WaveSurfer au changement de thème */
+  private startThemeObserver(): void {
+    this._themeObserver?.disconnect();
+    this._themeObserver = new MutationObserver(() => {
+      if (!this.activePopupPlayer) return;
+      const isDark = document.body.classList.contains('dark-theme');
+      this.activePopupPlayer.ws.setOptions({
+        waveColor: isDark ? 'rgba(255,255,255,0.50)' : 'rgba(0,0,0,0.20)',
+        progressColor: isDark ? '#90caf9' : '#1976d2',
+        cursorColor: isDark ? '#90caf9' : '#1976d2',
+      });
+    });
+    this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /** Arrête l'observer de thème */
+  private stopThemeObserver(): void {
+    this._themeObserver?.disconnect();
+    this._themeObserver = null;
+  }
+
+  private wireReadMore(storyId: string, btnId: string): void {
+    const storyEl = document.getElementById(storyId);
+    const btn = document.getElementById(btnId) as HTMLButtonElement | null;
+    if (!storyEl || !btn) return;
+    requestAnimationFrame(() => {
+      if (storyEl.scrollHeight > storyEl.clientHeight + 2) {
+        const more = this.translate.instant('mapfly.popup.readMore');
+        const less = this.translate.instant('mapfly.popup.readLess');
+        btn.textContent = more;
+        btn.style.display = 'block';
+        btn.addEventListener('click', () => {
+          const expanded = storyEl.classList.toggle('expanded');
+          btn.textContent = expanded ? less : more;
+        });
+      }
+    });
+  }
+
+  private licenseLabel(license: string): string {
+    const key = `sound.licenses.${license}`;
+    const t = this.translate.instant(key);
+    return t === key ? license : t;
+  }
+
+  /** Traduit le tooltip d'une licence — chaîne vide si clé manquante */
+  private licenseTooltip(license: string): string {
+    const key = `sound.licenses.${license}_tooltip`;
+    const t = this.translate.instant(key);
+    return t === key ? '' : t;
   }
 
   private parseI18n(field?: string | Record<string, string>) {
@@ -1700,6 +1784,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private popupAudioPlayHandler: ((e: Event) => void) | null = null;
   private popupAudioPauseHandler: ((e: Event) => void) | null = null;
   private activePopupPlayer: WaveSurferPlayerInstance | null = null;
+  /** Flag: true pendant le déplacement d'un marker hors du cluster (popupclose intermédiaire à ignorer) */
+  private _isRepositioningMarker = false;
+  /** Observer qui met à jour les couleurs WaveSurfer quand le thème change pendant qu'une popup est ouverte */
+  private _themeObserver: MutationObserver | null = null;
   private popupFadeTimer: ReturnType<typeof setInterval> | null = null;
   private fadingOutAudio: HTMLAudioElement | null = null;
 
@@ -2218,11 +2306,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         <p class="popup-shortstory" id="shortStory-${soundFilename}">${displayTeasing}</p>
+        <button class="popup-read-more-btn" id="rmb-featured-${soundFilename}"></button>
         <div id="btn-container-title-${soundFilename}"></div>
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${s?.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + s.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + s.license + '_tooltip')}</span></span>` : ''}
+        ${s?.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(s.license)}<span class="license-tooltip">${this.licenseTooltip(s.license)}</span></span>` : ''}
         <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
           <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
@@ -2389,6 +2478,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
           }).catch(() => {});
         });
 
+      // --- Read more toggle ---
+      this.wireReadMore(`shortStory-${soundFilename}`, `rmb-featured-${soundFilename}`);
+
       // --- WaveSurfer player ---
       const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
       if (wsContainer) {
@@ -2403,11 +2495,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
           });
+          this.startThemeObserver();
         });
       }
     });
 
     marker.on('popupclose', () => {
+      this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
     });
@@ -2707,11 +2801,11 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
-        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p>` : ''}
+        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p><button class="popup-read-more-btn" id="rmb-journey-${stepIndex}"></button>` : ''}
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${sound.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.translate.instant('sound.licenses.' + sound.license)}<span class="license-tooltip">${this.translate.instant('sound.licenses.' + sound.license + '_tooltip')}</span></span>` : ''}
+        ${sound.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(sound.license)}<span class="license-tooltip">${this.licenseTooltip(sound.license)}</span></span>` : ''}
         <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
           ${prevBtnHtml}
@@ -2833,6 +2927,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
         });
       }
 
+      // --- Read more toggle ---
+      this.wireReadMore(`journey-story-${stepIndex}`, `rmb-journey-${stepIndex}`);
+
       // --- WaveSurfer player ---
       const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
       if (wsContainer) {
@@ -2847,11 +2944,13 @@ export class MapflyComponent implements OnInit, OnDestroy {
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
           });
+          this.startThemeObserver();
         });
       }
     });
 
     marker.on('popupclose', () => {
+      this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
     });
