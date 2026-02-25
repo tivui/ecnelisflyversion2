@@ -1009,6 +1009,10 @@
       "button": "Partager",
       "copied": "Lien copié !"
     },
+    "popup": {
+      "readMore": "Lire plus",
+      "readLess": "Lire moins"
+    },
     "timeFilter": {
       "title": "Filtrer par période",
       "all": "Tous",

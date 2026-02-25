@@ -1008,6 +1008,10 @@
       "button": "Share",
       "copied": "Link copied!"
     },
+    "popup": {
+      "readMore": "Read more",
+      "readLess": "Read less"
+    },
     "timeFilter": {
       "title": "Filter by period",
       "all": "All",

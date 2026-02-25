@@ -999,6 +999,10 @@
       "button": "Compartir",
       "copied": "¡Enlace copiado!"
     },
+    "popup": {
+      "readMore": "Leer más",
+      "readLess": "Leer menos"
+    },
     "timeFilter": {
       "title": "Filtrar por período",
       "all": "Todos",

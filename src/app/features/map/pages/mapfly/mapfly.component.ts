@@ -893,6 +893,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
               </div>
             </div>
             <p class="popup-shortstory" id="shortStory-${s.filename}">${s.shortStory ?? ''}</p>
+            <button class="popup-read-more-btn" id="rmb-${s.filename}"></button>
             <div id="btn-container-title-${s.filename}"></div>
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
@@ -1193,6 +1194,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
             });
           }
 
+          // --- Read more toggle ---
+          this.wireReadMore(`shortStory-${s.filename}`, `rmb-${s.filename}`);
+
           // --- Subscriptions ---
           const recordSub = this.appUserService.currentUser$.subscribe(() =>
             updateRecordInfo(),
@@ -1398,6 +1402,25 @@ export class MapflyComponent implements OnInit, OnDestroy {
   }
 
   /** Traduit un code de licence — fallback vers le code brut si la clé est manquante */
+  /** Câble le bouton "Lire plus / Lire moins" sur un paragraphe de description popup */
+  private wireReadMore(storyId: string, btnId: string): void {
+    const storyEl = document.getElementById(storyId);
+    const btn = document.getElementById(btnId) as HTMLButtonElement | null;
+    if (!storyEl || !btn) return;
+    requestAnimationFrame(() => {
+      if (storyEl.scrollHeight > storyEl.clientHeight + 2) {
+        const more = this.translate.instant('mapfly.popup.readMore');
+        const less = this.translate.instant('mapfly.popup.readLess');
+        btn.textContent = more;
+        btn.style.display = 'block';
+        btn.addEventListener('click', () => {
+          const expanded = storyEl.classList.toggle('expanded');
+          btn.textContent = expanded ? less : more;
+        });
+      }
+    });
+  }
+
   private licenseLabel(license: string): string {
     const key = `sound.licenses.${license}`;
     const t = this.translate.instant(key);
@@ -2232,6 +2255,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         <p class="popup-shortstory" id="shortStory-${soundFilename}">${displayTeasing}</p>
+        <button class="popup-read-more-btn" id="rmb-featured-${soundFilename}"></button>
         <div id="btn-container-title-${soundFilename}"></div>
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
@@ -2402,6 +2426,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
             this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
           }).catch(() => {});
         });
+
+      // --- Read more toggle ---
+      this.wireReadMore(`shortStory-${soundFilename}`, `rmb-featured-${soundFilename}`);
 
       // --- WaveSurfer player ---
       const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
@@ -2721,7 +2748,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
           </div>
         </div>
         ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
-        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p>` : ''}
+        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p><button class="popup-read-more-btn" id="rmb-journey-${stepIndex}"></button>` : ''}
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
@@ -2846,6 +2873,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
           this.router.navigate(['/journeys']);
         });
       }
+
+      // --- Read more toggle ---
+      this.wireReadMore(`journey-story-${stepIndex}`, `rmb-journey-${stepIndex}`);
 
       // --- WaveSurfer player ---
       const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
