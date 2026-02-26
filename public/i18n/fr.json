@@ -73,7 +73,9 @@
     "soundQuiz": "Quiz",
     "soundArticles": "Articles",
     "categories": "Catégories",
-    "support": "Soutenir"
+    "support": "Soutenir",
+    "facebook": "Nous suivre sur Facebook",
+    "instagram": "Nous suivre sur Instagram"
   },
   "bottomNav": {
     "home": "Accueil",
@@ -514,7 +516,18 @@
       "rejectError": "Erreur lors du rejet",
       "tabs": {
         "stats": "Statistiques",
-        "moderation": "Modération"
+        "moderation": "Modération",
+        "cognito": "Utilisateurs"
+      },
+      "cognito": {
+        "total": "Inscrits Cognito",
+        "newWeek": "Nouveaux cette semaine",
+        "newMonth": "Nouveaux ce mois",
+        "emailUsers": "Email / password",
+        "oauthUsers": "Google OAuth",
+        "registrationsOverTime": "Inscriptions sur 12 mois",
+        "providerBreakdown": "Répartition par fournisseur",
+        "error": "Impossible de charger les stats Cognito"
       },
       "noPending": "Aucun son en attente de validation",
       "details": "Détails",

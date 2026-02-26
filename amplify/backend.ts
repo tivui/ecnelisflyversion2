@@ -1,7 +1,8 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
+import { CfnBucket } from 'aws-cdk-lib/aws-s3';
+import { listCognitoUsers } from './functions/list-cognito-users/resource';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
 import { storage } from './storage/resource';
@@ -28,10 +29,48 @@ const backend = defineBackend({
   startImport,
   processImport,
   fixImportedUsers,
+  listCognitoUsers,
 });
 
-// TODO: Configurer SES quand le domaine ecnelisfly.com sera rattaché
-// const { cfnUserPool } = backend.auth.resources.cfnResources;
+// ➡ Templates email Cognito (verification + reset password)
+const { cfnUserPool } = backend.auth.resources.cfnResources;
+
+cfnUserPool.emailVerificationSubject = 'Vérifiez votre compte Ecnelis FLY 🎧';
+cfnUserPool.emailVerificationMessage = `
+<html><head><meta charset="UTF-8"><style>
+body{font-family:sans-serif;background:#f1f2f6;margin:0;padding:20px}
+.card{max-width:480px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.header{background:linear-gradient(135deg,#1976d2,#3f51b5,#7e57c2);padding:32px 24px;text-align:center}
+.logo{height:52px}
+.title{color:#fff;font-size:1.3rem;font-weight:800;margin:10px 0 0}
+.body{padding:32px 24px;color:#333}
+.code{display:block;font-size:2rem;font-weight:900;text-align:center;letter-spacing:10px;color:#1976d2;background:#e3f2fd;border-radius:12px;padding:16px;margin:24px 0}
+.note{font-size:.82rem;color:#888}
+.footer{background:#f8f9fa;padding:12px 24px;text-align:center;font-size:.75rem;color:#aaa}
+a{color:#1976d2;text-decoration:none}
+</style></head><body>
+<div class="card">
+  <div class="header">
+    <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" class="logo">
+    <div class="title">🎧 Ecnelis FLY</div>
+  </div>
+  <div class="body">
+    <p>Merci de rejoindre <strong>Ecnelis FLY</strong>, la plateforme d'exploration sonore géolocalisée.</p>
+    <p>Votre code de vérification est :</p>
+    <span class="code">{####}</span>
+    <p class="note">Ce code expire dans 24 heures. Si vous n'avez pas créé de compte, ignorez cet email.</p>
+  </div>
+  <div class="footer">© 2025 Ecnelis FLY · <a href="https://www.ecnelisfly.com">ecnelisfly.com</a></div>
+</div>
+</body></html>
+`;
+
+// TODO: Activer SES quand le domaine ecnelisfly.com sera vérifié dans AWS SES Console
+// Étapes :
+//   1. Vérifier ecnelisfly.com dans SES Console (DNS CNAME + DKIM sur OVH)
+//   2. Sortir du sandbox SES (demande AWS support)
+//   3. Décommenter le bloc ci-dessous et redéployer
+// const { Stack } = require('aws-cdk-lib');
 // const region = Stack.of(backend.auth.resources.userPool).region;
 // const accountId = Stack.of(backend.auth.resources.userPool).account;
 // cfnUserPool.emailConfiguration = {
@@ -118,5 +157,35 @@ fixImportedUsersLambda.addToRolePolicy(
 fixImportedUsersLambda.addEnvironment(
   'ECNELISFLY_STORAGE_BUCKET_NAME',
   storageBucket.bucketName,
+);
+
+// ➡ Versioning S3 + lifecycle rule (suppression des anciennes versions après 90 jours)
+const cfnBucket = storageBucket.node.defaultChild as CfnBucket;
+
+cfnBucket.versioningConfiguration = { status: 'Enabled' };
+
+cfnBucket.addPropertyOverride('LifecycleConfiguration', {
+  Rules: [
+    {
+      Status: 'Enabled',
+      NoncurrentVersionExpiration: { NoncurrentDays: 90 },
+      AbortIncompleteMultipartUpload: { DaysAfterInitiation: 7 },
+    },
+  ],
+});
+
+// ➡ Permissions Cognito AdminListUsers pour la Lambda list-cognito-users
+const listCognitoUsersLambda = backend.listCognitoUsers.resources.lambda as LambdaFunction;
+
+listCognitoUsersLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['cognito-idp:ListUsers'],
+    resources: [backend.auth.resources.userPool.userPoolArn],
+  }),
+);
+
+listCognitoUsersLambda.addEnvironment(
+  'USER_POOL_ID',
+  backend.auth.resources.userPool.userPoolId,
 );
 

@@ -4,7 +4,7 @@
   </div>
 } @else {
   <div class="admin-dashboard">
-    <mat-tab-group animationDuration="200ms">
+    <mat-tab-group animationDuration="200ms" (selectedTabChange)="onTabChange($event.index)">
       <!-- Tab 1: Statistiques -->
       <mat-tab>
         <ng-template mat-tab-label>
@@ -302,6 +302,84 @@
               }
             </div>
           </div>
+        }
+      </mat-tab>
+
+      <!-- Tab 3: Utilisateurs Cognito -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">manage_accounts</mat-icon>
+          <span class="tab-label">{{ 'admin.dashboard.tabs.cognito' | translate }}</span>
+        </ng-template>
+
+        @if (cognitoLoading()) {
+          <div class="loading-container">
+            <mat-spinner diameter="36"></mat-spinner>
+          </div>
+        } @else if (cognitoError()) {
+          <div class="empty-moderation">
+            <mat-icon class="empty-icon" style="color:#e53935">error_outline</mat-icon>
+            <p>{{ 'admin.dashboard.cognito.error' | translate }}</p>
+          </div>
+        } @else {
+          <!-- Cognito KPIs -->
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <mat-icon class="kpi-icon kpi-users">group</mat-icon>
+              <div class="kpi-value">{{ cognitoStats()?.totalUsers ?? '—' }}</div>
+              <div class="kpi-label">{{ 'admin.dashboard.cognito.total' | translate }}</div>
+            </div>
+            <div class="kpi-card">
+              <mat-icon class="kpi-icon" style="color:#0d7c51">person_add</mat-icon>
+              <div class="kpi-value">{{ cognitoStats()?.newThisWeek ?? '—' }}</div>
+              <div class="kpi-label">{{ 'admin.dashboard.cognito.newWeek' | translate }}</div>
+            </div>
+            <div class="kpi-card">
+              <mat-icon class="kpi-icon kpi-new">trending_up</mat-icon>
+              <div class="kpi-value">{{ cognitoStats()?.newThisMonth ?? '—' }}</div>
+              <div class="kpi-label">{{ 'admin.dashboard.cognito.newMonth' | translate }}</div>
+            </div>
+            <div class="kpi-card">
+              <mat-icon class="kpi-icon" style="color:#1976d2">email</mat-icon>
+              <div class="kpi-value">{{ cognitoStats()?.emailCount ?? '—' }}</div>
+              <div class="kpi-label">{{ 'admin.dashboard.cognito.emailUsers' | translate }}</div>
+            </div>
+            <div class="kpi-card">
+              <mat-icon class="kpi-icon" style="color:#ea4335">g_mobiledata</mat-icon>
+              <div class="kpi-value">{{ cognitoStats()?.oauthCount ?? '—' }}</div>
+              <div class="kpi-label">{{ 'admin.dashboard.cognito.oauthUsers' | translate }}</div>
+            </div>
+          </div>
+
+          <!-- Registrations over time -->
+          @if (cognitoTimeSeries().length > 0) {
+            <div class="chart-card" style="margin: 16px">
+              <h3 class="chart-title">{{ 'admin.dashboard.cognito.registrationsOverTime' | translate }}</h3>
+              <ngx-charts-bar-vertical
+                [results]="cognitoTimeSeries()"
+                [scheme]="cognitoColorScheme"
+                [xAxis]="true"
+                [yAxis]="true"
+                [showXAxisLabel]="false"
+                [showYAxisLabel]="false"
+                [view]="[640, 280]"
+              ></ngx-charts-bar-vertical>
+            </div>
+          }
+
+          <!-- Provider breakdown pie -->
+          @if ((cognitoStats()?.totalUsers ?? 0) > 0) {
+            <div class="chart-card chart-card-small" style="margin: 0 16px 16px">
+              <h3 class="chart-title">{{ 'admin.dashboard.cognito.providerBreakdown' | translate }}</h3>
+              <ngx-charts-pie-chart
+                [results]="cognitoProviderData()"
+                [scheme]="cognitoProviderScheme"
+                [labels]="true"
+                [doughnut]="true"
+                [view]="[300, 240]"
+              ></ngx-charts-pie-chart>
+            </div>
+          }
         }
       </mat-tab>
     </mat-tab-group>

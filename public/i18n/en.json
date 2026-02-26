@@ -73,7 +73,9 @@
     "soundQuiz": "Quiz",
     "soundArticles": "Articles",
     "categories": "Categories",
-    "support": "Support us"
+    "support": "Support us",
+    "facebook": "Follow us on Facebook",
+    "instagram": "Follow us on Instagram"
   },
   "bottomNav": {
     "home": "Home",
@@ -513,7 +515,18 @@
       "rejectError": "Failed to reject",
       "tabs": {
         "stats": "Statistics",
-        "moderation": "Moderation"
+        "moderation": "Moderation",
+        "cognito": "Users"
+      },
+      "cognito": {
+        "total": "Cognito users",
+        "newWeek": "New this week",
+        "newMonth": "New this month",
+        "emailUsers": "Email / password",
+        "oauthUsers": "Google OAuth",
+        "registrationsOverTime": "Registrations over 12 months",
+        "providerBreakdown": "Provider breakdown",
+        "error": "Unable to load Cognito stats"
       },
       "noPending": "No sounds pending review",
       "details": "Details",

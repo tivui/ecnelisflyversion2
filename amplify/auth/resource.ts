@@ -21,11 +21,13 @@ export const auth = defineAuth({
       callbackUrls: [
         'http://localhost:4200/',
         'https://main.da619w9z089j3.amplifyapp.com/',
+        'https://ecnelisfly.com/',
         'https://www.ecnelisfly.com/',
       ],
       logoutUrls: [
         'http://localhost:4200/',
         'https://main.da619w9z089j3.amplifyapp.com/',
+        'https://ecnelisfly.com/',
         'https://www.ecnelisfly.com/',
       ],
     },

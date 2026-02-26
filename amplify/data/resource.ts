@@ -12,6 +12,7 @@ import { pickMonthlyJourney } from '../functions/pick-monthly-journey/resource';
 import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 import { fixImportedUsers } from '../functions/fix-imported-users/resource';
+import { listCognitoUsers } from '../functions/list-cognito-users/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -666,6 +667,21 @@ const schema = a
           entry: './translate.js',
         }),
       ),
+
+    CognitoStats: a.customType({
+      totalUsers: a.integer(),
+      newThisWeek: a.integer(),
+      newThisMonth: a.integer(),
+      emailCount: a.integer(),
+      oauthCount: a.integer(),
+      timeSeriesJson: a.string(),
+    }),
+
+    getCognitoStats: a
+      .query()
+      .returns(a.ref('CognitoStats'))
+      .authorization((allow) => [allow.group('ADMIN')])
+      .handler(a.handler.function(listCognitoUsers)),
   })
 
   .authorization((allow) => [
@@ -681,6 +697,7 @@ const schema = a
     allow.resource(startImport),
     allow.resource(processImport),
     allow.resource(fixImportedUsers),
+    allow.resource(listCognitoUsers),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
