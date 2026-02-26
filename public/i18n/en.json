@@ -433,19 +433,14 @@
     "licenses": {
       "READ_ONLY": "Read Only",
       "READ_ONLY_tooltip": "This license allows only reading the content. Modification or redistribution is not allowed.",
-
       "PUBLIC_DOMAIN": "Public Domain",
       "PUBLIC_DOMAIN_tooltip": "This license indicates the content is free of copyright and can be used, shared, and modified without restrictions.",
-
       "CC_BY": "CC BY",
       "CC_BY_tooltip": "You may share and adapt the content as long as you give proper attribution to the author.",
-
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "You may share and adapt the content for non-commercial purposes only, with attribution to the author.",
-
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
-
       "CC_BY_SA_NDH": "CC BY-SA",
       "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license."
     },
@@ -492,7 +487,8 @@
       "articles": "Articles",
       "tabs": {
         "dashboard": "Dashboard"
-      }
+      },
+      "emailTemplates": "Email Templates"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -954,6 +950,26 @@
         "confirm": "Delete",
         "success": "Article deleted"
       }
+    },
+    "emailTemplates": {
+      "title": "Cognito Email Templates",
+      "subtitle": "Customize verification and password reset emails.",
+      "selectTemplate": "Email type",
+      "verifyEmail": "Verification email",
+      "forgotPassword": "Password reset",
+      "subject": "Email subject",
+      "bodyHtml": "HTML body (must contain {####})",
+      "missingPlaceholder": "The body must contain {####} (replaced by the 6-digit code)",
+      "showPreview": "Preview",
+      "hidePreview": "Hide preview",
+      "preview": "Preview",
+      "previewHint": "({####} replaced by 123456)",
+      "restoreDefault": "Restore default",
+      "save": "Save",
+      "saveSuccess": "Template saved",
+      "saveError": "Error saving template",
+      "customTemplate": "Custom template",
+      "defaultTemplate": "Default template"
     }
   },
   "mapfly": {

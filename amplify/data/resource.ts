@@ -569,6 +569,20 @@ const schema = a
         allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
+    // ============ EMAIL TEMPLATES ============
+
+    EmailTemplate: a
+      .model({
+        templateType: a.string().required(),  // 'VERIFY_EMAIL' | 'FORGOT_PASSWORD' | 'RESEND_CODE'
+        subject: a.string().required(),
+        bodyHtml: a.string().required(),
+        updatedBy: a.string(),
+      })
+      .identifier(['templateType'])
+      .authorization((allow) => [
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
+      ]),
+
     // ============ IMPORT ============
 
     ImportJob: a

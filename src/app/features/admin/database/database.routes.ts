@@ -62,7 +62,14 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.ArticleEditorComponent,
           ),
       },
-      { path: '', pathMatch: 'full', redirectTo: 'import-sounds' },
+      {
+        path: 'email-templates',
+        loadComponent: () =>
+          import('../pages/email-templates/email-templates.component').then(
+            (m) => m.EmailTemplatesComponent,
+          ),
+      },
+      { path: '', pathMatch: 'full', redirectTo: 'featured-sound' },
     ],
   },
 ];

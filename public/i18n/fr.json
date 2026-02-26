@@ -430,23 +430,17 @@
     "statusPrivate_tooltip": "Seulement vous et les utilisateurs autorisés peuvent voir ce son.",
     "statusPublic": "Public",
     "statusPublic_tooltip": "Tout le monde peut voir et écouter ce son. Il sera modéré avant publication finale.",
-
     "licenses": {
       "READ_ONLY": "Lecture seule",
       "READ_ONLY_tooltip": "Cette licence permet uniquement la lecture du contenu. Aucune modification ni redistribution n’est autorisée.",
-
       "PUBLIC_DOMAIN": "Domaine public",
       "PUBLIC_DOMAIN_tooltip": "Cette licence indique que le contenu est libre de droits et peut être utilisé, partagé et modifié sans restriction.",
-
       "CC_BY": "CC BY",
       "CC_BY_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer correctement l’auteur.",
-
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "Vous pouvez partager et adapter le contenu à des fins non commerciales, en attribuant l’auteur.",
-
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
-
       "CC_BY_SA_NDH": "CC BY-SA",
       "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
     },
@@ -493,7 +487,8 @@
       "articles": "Articles",
       "tabs": {
         "dashboard": "Tableau de bord"
-      }
+      },
+      "emailTemplates": "Templates email"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -955,6 +950,26 @@
         "confirm": "Supprimer",
         "success": "Article supprimé"
       }
+    },
+    "emailTemplates": {
+      "title": "Templates email Cognito",
+      "subtitle": "Personnalisez les emails de vérification et de réinitialisation de mot de passe.",
+      "selectTemplate": "Type d'email",
+      "verifyEmail": "Email de vérification",
+      "forgotPassword": "Réinitialisation de mot de passe",
+      "subject": "Sujet de l'email",
+      "bodyHtml": "Corps HTML (doit contenir {####})",
+      "missingPlaceholder": "Le corps doit contenir {####} (remplacé par le code à 6 chiffres)",
+      "showPreview": "Aperçu",
+      "hidePreview": "Masquer l'aperçu",
+      "preview": "Aperçu",
+      "previewHint": "({####} remplacé par 123456)",
+      "restoreDefault": "Restaurer défaut",
+      "save": "Enregistrer",
+      "saveSuccess": "Template enregistré",
+      "saveError": "Erreur lors de l'enregistrement",
+      "customTemplate": "Template personnalisé",
+      "defaultTemplate": "Template par défaut"
     }
   },
   "mapfly": {

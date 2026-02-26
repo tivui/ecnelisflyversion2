@@ -1,0 +1,108 @@
+<div class="email-templates-container">
+
+  <!-- Header -->
+  <div class="et-header">
+    <mat-icon class="et-header-icon">email</mat-icon>
+    <div>
+      <h2 class="et-title">{{ 'admin.emailTemplates.title' | translate }}</h2>
+      <p class="et-subtitle">{{ 'admin.emailTemplates.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Template selector -->
+  <div class="et-selector-row">
+    <mat-form-field appearance="outline" class="et-type-select">
+      <mat-label>{{ 'admin.emailTemplates.selectTemplate' | translate }}</mat-label>
+      <mat-select [value]="selectedType()" (selectionChange)="onTypeChange($event.value)" [disabled]="loading()">
+        @for (opt of templateOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <span class="et-badge" [class.et-badge-custom]="existingTemplateFound()" [class.et-badge-default]="!existingTemplateFound()">
+      <mat-icon>{{ existingTemplateFound() ? 'edit_note' : 'info' }}</mat-icon>
+      {{ (existingTemplateFound() ? 'admin.emailTemplates.customTemplate' : 'admin.emailTemplates.defaultTemplate') | translate }}
+    </span>
+  </div>
+
+  @if (loading()) {
+    <div class="et-loading">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+  } @else {
+    <!-- Subject field -->
+    <mat-form-field appearance="outline" class="et-field-full">
+      <mat-label>{{ 'admin.emailTemplates.subject' | translate }}</mat-label>
+      <input matInput [value]="subject()" (input)="subject.set($any($event.target).value)" />
+    </mat-form-field>
+
+    <!-- Body field -->
+    <mat-form-field appearance="outline" class="et-field-full et-body-field">
+      <mat-label>{{ 'admin.emailTemplates.bodyHtml' | translate }}</mat-label>
+      <textarea
+        matInput
+        [value]="bodyHtml()"
+        (input)="bodyHtml.set($any($event.target).value)"
+        rows="18"
+        class="et-textarea"
+        spellcheck="false"
+      ></textarea>
+    </mat-form-field>
+
+    <!-- Placeholder warning -->
+    @if (!hasPlaceholder()) {
+      <div class="et-warning">
+        <mat-icon>warning</mat-icon>
+        {{ 'admin.emailTemplates.missingPlaceholder' | translate }}
+      </div>
+    }
+
+    <!-- Action bar -->
+    <div class="et-actions">
+      <button mat-stroked-button class="et-btn-preview" (click)="togglePreview()">
+        <mat-icon>{{ showPreview() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        {{ (showPreview() ? 'admin.emailTemplates.hidePreview' : 'admin.emailTemplates.showPreview') | translate }}
+      </button>
+
+      <div class="et-actions-right">
+        <button mat-stroked-button (click)="restoreDefault()" [disabled]="saving()">
+          <mat-icon>restart_alt</mat-icon>
+          {{ 'admin.emailTemplates.restoreDefault' | translate }}
+        </button>
+
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="save()"
+          [disabled]="saving() || !hasPlaceholder()"
+          class="et-btn-save"
+        >
+          @if (saving()) {
+            <mat-spinner diameter="16" class="et-save-spinner"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          {{ 'admin.emailTemplates.save' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    @if (showPreview()) {
+      <div class="et-preview-panel">
+        <div class="et-preview-header">
+          <mat-icon>preview</mat-icon>
+          {{ 'admin.emailTemplates.preview' | translate }}
+          <span class="et-preview-hint">{{ 'admin.emailTemplates.previewHint' | translate }}</span>
+        </div>
+        <iframe
+          class="et-preview-iframe"
+          [srcdoc]="previewSrcdoc()"
+          sandbox="allow-same-origin"
+          title="Email preview"
+        ></iframe>
+      </div>
+    }
+  }
+</div>

@@ -437,19 +437,14 @@
     "licenses": {
       "READ_ONLY": "Solo lectura",
       "READ_ONLY_tooltip": "Esta licencia permite solo la lectura del contenido. No se permite modificar ni redistribuir.",
-
       "PUBLIC_DOMAIN": "Dominio público",
       "PUBLIC_DOMAIN_tooltip": "Esta licencia indica que el contenido está libre de derechos de autor y puede usarse, compartirse y modificarse sin restricciones.",
-
       "CC_BY": "CC BY",
       "CC_BY_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente al autor.",
-
       "CC_BY_NC": "CC BY-NC",
       "CC_BY_NC_tooltip": "Puede compartir y adaptar el contenido solo para fines no comerciales, atribuyendo al autor.",
-
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente y lo distribuya bajo la misma licencia.",
-
       "CC_BY_SA_NDH": "CC BY-SA",
       "CC_BY_SA_NDH_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente y lo distribuya bajo la misma licencia."
     },
@@ -485,7 +480,8 @@
       "articles": "Artículos",
       "tabs": {
         "dashboard": "Panel de control"
-      }
+      },
+      "emailTemplates": "Plantillas de email"
     },
     "dashboard": {
       "title": "Panel de control",
@@ -951,9 +947,28 @@
         "confirm": "Eliminar",
         "success": "Artículo eliminado"
       }
+    },
+    "emailTemplates": {
+      "title": "Plantillas de email Cognito",
+      "subtitle": "Personaliza los correos de verificacion y recuperacion de contrasena.",
+      "selectTemplate": "Tipo de email",
+      "verifyEmail": "Email de verificacion",
+      "forgotPassword": "Restablecer contrasena",
+      "subject": "Asunto del email",
+      "bodyHtml": "Cuerpo HTML (debe contener {####})",
+      "missingPlaceholder": "El cuerpo debe contener {####} (reemplazado por el codigo de 6 digitos)",
+      "showPreview": "Vista previa",
+      "hidePreview": "Ocultar vista previa",
+      "preview": "Vista previa",
+      "previewHint": "({####} reemplazado por 123456)",
+      "restoreDefault": "Restaurar defecto",
+      "save": "Guardar",
+      "saveSuccess": "Plantilla guardada",
+      "saveError": "Error al guardar la plantilla",
+      "customTemplate": "Plantilla personalizada",
+      "defaultTemplate": "Plantilla por defecto"
     }
   },
-
   "mapfly": {
     "loading": "Cargando...",
     "record-info": "Grabado en {{city}} por {{username}}",

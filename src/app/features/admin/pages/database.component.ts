@@ -19,6 +19,7 @@ export class DatabaseComponent {
     { route: 'zones', label: 'admin.database.zones' },
     { route: 'articles', label: 'admin.database.articles' },
     { route: 'import-sounds', label: 'admin.database.importSounds' },
+    { route: 'email-templates', label: 'admin.database.emailTemplates' },
   ]);
 
   trackTab = (tab: { route: string; label: string }) => tab.route;
