@@ -11,6 +11,7 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
+import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
 import L from 'leaflet';
 
 export interface SoundPopupSheetData {
@@ -259,6 +260,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private el = inject(ElementRef);
   private storageService = inject(StorageService);
+  private headphoneReminder = inject(HeadphoneReminderService);
 
   @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
   private playerInstance: WaveSurferPlayerInstance | null = null;
@@ -337,6 +339,10 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
       container: this.waveformContainer.nativeElement,
       audioUrl: this.data.audioUrl,
       isDarkTheme: isDark,
+      mediaMetadata: {
+        title: this.data.sound.title ?? 'Ecnelis FLY',
+        artist: this.data.sound.city ?? undefined,
+      },
       onPlay: () => this.onAudioPlay(),
       onPause: () => this.onAudioPause(),
       getRefreshUrl: async () => {
@@ -440,6 +446,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   }
 
   onAudioPlay() {
+    this.headphoneReminder.showIfNeeded();
     this.data.onAudioPlay?.();
   }
 

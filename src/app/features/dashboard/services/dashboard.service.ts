@@ -112,6 +112,27 @@ export class DashboardService {
   }
 
   /**
+   * Lightweight query: count sounds awaiting moderation (public_to_be_approved).
+   * Uses minimal selectionSet for performance — admin badge only.
+   */
+  async getPendingSoundsCount(): Promise<number> {
+    try {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const result: { data: any[]; nextToken?: string | null } = await (
+        this.amplifyService.client.models.Sound.list as any
+      )({
+        filter: { status: { eq: 'public_to_be_approved' } },
+        selectionSet: ['id'],
+        limit: 500,
+      });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+      return result.data?.length ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
    * Update sound metadata
    */
   async updateSound(

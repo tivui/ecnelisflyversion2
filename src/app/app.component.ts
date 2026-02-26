@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
+  computed,
   inject,
   OnInit,
   signal,
@@ -37,6 +38,7 @@ import { UserAvatarComponent } from './shared/components/user-avatar/user-avatar
 import { AppUpdateService } from './core/services/app-update.service';
 import { FeaturedSoundService } from './core/services/featured-sound.service';
 import { DailyFeaturedSound } from './core/models/featured-sound.model';
+import { DashboardService } from './features/dashboard/services/dashboard.service';
 
 @Component({
   selector: 'app-root',
@@ -76,6 +78,7 @@ export class AppComponent implements OnInit {
   private readonly document = inject(DOCUMENT);
   private readonly appUpdateService = inject(AppUpdateService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
+  private readonly dashboardService = inject(DashboardService);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
@@ -85,6 +88,11 @@ export class AppComponent implements OnInit {
   public isHomePage = signal(false);
   public isLoginPage = signal(false);
   public isCategoryMapPage = signal(false);
+
+  /** Badge: user notifications (from AppUser.newNotificationCount) */
+  public notificationCount = computed(() => this.appUser()?.newNotificationCount ?? 0);
+  /** Badge: admin — number of sounds awaiting moderation */
+  public pendingSoundsCount = signal(0);
 
   // ==================== BOTTOM NAV (mobile) ====================
   public isMobilePortrait = signal(false);
@@ -234,6 +242,11 @@ export class AppComponent implements OnInit {
     }
     this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
+    // Load pending sounds count for admin badge
+    if (this.isAdmin()) {
+      this.loadPendingSoundsCount();
+    }
+
     let defaultLang: Language;
 
     if (appUser?.language) {
@@ -276,6 +289,11 @@ export class AppComponent implements OnInit {
           await this.authService.loadGroups(true);
           this.isAdmin.set(this.authService.isInGroup('ADMIN'));
 
+          // Refresh pending badge on sign-in
+          if (this.isAdmin()) {
+            this.loadPendingSoundsCount();
+          }
+
           if (appUser?.language) {
             // Update language from user preference
             this.selectedLang.set(appUser.language);
@@ -304,6 +322,7 @@ export class AppComponent implements OnInit {
           this.appUserService.clearCurrentUser();
           this.authService.clearUser();
           this.isAdmin.set(false);
+          this.pendingSoundsCount.set(0);
 
           this.router.navigate(['/home'], { replaceUrl: true });
 
@@ -370,11 +389,25 @@ export class AppComponent implements OnInit {
   }
 
   toggleSidenav() {
+    const wasOpen = this.sidenavOpened();
     this.sidenavOpened.update((v) => !v);
+    // Opening sidenav → reset notification badge
+    if (!wasOpen && this.notificationCount() > 0) {
+      this.appUserService.resetNotifications();
+    }
   }
 
   closeSidenav() {
     this.sidenavOpened.set(false);
+  }
+
+  private async loadPendingSoundsCount() {
+    try {
+      const count = await this.dashboardService.getPendingSoundsCount();
+      this.pendingSoundsCount.set(count);
+    } catch {
+      // non-blocking
+    }
   }
 
   goToMap() {

@@ -248,6 +248,39 @@
 }
 
 // =====================
+// Notification Badge
+// =====================
+.nav-icon-badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  background: #f44336;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  pointer-events: none;
+  line-height: 1;
+
+  &.admin-badge {
+    background: #ff6d00; // orange for admin pending badge
+  }
+}
+
+// =====================
 // Welcome Overlay — Premium
 // =====================
 $welcome-ease: cubic-bezier(0.22, 1, 0.36, 1);

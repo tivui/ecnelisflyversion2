@@ -13,12 +13,12 @@ import { TranslateModule } from '@ngx-translate/core';
 export class DatabaseComponent {
 
   tabs = signal([
-    { route: 'import-sounds', label: 'admin.database.importSounds' },
-    { route: 'zones', label: 'admin.database.zones' },
     { route: 'featured-sound', label: 'admin.database.featuredSound' },
     { route: 'journeys', label: 'admin.database.journeys' },
     { route: 'quizzes', label: 'admin.database.quizzes' },
+    { route: 'zones', label: 'admin.database.zones' },
     { route: 'articles', label: 'admin.database.articles' },
+    { route: 'import-sounds', label: 'admin.database.importSounds' },
   ]);
 
   trackTab = (tab: { route: string; label: string }) => tab.route;

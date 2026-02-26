@@ -29,7 +29,12 @@
         (click)="toggleSidenav()"
         aria-label="Toggle menu"
       >
-        <mat-icon>menu</mat-icon>
+        <span class="nav-icon-badge-wrap">
+          <mat-icon>menu</mat-icon>
+          @if (notificationCount() > 0) {
+            <span class="notif-badge">{{ notificationCount() > 9 ? '9+' : notificationCount() }}</span>
+          }
+        </span>
       </button>
 
       <a class="logo-link" routerLink="/home">
@@ -65,7 +70,12 @@
           [matMenuTriggerFor]="adminMenu"
           matTooltip="Settings"
         >
-          <mat-icon>settings</mat-icon>
+          <span class="nav-icon-badge-wrap">
+            <mat-icon>settings</mat-icon>
+            @if (pendingSoundsCount() > 0) {
+              <span class="notif-badge">{{ pendingSoundsCount() > 9 ? '9+' : pendingSoundsCount() }}</span>
+            }
+          </span>
         </button>
 
         <mat-menu #adminMenu="matMenu">
@@ -169,7 +179,15 @@
       <span>{{ 'bottomNav.featured' | translate }}</span>
     </button>
     <button class="bottom-nav-item" (click)="toggleSidenav()">
-      <mat-icon>menu</mat-icon>
+      <span class="nav-icon-badge-wrap">
+        <mat-icon>menu</mat-icon>
+        @if (notificationCount() > 0) {
+          <span class="notif-badge">{{ notificationCount() > 9 ? '9+' : notificationCount() }}</span>
+        }
+        @if (isAdmin() && pendingSoundsCount() > 0) {
+          <span class="notif-badge admin-badge">{{ pendingSoundsCount() > 9 ? '9+' : pendingSoundsCount() }}</span>
+        }
+      </span>
       <span>{{ 'bottomNav.menu' | translate }}</span>
     </button>
   </nav>

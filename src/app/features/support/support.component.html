@@ -1,0 +1,78 @@
+<div class="support-page">
+  <div class="support-hero">
+    <div class="hero-icon-wrap">
+      <mat-icon class="hero-icon">favorite</mat-icon>
+    </div>
+    <h1 class="hero-title">{{ 'support.title' | translate }}</h1>
+    <p class="hero-subtitle">{{ 'support.subtitle' | translate }}</p>
+  </div>
+
+  <div class="support-body">
+    <div class="mission-card">
+      <mat-icon class="mission-icon">public</mat-icon>
+      <div class="mission-text">
+        <h2>{{ 'support.mission.title' | translate }}</h2>
+        <p>{{ 'support.mission.text' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="why-card">
+      <h3>{{ 'support.why.title' | translate }}</h3>
+      <ul class="why-list">
+        <li>
+          <mat-icon>cloud_upload</mat-icon>
+          <span>{{ 'support.why.hosting' | translate }}</span>
+        </li>
+        <li>
+          <mat-icon>map</mat-icon>
+          <span>{{ 'support.why.maps' | translate }}</span>
+        </li>
+        <li>
+          <mat-icon>code</mat-icon>
+          <span>{{ 'support.why.dev' | translate }}</span>
+        </li>
+        <li>
+          <mat-icon>headphones</mat-icon>
+          <span>{{ 'support.why.sounds' | translate }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="cta-section">
+      <p class="cta-intro">{{ 'support.cta.intro' | translate }}</p>
+
+      <div class="cta-buttons">
+        <button class="cta-btn kofi-btn" (click)="openKofi()">
+          <img src="/img/kofi_cup.png" alt="Ko-fi" class="cta-logo" onerror="this.style.display='none'" />
+          <mat-icon class="cta-icon-fallback">local_cafe</mat-icon>
+          <span>{{ 'support.cta.kofi' | translate }}</span>
+        </button>
+
+        <button class="cta-btn bmc-btn" (click)="openBmc()">
+          <mat-icon>coffee</mat-icon>
+          <span>{{ 'support.cta.bmc' | translate }}</span>
+        </button>
+      </div>
+
+      <p class="cta-note">{{ 'support.cta.note' | translate }}</p>
+    </div>
+
+    <div class="alt-support">
+      <h3>{{ 'support.alt.title' | translate }}</h3>
+      <div class="alt-items">
+        <div class="alt-item">
+          <mat-icon>mic</mat-icon>
+          <span>{{ 'support.alt.record' | translate }}</span>
+        </div>
+        <div class="alt-item">
+          <mat-icon>share</mat-icon>
+          <span>{{ 'support.alt.share' | translate }}</span>
+        </div>
+        <div class="alt-item">
+          <mat-icon>star</mat-icon>
+          <span>{{ 'support.alt.feedback' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

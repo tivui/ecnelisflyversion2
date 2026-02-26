@@ -45,6 +45,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TimeFilterSheetComponent, TimeFilterSheetData, CategoryToggle } from './time-filter-sheet.component';
 import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-sheet.component';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
+import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
 import 'leaflet-minimap';
 
 @Component({
@@ -71,6 +72,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private readonly ephemeralJourneyService = inject(EphemeralJourneyService);
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly headphoneReminder = inject(HeadphoneReminderService);
 
   private map!: L.Map;
   private currentZone = signal<Zone | null>(null);
@@ -1199,7 +1201,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 container: wsContainer,
                 audioUrl: url,
                 isDarkTheme: isDark,
-                onPlay: () => this.ambientAudio?.duck?.(),
+                mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
+                onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
                 onPause: () => this.ambientAudio?.unduck?.(),
                 getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
               });
@@ -2491,7 +2494,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
             container: wsContainer,
             audioUrl: url,
             isDarkTheme: isDark,
-            onPlay: () => this.ambientAudio?.duck?.(),
+            mediaMetadata: { title: soundTitle ?? 'Ecnelis FLY', artist: soundCity ?? undefined },
+            onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
           });
@@ -2940,7 +2944,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
             container: wsContainer,
             audioUrl: url,
             isDarkTheme: isDark,
-            onPlay: () => this.ambientAudio?.duck?.(),
+            mediaMetadata: { title: sound.title ?? 'Ecnelis FLY', artist: sound.city ?? undefined },
+            onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
             onPause: () => this.ambientAudio?.unduck?.(),
             getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
           });

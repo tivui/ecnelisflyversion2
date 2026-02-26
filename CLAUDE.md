@@ -761,6 +761,26 @@ Signals dans `app.component.ts` : `isHomePage`, `isLoginPage`, `isCategoryMapPag
 - **Couleurs actives** : `#1976d2` light / `#90caf9` dark
 - **Content padding** : `mat-sidenav-content { padding-bottom: calc(56px + env(safe-area-inset-bottom)) }` en mobile portrait
 
+### Badges de notifications (`app.component`)
+
+Badges numeriques sur les icones de navigation, geres par deux signals dans `app.component.ts` :
+
+| Signal | Source | Affichage |
+|--------|--------|-----------|
+| `notificationCount` | `computed(() => appUser()?.newNotificationCount ?? 0)` | Badge rouge sur icone menu (desktop hamburger + bottom nav) |
+| `pendingSoundsCount` | `signal(0)` charge via `dashboardService.getPendingSoundsCount()` | Badge orange sur roue crantée admin (desktop gear + bottom nav si `isAdmin()`) |
+
+**Chargement `pendingSoundsCount` :** appele au `ngOnInit` et dans le handler Hub `signedIn`. Query legere `selectionSet: ['id']`, filtre `status: public_to_be_approved`, limit 500. Reset a 0 au `signedOut`.
+
+**Reset `notificationCount` :** `toggleSidenav()` appelle `appUserService.resetNotifications()` quand le sidenav s'ouvre et que `notificationCount() > 0`. Met a jour `newNotificationCount: 0, flashNew: false` en base via `User.update`.
+
+**Structure HTML :** wrapper `.nav-icon-badge-wrap` (relative inline-flex) autour de `<mat-icon>` + `<span class="notif-badge">` en position absolue top-right. Classe `.admin-badge` pour la variante orange.
+
+**Styles (`app.component.scss`) :**
+- `.nav-icon-badge-wrap` : `position: relative; display: inline-flex`
+- `.notif-badge` : fond `#e53935` (rouge), `10px`, `border-radius: 50%`, `position: absolute; top: -4px; right: -6px`
+- `.notif-badge.admin-badge` : fond `#f57c00` (orange)
+
 ### Sidenav mobile
 
 - **Position** : `'end'` (droite) en mobile portrait, `'start'` (gauche) en desktop — `[position]="isMobilePortrait() ? 'end' : 'start'"`
@@ -946,6 +966,25 @@ Quand un marker passe dans un cluster pendant que sa popup est ouverte, Leaflet 
 
 - Callbacks `onPlay`/`onPause` preserves pour le ducking du son ambient
 - `destroy()` appelle `onPause()` avant `ws.destroy()` (wavesurfer n'emet pas pause au destroy)
+
+#### Media Session API (`WaveSurferPlayerConfig.mediaMetadata`)
+
+Champ optionnel `mediaMetadata?: { title: string; artist?: string }` dans `WaveSurferPlayerConfig`. Quand fourni :
+- **Au `play`** : `navigator.mediaSession.metadata = new MediaMetadata({ title, artist, album: 'Ecnelis FLY', artwork: [logo 512x512] })` + `playbackState = 'playing'`
+- **Au `pause`/`finish`** : `playbackState = 'paused'`
+- **Action handlers** : `play`, `pause`, `stop` cables sur `ws.play()`, `ws.pause()`, `ws.stop()`
+- Permet l'affichage des controles medias OS (lock screen mobile, barre Chrome desktop)
+- Appeles dans `mapfly.component.ts` (3 types de popup) et `sound-popup-sheet.component.ts` (bottom sheet mobile) avec `title: sound.title, artist: sound.city`
+
+#### Rappel casque (`HeadphoneReminderService`)
+
+Service injectable (`core/services/headphone-reminder.service.ts`). Affiche un snackbar bleu une seule fois par session navigateur.
+
+- **Cle sessionStorage** : `'ecnelis_headphone_shown'`
+- **Snackbar** : `panelClass: ['headphone-snackbar']`, duration 6s, position center/bottom
+- **Style** : fond `#1565c0`, texte blanc, bouton action `#90caf9` — dans `styles.scss`
+- **Declenchement** : methode `showIfNeeded()` appelee dans le callback `onPlay` du `createWaveSurferPlayer` (mapfly + bottom sheet)
+- **i18n** : `player.headphoneReminder` (message) + `player.headphoneReminderAction` (bouton "OK")
 
 ## Conventions SCSS
 
@@ -1178,6 +1217,19 @@ Variantes adoucies (muted) des couleurs d'accent de categorie pour les charts :
 
 Les graphiques ngx-charts necessitent des styles `::ng-deep` dans le bloc `:host-context(body.dark-theme)` pour etre lisibles en dark mode :
 - `text { fill: rgba(255,255,255,0.7) }`, `.gridline-path/.domain { stroke: rgba(255,255,255,0.1) }`, `.tick text { fill: rgba(255,255,255,0.6) }`, `.pie-label-text { fill: rgba(255,255,255,0.8) }`
+
+## Database admin (`features/admin/pages/database.component.ts`)
+
+### Ordre des onglets (`/admin/database/*`)
+
+Ordre defini dans le signal `tabs` du `DatabaseComponent` :
+
+1. Son du jour (`featured-sound`)
+2. Voyages sonores (`journeys`)
+3. Quiz sonores (`quizzes`)
+4. Terroirs sonores (`zones`)
+5. Articles (`articles`)
+6. Importer les sons (`import-sounds`) — en dernier intentionnellement
 
 ## Dashboard admin (`features/admin/pages/admin-dashboard/`)
 
@@ -1491,6 +1543,67 @@ deletingAttemptId = signal<string | null>(null);
 ### i18n
 
 Cles `admin.quiz.leaderboard.*` : title, noScores, deleteOne, deleteAll, deleteAllTitle, deleteAllMessage, deleteAllConfirm, deleteSuccess, deleteAllSuccess, deleteError, loadError (FR/EN/ES)
+
+## Page Support (`features/support/support.component`)
+
+Page de soutien financier accessible via `/support` et le sidenav (item "Soutenir", icone `favorite`).
+
+### Structure
+
+- **Hero** : gradient `$primary → $indigo → $violet`, icone `favorite` animee (`heartbeat` keyframe), titre + sous-titre i18n
+- **Mission card** : icone `public` + texte mission
+- **Pourquoi card** : liste avec icones `cloud_upload`, `map`, `code`, `headphones`
+- **CTA section** : boutons Ko-fi (rouge `#ff5e5b`) + Buy Me a Coffee (jaune `#ffdd00`), note sans engagement
+- **Support alternatif** : `mic`, `share`, `star` — enregistrer, partager, feedback
+
+### Donations
+
+| Plateforme | URL | Commission | Notes |
+|------------|-----|-----------|-------|
+| Ko-fi | `https://ko-fi.com/ecnelisfly` | 0% | Recommande — direct PayPal/Stripe |
+| Buy Me a Coffee | `https://buymeacoffee.com/ecnelisfly` | 5% | Secondaire |
+
+Boutons ouvrent `_blank` avec `noopener,noreferrer`. Ko-fi : image logo `/img/kofi_cup.png` avec fallback icone `local_cafe` si image manquante.
+
+### i18n
+
+Cles `support.*` : title, subtitle, mission.title/text, why.title/hosting/maps/dev/sounds, cta.intro/kofi/bmc/note, alt.title/record/share/feedback (FR/EN/ES)
+
+Cle sidenav : `sidenav.support` — FR "Soutenir", EN "Support us", ES "Apoyar"
+
+## Lambda email confirmation son (`amplify/functions/send-sound-confirmation-email/`)
+
+### Principe
+
+Lambda prete mais non enregistree dans `amplify/backend.ts`. Activee uniquement quand `SEND_EMAIL_ENABLED=true` (env var Amplify Console). Sans cette variable, retourne `{ status: 'dry_run' }`.
+
+### Prerequis avant activation
+
+1. Verifier le domaine `ecnelisfly.com` dans AWS SES Console
+2. Definir `SENDER_EMAIL` (ex: `noreply@ecnelisfly.com`) dans Amplify Console env vars
+3. Definir `SEND_EMAIL_ENABLED=true`
+4. Enregistrer la Lambda dans `amplify/backend.ts` (import + `defineBackend`)
+5. Câbler l'appel depuis `confirmation-step.component.ts` apres `Sound.create()`
+
+### Interface
+
+```typescript
+interface SoundEmailPayload {
+  toEmail: string;
+  username: string;
+  soundTitle: string;
+  soundStatus: 'public_to_be_approved' | 'public' | 'private';
+  lang?: 'fr' | 'en' | 'es';
+}
+```
+
+### Email trilingue
+
+Templates HTML inline dans `TRANSLATIONS` constant (FR/EN/ES). Contenu : confirmation creation, statut du son (approuve / en attente / prive), lien vers la carte.
+
+### Dependance npm
+
+`@aws-sdk/client-sesv2` installe en `devDependency` — verifie a la compilation TS meme sans deploiement.
 
 ## Fichiers temporaires a ignorer
 

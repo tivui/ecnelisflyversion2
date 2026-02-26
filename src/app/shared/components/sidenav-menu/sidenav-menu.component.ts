@@ -101,6 +101,12 @@ export class SidenavMenuComponent {
       route: '/articles',
       queryParams: {},
     },
+    {
+      icon: 'favorite',
+      labelKey: 'sidenav.support',
+      route: '/support',
+      queryParams: {},
+    },
   ];
 
   private async loadDailyFeatured() {
