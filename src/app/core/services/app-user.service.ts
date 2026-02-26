@@ -320,6 +320,22 @@ export class AppUserService {
     this._currentUser.next(null);
   }
 
+  /** Reset notification count to 0 (called when user opens the sidenav). */
+  async resetNotifications(): Promise<void> {
+    const user = this._currentUser.value;
+    if (!user || (user.newNotificationCount === 0 && !user.flashNew)) return;
+    try {
+      await this.amplifyService.client.models.User.update({
+        id: user.id,
+        newNotificationCount: 0,
+        flashNew: false,
+      });
+      this._currentUser.next({ ...user, newNotificationCount: 0, flashNew: false });
+    } catch (e) {
+      this.logService.error('resetNotifications failed: ' + e);
+    }
+  }
+
   async updateLanguage(lang: Language): Promise<AppUser | null> {
     const current = this._currentUser.value;
     if (!current) return null;

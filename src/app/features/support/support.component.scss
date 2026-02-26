@@ -1,0 +1,370 @@
+$primary: #1976d2;
+$indigo: #3f51b5;
+$violet: #7e57c2;
+$orange: #f5a623;
+
+.support-page {
+  min-height: 100vh;
+  background: #f1f2f6;
+  padding-bottom: 48px;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(180deg, #080a18, #0c0e22);
+  }
+}
+
+// =====================
+// Hero
+// =====================
+.support-hero {
+  background: linear-gradient(135deg, $primary, $indigo, $violet);
+  padding: 56px 24px 48px;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  margin-bottom: 20px;
+  animation: heartbeat 1.6s ease-in-out infinite;
+}
+
+.hero-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.12); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); }
+  70% { transform: scale(1); }
+}
+
+.hero-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  opacity: 0.88;
+  margin: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+// =====================
+// Body
+// =====================
+.support-body {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// =====================
+// Mission card
+// =====================
+.mission-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(18, 18, 34, 0.92);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.mission-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: $primary;
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  :host-context(body.dark-theme) & {
+    color: #90caf9;
+  }
+}
+
+.mission-text {
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #1a1a2e;
+
+    :host-context(body.dark-theme) & {
+      color: #e8eaf6;
+    }
+  }
+
+  p {
+    font-size: 0.92rem;
+    color: #555;
+    margin: 0;
+    line-height: 1.6;
+
+    :host-context(body.dark-theme) & {
+      color: #9a9ab0;
+    }
+  }
+}
+
+// =====================
+// Why card
+// =====================
+.why-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(18, 18, 34, 0.92);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+
+    :host-context(body.dark-theme) & {
+      color: #e8eaf6;
+    }
+  }
+}
+
+.why-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #444;
+
+    :host-context(body.dark-theme) & {
+      color: #9a9ab0;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: $indigo;
+      flex-shrink: 0;
+
+      :host-context(body.dark-theme) & {
+        color: #7986cb;
+      }
+    }
+  }
+}
+
+// =====================
+// CTA section
+// =====================
+.cta-section {
+  background: linear-gradient(135deg, rgba($primary, 0.06), rgba($violet, 0.06));
+  border: 1px solid rgba($primary, 0.12);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(135deg, rgba(#5c6bc0, 0.12), rgba(#7e57c2, 0.10));
+    border-color: rgba(#5c6bc0, 0.20);
+  }
+}
+
+.cta-intro {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 24px;
+  line-height: 1.5;
+
+  :host-context(body.dark-theme) & {
+    color: #b0b8cc;
+  }
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.kofi-btn {
+  background: #ff5e5b;
+  color: #fff;
+
+  .cta-logo {
+    height: 22px;
+    width: auto;
+  }
+
+  .cta-icon-fallback {
+    display: none;
+  }
+
+  // Show fallback icon if image fails
+  &:has(.cta-logo[style*="display: none"]) .cta-icon-fallback {
+    display: inline-flex;
+  }
+}
+
+.bmc-btn {
+  background: #ffdd00;
+  color: #1a1a1a;
+}
+
+.cta-note {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0;
+
+  :host-context(body.dark-theme) & {
+    color: #666;
+  }
+}
+
+// =====================
+// Alternative support
+// =====================
+.alt-support {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(18, 18, 34, 0.92);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+
+    :host-context(body.dark-theme) & {
+      color: #e8eaf6;
+    }
+  }
+}
+
+.alt-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alt-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #444;
+
+  :host-context(body.dark-theme) & {
+    color: #9a9ab0;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: $violet;
+    flex-shrink: 0;
+
+    :host-context(body.dark-theme) & {
+      color: #b39ddb;
+    }
+  }
+}
+
+// =====================
+// Mobile
+// =====================
+@media (max-width: 700px) and (orientation: portrait) {
+  .support-hero {
+    padding: 40px 20px 36px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+
+    .cta-btn {
+      width: 100%;
+      max-width: 280px;
+      justify-content: center;
+    }
+  }
+}

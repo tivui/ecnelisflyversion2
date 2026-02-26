@@ -1179,6 +1179,19 @@ Variantes adoucies (muted) des couleurs d'accent de categorie pour les charts :
 Les graphiques ngx-charts necessitent des styles `::ng-deep` dans le bloc `:host-context(body.dark-theme)` pour etre lisibles en dark mode :
 - `text { fill: rgba(255,255,255,0.7) }`, `.gridline-path/.domain { stroke: rgba(255,255,255,0.1) }`, `.tick text { fill: rgba(255,255,255,0.6) }`, `.pie-label-text { fill: rgba(255,255,255,0.8) }`
 
+## Database admin (`features/admin/pages/database.component.ts`)
+
+### Ordre des onglets (`/admin/database/*`)
+
+Ordre defini dans le signal `tabs` du `DatabaseComponent` :
+
+1. Son du jour (`featured-sound`)
+2. Voyages sonores (`journeys`)
+3. Quiz sonores (`quizzes`)
+4. Terroirs sonores (`zones`)
+5. Articles (`articles`)
+6. Importer les sons (`import-sounds`) — en dernier intentionnellement
+
 ## Dashboard admin (`features/admin/pages/admin-dashboard/`)
 
 ### Route standalone

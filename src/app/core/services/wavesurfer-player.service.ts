@@ -8,6 +8,11 @@ export interface WaveSurferPlayerConfig {
   onPause?: () => void;
   /** Called when audio fails to load (expired URL, network error). Return a fresh URL to retry. */
   getRefreshUrl?: () => Promise<string>;
+  /** Optional metadata for the Media Session API (OS media controls). */
+  mediaMetadata?: {
+    title: string;
+    artist?: string;
+  };
 }
 
 export interface WaveSurferPlayerInstance {
@@ -163,18 +168,45 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   // Event wiring
   let isMuted = false;
 
+  // Register Media Session action handlers once (play/pause mapped to wavesurfer)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => ws.play());
+    navigator.mediaSession.setActionHandler('pause', () => ws.pause());
+    navigator.mediaSession.setActionHandler('stop', () => {
+      ws.stop();
+      onPause?.();
+    });
+  }
+
   ws.on('play', () => {
     playIcon.textContent = 'pause';
+    if (config.mediaMetadata && 'mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: config.mediaMetadata.title,
+        artist: config.mediaMetadata.artist ?? 'Ecnelis FLY',
+        album: 'Ecnelis FLY',
+        artwork: [
+          { src: '/img/logos/logo_blue_orange_left_round.png', sizes: '512x512', type: 'image/png' },
+        ],
+      });
+      navigator.mediaSession.playbackState = 'playing';
+    }
     onPlay?.();
   });
 
   ws.on('pause', () => {
     playIcon.textContent = 'play_arrow';
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused';
+    }
     onPause?.();
   });
 
   ws.on('finish', () => {
     playIcon.textContent = 'play_arrow';
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused';
+    }
     onPause?.();
   });
 

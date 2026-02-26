@@ -421,6 +421,27 @@ body.dark-theme {
   }
 }
 
+// Headphone reminder snackbar
+.headphone-snackbar {
+  .mdc-snackbar__surface {
+    background: #1565c0 !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: #fff !important;
+  }
+
+  .mat-mdc-button {
+    color: #90caf9 !important;
+  }
+
+  body.dark-theme & {
+    .mdc-snackbar__surface {
+      background: #0d47a1 !important;
+    }
+  }
+}
+
 // (Mobile wizard no longer needs MatStepper overrides — stepper is not rendered on mobile)
 
 // =======================

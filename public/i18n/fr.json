@@ -72,7 +72,8 @@
     "soundJourneys": "Voyages sonores",
     "soundQuiz": "Quiz",
     "soundArticles": "Articles",
-    "categories": "Catégories"
+    "categories": "Catégories",
+    "support": "Soutenir"
   },
   "bottomNav": {
     "home": "Accueil",
@@ -1347,5 +1348,36 @@
   "notFound": {
     "message": "Cette page n'existe pas ou a été déplacée.",
     "backHome": "Retour à l'accueil"
+  },
+  "player": {
+    "headphoneReminder": "🎧 Pour une meilleure expérience, utilisez un casque",
+    "headphoneReminderAction": "Compris"
+  },
+  "support": {
+    "title": "Soutenir Ecnelis FLY",
+    "subtitle": "Aidez-nous à faire vivre ce projet passionné",
+    "mission": {
+      "title": "Un projet libre et passionné",
+      "text": "Ecnelis FLY est une application indépendante créée par passion pour les sons du monde. Sans publicité, sans données vendues — uniquement pour vous offrir une expérience sonore unique."
+    },
+    "why": {
+      "title": "Pourquoi soutenir ?",
+      "hosting": "Hébergement cloud et stockage audio",
+      "maps": "Services de cartographie et géolocalisation",
+      "dev": "Développement de nouvelles fonctionnalités",
+      "sounds": "Enrichissement de la base de sons"
+    },
+    "cta": {
+      "intro": "Chaque contribution, même modeste, nous aide à maintenir et améliorer l'application. Merci du fond du cœur ❤️",
+      "kofi": "Offrir un café sur Ko-fi",
+      "bmc": "Buy Me a Coffee",
+      "note": "Paiement sécurisé via Ko-fi / Buy Me a Coffee. Aucun compte requis."
+    },
+    "alt": {
+      "title": "Autres façons de nous soutenir",
+      "record": "Enregistrez et partagez des sons du monde",
+      "share": "Partagez Ecnelis FLY autour de vous",
+      "feedback": "Donnez-nous vos retours et suggestions"
+    }
   }
 }
