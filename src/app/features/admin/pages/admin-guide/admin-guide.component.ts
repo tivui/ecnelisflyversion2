@@ -12,13 +12,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class AdminGuideComponent {
   readonly sections = [
-    { icon: 'pending_actions', titleKey: 'adminGuide.moderation.title', textKey: 'adminGuide.moderation.text' },
-    { icon: 'today', titleKey: 'adminGuide.featured.title', textKey: 'adminGuide.featured.text' },
-    { icon: 'quiz', titleKey: 'adminGuide.quiz.title', textKey: 'adminGuide.quiz.text' },
-    { icon: 'location_on', titleKey: 'adminGuide.zones.title', textKey: 'adminGuide.zones.text' },
-    { icon: 'route', titleKey: 'adminGuide.journeys.title', textKey: 'adminGuide.journeys.text' },
-    { icon: 'menu_book', titleKey: 'adminGuide.articles.title', textKey: 'adminGuide.articles.text' },
-    { icon: 'star', titleKey: 'adminGuide.monthly.title', textKey: 'adminGuide.monthly.text' },
-    { icon: 'bar_chart', titleKey: 'adminGuide.stats.title', textKey: 'adminGuide.stats.text' },
+    { icon: 'pending_actions', titleKey: 'adminGuide.sections.moderation.title', textKey: 'adminGuide.sections.moderation.text' },
+    { icon: 'today', titleKey: 'adminGuide.sections.featured.title', textKey: 'adminGuide.sections.featured.text' },
+    { icon: 'quiz', titleKey: 'adminGuide.sections.quiz.title', textKey: 'adminGuide.sections.quiz.text' },
+    { icon: 'location_on', titleKey: 'adminGuide.sections.zones.title', textKey: 'adminGuide.sections.zones.text' },
+    { icon: 'route', titleKey: 'adminGuide.sections.journeys.title', textKey: 'adminGuide.sections.journeys.text' },
+    { icon: 'menu_book', titleKey: 'adminGuide.sections.articles.title', textKey: 'adminGuide.sections.articles.text' },
+    { icon: 'star', titleKey: 'adminGuide.sections.monthly.title', textKey: 'adminGuide.sections.monthly.text' },
+    { icon: 'bar_chart', titleKey: 'adminGuide.sections.stats.title', textKey: 'adminGuide.sections.stats.text' },
   ];
 }

@@ -38,7 +38,11 @@
       "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 diff main HEAD -- amplify/data/resource.ts)",
       "Bash(git -C /c/Users/Asus/Documents/Projets/ECNELISFLY/V2/ecnelisflyversion2 show fda664d:amplify/data/resource.ts)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(python -c \":*)",
+      "Bash(npx tsc --noEmit --project amplify/tsconfig.json)",
+      "Bash(npx tsc --noEmit amplify/functions/cognito-custom-message/handler.ts --target ES2022 --moduleResolution node --esModuleInterop --allowSyntheticDefaultImports)"
     ]
   }
 }

@@ -113,12 +113,26 @@ $violet: #7e57c2;
   p {
     font-size: 0.9rem;
     color: #555;
-    margin: 0;
+    margin: 0 0 8px;
     line-height: 1.6;
-    white-space: pre-line;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
 
     :host-context(body.dark-theme) & {
       color: #9a9ab0;
+    }
+  }
+
+  h3 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin: 12px 0 4px;
+    color: #333;
+
+    :host-context(body.dark-theme) & {
+      color: #b0b8cc;
     }
   }
 }

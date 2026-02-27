@@ -12,13 +12,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class GuideComponent {
   readonly sections = [
-    { icon: 'public', titleKey: 'guide.explore.title', textKey: 'guide.explore.text' },
-    { icon: 'headphones', titleKey: 'guide.listen.title', textKey: 'guide.listen.text' },
-    { icon: 'person_add', titleKey: 'guide.account.title', textKey: 'guide.account.text' },
-    { icon: 'add_location', titleKey: 'guide.addSound.title', textKey: 'guide.addSound.text' },
-    { icon: 'quiz', titleKey: 'guide.quiz.title', textKey: 'guide.quiz.text' },
-    { icon: 'route', titleKey: 'guide.journeys.title', textKey: 'guide.journeys.text' },
-    { icon: 'location_on', titleKey: 'guide.zones.title', textKey: 'guide.zones.text' },
-    { icon: 'category', titleKey: 'guide.categories.title', textKey: 'guide.categories.text' },
+    { icon: 'public', titleKey: 'guide.sections.explore.title', textKey: 'guide.sections.explore.text' },
+    { icon: 'headphones', titleKey: 'guide.sections.listen.title', textKey: 'guide.sections.listen.text' },
+    { icon: 'person_add', titleKey: 'guide.sections.account.title', textKey: 'guide.sections.account.text' },
+    { icon: 'add_location', titleKey: 'guide.sections.addSound.title', textKey: 'guide.sections.addSound.text' },
+    { icon: 'quiz', titleKey: 'guide.sections.quiz.title', textKey: 'guide.sections.quiz.text' },
+    { icon: 'route', titleKey: 'guide.sections.journeys.title', textKey: 'guide.sections.journeys.text' },
+    { icon: 'location_on', titleKey: 'guide.sections.zones.title', textKey: 'guide.sections.zones.text' },
+    { icon: 'category', titleKey: 'guide.sections.categories.title', textKey: 'guide.sections.categories.text' },
   ];
 }
