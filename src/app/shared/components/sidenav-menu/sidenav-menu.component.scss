@@ -106,6 +106,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
 
   @media (max-height: 700px) {
     padding: 12px 16px;
@@ -203,6 +205,7 @@
   padding: 14px 16px;
   border-radius: 12px;
   cursor: pointer;
+  flex-shrink: 0;
   background: linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(83, 109, 254, 0.1) 100%);
   border: 1px solid rgba(124, 77, 255, 0.2);
   transition: background 0.2s ease, transform 0.2s ease;
@@ -290,21 +293,15 @@
 // Footer
 // =====================
 .sidenav-footer {
-  margin-top: auto;
-  padding: 16px 20px;
+  padding: 8px 20px 16px;
   text-align: center;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
 
   @media (min-width: 701px) {
     display: none;
   }
 
   @media (max-height: 700px) {
-    padding: 10px 20px;
-  }
-
-  :host-context(body.dark-theme) & {
-    border-top-color: rgba(255, 255, 255, 0.1);
+    padding: 6px 20px 10px;
   }
 }
 
@@ -400,6 +397,57 @@
       box-shadow: 0 2px 8px rgba(25, 118, 210, 0.35);
     }
   }
+}
+
+// =====================
+// Social links (always visible)
+// =====================
+.sidenav-social {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 20px;
+  flex-shrink: 0;
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    padding: 10px 20px 4px;
+  }
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+  color: #666;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  :host-context(body.dark-theme) & {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #aaa;
+  }
+}
+
+.social-btn-fb:hover {
+  background: rgba(24, 119, 242, 0.12);
+  color: #1877f2;
+  border-color: rgba(24, 119, 242, 0.25);
+}
+
+.social-btn-ig:hover {
+  background: rgba(225, 48, 108, 0.12);
+  color: #e1306c;
+  border-color: rgba(225, 48, 108, 0.25);
 }
 
 .footer-text {

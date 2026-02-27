@@ -1,0 +1,250 @@
+.email-templates-container {
+  padding: 24px;
+  max-width: 900px;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+
+.et-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.et-header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #3f51b5;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.et-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+}
+
+.et-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+// ─── Selector row ─────────────────────────────────────────────────────────────
+
+.et-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.et-type-select {
+  min-width: 260px;
+}
+
+.et-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &.et-badge-custom {
+    background: rgba(63, 81, 181, 0.10);
+    color: #3f51b5;
+  }
+
+  &.et-badge-default {
+    background: rgba(158, 158, 158, 0.12);
+    color: #666;
+  }
+}
+
+// ─── Loading ──────────────────────────────────────────────────────────────────
+
+.et-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+// ─── Fields ───────────────────────────────────────────────────────────────────
+
+.et-field-full {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.et-body-field {
+  font-family: 'Courier New', monospace;
+
+  ::ng-deep textarea.mat-mdc-input-element {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+}
+
+.et-textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+}
+
+// ─── Warning ──────────────────────────────────────────────────────────────────
+
+.et-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 152, 0, 0.10);
+  border: 1px solid rgba(255, 152, 0, 0.35);
+  border-radius: 8px;
+  color: #e65100;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #ff9800;
+  }
+}
+
+// ─── Action bar ───────────────────────────────────────────────────────────────
+
+.et-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.et-actions-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.et-btn-preview {
+  color: #3f51b5;
+  border-color: rgba(63, 81, 181, 0.35);
+}
+
+.et-btn-save {
+  position: relative;
+}
+
+.et-save-spinner {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+// ─── Preview panel ────────────────────────────────────────────────────────────
+
+.et-preview-panel {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.et-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(63, 81, 181, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3f51b5;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.et-preview-hint {
+  font-weight: 400;
+  color: #888;
+  font-size: 0.78rem;
+  margin-left: 4px;
+}
+
+.et-preview-iframe {
+  width: 100%;
+  height: 520px;
+  border: none;
+  background: #f1f2f6;
+}
+
+// ─── Dark theme ───────────────────────────────────────────────────────────────
+
+:host-context(body.dark-theme) {
+  .et-title {
+    color: #e8eaf6;
+  }
+
+  .et-subtitle {
+    color: #9a9ab0;
+  }
+
+  .et-header-icon {
+    color: #7986cb;
+  }
+
+  .et-badge.et-badge-custom {
+    background: rgba(121, 134, 203, 0.15);
+    color: #7986cb;
+  }
+
+  .et-badge.et-badge-default {
+    background: rgba(255, 255, 255, 0.06);
+    color: #9a9ab0;
+  }
+
+  .et-warning {
+    background: rgba(255, 152, 0, 0.08);
+    border-color: rgba(255, 152, 0, 0.25);
+    color: #ffb74d;
+
+    mat-icon {
+      color: #ffb74d;
+    }
+  }
+
+  .et-preview-panel {
+    border-color: rgba(255, 255, 255, 0.10);
+  }
+
+  .et-preview-header {
+    background: rgba(121, 134, 203, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: #7986cb;
+  }
+
+  .et-preview-iframe {
+    background: #0c0e22;
+  }
+}

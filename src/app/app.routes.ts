@@ -131,6 +131,29 @@ export const routes: Routes = [
         (m) => m.SupportComponent,
       ),
   },
+  {
+    path: 'guide',
+    loadComponent: () =>
+      import('./features/guide/guide.component').then(
+        (m) => m.GuideComponent,
+      ),
+  },
+  {
+    path: 'legal',
+    loadComponent: () =>
+      import('./features/legal/legal.component').then(
+        (m) => m.LegalComponent,
+      ),
+  },
+  {
+    path: 'admin/guide',
+    loadComponent: () =>
+      import('./features/admin/pages/admin-guide/admin-guide.component').then(
+        (m) => m.AdminGuideComponent,
+      ),
+    canActivate: [authGuard],
+    data: { requiredGroup: 'ADMIN' },
+  },
 
   {
     path: '**',

@@ -1,0 +1,155 @@
+$primary: #1976d2;
+$indigo: #3f51b5;
+$violet: #7e57c2;
+
+.legal-page {
+  min-height: 100vh;
+  background: #f1f2f6;
+  padding-bottom: 48px;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(180deg, #080a18, #0c0e22);
+  }
+}
+
+// =====================
+// Hero
+// =====================
+.legal-hero {
+  background: linear-gradient(135deg, $primary, $indigo, $violet);
+  padding: 56px 24px 48px;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  margin-bottom: 20px;
+}
+
+.hero-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+}
+
+.hero-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  opacity: 0.88;
+  margin: 0 auto;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+// =====================
+// Body
+// =====================
+.legal-body {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// =====================
+// Cards
+// =====================
+.legal-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(18, 18, 34, 0.92);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.card-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: $indigo;
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  :host-context(body.dark-theme) & {
+    color: #7986cb;
+  }
+}
+
+.card-content {
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #1a1a2e;
+
+    :host-context(body.dark-theme) & {
+      color: #e8eaf6;
+    }
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0 0 8px;
+    line-height: 1.6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    :host-context(body.dark-theme) & {
+      color: #9a9ab0;
+    }
+  }
+
+  h3 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin: 12px 0 4px;
+    color: #333;
+
+    :host-context(body.dark-theme) & {
+      color: #b0b8cc;
+    }
+  }
+}
+
+// =====================
+// Mobile
+// =====================
+@media (max-width: 700px) and (orientation: portrait) {
+  .legal-hero {
+    padding: 40px 20px 36px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .legal-card {
+    padding: 20px;
+  }
+}

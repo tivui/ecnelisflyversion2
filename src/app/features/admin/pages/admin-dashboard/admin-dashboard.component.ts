@@ -12,7 +12,17 @@ import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
 import { DashboardService } from '../../../dashboard/services/dashboard.service';
 import { StorageService } from '../../../../core/services/storage.service';
+import { AmplifyService } from '../../../../core/services/amplify.service';
 import { Sound } from '../../../../core/models/sound.model';
+
+interface CognitoStatsResult {
+  totalUsers: number;
+  newThisWeek: number;
+  newThisMonth: number;
+  emailCount: number;
+  oauthCount: number;
+  timeSeriesJson: string;
+}
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -33,6 +43,7 @@ import { Sound } from '../../../../core/models/sound.model';
 })
 export class AdminDashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
+  private readonly amplifyService = inject(AmplifyService);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly storageService = inject(StorageService);
@@ -42,6 +53,45 @@ export class AdminDashboardComponent implements OnInit {
   loading = signal(true);
   expandedSoundId = signal<string | null>(null);
   soundUrls = signal<Record<string, string>>({});
+
+  // Cognito stats
+  cognitoStats = signal<CognitoStatsResult | null>(null);
+  cognitoLoading = signal(false);
+  cognitoError = signal(false);
+
+  cognitoTimeSeries = computed(() => {
+    const raw = this.cognitoStats()?.timeSeriesJson;
+    if (!raw) return [];
+    try {
+      const months: { label: string; count: number }[] = JSON.parse(raw);
+      return months.map((m) => ({ name: m.label, value: m.count }));
+    } catch {
+      return [];
+    }
+  });
+
+  cognitoProviderData = computed(() => {
+    const stats = this.cognitoStats();
+    if (!stats) return [];
+    return [
+      { name: this.translate.instant('admin.dashboard.cognito.emailUsers'), value: stats.emailCount },
+      { name: this.translate.instant('admin.dashboard.cognito.oauthUsers'), value: stats.oauthCount },
+    ];
+  });
+
+  cognitoColorScheme: Color = {
+    name: 'cognito',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#3f51b5'],
+  };
+
+  cognitoProviderScheme: Color = {
+    name: 'cognitoProvider',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#1976d2', '#ea4335'],
+  };
 
   // KPIs
   totalSounds = computed(() => this.sounds().length);
@@ -218,6 +268,29 @@ export class AdminDashboardComponent implements OnInit {
       console.error('[AdminDashboard] Failed to load data:', error);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  onTabChange(index: number) {
+    if (index === 2 && !this.cognitoStats() && !this.cognitoLoading()) {
+      this.loadCognitoStats();
+    }
+  }
+
+  async loadCognitoStats() {
+    if (this.cognitoLoading()) return;
+    this.cognitoLoading.set(true);
+    this.cognitoError.set(false);
+    try {
+      const result = await (this.amplifyService.client as any).queries.getCognitoStats();
+      if (result?.data) {
+        this.cognitoStats.set(result.data as CognitoStatsResult);
+      }
+    } catch (e) {
+      console.error('[AdminDashboard] getCognitoStats failed:', e);
+      this.cognitoError.set(true);
+    } finally {
+      this.cognitoLoading.set(false);
     }
   }
 
