@@ -389,6 +389,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform; // GPU layer: fixes Chrome overflow:hidden + border-radius + scale() rendering artifact
   cursor: pointer;
 
   :host-context(body.dark-theme) & {
@@ -560,6 +561,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 20px 20px 0 0; // Self-clip top corners: prevents bleed on scale(1.02) hover
 
   // Floating orbs — base (overridden per card type)
   &::before {
@@ -1173,6 +1175,8 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       max-width: none;
       position: relative;
       display: flex !important; // Force show all cards in XL (override any non-XL hide)
+      clip-path: inset(0 round 20px); // GPU-composited clip: correctly follows scale() on hover exit (overflow:hidden lags on Chrome)
+      transition: transform 0.14s ease-out, box-shadow 0.18s ease-out; // Snappier than base 0.3s
       border-left: none !important;
       border-color: rgba($primary-indigo, 0.08);
       box-shadow: 0 4px 20px rgba($primary-indigo, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -1202,6 +1206,11 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
         align-self: flex-start;
         width: fit-content;
       }
+    }
+
+    // Hide repeated cards (tripled for mobile infinite scroll) — only first 4 shown in XL
+    > .hero-card:nth-child(n+5) {
+      display: none !important;
     }
   }
 

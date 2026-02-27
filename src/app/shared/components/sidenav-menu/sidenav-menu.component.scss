@@ -106,6 +106,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
 
   @media (max-height: 700px) {
     padding: 12px 16px;
@@ -203,6 +205,7 @@
   padding: 14px 16px;
   border-radius: 12px;
   cursor: pointer;
+  flex-shrink: 0;
   background: linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(83, 109, 254, 0.1) 100%);
   border: 1px solid rgba(124, 77, 255, 0.2);
   transition: background 0.2s ease, transform 0.2s ease;
@@ -290,21 +293,15 @@
 // Footer
 // =====================
 .sidenav-footer {
-  margin-top: auto;
-  padding: 16px 20px;
+  padding: 8px 20px 16px;
   text-align: center;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
 
   @media (min-width: 701px) {
     display: none;
   }
 
   @media (max-height: 700px) {
-    padding: 10px 20px;
-  }
-
-  :host-context(body.dark-theme) & {
-    border-top-color: rgba(255, 255, 255, 0.1);
+    padding: 6px 20px 10px;
   }
 }
 
@@ -403,13 +400,18 @@
 }
 
 // =====================
-// Social links
+// Social links (always visible)
 // =====================
-.footer-social {
+.sidenav-social {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin: 10px 0 8px;
+  padding: 16px 20px;
+  flex-shrink: 0;
+
+  @media (max-width: 700px) and (orientation: portrait) {
+    padding: 10px 20px 4px;
+  }
 }
 
 .social-btn {

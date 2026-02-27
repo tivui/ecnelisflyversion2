@@ -786,7 +786,9 @@ Badges numeriques sur les icones de navigation, geres par deux signals dans `app
 - **Position** : `'end'` (droite) en mobile portrait, `'start'` (gauche) en desktop — `[position]="isMobilePortrait() ? 'end' : 'start'"`
 - **Plein ecran** : `width: 100vw; max-width: 100vw; box-shadow: none` en mobile portrait
 - **Desktop** : `width: 320px; max-width: 85vw`
+- **Liens sociaux** (`.sidenav-social`) : icones Facebook + Instagram, visibles desktop ET mobile, placees entre le "Son du jour" et le footer. `flex-shrink: 0` (jamais compressees). URLs : `facebook.com/ecnelisfly`, `instagram.com/ecnelisfly`
 - **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
+- **Nav scrollable** : `.sidenav-nav` a `flex: 1; overflow-y: auto; min-height: 0` — si les items de navigation depassent l'espace disponible, le nav scrolle en interne. Featured sound et liens sociaux restent toujours visibles en bas (`flex-shrink: 0`)
 - **Small phones** (`@media max-height: 700px`) : espacements compacts — header padding reduit, close-btn margin reduit, nav padding/gap reduits, nav-item padding compact (11px 16px) + font 0.92rem, featured-sound padding/margin reduits, footer padding reduit. Permet a tout le contenu de tenir sans scroll sur 375x667
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
@@ -800,7 +802,7 @@ Zoom (+/-) et layers switcher stylises avec glassmorphism light/dark, proportion
 
 - **Zoom** : `border-radius: 10px`, fond `rgba(255,255,255,0.92)` light / `rgba(14,14,28,0.88)` dark, `backdrop-filter: blur(12px)`, hover bleu. Masque en mobile portrait (pinch-to-zoom)
 - **Base layers toggle** (bottom-left) : icone carte pliee (map SVG) grise (`#555555` light / `#9a9ab0` dark), 36x36px desktop, `cursor: pointer`. Desktop : `collapsed: !isMobilePortrait` (toggle bouton), ouverture au **clic uniquement** (override `expand()` avec flag `clickTriggered`). Mobile : toujours expanded (chips horizontaux)
-- **Categories toggle** (bottom-right) : icone stacked layers grise, meme dimensions et couleurs que base layers
+- **Categories toggle** (bottom-right) : panneau custom `.desktop-category-panel` (`position: absolute; bottom: 8px; right: 10px`), aligne avec les controles Leaflet bottom-left. Icone stacked layers grise, meme dimensions et couleurs que base layers
 - **Layers expanded** : `border-radius: 8px`, padding compact `5px 8px`, font `0.7rem`, radios `12px`, `backdrop-filter: blur(16px)`. Texte `#1a1a2e` light / `#b0b8cc` dark (gris-bleu doux, harmonise avec le fond sombre). Labels avec hover bleu subtil, `accent-color: #1976d2` light / `#90caf9` dark. Inputs non coches : `color-scheme: dark` pour contour gris (pas blanc vif)
 - **Popup close button** : `.leaflet-popup-close-button` stylise en bouton circulaire 28px (meme design que le bottom sheet mobile). Light : fond `rgba(0,0,0,0.06)`, icone `#666`, hover `0.12`. Dark : fond `rgba(255,255,255,0.12)`, icone `#ddd`, hover `0.20`
 - **Tooltips** : natifs (`title` attribute) sur les 3 boutons (radar, base layers, categories). Pas de tooltips CSS custom (incompatible `overflow: hidden` du minimap container)
