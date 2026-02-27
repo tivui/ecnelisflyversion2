@@ -73,6 +73,8 @@
     "soundQuiz": "Quiz",
     "soundArticles": "Artículos",
     "support": "Apoyar",
+    "guide": "Guía",
+    "legal": "Aviso legal",
     "facebook": "Síguenos en Facebook",
     "instagram": "Síguenos en Instagram"
   },
@@ -220,7 +222,8 @@
     "light": "Claro",
     "admin": {
       "dashboard": "Panel de administración",
-      "manage-database": "Administrar base de datos"
+      "manage-database": "Administrar base de datos",
+      "guide": "Guía admin"
     },
     "fullscreen": {
       "enter": "Entrar pantalla completa",
@@ -1372,6 +1375,115 @@
       "record": "Graba y comparte sonidos de todo el mundo",
       "share": "Comparte Ecnelis FLY con tus amigos",
       "feedback": "Envíanos tus comentarios y sugerencias"
+    }
+  },
+  "guide": {
+    "title": "Guía de uso",
+    "subtitle": "Aprende a explorar los sonidos del mundo",
+    "sections": {
+      "explore": {
+        "title": "Explorar el mapa",
+        "text": "Abre el mapa mundial para descubrir sonidos geolocalizados. Usa el zoom, cambia el mapa base (satélite o estándar) y filtra por categoría o período (últimos sonidos, semana, mes)."
+      },
+      "listen": {
+        "title": "Escuchar un sonido",
+        "text": "Haz clic en un marcador para abrir el reproductor de audio con su forma de onda interactiva. Haz clic en la forma de onda para navegar por el sonido. Usa auriculares para una mejor experiencia."
+      },
+      "account": {
+        "title": "Crear una cuenta",
+        "text": "Regístrate para guardar tus favoritos, publicar sonidos y participar en los quiz. Puedes iniciar sesión con email o con Google."
+      },
+      "addSound": {
+        "title": "Añadir un sonido",
+        "text": "Graba o selecciona un archivo de audio, elige su posición en el mapa, añade un título, descripción y categoría. Los sonidos públicos son revisados por un moderador antes de aparecer en el mapa."
+      },
+      "quiz": {
+        "title": "Jugar a los quiz",
+        "text": "Pon a prueba tus conocimientos sonoros con nuestros quiz temáticos. Escucha extractos y adivina la respuesta correcta. Publica tu puntuación para aparecer en la clasificación."
+      },
+      "journeys": {
+        "title": "Viajes sonoros",
+        "text": "Sigue itinerarios sonoros temáticos por todo el mundo. Cada etapa te presenta un sonido, su historia y su contexto geográfico."
+      },
+      "zones": {
+        "title": "Terruños sonoros",
+        "text": "Explora regiones sonoras seleccionadas con sus sonidos característicos en un mapa dedicado. Cada terruño destaca la identidad sonora de un lugar."
+      },
+      "categories": {
+        "title": "Categorías",
+        "text": "Navega por los sonidos por categoría: ambiente, animal, música, naturaleza, humano, deporte, transporte, objetos, comida. Cada categoría tiene subcategorías para refinar tu exploración."
+      }
+    }
+  },
+  "adminGuide": {
+    "title": "Guía de administración",
+    "subtitle": "Referencia para la gestión de la plataforma Ecnelis FLY",
+    "sections": {
+      "moderation": {
+        "title": "Moderación de sonidos",
+        "text": "Los sonidos públicos enviados por los usuarios llegan con estado «pendiente». Desde el panel de administración (pestaña Moderación), escucha el sonido, revisa sus metadatos y aprueba o rechaza. Los sonidos aprobados se hacen visibles en el mapa."
+      },
+      "featured": {
+        "title": "Sonido del día",
+        "text": "El sonido del día se selecciona automáticamente cada mañana por una función Lambda. Para forzar un sonido específico, ve a Base de datos > Sonido del día y haz clic en el icono de calendario del candidato deseado."
+      },
+      "quiz": {
+        "title": "Gestión de quiz",
+        "text": "Crea y edita quiz en Base de datos > Quiz sonoros. Configura las preguntas por partida, el icono y la dificultad. Gestiona las puntuaciones desde el panel de clasificación (eliminar intentos individuales o reiniciar todo)."
+      },
+      "zones": {
+        "title": "Terruños sonoros",
+        "text": "Crea terruños con un polígono geográfico, imagen de portada (con encuadre y zoom), color e icono personalizables. Asocia sonidos existentes al terruño."
+      },
+      "journeys": {
+        "title": "Viajes sonoros",
+        "text": "Un viaje es un itinerario compuesto por etapas ordenadas. Cada etapa está vinculada a un sonido y puede contener una historia corta y enlaces externos. Añade una imagen de portada con encuadre y zoom."
+      },
+      "articles": {
+        "title": "Artículos",
+        "text": "Redacta artículos con el editor de bloques: texto, imágenes, citas, audio. Publica o archiva desde la lista de administración. Los artículos publicados aparecen en la sección Artículos del menú."
+      },
+      "monthly": {
+        "title": "Elementos destacados",
+        "text": "El quiz, la zona, el viaje y el artículo del mes se seleccionan automáticamente. Para forzarlos manualmente, haz clic en el icono de estrella en cada sección de la base de datos. Esto recrea el elemento con los datos actualizados."
+      },
+      "stats": {
+        "title": "Estadísticas",
+        "text": "El panel de administración muestra KPIs globales (sonidos, usuarios, sonidos pendientes, nuevos este mes) y gráficos: distribución por categoría, subidas mensuales, estados, top contribuidores y top ciudades."
+      }
+    }
+  },
+  "legal": {
+    "title": "Aviso legal",
+    "lastUpdate": "Última actualización: febrero de 2026",
+    "sections": {
+      "editor": {
+        "title": "Editor",
+        "name": "Ecnelis FLY — Proyecto personal",
+        "hosting": "Alojamiento",
+        "hostingDetail": "Amazon Web Services (AWS) a través de AWS Amplify",
+        "contact": "Contacto: contact@ecnelisfly.com"
+      },
+      "terms": {
+        "title": "Condiciones de uso",
+        "usage": "Ecnelis FLY es un servicio gratuito de exploración sonora geolocalizada. Su uso implica la aceptación de estas condiciones.",
+        "ipTitle": "Propiedad intelectual",
+        "ip": "El código fuente, el diseño, los contenidos editoriales (artículos, quiz, viajes sonoros) y los elementos gráficos son propiedad de Ecnelis FLY. Queda prohibida cualquier reproducción sin autorización.",
+        "licensesTitle": "Licencias de sonidos",
+        "licenses": "Los sonidos compartidos por los usuarios están sujetos a la licencia elegida por su autor: Dominio público, CC BY, CC BY-NC, CC BY-SA o Solo lectura. La descarga solo está permitida para las licencias que lo permitan.",
+        "userContentTitle": "Contenido del usuario",
+        "userContent": "Al publicar un sonido, el usuario garantiza ser el autor o poseer los derechos. Los sonidos públicos son moderados antes de su publicación. Ecnelis FLY se reserva el derecho de eliminar cualquier contenido inapropiado."
+      },
+      "privacy": {
+        "title": "Protección de datos",
+        "data": "Los datos personales recopilados (email, nombre de usuario, país) se utilizan únicamente para el funcionamiento de la aplicación. Ningún dato se vende a terceros.",
+        "cookies": "La aplicación utiliza almacenamiento local (localStorage, sessionStorage) para las preferencias del usuario (tema, idioma). No se utilizan cookies de seguimiento de terceros.",
+        "thirdParty": "Servicios de terceros utilizados: AWS (alojamiento, autenticación, almacenamiento), Mapbox y ESRI (mapas base), Google Fonts (tipografía)."
+      },
+      "copyright": {
+        "title": "Propiedad intelectual",
+        "text": "© 2024-2026 Ecnelis FLY — Todos los derechos reservados."
+      }
     }
   }
 }

@@ -102,9 +102,21 @@ export class SidenavMenuComponent {
       queryParams: {},
     },
     {
+      icon: 'help_outline',
+      labelKey: 'sidenav.guide',
+      route: '/guide',
+      queryParams: {},
+    },
+    {
       icon: 'favorite',
       labelKey: 'sidenav.support',
       route: '/support',
+      queryParams: {},
+    },
+    {
+      icon: 'gavel',
+      labelKey: 'sidenav.legal',
+      route: '/legal',
       queryParams: {},
     },
   ];

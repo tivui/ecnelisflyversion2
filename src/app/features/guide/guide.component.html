@@ -1,0 +1,21 @@
+<div class="guide-page">
+  <div class="guide-hero">
+    <div class="hero-icon-wrap">
+      <mat-icon class="hero-icon">help_outline</mat-icon>
+    </div>
+    <h1 class="hero-title">{{ 'guide.title' | translate }}</h1>
+    <p class="hero-subtitle">{{ 'guide.subtitle' | translate }}</p>
+  </div>
+
+  <div class="guide-body">
+    @for (section of sections; track section.titleKey) {
+      <div class="guide-card">
+        <mat-icon class="card-icon">{{ section.icon }}</mat-icon>
+        <div class="card-content">
+          <h2>{{ section.titleKey | translate }}</h2>
+          <p>{{ section.textKey | translate }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

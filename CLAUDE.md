@@ -1607,6 +1607,43 @@ Templates HTML inline dans `TRANSLATIONS` constant (FR/EN/ES). Contenu : confirm
 
 `@aws-sdk/client-sesv2` installe en `devDependency` — verifie a la compilation TS meme sans deploiement.
 
+## Pages documentation
+
+### Guide utilisateur (`features/guide/`)
+
+- **Route** : `/guide` (public, pas de guard)
+- **Sidenav** : `{ icon: 'help_outline', labelKey: 'sidenav.guide', route: '/guide' }` — avant "Soutenir"
+- **Composant** : standalone, pattern identique a `SupportComponent` (hero gradient + cards)
+- **Hero** : icone `help_outline`, animation `pulse-icon` (pas heartbeat)
+- **Body** : 8 cards avec icone + titre + texte (sections : explorer, ecouter, compte, ajouter, quiz, voyages, terroirs, categories)
+- **i18n** : cles `guide.*` (title, subtitle, explore, listen, account, addSound, quiz, journeys, zones, categories)
+
+### Mentions legales (`features/legal/`)
+
+- **Route** : `/legal` (public)
+- **Sidenav** : `{ icon: 'gavel', labelKey: 'sidenav.legal', route: '/legal' }` — dernier item
+- **Hero** : icone `gavel`, pas d'animation
+- **Body** : 4 cards (editeur `business`, CGU `description`, vie privee `security`, copyright `copyright`)
+- **i18n** : cles `legal.*` (title, subtitle, editor, terms, privacy, copyright)
+- **SCSS** : icones en `$indigo` (#3f51b5) light / `#7986cb` dark (differencie du guide en `$primary`)
+
+### Guide administrateur (`features/admin/pages/admin-guide/`)
+
+- **Route** : `/admin/guide` (protege : `canActivate: [authGuard], data: { requiredGroup: 'ADMIN' }`)
+- **PAS dans le sidenav** — accessible uniquement via le mat-menu admin (icone engrenage), 3eme entree apres "Tableau de bord" et "Gerer la bdd"
+- **Hero** : icone `admin_panel_settings`
+- **Body** : 8 cards (moderation, son du jour, quiz, terroirs, voyages, articles, elements du mois, statistiques)
+- **i18n** : cles `adminGuide.*` + `toolbar.admin.guide`
+- **SCSS** : icones en `$violet` (#7e57c2) light / `#b39ddb` dark (identite admin)
+
+## Meta tags SEO / Open Graph
+
+`src/index.html` inclut :
+- `<meta name="description">` : description FR de l'application
+- `<meta name="author">` et `<meta name="copyright">`
+- Open Graph : `og:title`, `og:description`, `og:type`, `og:image` (icon-512x512), `og:site_name`
+- Twitter Card : `summary_large_image` avec titre, description et image
+
 ## Fichiers temporaires a ignorer
 
 - `preview-color-proposals.html` (preview design, pas partie de l'app)

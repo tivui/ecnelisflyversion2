@@ -74,6 +74,8 @@
     "soundArticles": "Articles",
     "categories": "Catégories",
     "support": "Soutenir",
+    "guide": "Guide",
+    "legal": "Mentions légales",
     "facebook": "Nous suivre sur Facebook",
     "instagram": "Nous suivre sur Instagram"
   },
@@ -221,7 +223,8 @@
     "light": "Clair",
     "admin": {
       "dashboard": "Tableau de bord",
-      "manage-database": "Gérer la bdd"
+      "manage-database": "Gérer la bdd",
+      "guide": "Guide admin"
     },
     "fullscreen": {
       "enter": "Mode plein écran",
@@ -1406,6 +1409,115 @@
       "record": "Enregistrez et partagez des sons du monde",
       "share": "Partagez Ecnelis FLY autour de vous",
       "feedback": "Donnez-nous vos retours et suggestions"
+    }
+  },
+  "guide": {
+    "title": "Guide d'utilisation",
+    "subtitle": "Apprenez à explorer les sons du monde",
+    "sections": {
+      "explore": {
+        "title": "Explorer la carte",
+        "text": "Ouvrez la carte mondiale pour découvrir des sons géolocalisés. Utilisez le zoom, changez le fond de carte (satellite ou standard) et filtrez par catégorie ou par période (derniers sons, semaine, mois)."
+      },
+      "listen": {
+        "title": "Écouter un son",
+        "text": "Cliquez sur un marqueur pour ouvrir le lecteur audio avec sa forme d'onde interactive. Cliquez sur la forme d'onde pour naviguer dans le son. Utilisez un casque pour une meilleure expérience d'écoute."
+      },
+      "account": {
+        "title": "Créer un compte",
+        "text": "Inscrivez-vous pour sauvegarder vos favoris, publier des sons et participer aux quiz. La connexion est possible par email ou via Google."
+      },
+      "addSound": {
+        "title": "Ajouter un son",
+        "text": "Enregistrez ou sélectionnez un fichier audio, choisissez sa position sur la carte, ajoutez un titre, une description et une catégorie. Les sons publics sont validés par un modérateur avant d'être visibles sur la carte."
+      },
+      "quiz": {
+        "title": "Jouer aux quiz",
+        "text": "Testez vos connaissances sonores avec nos quiz thématiques. Écoutez des extraits et devinez la bonne réponse. Publiez votre score pour apparaître dans le classement."
+      },
+      "journeys": {
+        "title": "Voyages sonores",
+        "text": "Suivez des itinéraires sonores thématiques à travers le monde. Chaque étape vous fait découvrir un son, son histoire et son contexte géographique."
+      },
+      "zones": {
+        "title": "Terroirs sonores",
+        "text": "Explorez des régions sonores sélectionnées avec leurs sons caractéristiques affichés sur une carte dédiée. Chaque terroir met en valeur l'identité sonore d'un lieu."
+      },
+      "categories": {
+        "title": "Catégories",
+        "text": "Parcourez les sons par catégorie : ambiance, animal, musique, nature, humain, sport, transport, objets, nourriture. Chaque catégorie dispose de sous-catégories pour affiner votre exploration."
+      }
+    }
+  },
+  "adminGuide": {
+    "title": "Guide administrateur",
+    "subtitle": "Référence pour la gestion de la plateforme Ecnelis FLY",
+    "sections": {
+      "moderation": {
+        "title": "Modération des sons",
+        "text": "Les sons publics soumis par les utilisateurs arrivent en statut « en attente ». Depuis le tableau de bord admin (onglet Modération), écoutez le son, consultez ses métadonnées, puis approuvez ou rejetez. Les sons approuvés deviennent visibles sur la carte."
+      },
+      "featured": {
+        "title": "Son du jour",
+        "text": "Le son du jour est sélectionné automatiquement chaque matin par une Lambda. Pour forcer un son spécifique, allez dans Base de données > Son du jour et cliquez sur l'icône calendrier du candidat souhaité."
+      },
+      "quiz": {
+        "title": "Gestion des quiz",
+        "text": "Créez et modifiez des quiz dans Base de données > Quiz sonores. Configurez le nombre de questions par partie, l'icône, la difficulté. Gérez les scores depuis le panneau classement (supprimer des tentatives individuelles ou tout réinitialiser)."
+      },
+      "zones": {
+        "title": "Terroirs sonores",
+        "text": "Créez des terroirs avec un polygone géographique, une image de couverture (avec cadrage et zoom), une couleur et une icône personnalisables. Associez des sons existants au terroir."
+      },
+      "journeys": {
+        "title": "Voyages sonores",
+        "text": "Un voyage est un itinéraire composé d'étapes ordonnées. Chaque étape est liée à un son et peut contenir une histoire courte et des liens externes. Ajoutez une image de couverture avec cadrage et zoom."
+      },
+      "articles": {
+        "title": "Articles",
+        "text": "Rédigez des articles avec l'éditeur de blocs : texte, images, citations, audio. Publiez ou archivez depuis la liste admin. Les articles publiés apparaissent dans la section Articles du menu."
+      },
+      "monthly": {
+        "title": "Éléments mis en valeur",
+        "text": "Le quiz, la zone, le voyage et l'article du mois sont sélectionnés automatiquement. Pour les forcer manuellement, cliquez sur l'icône étoile dans chaque section de la base de données. Cela recrée l'élément avec les données à jour."
+      },
+      "stats": {
+        "title": "Statistiques",
+        "text": "Le tableau de bord admin affiche les KPIs globaux (sons, utilisateurs, sons en attente, nouveaux ce mois) et des graphiques : répartition par catégorie, uploads mensuels, statuts, top contributeurs et top villes."
+      }
+    }
+  },
+  "legal": {
+    "title": "Mentions légales",
+    "lastUpdate": "Dernière mise à jour : février 2026",
+    "sections": {
+      "editor": {
+        "title": "Éditeur",
+        "name": "Ecnelis FLY — Projet personnel",
+        "hosting": "Hébergement",
+        "hostingDetail": "Amazon Web Services (AWS) via AWS Amplify",
+        "contact": "Contact : contact@ecnelisfly.com"
+      },
+      "terms": {
+        "title": "Conditions générales d'utilisation",
+        "usage": "L'application Ecnelis FLY est un service gratuit d'exploration sonore géolocalisée. Son utilisation implique l'acceptation des présentes conditions.",
+        "ipTitle": "Propriété intellectuelle",
+        "ip": "Le code source, le design, les contenus éditoriaux (articles, quiz, voyages sonores) et les éléments graphiques sont la propriété d'Ecnelis FLY. Toute reproduction sans autorisation est interdite.",
+        "licensesTitle": "Licences des sons",
+        "licenses": "Les sons partagés par les utilisateurs sont soumis à la licence choisie par leur auteur : Domaine public, CC BY, CC BY-NC, CC BY-SA ou Lecture seule. Le téléchargement est autorisé uniquement pour les licences le permettant.",
+        "userContentTitle": "Contenu utilisateur",
+        "userContent": "En publiant un son, l'utilisateur garantit en être l'auteur ou en détenir les droits. Les sons publics sont modérés avant publication. Ecnelis FLY se réserve le droit de retirer tout contenu inapproprié."
+      },
+      "privacy": {
+        "title": "Protection des données",
+        "data": "Les données personnelles collectées (email, nom d'utilisateur, pays) sont utilisées uniquement pour le fonctionnement de l'application. Aucune donnée n'est vendue à des tiers.",
+        "cookies": "L'application utilise le stockage local (localStorage, sessionStorage) pour les préférences utilisateur (thème, langue). Aucun cookie de tracking tiers n'est utilisé.",
+        "thirdParty": "Services tiers utilisés : AWS (hébergement, authentification, stockage), Mapbox et ESRI (fonds de carte), Google Fonts (typographie)."
+      },
+      "copyright": {
+        "title": "Propriété intellectuelle",
+        "text": "© 2024-2026 Ecnelis FLY — Tous droits réservés."
+      }
     }
   }
 }
