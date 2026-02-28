@@ -2,7 +2,7 @@
 
 ## Projet
 
-Application web PWA d'exploration sonore geolocalise. Angular 18, standalone components, AWS Amplify (backend), Leaflet (carte).
+Application web PWA d'exploration sonore geolocalise. Angular 20, standalone components, AWS Amplify (backend), Leaflet (carte).
 
 ## Build & Dev
 
@@ -12,11 +12,12 @@ npx ng serve          # Dev server (localhost:4200)
 ```
 
 Warnings pre-existants a ignorer : budget bundle, duplicate Material theming, CommonJS modules (leaflet, qrcode, etc.).
-Budget `anyComponentStyle` : `maximumError: 80kb` dans `angular.json` (augmente pour mapfly.component.scss avec le panneau categories desktop + styles popups/controles premium).
+Budget `anyComponentStyle` : `maximumError: 100kb` dans `angular.json` (augmente pour mapfly.component.scss avec le panneau categories desktop + styles popups/controles premium).
+Si OOM en local : `NODE_OPTIONS=--max-old-space-size=4096 npx ng build` (TypeScript 5.9 + Angular 20 esbuild requiert plus de memoire).
 
 ## Architecture
 
-- **Angular 18** : standalone components, signals (`signal()`, `computed()`, `toSignal()`)
+- **Angular 20** : standalone components (defaut depuis Angular 19), signals (`signal()`, `computed()`, `toSignal()`), TypeScript 5.9
 - **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth, Lambda Node.js 22)
 - **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
 - **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
