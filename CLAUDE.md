@@ -1643,21 +1643,20 @@ Page de soutien financier accessible via `/support` et le sidenav (item "Souteni
 - **Hero** : gradient `$primary → $indigo → $violet`, icone `favorite` animee (`heartbeat` keyframe), titre + sous-titre i18n
 - **Mission card** : icone `public` + texte mission
 - **Pourquoi card** : liste avec icones `cloud_upload`, `map`, `code`, `headphones`
-- **CTA section** : boutons Ko-fi (rouge `#ff5e5b`) + Buy Me a Coffee (jaune `#ffdd00`), note sans engagement
+- **CTA section** : bouton Ko-fi (rouge `#ff5e5b`), note sans engagement
 - **Support alternatif** : `mic`, `share`, `star` — enregistrer, partager, feedback
 
 ### Donations
 
 | Plateforme | URL | Commission | Notes |
 |------------|-----|-----------|-------|
-| Ko-fi | `https://ko-fi.com/ecnelisfly` | 0% | Recommande — direct PayPal/Stripe |
-| Buy Me a Coffee | `https://buymeacoffee.com/ecnelisfly` | 5% | Secondaire |
+| Ko-fi | `https://ko-fi.com/ecnelisfly` | 0% | Unique plateforme — direct PayPal/Stripe |
 
-Boutons ouvrent `_blank` avec `noopener,noreferrer`. Ko-fi : image logo `/img/kofi_cup.png` avec fallback icone `local_cafe` si image manquante.
+Bouton ouvre `_blank` avec `noopener,noreferrer`. Ko-fi : image logo `/img/kofi_cup.png` avec fallback icone `local_cafe` si image manquante.
 
 ### i18n
 
-Cles `support.*` : title, subtitle, mission.title/text, why.title/hosting/maps/dev/sounds, cta.intro/kofi/bmc/note, alt.title/record/share/feedback (FR/EN/ES)
+Cles `support.*` : title, subtitle, mission.title/text, why.title/hosting/maps/dev/sounds, cta.intro/kofi/note, alt.title/record/share/feedback (FR/EN/ES)
 
 Cle sidenav : `sidenav.support` — FR "Soutenir", EN "Support us", ES "Apoyar"
 
@@ -1700,19 +1699,54 @@ Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunct
 | `send-sound-confirmation-email` | 15s | 256 MB | — |
 | `start-import` | 10s | 256 MB | — |
 
+## Lambda notification inscription (`amplify/functions/post-confirmation-notify/`)
+
+### Principe
+
+Cognito PostConfirmation trigger. Envoie un email de notification a l'admin (`ecnelisfly@gmail.com`) a chaque nouvelle inscription (email/password ET OAuth). Envoie depuis `noreply@ecnelisfly.com` (domaine verifie SES + DKIM). `resourceGroupName: 'auth'` (evite dependance circulaire CDK).
+
+### Declenchement
+
+- `PostConfirmation_ConfirmSignUp` : inscription email/password (apres verification code) + OAuth (premiere connexion)
+- Ignore les autres triggers (ex: `PostConfirmation_ConfirmForgotPassword`)
+
+### Email envoye
+
+- **De** : `noreply@ecnelisfly.com` (FROM_EMAIL)
+- **A** : `ecnelisfly@gmail.com` (ADMIN_EMAIL)
+- **Objet** : "Nouvelle inscription — Ecnelis FLY"
+- **Contenu** : email, date (Europe/Paris), Cognito Sub
+
+### Permissions IAM (`backend.ts`)
+
+`ses:SendEmail` + `ses:SendRawEmail` sur `identity/ecnelisfly.com`
+
+## Config emails SES — convention unifiee
+
+Tous les emails de l'application utilisent le domaine verifie `ecnelisfly.com` :
+
+| Composant | Expediteur | Destinataire | Permission IAM |
+|-----------|-----------|-------------|----------------|
+| Cognito (verification/reset) | `noreply@ecnelisfly.com` | utilisateur | `identity/ecnelisfly.com` (sourceArn) |
+| post-confirmation-notify | `noreply@ecnelisfly.com` | `ecnelisfly@gmail.com` (admin) | `identity/ecnelisfly.com` |
+| send-sound-confirmation-email | `noreply@ecnelisfly.com` | utilisateur | `identity/ecnelisfly.com` |
+
+SES en mode production (sorti du sandbox fevrier 2026). DKIM actif sur `ecnelisfly.com`.
+
 ## Lambda email confirmation son (`amplify/functions/send-sound-confirmation-email/`)
 
 ### Principe
 
-Lambda prete mais non enregistree dans `amplify/backend.ts`. Activee uniquement quand `SEND_EMAIL_ENABLED=true` (env var Amplify Console). Sans cette variable, retourne `{ status: 'dry_run' }`.
+Lambda enregistree dans `amplify/backend.ts`. Activee quand `SEND_EMAIL_ENABLED=true` (env var definie dans backend.ts). Envoie depuis `noreply@ecnelisfly.com` (domaine verifie SES + DKIM).
 
-### Prerequis avant activation
+### Prerequis (deja configures)
 
-1. Verifier `ecnelisfly@gmail.com` dans AWS SES Console (email verification)
-2. Definir `SENDER_EMAIL=ecnelisfly@gmail.com` dans Amplify Console env vars
-3. Definir `SEND_EMAIL_ENABLED=true`
-4. Enregistrer la Lambda dans `amplify/backend.ts` (import + `defineBackend`)
-5. Câbler l'appel depuis `confirmation-step.component.ts` apres `Sound.create()`
+1. Domaine `ecnelisfly.com` verifie dans SES (DKIM actif)
+2. SES en mode production (sorti du sandbox)
+3. `SENDER_EMAIL=noreply@ecnelisfly.com` (env var dans backend.ts)
+4. `SEND_EMAIL_ENABLED=true` (env var dans backend.ts)
+5. Permission IAM `ses:SendEmail` sur `identity/ecnelisfly.com`
+6. Câbler l'appel depuis `confirmation-step.component.ts` apres `Sound.create()` (a faire)
 
 ### Interface
 
