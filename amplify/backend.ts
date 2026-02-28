@@ -183,7 +183,8 @@ if (!isSandbox) {
   const tables = backend.data.resources.tables;
 
   Object.values(tables).forEach((table) => {
-    const cfnTable = table.node.defaultChild as CfnTable;
+    const cfnTable = table.node.defaultChild as CfnTable | undefined;
+    if (!cfnTable) return;
 
     cfnTable.pointInTimeRecoverySpecification = {
       pointInTimeRecoveryEnabled: true,
