@@ -3,6 +3,7 @@ import type { PostConfirmationTriggerHandler } from 'aws-lambda';
 
 const PREFIX = '[POST-CONFIRMATION-NOTIFY]';
 const ADMIN_EMAIL = 'ecnelisfly@gmail.com';
+const FROM_EMAIL = 'noreply@ecnelisfly.com';
 
 export const handler: PostConfirmationTriggerHandler = async (event) => {
   console.log(`${PREFIX} Trigger: ${event.triggerSource}`);
@@ -22,7 +23,7 @@ export const handler: PostConfirmationTriggerHandler = async (event) => {
 
   try {
     await ses.send(new SendEmailCommand({
-      FromEmailAddress: ADMIN_EMAIL,
+      FromEmailAddress: FROM_EMAIL,
       Destination: { ToAddresses: [ADMIN_EMAIL] },
       Content: {
         Simple: {
