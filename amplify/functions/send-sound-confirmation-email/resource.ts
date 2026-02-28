@@ -14,6 +14,7 @@ import { defineFunction, secret } from '@aws-amplify/backend';
 export const sendSoundConfirmationEmail = defineFunction({
   name: 'send-sound-confirmation-email',
   entry: './handler.ts',
+  runtime: 22,
   timeoutSeconds: 15,
   memoryMB: 256,
 });
