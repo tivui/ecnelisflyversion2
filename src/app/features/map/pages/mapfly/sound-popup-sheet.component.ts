@@ -195,10 +195,7 @@ export interface SoundPopupSheetData {
           <p class="sheet-story">{{ displayStory() }}</p>
         }
 
-        <!-- Journey theme text -->
-        @if (data.themeText) {
-          <p class="sheet-theme-text">{{ data.themeText }}</p>
-        }
+        <!-- Journey theme text (fusionné dans displayStory, themeText prioritaire sur shortStory) -->
 
         <!-- Translate -->
         @if (canTranslate() && !isTranslated()) {
@@ -278,7 +275,9 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   displayTitle = signal(this.data.sound.title);
   displayStory = signal(this.data.type === 'featured'
     ? (this.data.displayTeasing || this.data.sound.shortStory || '')
-    : (this.data.sound.shortStory || ''));
+    : this.data.type === 'journey'
+      ? (this.data.themeText || this.data.sound.shortStory || '')
+      : (this.data.sound.shortStory || ''));
   isTranslated = signal(false);
   likesCount = signal(this.data.sound.likesCount ?? 0);
   isLiked = signal(this.data.sound.id ? this.likeService.isLiked(this.data.sound.id) : false);
