@@ -199,7 +199,8 @@
   }
 
   [id^="btn-container-title-"],
-  [id^="btn-container-shortStory-"] {
+  [id^="btn-container-shortStory-"],
+  [id^="journey-translate-container-"] {
     display: flex;
     justify-content: center;
     margin-top: 6px; // espace au-dessus du bouton
