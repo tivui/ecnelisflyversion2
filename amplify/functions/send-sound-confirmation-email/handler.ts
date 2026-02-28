@@ -65,7 +65,7 @@ function buildHtml(payload: SoundEmailPayload): string {
         <!-- Header -->
         <tr>
           <td style="background:linear-gradient(135deg,#1976d2,#3f51b5);padding:28px 32px;text-align:center;">
-            <img src="https://ecnelis.fly/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" height="56" style="display:block;margin:0 auto 12px;" />
+            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" height="56" style="display:block;margin:0 auto 12px;" />
             <span style="color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:1px;">ECNELIS FLY</span>
           </td>
         </tr>
@@ -75,7 +75,7 @@ function buildHtml(payload: SoundEmailPayload): string {
             <p style="margin:0 0 16px;font-size:1rem;color:#333;">${t.greet} <strong>${payload.username}</strong>,</p>
             <p style="margin:0 0 24px;font-size:1rem;color:#444;line-height:1.6;">${body}</p>
             <div style="text-align:center;margin:24px 0;">
-              <a href="https://ecnelis.fly/mapfly" style="display:inline-block;padding:12px 28px;background:#1976d2;color:#fff;text-decoration:none;border-radius:24px;font-weight:600;font-size:0.95rem;">
+              <a href="https://www.ecnelisfly.com/mapfly" style="display:inline-block;padding:12px 28px;background:#1976d2;color:#fff;text-decoration:none;border-radius:24px;font-weight:600;font-size:0.95rem;">
                 🌍 Explorer la carte
               </a>
             </div>
@@ -85,7 +85,7 @@ function buildHtml(payload: SoundEmailPayload): string {
         <!-- Footer -->
         <tr>
           <td style="background:#f8f9fa;padding:16px 32px;text-align:center;border-top:1px solid #e0e0e0;">
-            <p style="margin:0;font-size:0.75rem;color:#aaa;">© 2025 Ecnelis FLY · <a href="https://ecnelis.fly" style="color:#1976d2;text-decoration:none;">ecnelis.fly</a></p>
+            <p style="margin:0;font-size:0.75rem;color:#aaa;">© 2025 Ecnelis FLY · <a href="https://www.ecnelisfly.com" style="color:#1976d2;text-decoration:none;">ecnelis.fly</a></p>
           </td>
         </tr>
       </table>

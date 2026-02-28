@@ -1,6 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
+import { Stack } from 'aws-cdk-lib';
 import { CfnTable } from 'aws-cdk-lib/aws-dynamodb';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { listCognitoUsers } from './functions/list-cognito-users/resource';
@@ -16,6 +17,8 @@ import { pickMonthlyJourney } from './functions/pick-monthly-journey/resource';
 import { startImport } from './functions/start-import/resource';
 import { processImport } from './functions/process-import/resource';
 import { fixImportedUsers } from './functions/fix-imported-users/resource';
+import { sendSoundConfirmationEmail } from './functions/send-sound-confirmation-email/resource';
+import { postConfirmationNotify } from './functions/post-confirmation-notify/resource';
 
 const backend = defineBackend({
   auth,
@@ -31,6 +34,8 @@ const backend = defineBackend({
   processImport,
   fixImportedUsers,
   listCognitoUsers,
+  sendSoundConfirmationEmail,
+  postConfirmationNotify,
 });
 
 // ➡ Templates email Cognito (verification + reset password)
@@ -66,19 +71,16 @@ a{color:#1976d2;text-decoration:none}
 </body></html>
 `;
 
-// TODO: Activer SES quand ecnelisfly@gmail.com sera vérifié dans AWS SES Console
-// Étapes :
-//   1. Vérifier ecnelisfly@gmail.com dans SES Console (email verification)
-//   2. Sortir du sandbox SES (demande AWS support)
-//   3. Décommenter le bloc ci-dessous et redéployer
-// const { Stack } = require('aws-cdk-lib');
-// const region = Stack.of(backend.auth.resources.userPool).region;
-// const accountId = Stack.of(backend.auth.resources.userPool).account;
-// cfnUserPool.emailConfiguration = {
-//   emailSendingAccount: 'DEVELOPER',
-//   sourceArn: `arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`,
-//   from: 'Ecnelis FLY <ecnelisfly@gmail.com>',
-// };
+// ➡ Envoi des emails Cognito via SES (ecnelisfly@gmail.com vérifié dans SES)
+// Note : tant que SES est en sandbox, les emails ne sont envoyés qu'aux adresses vérifiées.
+// Pour envoyer à tous les utilisateurs, demander la sortie du sandbox via AWS Support.
+const region = Stack.of(backend.auth.resources.userPool).region;
+const accountId = Stack.of(backend.auth.resources.userPool).account;
+cfnUserPool.emailConfiguration = {
+  emailSendingAccount: 'DEVELOPER',
+  sourceArn: `arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`,
+  from: 'Ecnelis FLY <ecnelisfly@gmail.com>',
+};
 
 // ➡ Ajouter le data source Amazon Translate
 const translateDataSource = backend.data.addHttpDataSource(
@@ -208,5 +210,28 @@ listCognitoUsersLambda.addEnvironment(
   'USER_POOL_ID',
   backend.auth.resources.userPool.userPoolId,
 );
+
+// ➡ Permissions SES pour la Lambda post-confirmation-notify (notification nouvelle inscription)
+const postConfirmLambda = backend.postConfirmationNotify.resources.lambda as LambdaFunction;
+
+postConfirmLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`],
+  }),
+);
+
+// ➡ Permissions SES + env vars pour la Lambda send-sound-confirmation-email
+const sendSoundEmailLambda = backend.sendSoundConfirmationEmail.resources.lambda as LambdaFunction;
+
+sendSoundEmailLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`],
+  }),
+);
+
+sendSoundEmailLambda.addEnvironment('SENDER_EMAIL', 'ecnelisfly@gmail.com');
+sendSoundEmailLambda.addEnvironment('SEND_EMAIL_ENABLED', 'true');
 
 
