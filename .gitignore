@@ -48,3 +48,7 @@ Thumbs.db
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+
+# claude code
+.claude/settings.local.json
+.claude/settings.json
