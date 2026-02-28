@@ -1,6 +1,7 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
+import { CfnTable } from 'aws-cdk-lib/aws-dynamodb';
 import { CfnBucket } from 'aws-cdk-lib/aws-s3';
 import { listCognitoUsers } from './functions/list-cognito-users/resource';
 import { auth } from './auth/resource';
@@ -173,6 +174,24 @@ cfnBucket.addPropertyOverride('LifecycleConfiguration', {
     },
   ],
 });
+
+// ➡ DynamoDB : Point-in-Time Recovery (35 jours) + Deletion Protection (production uniquement)
+// AWS_BRANCH est défini par Amplify Console en CI/CD, absent en sandbox
+const isSandbox = !process.env.AWS_BRANCH;
+
+if (!isSandbox) {
+  const tables = backend.data.resources.tables;
+
+  Object.values(tables).forEach((table) => {
+    const cfnTable = table.node.defaultChild as CfnTable;
+
+    cfnTable.pointInTimeRecoverySpecification = {
+      pointInTimeRecoveryEnabled: true,
+    };
+
+    cfnTable.deletionProtectionEnabled = true;
+  });
+}
 
 // ➡ Permissions Cognito AdminListUsers pour la Lambda list-cognito-users
 const listCognitoUsersLambda = backend.listCognitoUsers.resources.lambda as LambdaFunction;
