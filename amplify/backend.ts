@@ -66,9 +66,9 @@ a{color:#1976d2;text-decoration:none}
 </body></html>
 `;
 
-// TODO: Activer SES quand le domaine ecnelisfly.com sera vérifié dans AWS SES Console
+// TODO: Activer SES quand ecnelisfly@gmail.com sera vérifié dans AWS SES Console
 // Étapes :
-//   1. Vérifier ecnelisfly.com dans SES Console (DNS CNAME + DKIM sur OVH)
+//   1. Vérifier ecnelisfly@gmail.com dans SES Console (email verification)
 //   2. Sortir du sandbox SES (demande AWS support)
 //   3. Décommenter le bloc ci-dessous et redéployer
 // const { Stack } = require('aws-cdk-lib');
@@ -76,8 +76,8 @@ a{color:#1976d2;text-decoration:none}
 // const accountId = Stack.of(backend.auth.resources.userPool).account;
 // cfnUserPool.emailConfiguration = {
 //   emailSendingAccount: 'DEVELOPER',
-//   sourceArn: `arn:aws:ses:${region}:${accountId}:identity/noreply@ecnelisfly.com`,
-//   from: 'Ecnelis FLY <noreply@ecnelisfly.com>',
+//   sourceArn: `arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`,
+//   from: 'Ecnelis FLY <ecnelisfly@gmail.com>',
 // };
 
 // ➡ Ajouter le data source Amazon Translate

@@ -1708,8 +1708,8 @@ Lambda prete mais non enregistree dans `amplify/backend.ts`. Activee uniquement 
 
 ### Prerequis avant activation
 
-1. Verifier le domaine `ecnelisfly.com` dans AWS SES Console
-2. Definir `SENDER_EMAIL` (ex: `noreply@ecnelisfly.com`) dans Amplify Console env vars
+1. Verifier `ecnelisfly@gmail.com` dans AWS SES Console (email verification)
+2. Definir `SENDER_EMAIL=ecnelisfly@gmail.com` dans Amplify Console env vars
 3. Definir `SEND_EMAIL_ENABLED=true`
 4. Enregistrer la Lambda dans `amplify/backend.ts` (import + `defineBackend`)
 5. Câbler l'appel depuis `confirmation-step.component.ts` apres `Sound.create()`
