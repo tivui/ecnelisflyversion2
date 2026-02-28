@@ -18,6 +18,7 @@ export class DatabaseComponent {
     { route: 'quizzes', label: 'admin.database.quizzes' },
     { route: 'zones', label: 'admin.database.zones' },
     { route: 'articles', label: 'admin.database.articles' },
+    { route: 'sound-attribution', label: 'admin.database.soundAttribution' },
     { route: 'import-sounds', label: 'admin.database.importSounds' },
     { route: 'email-templates', label: 'admin.database.emailTemplates' },
   ]);
