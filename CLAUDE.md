@@ -4,6 +4,15 @@
 
 Application web PWA d'exploration sonore geolocalise. Angular 20, standalone components, AWS Amplify (backend), Leaflet (carte).
 
+## Documentation a maintenir
+
+Lors de mises a jour majeures (framework, runtime, stack), penser a mettre a jour :
+- `CLAUDE.md` (ce fichier) — versions, architecture, conventions
+- `README.md` — stack technique, prerequis Node.js
+- `amplify.yml` — version Node.js (`nvm install`/`nvm use`) et commentaires
+- `public/i18n/*.json` — cle `lastUpdate` (FR/EN/ES) si pertinent
+- `src/app/features/legal/` — mentions legales (copyright, dates) via i18n
+
 ## Build & Dev
 
 ```bash
