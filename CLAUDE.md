@@ -1661,6 +1661,19 @@ Cles `support.*` : title, subtitle, mission.title/text, why.title/hosting/maps/d
 
 Cle sidenav : `sidenav.support` — FR "Soutenir", EN "Support us", ES "Apoyar"
 
+## Sauvegarde et restauration DynamoDB
+
+### Protection activee (`amplify/backend.ts`)
+
+- **Point-in-Time Recovery (PITR)** : sauvegarde continue, restauration a n'importe quelle seconde des 35 derniers jours. Active sur TOUTES les tables via boucle CDK
+- **Deletion Protection** : empeche la suppression accidentelle d'une table (CloudFormation, console, CLI)
+- **Cout** : $0.20/Go/mois (~$0.01/mois a l'echelle actuelle du projet)
+- **S3** : versioning deja active (anciennes versions gardees 90 jours)
+
+### Restauration
+
+Guide complet : `docs/dynamodb-recovery-guide.md`
+
 ## Lambdas — runtime et configuration
 
 ### Runtime Node.js 22
