@@ -217,7 +217,7 @@ const postConfirmLambda = backend.postConfirmationNotify.resources.lambda as Lam
 postConfirmLambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`],
+    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly.com`],
   }),
 );
 
