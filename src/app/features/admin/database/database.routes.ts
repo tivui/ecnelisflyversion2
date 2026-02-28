@@ -63,6 +63,13 @@ export const DATABASE_ROUTES: Routes = [
           ),
       },
       {
+        path: 'sound-attribution',
+        loadComponent: () =>
+          import('../pages/sound-attribution/sound-attribution.component').then(
+            (m) => m.SoundAttributionComponent,
+          ),
+      },
+      {
         path: 'email-templates',
         loadComponent: () =>
           import('../pages/email-templates/email-templates.component').then(

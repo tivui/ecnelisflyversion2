@@ -491,7 +491,8 @@
       "tabs": {
         "dashboard": "Tableau de bord"
       },
-      "emailTemplates": "Templates email"
+      "emailTemplates": "Templates email",
+      "soundAttribution": "Attribution des sons"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -953,6 +954,48 @@
         "confirm": "Supprimer",
         "success": "Article supprimé"
       }
+    },
+    "soundAttribution": {
+      "title": "Attribution des sons",
+      "subtitle": "Gérer l'attribution des sons entre utilisateurs",
+      "search": "Rechercher par nom ou email...",
+      "filter": {
+        "all": "Tous",
+        "imported": "Importés",
+        "registered": "Inscrits"
+      },
+      "sort": {
+        "name": "Nom",
+        "sounds": "Sons"
+      },
+      "type": {
+        "imported": "Importé",
+        "registered": "Inscrit"
+      },
+      "table": {
+        "username": "Utilisateur",
+        "email": "Email",
+        "type": "Type",
+        "sounds": "Sons",
+        "actions": "Actions"
+      },
+      "actions": {
+        "reassign": "Réattribuer"
+      },
+      "empty": "Aucun utilisateur avec des sons",
+      "noResults": "Aucun résultat pour cette recherche",
+      "loadError": "Erreur de chargement des utilisateurs",
+      "dialog": {
+        "title": "Réattribuer les sons de {{username}}",
+        "soundCount": "{{count}} son(s) à transférer",
+        "searchPlaceholder": "Rechercher un utilisateur...",
+        "search": "Rechercher",
+        "noResults": "Aucun utilisateur trouvé",
+        "confirm": "Transférer les sons",
+        "cancel": "Annuler"
+      },
+      "success": "{{count}} son(s) transféré(s) vers {{username}}",
+      "error": "Erreur lors du transfert"
     },
     "emailTemplates": {
       "title": "Templates email Cognito",

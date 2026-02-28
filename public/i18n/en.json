@@ -491,7 +491,8 @@
       "tabs": {
         "dashboard": "Dashboard"
       },
-      "emailTemplates": "Email Templates"
+      "emailTemplates": "Email Templates",
+      "soundAttribution": "Sound Attribution"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -953,6 +954,48 @@
         "confirm": "Delete",
         "success": "Article deleted"
       }
+    },
+    "soundAttribution": {
+      "title": "Sound Attribution",
+      "subtitle": "Manage sound attribution between users",
+      "search": "Search by name or email...",
+      "filter": {
+        "all": "All",
+        "imported": "Imported",
+        "registered": "Registered"
+      },
+      "sort": {
+        "name": "Name",
+        "sounds": "Sounds"
+      },
+      "type": {
+        "imported": "Imported",
+        "registered": "Registered"
+      },
+      "table": {
+        "username": "User",
+        "email": "Email",
+        "type": "Type",
+        "sounds": "Sounds",
+        "actions": "Actions"
+      },
+      "actions": {
+        "reassign": "Reassign"
+      },
+      "empty": "No users with sounds",
+      "noResults": "No results for this search",
+      "loadError": "Error loading users",
+      "dialog": {
+        "title": "Reassign sounds from {{username}}",
+        "soundCount": "{{count}} sound(s) to transfer",
+        "searchPlaceholder": "Search for a user...",
+        "search": "Search",
+        "noResults": "No user found",
+        "confirm": "Transfer sounds",
+        "cancel": "Cancel"
+      },
+      "success": "{{count}} sound(s) transferred to {{username}}",
+      "error": "Error during transfer"
     },
     "emailTemplates": {
       "title": "Cognito Email Templates",

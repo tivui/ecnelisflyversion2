@@ -1,0 +1,166 @@
+<div class="attribution-container">
+  <div class="header">
+    <div>
+      <h2>{{ 'admin.soundAttribution.title' | translate }}</h2>
+      <p class="subtitle">{{ 'admin.soundAttribution.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <!-- Toolbar: search + filters + sort -->
+    <div class="toolbar">
+      <!-- Search -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>{{ 'admin.soundAttribution.search' | translate }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTermValue"
+          (input)="onSearchInput()"
+        />
+        @if (searchTermValue) {
+          <button matSuffix mat-icon-button (click)="searchTermValue = ''; onSearchInput()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <!-- Type filter chips -->
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="typeFilter() === 'all'"
+          (click)="setTypeFilter('all')"
+        >
+          {{ 'admin.soundAttribution.filter.all' | translate }}
+          <span class="chip-count">{{ allUsers().length }}</span>
+        </button>
+        <button
+          class="filter-chip imported"
+          [class.active]="typeFilter() === 'imported'"
+          (click)="setTypeFilter('imported')"
+        >
+          {{ 'admin.soundAttribution.filter.imported' | translate }}
+          <span class="chip-count">{{ importedCount() }}</span>
+        </button>
+        <button
+          class="filter-chip registered"
+          [class.active]="typeFilter() === 'registered'"
+          (click)="setTypeFilter('registered')"
+        >
+          {{ 'admin.soundAttribution.filter.registered' | translate }}
+          <span class="chip-count">{{ registeredCount() }}</span>
+        </button>
+      </div>
+
+      <!-- Sort -->
+      <div class="sort-controls">
+        <button
+          class="sort-btn"
+          [class.active]="sortBy() === 'username'"
+          (click)="toggleSort('username')"
+        >
+          <mat-icon>sort_by_alpha</mat-icon>
+          <span>{{ 'admin.soundAttribution.sort.name' | translate }}</span>
+          @if (sortBy() === 'username') {
+            <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          }
+        </button>
+        <button
+          class="sort-btn"
+          [class.active]="sortBy() === 'sounds'"
+          (click)="toggleSort('sounds')"
+        >
+          <mat-icon>library_music</mat-icon>
+          <span>{{ 'admin.soundAttribution.sort.sounds' | translate }}</span>
+          @if (sortBy() === 'sounds') {
+            <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (filteredUsers().length === 0) {
+      <div class="empty-state">
+        <mat-icon>{{ searchTerm() || typeFilter() !== 'all' ? 'search_off' : 'check_circle' }}</mat-icon>
+        <p>{{ (searchTerm() || typeFilter() !== 'all' ? 'admin.soundAttribution.noResults' : 'admin.soundAttribution.empty') | translate }}</p>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="filteredUsers()" class="attribution-table">
+        <!-- Username Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.soundAttribution.table.username' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-cell">
+              @if (getFlagPath(user.country); as flagPath) {
+                <img
+                  class="flag"
+                  [src]="flagPath"
+                  [alt]="user.country"
+                  (error)="$any($event.target).style.display='none'"
+                />
+              }
+              <span class="username">{{ user.username }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.soundAttribution.table.email' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="email-cell">{{ user.email }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.soundAttribution.table.type' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="type-badge" [class.imported]="user.type === 'imported'" [class.registered]="user.type === 'registered'">
+              {{ 'admin.soundAttribution.type.' + user.type | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Sounds Column -->
+        <ng-container matColumnDef="sounds">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.soundAttribution.table.sounds' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip class="sound-count-chip">{{ user.soundCount }}</mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.soundAttribution.table.actions' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <button
+              mat-icon-button
+              [matTooltip]="'admin.soundAttribution.actions.reassign' | translate"
+              (click)="openReassignDialog(user)"
+              [disabled]="reassigning() === user.id"
+            >
+              @if (reassigning() === user.id) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>swap_horiz</mat-icon>
+              }
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          [class.reassigning]="reassigning() === row.id"
+        ></tr>
+      </table>
+    }
+  }
+</div>
