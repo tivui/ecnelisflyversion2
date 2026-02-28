@@ -8,7 +8,7 @@ import { defineFunction, secret } from '@aws-amplify/backend';
  *     the OVH domain is verified in AWS SES and moved out of sandbox.
  *
  * Required env vars (set in Amplify Console → Functions → Environment):
- *   SENDER_EMAIL   e.g. noreply@ecnelis.fly
+ *   SENDER_EMAIL   e.g. ecnelisfly@gmail.com
  *   SEND_EMAIL_ENABLED  "true" to activate (defaults to dry-run mode)
  */
 export const sendSoundConfirmationEmail = defineFunction({
