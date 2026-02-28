@@ -1250,7 +1250,8 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 3. Quiz sonores (`quizzes`)
 4. Terroirs sonores (`zones`)
 5. Articles (`articles`)
-6. Importer les sons (`import-sounds`) — en dernier intentionnellement
+6. Attribution des sons (`sound-attribution`)
+7. Importer les sons (`import-sounds`) — en dernier intentionnellement
 
 ## Dashboard admin (`features/admin/pages/admin-dashboard/`)
 
@@ -1401,6 +1402,64 @@ Empeche le merge OAuth de toucher les comptes importes.
 ### Drapeaux (flags)
 
 Les fichiers de drapeaux sont en **MAJUSCULES** dans `public/img/flags/` (`DE.png`, `FR.png`, `CA.png`). Le champ `User.country` doit stocker le code en majuscules pour correspondre.
+
+## Attribution des sons admin (`features/admin/pages/sound-attribution/`)
+
+### Principe
+
+Les sons importes de l'ancienne application sont lies a des User avec email factice (`imported_xxx@imported.local`). Quand un ancien utilisateur s'inscrit sur la nouvelle app, ses sons ne lui sont pas automatiquement reattribues (les emails ne correspondent pas). L'admin peut aussi vouloir reattribuer les sons de n'importe quel utilisateur. Onglet "Attribution des sons" dans la database admin.
+
+### Composants
+
+- **`SoundAttributionComponent`** : page principale — tableau de tous les utilisateurs ayant au moins 1 son
+- **`ReassignDialogComponent`** : dialog de recherche d'utilisateur cible (inline template)
+
+### Interface `SoundUser`
+
+```typescript
+type UserType = 'imported' | 'registered';
+interface SoundUser {
+  id: string;
+  username: string;
+  email: string;
+  country?: string;
+  soundCount: number;
+  type: UserType; // 'imported' si email startsWith('imported_')
+}
+```
+
+### Signals et filtres
+
+| Signal | Type | Defaut | Usage |
+|--------|------|--------|-------|
+| `allUsers` | `SoundUser[]` | `[]` | Tous les users avec sons (exclut `merged_*`) |
+| `searchTerm` | `string` | `''` | Filtre par username/email |
+| `typeFilter` | `'all' \| 'imported' \| 'registered'` | `'all'` | Filtre par type |
+| `sortBy` | `'username' \| 'sounds'` | `'sounds'` | Tri actif |
+| `sortDirection` | `'asc' \| 'desc'` | `'desc'` | Direction du tri |
+| `filteredUsers` | computed | — | Combine type + search + sort |
+
+### Chargement (`loadAllUsers()`)
+
+1. Pagination complete de `User.list({ limit: 500 })` — filtre `merged_*`
+2. Pour chaque user actif : comptage sons via `Sound.listSoundsByUserAndStatus({ userId })` (pagination)
+3. Exclusion des users avec 0 sons
+
+### Reassignation (`reassignSounds()`) — 2 etapes
+
+**Piege GSI** : mettre a jour `Sound.userId` pendant la pagination de `listSoundsByUserAndStatus` deplace les items hors de la partition GSI, causant des sauts de `nextToken`.
+
+1. **Collecte** : pagination complete de tous les `soundId` AVANT toute modification
+2. **Transfert** : `Sound.update({ id, userId: targetUserId })` pour chaque son collecte
+3. **Neutralisation conditionnelle** : uniquement les users importes → `email: merged_{id}@deleted`, `cognitoSub: merged_{id}` (meme pattern que `mergeDuplicateUsers`)
+
+### Pas de changement backend
+
+`Sound.authorization` a `allow.authenticated().to(['read', 'update'])` — tout utilisateur authentifie (dont l'admin) peut faire `Sound.update({ id, userId })`.
+
+### i18n
+
+Cles `admin.soundAttribution.*` : title, subtitle, search, filter (all/imported/registered), sort (name/sounds), type (imported/registered), table (username/email/type/sounds/actions), actions.reassign, empty, noResults, loadError, dialog (title/soundCount/searchPlaceholder/search/noResults/confirm/cancel), success, error (FR/EN/ES).
 
 ## Versioning de l'application
 
