@@ -6,4 +6,5 @@ export const postConfirmationNotify = defineFunction({
   runtime: 22,
   timeoutSeconds: 10,
   memoryMB: 128,
+  resourceGroupName: 'auth',
 });
