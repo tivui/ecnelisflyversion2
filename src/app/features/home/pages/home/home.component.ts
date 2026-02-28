@@ -170,7 +170,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Pool of 4 rotating card types (all except featured)
     const pool: string[] = [];
     if (this.monthlyQuiz()) pool.push('quiz');
-    if (this.latestArticle()) pool.push('article');
+    if (this.latestArticle() && this.articleTitle()) pool.push('article');
     if (this.monthlyJourney()) pool.push('monthlyJourney');
     if (this.monthlyZone()) pool.push('monthlyZone');
 
