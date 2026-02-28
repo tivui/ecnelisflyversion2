@@ -35,25 +35,24 @@ import { MAP_QUERY_KEYS } from '../../../../../../core/models/map.model';
 import { LikeButtonComponent } from '../../../../../../shared/components/like-button/like-button.component';
 
 @Component({
-  selector: 'app-sound-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatChipsModule,
-    MatTooltipModule,
-    TranslateModule,
-    SoundCardComponent,
-    LikeButtonComponent,
-  ],
-  templateUrl: './sound-list.component.html',
-  styleUrl: './sound-list.component.scss',
+    selector: 'app-sound-list',
+    imports: [
+        CommonModule,
+        RouterLink,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatChipsModule,
+        MatTooltipModule,
+        TranslateModule,
+        SoundCardComponent,
+        LikeButtonComponent,
+    ],
+    templateUrl: './sound-list.component.html',
+    styleUrl: './sound-list.component.scss'
 })
 export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
   private readonly breakpointObserver = inject(BreakpointObserver);

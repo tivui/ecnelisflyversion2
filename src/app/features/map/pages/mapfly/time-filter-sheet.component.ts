@@ -33,10 +33,9 @@ interface FilterOption {
 }
 
 @Component({
-  selector: 'app-time-filter-sheet',
-  standalone: true,
-  imports: [CommonModule, MatIconModule, TranslateModule],
-  template: `
+    selector: 'app-time-filter-sheet',
+    imports: [CommonModule, MatIconModule, TranslateModule],
+    template: `
     <div class="filter-sheet">
       <!-- Period section -->
       <div class="sheet-section-header">
@@ -87,7 +86,7 @@ interface FilterOption {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .filter-sheet {
       padding: 4px 0 16px;
       max-height: 70vh;
@@ -309,7 +308,7 @@ interface FilterOption {
 
       .on & { transform: translateX(18px); }
     }
-  `],
+  `]
 })
 export class TimeFilterSheetComponent {
   data = inject<TimeFilterSheetData>(MAT_BOTTOM_SHEET_DATA);

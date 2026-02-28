@@ -11,16 +11,15 @@ import {
 import { CardCategoryComponent } from '../../../home/pages/home/widgets/card-category/card-category.component';
 
 @Component({
-  selector: 'app-categories-list',
-  standalone: true,
-  imports: [
-    RouterLink,
-    TranslateModule,
-    MatIconModule,
-    CardCategoryComponent,
-  ],
-  templateUrl: './categories-list.component.html',
-  styleUrl: './categories-list.component.scss',
+    selector: 'app-categories-list',
+    imports: [
+        RouterLink,
+        TranslateModule,
+        MatIconModule,
+        CardCategoryComponent,
+    ],
+    templateUrl: './categories-list.component.html',
+    styleUrl: './categories-list.component.scss'
 })
 export class CategoriesListComponent {
   private readonly categoriesService = inject(CategoriesService);

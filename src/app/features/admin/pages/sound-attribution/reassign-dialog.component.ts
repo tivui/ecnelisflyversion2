@@ -20,20 +20,19 @@ interface UserResult {
 }
 
 @Component({
-  selector: 'app-reassign-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  template: `
+    selector: 'app-reassign-dialog',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    template: `
     <h2 mat-dialog-title>
       {{ 'admin.soundAttribution.dialog.title' | translate: { username: data.sourceUser.username } }}
     </h2>
@@ -119,7 +118,7 @@ interface UserResult {
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
+    styles: [`
     mat-dialog-content {
       min-height: 200px;
     }
@@ -282,7 +281,7 @@ interface UserResult {
       height: 18px;
       margin-right: 4px;
     }
-  `],
+  `]
 })
 export class ReassignDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ReassignDialogComponent>);

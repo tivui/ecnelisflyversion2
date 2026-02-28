@@ -25,21 +25,20 @@ interface CognitoStatsResult {
 }
 
 @Component({
-  selector: 'app-admin-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatTabsModule,
-    MatChipsModule,
-    TranslateModule,
-    NgxChartsModule,
-  ],
-  templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.scss',
+    selector: 'app-admin-dashboard',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        MatTabsModule,
+        MatChipsModule,
+        TranslateModule,
+        NgxChartsModule,
+    ],
+    templateUrl: './admin-dashboard.component.html',
+    styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);

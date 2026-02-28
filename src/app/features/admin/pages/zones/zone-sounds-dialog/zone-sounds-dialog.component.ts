@@ -26,27 +26,26 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-zone-sounds-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatSlideToggleModule,
-    TranslateModule,
-  ],
-  templateUrl: './zone-sounds-dialog.component.html',
-  styleUrl: './zone-sounds-dialog.component.scss',
+    selector: 'app-zone-sounds-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatAutocompleteModule,
+        MatChipsModule,
+        MatTooltipModule,
+        MatSlideToggleModule,
+        TranslateModule,
+    ],
+    templateUrl: './zone-sounds-dialog.component.html',
+    styleUrl: './zone-sounds-dialog.component.scss'
 })
 export class ZoneSoundsDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ZoneSoundsDialogComponent>);

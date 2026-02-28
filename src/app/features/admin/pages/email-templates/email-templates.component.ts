@@ -78,22 +78,21 @@ a{color:#1976d2;text-decoration:none}
 </body></html>`;
 
 @Component({
-  selector: 'app-email-templates',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    TranslateModule,
-  ],
-  templateUrl: './email-templates.component.html',
-  styleUrl: './email-templates.component.scss',
+    selector: 'app-email-templates',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        TranslateModule,
+    ],
+    templateUrl: './email-templates.component.html',
+    styleUrl: './email-templates.component.scss'
 })
 export class EmailTemplatesComponent implements OnInit {
   private readonly amplify = inject(AmplifyService);

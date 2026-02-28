@@ -6,17 +6,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-cancel-confirm-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    TranslateModule,
-  ],
-  templateUrl: './cancel-confirm-dialog.component.html',
-  styleUrl: './cancel-confirm-dialog.component.scss',
+    selector: 'app-cancel-confirm-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        TranslateModule,
+    ],
+    templateUrl: './cancel-confirm-dialog.component.html',
+    styleUrl: './cancel-confirm-dialog.component.scss'
 })
 export class CancelConfirmDialogComponent {
   constructor(public dialogRef: MatDialogRef<CancelConfirmDialogComponent>) {}

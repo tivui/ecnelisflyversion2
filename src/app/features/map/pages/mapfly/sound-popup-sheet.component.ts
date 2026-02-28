@@ -67,10 +67,9 @@ export interface SoundPopupSheetData {
 }
 
 @Component({
-  selector: 'app-sound-popup-sheet',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  template: `
+    selector: 'app-sound-popup-sheet',
+    imports: [CommonModule, TranslateModule],
+    template: `
     <div class="sound-sheet">
       <!-- Handle bar -->
       <div class="sheet-handle-bar">
@@ -248,7 +247,7 @@ export interface SoundPopupSheetData {
       </div>
     </div>
   `,
-  styleUrl: './sound-popup-sheet.component.scss',
+    styleUrl: './sound-popup-sheet.component.scss'
 })
 export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   data = inject<SoundPopupSheetData>(MAT_BOTTOM_SHEET_DATA);

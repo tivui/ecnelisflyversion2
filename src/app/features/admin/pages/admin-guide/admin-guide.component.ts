@@ -4,11 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-admin-guide',
-  standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslatePipe],
-  templateUrl: './admin-guide.component.html',
-  styleUrl: './admin-guide.component.scss',
+    selector: 'app-admin-guide',
+    imports: [MatIconModule, MatButtonModule, TranslatePipe],
+    templateUrl: './admin-guide.component.html',
+    styleUrl: './admin-guide.component.scss'
 })
 export class AdminGuideComponent {
   readonly sections = [

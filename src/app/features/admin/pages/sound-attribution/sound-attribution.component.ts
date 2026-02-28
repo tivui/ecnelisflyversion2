@@ -28,25 +28,24 @@ export interface SoundUser {
 }
 
 @Component({
-  selector: 'app-sound-attribution',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    TranslateModule,
-  ],
-  templateUrl: './sound-attribution.component.html',
-  styleUrl: './sound-attribution.component.scss',
+    selector: 'app-sound-attribution',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TranslateModule,
+    ],
+    templateUrl: './sound-attribution.component.html',
+    styleUrl: './sound-attribution.component.scss'
 })
 export class SoundAttributionComponent implements OnInit {
   private readonly amplifyService = inject(AmplifyService);

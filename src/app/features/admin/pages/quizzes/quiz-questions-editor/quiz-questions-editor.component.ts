@@ -17,23 +17,22 @@ import { QuestionEditDialogComponent } from '../question-edit-dialog/question-ed
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-quiz-questions-editor',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    TranslateModule,
-    CdkDropList,
-    CdkDrag,
-  ],
-  templateUrl: './quiz-questions-editor.component.html',
-  styleUrl: './quiz-questions-editor.component.scss',
+    selector: 'app-quiz-questions-editor',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        TranslateModule,
+        CdkDropList,
+        CdkDrag,
+    ],
+    templateUrl: './quiz-questions-editor.component.html',
+    styleUrl: './quiz-questions-editor.component.scss'
 })
 export class QuizQuestionsEditorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

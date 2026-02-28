@@ -44,26 +44,25 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-block-edit-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatTooltipModule,
-    MatAutocompleteModule,
-    TranslateModule,
-  ],
-  templateUrl: './block-edit-dialog.component.html',
-  styleUrl: './block-edit-dialog.component.scss',
+    selector: 'app-block-edit-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatTooltipModule,
+        MatAutocompleteModule,
+        TranslateModule,
+    ],
+    templateUrl: './block-edit-dialog.component.html',
+    styleUrl: './block-edit-dialog.component.scss'
 })
 export class BlockEditDialogComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);

@@ -32,27 +32,26 @@ interface StepWithSound {
 }
 
 @Component({
-  selector: 'app-journey-steps-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatChipsModule,
-    MatTooltipModule,
-    TranslateModule,
-    CdkDropList,
-    CdkDrag,
-  ],
-  templateUrl: './journey-steps-dialog.component.html',
-  styleUrl: './journey-steps-dialog.component.scss',
+    selector: 'app-journey-steps-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatChipsModule,
+        MatTooltipModule,
+        TranslateModule,
+        CdkDropList,
+        CdkDrag,
+    ],
+    templateUrl: './journey-steps-dialog.component.html',
+    styleUrl: './journey-steps-dialog.component.scss'
 })
 export class JourneyStepsDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<JourneyStepsDialogComponent>);

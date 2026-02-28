@@ -4,10 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-legal',
-  standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslatePipe],
-  templateUrl: './legal.component.html',
-  styleUrl: './legal.component.scss',
+    selector: 'app-legal',
+    imports: [MatIconModule, MatButtonModule, TranslatePipe],
+    templateUrl: './legal.component.html',
+    styleUrl: './legal.component.scss'
 })
 export class LegalComponent {}

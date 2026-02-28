@@ -15,17 +15,16 @@ interface ScoreEntry {
 }
 
 @Component({
-  selector: 'app-my-scores',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  templateUrl: './my-scores.component.html',
-  styleUrl: './my-scores.component.scss',
+    selector: 'app-my-scores',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    templateUrl: './my-scores.component.html',
+    styleUrl: './my-scores.component.scss'
 })
 export class MyScoresComponent implements OnInit {
   private readonly quizService = inject(QuizService);

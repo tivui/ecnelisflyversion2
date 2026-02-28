@@ -40,27 +40,26 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-question-edit-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatAutocompleteModule,
-    TranslateModule,
-  ],
-  templateUrl: './question-edit-dialog.component.html',
-  styleUrl: './question-edit-dialog.component.scss',
+    selector: 'app-question-edit-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        MatTooltipModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatAutocompleteModule,
+        TranslateModule,
+    ],
+    templateUrl: './question-edit-dialog.component.html',
+    styleUrl: './question-edit-dialog.component.scss'
 })
 export class QuestionEditDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

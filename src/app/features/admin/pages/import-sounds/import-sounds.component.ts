@@ -8,17 +8,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
-  selector: 'app-import-sounds',
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    MatIcon,
-    MatButtonModule,
-    MatProgressBarModule,
-  ],
-  templateUrl: './import-sounds.component.html',
-  styleUrl: './import-sounds.component.scss',
+    selector: 'app-import-sounds',
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        MatIcon,
+        MatButtonModule,
+        MatProgressBarModule,
+    ],
+    templateUrl: './import-sounds.component.html',
+    styleUrl: './import-sounds.component.scss'
 })
 export class ImportSoundsComponent implements OnDestroy {
   private readonly amplify = inject(AmplifyService);

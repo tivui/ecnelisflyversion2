@@ -10,17 +10,16 @@ import { QuizService } from '../../services/quiz.service';
 import { Quiz, MonthlyQuiz } from '../../models/quiz.model';
 
 @Component({
-  selector: 'app-quiz-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  templateUrl: './quiz-list.component.html',
-  styleUrl: './quiz-list.component.scss',
+    selector: 'app-quiz-list',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    templateUrl: './quiz-list.component.html',
+    styleUrl: './quiz-list.component.scss'
 })
 export class QuizListComponent implements OnInit {
   private readonly quizService = inject(QuizService);

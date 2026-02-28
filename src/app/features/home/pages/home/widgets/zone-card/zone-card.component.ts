@@ -6,11 +6,10 @@ import { Zone } from '../../../../../../core/models/zone.model';
 import { ZoneService } from '../../../../../../core/services/zone.service';
 
 @Component({
-  selector: 'app-zone-card',
-  standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
-  templateUrl: './zone-card.component.html',
-  styleUrl: './zone-card.component.scss',
+    selector: 'app-zone-card',
+    imports: [CommonModule, RouterLink, TranslateModule],
+    templateUrl: './zone-card.component.html',
+    styleUrl: './zone-card.component.scss'
 })
 export class ZoneCardComponent {
   private readonly translate = inject(TranslateService);

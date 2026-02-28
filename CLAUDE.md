@@ -2,7 +2,16 @@
 
 ## Projet
 
-Application web PWA d'exploration sonore geolocalise. Angular 18, standalone components, AWS Amplify (backend), Leaflet (carte).
+Application web PWA d'exploration sonore geolocalise. Angular 20, standalone components, AWS Amplify (backend), Leaflet (carte).
+
+## Documentation a maintenir
+
+Lors de mises a jour majeures (framework, runtime, stack), penser a mettre a jour :
+- `CLAUDE.md` (ce fichier) — versions, architecture, conventions
+- `README.md` — stack technique, prerequis Node.js
+- `amplify.yml` — version Node.js (`nvm install`/`nvm use`) et commentaires
+- `public/i18n/*.json` — cle `lastUpdate` (FR/EN/ES) si pertinent
+- `src/app/features/legal/` — mentions legales (copyright, dates) via i18n
 
 ## Build & Dev
 
@@ -12,12 +21,13 @@ npx ng serve          # Dev server (localhost:4200)
 ```
 
 Warnings pre-existants a ignorer : budget bundle, duplicate Material theming, CommonJS modules (leaflet, qrcode, etc.).
-Budget `anyComponentStyle` : `maximumError: 80kb` dans `angular.json` (augmente pour mapfly.component.scss avec le panneau categories desktop + styles popups/controles premium).
+Budget `anyComponentStyle` : `maximumError: 100kb` dans `angular.json` (augmente pour mapfly.component.scss avec le panneau categories desktop + styles popups/controles premium).
+Si OOM en local : `NODE_OPTIONS=--max-old-space-size=4096 npx ng build` (TypeScript 5.9 + Angular 20 esbuild requiert plus de memoire).
 
 ## Architecture
 
-- **Angular 18** : standalone components, signals (`signal()`, `computed()`, `toSignal()`)
-- **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth)
+- **Angular 20** : standalone components (defaut depuis Angular 19), signals (`signal()`, `computed()`, `toSignal()`), TypeScript 5.9
+- **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth, Lambda Node.js 22)
 - **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
 - **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
 - **i18n** : @ngx-translate (FR/EN/ES, fichiers JSON dans public/i18n/)
@@ -1650,6 +1660,32 @@ Boutons ouvrent `_blank` avec `noopener,noreferrer`. Ko-fi : image logo `/img/ko
 Cles `support.*` : title, subtitle, mission.title/text, why.title/hosting/maps/dev/sounds, cta.intro/kofi/bmc/note, alt.title/record/share/feedback (FR/EN/ES)
 
 Cle sidenav : `sidenav.support` — FR "Soutenir", EN "Support us", ES "Apoyar"
+
+## Lambdas — runtime et configuration
+
+### Runtime Node.js 22
+
+Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunction()` (`amplify/functions/*/resource.ts`). Migration effectuee en fevrier 2026 suite a l'annonce AWS de fin de support Node.js 20.x (30 avril 2026).
+
+### Liste des Lambdas (15)
+
+| Lambda | Timeout | Memoire | Schedule |
+|--------|---------|---------|----------|
+| `cognito-custom-message` | 10s | 128 MB | — |
+| `delete-sound-file` | 10s | 128 MB | — |
+| `fix-imported-users` | 900s | 1024 MB | — |
+| `import-sounds` | 30s | 1024 MB | — |
+| `list-cognito-users` | 30s | 256 MB | — |
+| `list-sounds-by-zone` | 30s | 1024 MB | — |
+| `list-sounds-for-map` | 30s | 1024 MB | — |
+| `pick-daily-featured-sound` | 30s | 512 MB | every day |
+| `pick-monthly-article` | 30s | 512 MB | every day |
+| `pick-monthly-journey` | 30s | 512 MB | every day |
+| `pick-monthly-quiz` | 30s | 512 MB | every day |
+| `pick-monthly-zone` | 30s | 512 MB | every day |
+| `process-import` | 900s | 1024 MB | — |
+| `send-sound-confirmation-email` | 15s | 256 MB | — |
+| `start-import` | 10s | 256 MB | — |
 
 ## Lambda email confirmation son (`amplify/functions/send-sound-confirmation-email/`)
 

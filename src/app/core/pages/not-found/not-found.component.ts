@@ -5,10 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-not-found',
-  standalone: true,
-  imports: [RouterLink, MatIconModule, MatButtonModule, TranslateModule],
-  templateUrl: './not-found.component.html',
-  styleUrls: ['./not-found.component.scss'],
+    selector: 'app-not-found',
+    imports: [RouterLink, MatIconModule, MatButtonModule, TranslateModule],
+    templateUrl: './not-found.component.html',
+    styleUrls: ['./not-found.component.scss']
 })
 export class NotFoundComponent {}

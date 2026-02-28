@@ -4,11 +4,10 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-database',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, TranslateModule],
-  templateUrl: './database.component.html',
-  styleUrl: './database.component.scss'
+    selector: 'app-database',
+    imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, TranslateModule],
+    templateUrl: './database.component.html',
+    styleUrl: './database.component.scss'
 })
 export class DatabaseComponent {
 

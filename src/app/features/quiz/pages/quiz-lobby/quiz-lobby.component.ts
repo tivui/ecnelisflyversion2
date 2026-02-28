@@ -12,18 +12,17 @@ import { Quiz, QuizAttempt, QUIZ_TIME_LIMITS } from '../../models/quiz.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
-  selector: 'app-quiz-lobby',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-    UserAvatarComponent,
-  ],
-  templateUrl: './quiz-lobby.component.html',
-  styleUrl: './quiz-lobby.component.scss',
+    selector: 'app-quiz-lobby',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+        UserAvatarComponent,
+    ],
+    templateUrl: './quiz-lobby.component.html',
+    styleUrl: './quiz-lobby.component.scss'
 })
 export class QuizLobbyComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

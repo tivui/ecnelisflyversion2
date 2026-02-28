@@ -16,12 +16,11 @@ import { SubcategorySheetComponent, SubcategorySheetData } from '../card-categor
 import { CategoryKey, getSubCategoryKeys } from '../../../../../../../../amplify/data/categories';
 
 @Component({
-  selector: 'app-carousel-categories',
-  standalone: true,
-  imports: [CardCategoryComponent, MatBottomSheetModule],
-  templateUrl: './carousel-categories.component.html',
-  styleUrl: './carousel-categories.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-carousel-categories',
+    imports: [CardCategoryComponent, MatBottomSheetModule],
+    templateUrl: './carousel-categories.component.html',
+    styleUrl: './carousel-categories.component.scss',
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CarouselCategoriesComponent {
   private readonly categoriesService = inject(CategoriesService);

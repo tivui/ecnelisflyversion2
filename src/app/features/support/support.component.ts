@@ -4,11 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-support',
-  standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslatePipe],
-  templateUrl: './support.component.html',
-  styleUrl: './support.component.scss',
+    selector: 'app-support',
+    imports: [MatIconModule, MatButtonModule, TranslatePipe],
+    templateUrl: './support.component.html',
+    styleUrl: './support.component.scss'
 })
 export class SupportComponent {
   readonly kofiUrl = 'https://ko-fi.com/ecnelisfly';

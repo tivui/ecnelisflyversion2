@@ -18,23 +18,22 @@ import { JourneyStepsDialogComponent } from './journey-steps-dialog/journey-step
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-journeys',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    TranslateModule,
-    RouterLink,
-  ],
-  templateUrl: './journeys.component.html',
-  styleUrl: './journeys.component.scss',
+    selector: 'app-journeys',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        TranslateModule,
+        RouterLink,
+    ],
+    templateUrl: './journeys.component.html',
+    styleUrl: './journeys.component.scss'
 })
 export class JourneysComponent implements OnInit {
   private readonly journeyService = inject(SoundJourneyService);

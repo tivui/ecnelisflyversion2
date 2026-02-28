@@ -27,25 +27,24 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-journey-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatTabsModule,
-    TranslateModule,
-  ],
-  templateUrl: './journey-dialog.component.html',
-  styleUrl: './journey-dialog.component.scss',
+    selector: 'app-journey-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatTabsModule,
+        TranslateModule,
+    ],
+    templateUrl: './journey-dialog.component.html',
+    styleUrl: './journey-dialog.component.scss'
 })
 export class JourneyDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

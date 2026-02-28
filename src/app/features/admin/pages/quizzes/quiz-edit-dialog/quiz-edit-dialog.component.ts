@@ -25,24 +25,23 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-quiz-edit-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    TranslateModule,
-  ],
-  templateUrl: './quiz-edit-dialog.component.html',
-  styleUrl: './quiz-edit-dialog.component.scss',
+    selector: 'app-quiz-edit-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        TranslateModule,
+    ],
+    templateUrl: './quiz-edit-dialog.component.html',
+    styleUrl: './quiz-edit-dialog.component.scss'
 })
 export class QuizEditDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

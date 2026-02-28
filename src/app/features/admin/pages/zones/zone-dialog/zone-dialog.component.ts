@@ -38,26 +38,25 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-zone-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatTabsModule,
-    MatSelectModule,
-    TranslateModule,
-  ],
-  templateUrl: './zone-dialog.component.html',
-  styleUrl: './zone-dialog.component.scss',
+    selector: 'app-zone-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatTabsModule,
+        MatSelectModule,
+        TranslateModule,
+    ],
+    templateUrl: './zone-dialog.component.html',
+    styleUrl: './zone-dialog.component.scss'
 })
 export class ZoneDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   private mapContainerElement: ElementRef | null = null;

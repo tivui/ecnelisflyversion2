@@ -37,29 +37,28 @@ import frLocale from 'i18n-iso-countries/langs/fr.json';
 import esLocale from 'i18n-iso-countries/langs/es.json';
 
 @Component({
-  selector: 'app-account',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatAutocompleteModule,
-    TranslatePipe,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatTabsModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    UserAvatarComponent,
-  ],
-  templateUrl: './account.component.html',
-  styleUrls: ['./account.component.scss'],
+    selector: 'app-account',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatAutocompleteModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatTooltipModule,
+        MatTabsModule,
+        MatIconModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        UserAvatarComponent,
+    ],
+    templateUrl: './account.component.html',
+    styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit {
   private readonly appUserService = inject(AppUserService);

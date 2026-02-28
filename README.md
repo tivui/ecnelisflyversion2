@@ -41,7 +41,7 @@ Application web PWA d'exploration sonore geolocalisee. Decouvrez, ecoutez et par
 
 | Couche | Technologie |
 |--------|------------|
-| Frontend | Angular 18 (standalone components, signals) |
+| Frontend | Angular 20 (standalone components, signals, TypeScript 5.9) |
 | UI | Angular Material |
 | Carte | Leaflet + MarkerCluster + MiniMap |
 | Audio | WaveSurfer.js v7 |
@@ -59,7 +59,7 @@ npx ng serve        # Dev server (localhost:4200)
 npx ng build        # Build production
 ```
 
-Prerequis : Node.js 18+, npm, compte AWS avec Amplify configure.
+Prerequis : Node.js 22+, npm, compte AWS avec Amplify configure.
 
 ## Structure du projet
 

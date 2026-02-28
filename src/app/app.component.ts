@@ -41,30 +41,29 @@ import { DailyFeaturedSound } from './core/models/featured-sound.model';
 import { DashboardService } from './features/dashboard/services/dashboard.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  imports: [
-    RouterOutlet,
-    CommonModule,
-    MatToolbarModule,
-    MatSlideToggleModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSidenavModule,
-    AmplifyAuthenticatorModule,
-    TranslatePipe,
-    MatInputModule,
-    RouterOutlet,
-    RouterLink,
-    MatMenuModule,
-    MatTooltipModule,
-    SidenavMenuComponent,
-    PwaInstallBannerComponent,
-    UserAvatarComponent,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    imports: [
+        RouterOutlet,
+        CommonModule,
+        MatToolbarModule,
+        MatSlideToggleModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSidenavModule,
+        AmplifyAuthenticatorModule,
+        TranslatePipe,
+        MatInputModule,
+        RouterOutlet,
+        RouterLink,
+        MatMenuModule,
+        MatTooltipModule,
+        SidenavMenuComponent,
+        PwaInstallBannerComponent,
+        UserAvatarComponent,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);

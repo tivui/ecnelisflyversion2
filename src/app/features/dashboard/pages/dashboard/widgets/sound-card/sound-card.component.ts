@@ -12,21 +12,20 @@ import { Sound, SoundStatus } from '../../../../../../core/models/sound.model';
 import { LikeButtonComponent } from '../../../../../../shared/components/like-button/like-button.component';
 
 @Component({
-  selector: 'app-sound-card',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatMenuModule,
-    MatTooltipModule,
-    TranslateModule,
-    LikeButtonComponent,
-  ],
-  templateUrl: './sound-card.component.html',
-  styleUrl: './sound-card.component.scss',
+    selector: 'app-sound-card',
+    imports: [
+        CommonModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        MatMenuModule,
+        MatTooltipModule,
+        TranslateModule,
+        LikeButtonComponent,
+    ],
+    templateUrl: './sound-card.component.html',
+    styleUrl: './sound-card.component.scss'
 })
 export class SoundCardComponent {
   private readonly translate = inject(TranslateService);

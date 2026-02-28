@@ -23,19 +23,18 @@ interface SoundPlayerState {
 }
 
 @Component({
-  selector: 'app-article-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    TranslateModule,
-    SafeHtmlPipe,
-  ],
-  templateUrl: './article-detail.component.html',
-  styleUrl: './article-detail.component.scss',
+    selector: 'app-article-detail',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        TranslateModule,
+        SafeHtmlPipe,
+    ],
+    templateUrl: './article-detail.component.html',
+    styleUrl: './article-detail.component.scss'
 })
 export class ArticleDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);

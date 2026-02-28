@@ -11,18 +11,17 @@ import { QuotaService } from '../../../../../../core/services/quota.service';
 import { QuotaInfo } from '../../../../../../core/models/quota.model';
 
 @Component({
-  selector: 'app-dashboard-stats',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatProgressBarModule,
-    MatTooltipModule,
-    TranslateModule,
-    NgxChartsModule,
-  ],
-  templateUrl: './dashboard-stats.component.html',
-  styleUrl: './dashboard-stats.component.scss',
+    selector: 'app-dashboard-stats',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatProgressBarModule,
+        MatTooltipModule,
+        TranslateModule,
+        NgxChartsModule,
+    ],
+    templateUrl: './dashboard-stats.component.html',
+    styleUrl: './dashboard-stats.component.scss'
 })
 export class DashboardStatsComponent implements OnInit {
   private readonly quotaService = inject(QuotaService);
