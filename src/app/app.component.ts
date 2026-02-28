@@ -309,9 +309,12 @@ export class AppComponent implements OnInit {
 
           this.router.navigate(['/home']);
 
-          // Show welcome overlay
-          if (appUser?.username) {
-            this.showWelcomeOverlay(appUser.username, appUser.country ?? undefined);
+          // Show welcome overlay (fallback to Cognito email if appUser creation failed)
+          const displayName = appUser?.username
+            ?? this.authService.user()?.email?.split('@')[0]
+            ?? null;
+          if (displayName) {
+            this.showWelcomeOverlay(displayName, appUser?.country ?? undefined);
           }
           break;
         }
