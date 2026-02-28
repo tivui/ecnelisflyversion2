@@ -2803,8 +2803,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
             </div>
           </div>
         </div>
-        ${themeText ? `<p class="journey-theme-text">${themeText}</p>` : ''}
-        ${sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p><button class="popup-read-more-btn" id="rmb-journey-${stepIndex}"></button>` : ''}
+        ${themeText
+          ? `<p class="journey-theme-text">${themeText}</p>`
+          : (sound.shortStory ? `<p class="popup-shortstory" id="journey-story-${stepIndex}">${sound.shortStory}</p><button class="popup-read-more-btn" id="rmb-journey-${stepIndex}"></button>` : '')}
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
