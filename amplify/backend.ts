@@ -71,15 +71,13 @@ a{color:#1976d2;text-decoration:none}
 </body></html>
 `;
 
-// ➡ Envoi des emails Cognito via SES (ecnelisfly@gmail.com vérifié dans SES)
-// Note : tant que SES est en sandbox, les emails ne sont envoyés qu'aux adresses vérifiées.
-// Pour envoyer à tous les utilisateurs, demander la sortie du sandbox via AWS Support.
+// ➡ Envoi des emails Cognito via SES (domaine ecnelisfly.com vérifié dans SES + DKIM)
 const region = Stack.of(backend.auth.resources.userPool).region;
 const accountId = Stack.of(backend.auth.resources.userPool).account;
 cfnUserPool.emailConfiguration = {
   emailSendingAccount: 'DEVELOPER',
-  sourceArn: `arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`,
-  from: 'Ecnelis FLY <ecnelisfly@gmail.com>',
+  sourceArn: `arn:aws:ses:${region}:${accountId}:identity/ecnelisfly.com`,
+  from: 'Ecnelis FLY <noreply@ecnelisfly.com>',
 };
 
 // ➡ Ajouter le data source Amazon Translate
@@ -227,11 +225,11 @@ const sendSoundEmailLambda = backend.sendSoundConfirmationEmail.resources.lambda
 sendSoundEmailLambda.addToRolePolicy(
   new PolicyStatement({
     actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly@gmail.com`],
+    resources: [`arn:aws:ses:${region}:${accountId}:identity/ecnelisfly.com`],
   }),
 );
 
-sendSoundEmailLambda.addEnvironment('SENDER_EMAIL', 'ecnelisfly@gmail.com');
+sendSoundEmailLambda.addEnvironment('SENDER_EMAIL', 'noreply@ecnelisfly.com');
 sendSoundEmailLambda.addEnvironment('SEND_EMAIL_ENABLED', 'true');
 
 
