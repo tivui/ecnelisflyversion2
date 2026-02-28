@@ -387,45 +387,48 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
 .random-card-visual {
   position: relative;
-  height: 80px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: $noise-texture repeat, linear-gradient(135deg, $accent-dark 0%, $accent 100%);
-  background-blend-mode: overlay, normal;
+  background: linear-gradient(135deg, $accent-dark 0%, $accent 100%);
 
-  &::before {
-    content: '';
+  .random-cover {
     position: absolute;
     inset: 0;
-    background:
-      radial-gradient(circle 60px at 20% 40%, rgba($accent, 0.3) 0%, transparent 100%),
-      radial-gradient(circle 40px at 80% 60%, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
     z-index: 0;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  &::after {
-    content: '';
+  .random-cover-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      115deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.08) 43%,
-      rgba(255, 255, 255, 0.16) 50%,
-      rgba(255, 255, 255, 0.08) 57%,
-      transparent 70%
-    );
     z-index: 0;
+    background: linear-gradient(
+      to top,
+      rgba($accent-dark, 0.70) 0%,
+      rgba($accent-dark, 0.30) 40%,
+      rgba($accent-dark, 0.15) 100%
+    );
   }
 
   .card-icon-circle {
     background: rgba(255, 255, 255, 0.22);
+    z-index: 1;
+  }
+
+  &:hover .random-cover {
+    transform: scale(1.05);
+    filter: brightness(1.05);
   }
 
   @media (max-width: 700px) {
-    height: 68px;
+    height: 88px;
   }
 }
 
