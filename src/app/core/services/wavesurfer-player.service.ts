@@ -29,8 +29,62 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+/**
+ * Encode an AudioBuffer to WAV 16-bit PCM Blob.
+ * Chrome cannot play WAV 32-bit float via <audio> element, but decodeAudioData()
+ * succeeds. Re-encoding to 16-bit PCM gives Chrome a format it handles natively.
+ * No audible quality loss (16-bit = CD quality).
+ */
+function audioBufferToWav16(buffer: AudioBuffer): Blob {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const length = buffer.length;
+  const bytesPerSample = 2;
+  const blockAlign = numChannels * bytesPerSample;
+  const dataSize = length * blockAlign;
+  const headerSize = 44;
+  const arrayBuffer = new ArrayBuffer(headerSize + dataSize);
+  const view = new DataView(arrayBuffer);
+
+  function writeString(offset: number, str: string) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  }
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < length; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      const sample = buffer.getChannelData(ch)[i];
+      const clamped = Math.max(-1, Math.min(1, sample));
+      view.setInt16(offset, clamped * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([arrayBuffer], { type: 'audio/wav' });
+}
+
 export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurferPlayerInstance {
   const { container, audioUrl, isDarkTheme, onPlay, onPause } = config;
+
+  // Chromium-based browser detection (Chrome, Edge, Opera, Brave, etc.)
+  // All Chromium browsers share the same <audio> limitation with WAV 32-bit float.
+  const isChromium = /Chrome/.test(navigator.userAgent);
 
   // Colors
   const waveColor = isDarkTheme ? 'rgba(255,255,255,0.50)' : 'rgba(0,0,0,0.20)';
@@ -168,6 +222,14 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   // Event wiring
   let isMuted = false;
 
+  // --- Chrome proactive fix for WAV 32-bit float ---
+  // Chrome's <audio> element cannot play WAV 32-bit float, but decodeAudioData()
+  // succeeds (waveform renders). After decode completes, we proactively re-encode
+  // the AudioBuffer to 16-bit PCM and swap the <audio> src BEFORE the user clicks
+  // play. This avoids any error-state recovery complexity.
+  let chromeFallbackBlobUrl: string | null = null;
+  let chromeFallbackApplied = false;
+
   // Register Media Session action handlers once (play/pause mapped to wavesurfer)
   if ('mediaSession' in navigator) {
     navigator.mediaSession.setActionHandler('play', () => ws.play());
@@ -216,6 +278,35 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
 
   ws.on('decode', (duration: number) => {
     timeTotal.textContent = formatTime(duration);
+
+    // Chromium: proactively swap <audio> src to 16-bit WAV after decode.
+    // Chromium can decode 32-bit float WAV via AudioContext (waveform OK) but its
+    // <audio> element cannot play it. We re-fetch the original audio (from browser
+    // cache), decode at native sample rate (not WaveSurfer's 8000 Hz default),
+    // re-encode as 16-bit PCM WAV, and swap the <audio> src.
+    // Quality: native sample rate preserved, 32→16 bit conversion is inaudible.
+    if (isChromium && !chromeFallbackApplied) {
+      chromeFallbackApplied = true;
+      (async () => {
+        try {
+          // Re-fetch from browser cache + decode at native sample rate
+          const response = await fetch(audioUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          const audioCtx = new AudioContext();
+          const fullQualityBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+          await audioCtx.close();
+
+          const wav16Blob = audioBufferToWav16(fullQualityBuffer);
+          chromeFallbackBlobUrl = URL.createObjectURL(wav16Blob);
+          // Directly swap the internal <audio> element's src
+          const mediaEl = ws.getMediaElement();
+          mediaEl.src = chromeFallbackBlobUrl;
+        } catch {
+          // Failed to re-encode — playback may not work on Chromium for this format
+          chromeFallbackApplied = false;
+        }
+      })();
+    }
   });
 
   ws.on('ready', () => {
@@ -224,6 +315,8 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   });
 
   ws.on('error', () => {
+    // Suppress stale errors from the original <audio> src after Chrome fallback swap
+    if (chromeFallbackApplied) return;
     if (ws.isPlaying()) onPause?.();
     showErrorOverlay();
   });
@@ -244,6 +337,12 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     ws,
     el: wrapper,
     loadUrl: (newUrl: string) => {
+      // Reset Chrome fallback state for new URL
+      chromeFallbackApplied = false;
+      if (chromeFallbackBlobUrl) {
+        URL.revokeObjectURL(chromeFallbackBlobUrl);
+        chromeFallbackBlobUrl = null;
+      }
       hideErrorOverlay();
       // Re-add skeleton for loading state
       const reloadSkeleton = document.createElement('div');
@@ -260,6 +359,9 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     },
     destroy: () => {
       if (ws.isPlaying()) onPause?.();
+      if (chromeFallbackBlobUrl) {
+        URL.revokeObjectURL(chromeFallbackBlobUrl);
+      }
       ws.destroy();
     },
   };

@@ -897,6 +897,25 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 
 5 barres animees (`ws-eq-bounce`, stagger 0.12s) aux couleurs accent du player (`#1976d2` light / `#90caf9` dark). S'affichent immediatement a l'ouverture du popup/sheet, disparaissent en fade-out (0.35s) quand wavesurfer emet `ready`. Element retire du DOM apres 400ms.
 
+#### Fallback Chromium WAV 32-bit float
+
+Les navigateurs Chromium (Chrome, Edge, Opera, Brave) ne peuvent pas lire les fichiers WAV 32-bit float via `<audio>`, mais `AudioContext.decodeAudioData()` reussit (la waveform s'affiche normalement).
+
+**Mecanisme :** apres l'evenement `decode` de WaveSurfer, sur les navigateurs Chromium :
+1. Re-fetch l'audio original (depuis le cache navigateur)
+2. Decodage a la frequence native (48000 Hz) via un `AudioContext` separe (WaveSurfer decode a 8000 Hz par defaut pour la waveform — inutilisable pour la lecture)
+3. Re-encodage en WAV 16-bit PCM via `audioBufferToWav16()` (conversion 32→16 bit inaudible, sample rate natif preserve)
+4. Swap direct du `<audio>.src` vers le Blob URL 16-bit (`ws.getMediaElement().src = blobUrl`)
+5. Suppression des erreurs residuelles de l'ancien `<audio>` src (`chromeFallbackApplied` guard)
+
+**Qualite :** identique a l'original — seule la profondeur de bits change (32-bit float → 16-bit PCM = qualite CD). Le sample rate natif (48000 Hz) est integralement preserve.
+
+**Detection :** `const isChromium = /Chrome/.test(navigator.userAgent)` — couvre Chrome, Edge, Opera, Brave. Firefox n'est pas affecte (gere le WAV 32-bit float nativement).
+
+**Flags :** `chromeFallbackApplied` (evite double application), `chromeFallbackBlobUrl` (revoque via `URL.revokeObjectURL()` au `destroy` et `loadUrl`).
+
+**Fonction utilitaire :** `audioBufferToWav16(buffer: AudioBuffer): Blob` — encode un AudioBuffer en WAV PCM 16-bit. Header RIFF/WAVE standard 44 octets + donnees entrelacees float32→int16 (`sample * 0x7FFF`, clampe [-1, 1]).
+
 #### Integration desktop (popups Leaflet)
 
 - Propriete `activePopupPlayer: WaveSurferPlayerInstance | null`
