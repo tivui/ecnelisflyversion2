@@ -11,13 +11,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class SupportComponent {
   readonly kofiUrl = 'https://ko-fi.com/ecnelisfly';
-  readonly bmcUrl = 'https://buymeacoffee.com/ecnelisfly';
 
   openKofi() {
     window.open(this.kofiUrl, '_blank', 'noopener,noreferrer');
-  }
-
-  openBmc() {
-    window.open(this.bmcUrl, '_blank', 'noopener,noreferrer');
   }
 }

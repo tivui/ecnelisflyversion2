@@ -1,4 +1,5 @@
 import { defineAuth, secret } from '@aws-amplify/backend';
+import { postConfirmationNotify } from '../functions/post-confirmation-notify/resource';
 
 /**
  * Define and configure your auth resource
@@ -38,6 +39,9 @@ export const auth = defineAuth({
         'https://www.ecnelisfly.com/',
       ],
     },
+  },
+  triggers: {
+    postConfirmation: postConfirmationNotify,
   },
   groups: ['ADMIN'],
 });

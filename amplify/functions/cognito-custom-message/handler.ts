@@ -29,7 +29,7 @@ a{color:#1976d2;text-decoration:none}
     <span class="code">{####}</span>
     <p class="note">Ce code expire dans 24 heures. Si vous n'avez pas créé de compte, ignorez cet email.</p>
   </div>
-  <div class="footer">© 2025 Ecnelis FLY · <a href="https://www.ecnelisfly.com">ecnelisfly.com</a></div>
+  <div class="footer">© 2021-2026 Ecnelis FLY · <a href="https://www.ecnelisfly.com">ecnelisfly.com</a></div>
 </div>
 </body></html>
 `;
@@ -59,7 +59,7 @@ a{color:#1976d2;text-decoration:none}
     <span class="code">{####}</span>
     <p class="note">Ce code expire dans 1 heure. Si vous n'avez pas fait cette demande, ignorez cet email.</p>
   </div>
-  <div class="footer">© 2025 Ecnelis FLY · <a href="https://www.ecnelisfly.com">ecnelisfly.com</a></div>
+  <div class="footer">© 2021-2026 Ecnelis FLY · <a href="https://www.ecnelisfly.com">ecnelisfly.com</a></div>
 </div>
 </body></html>
 `;

@@ -1445,8 +1445,7 @@
     "cta": {
       "intro": "Every contribution, however small, helps us maintain and improve the app. Thank you from the bottom of our hearts ❤️",
       "kofi": "Buy us a coffee on Ko-fi",
-      "bmc": "Buy Me a Coffee",
-      "note": "Secure payment via Ko-fi / Buy Me a Coffee. No account required."
+      "note": "Secure payment via Ko-fi. No account required."
     },
     "alt": {
       "title": "Other ways to support us",
@@ -1560,7 +1559,7 @@
       },
       "copyright": {
         "title": "Intellectual Property",
-        "text": "© 2024-2026 Ecnelis FLY — All rights reserved."
+        "text": "© 2021-2026 Ecnelis FLY — All rights reserved."
       }
     }
   }
