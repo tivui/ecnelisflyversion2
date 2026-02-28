@@ -111,4 +111,4 @@ L'application est installable en tant que PWA :
 
 ## Licence
 
-(c) 2024-2026 Ecnelis FLY — Tous droits reserves.
+(c) 2021-2026 Ecnelis FLY — Tous droits reserves.

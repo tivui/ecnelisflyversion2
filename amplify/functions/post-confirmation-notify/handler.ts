@@ -82,7 +82,7 @@ function buildHtml(email: string, sub: string, date: string): string {
         </tr>
         <tr>
           <td style="background:#f8f9fa;padding:12px 24px;text-align:center;border-top:1px solid #e0e0e0;">
-            <p style="margin:0;font-size:0.75rem;color:#aaa;">&copy; 2025 Ecnelis FLY</p>
+            <p style="margin:0;font-size:0.75rem;color:#aaa;">&copy; 2021-2026 Ecnelis FLY</p>
           </td>
         </tr>
       </table>

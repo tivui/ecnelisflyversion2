@@ -85,7 +85,7 @@ function buildHtml(payload: SoundEmailPayload): string {
         <!-- Footer -->
         <tr>
           <td style="background:#f8f9fa;padding:16px 32px;text-align:center;border-top:1px solid #e0e0e0;">
-            <p style="margin:0;font-size:0.75rem;color:#aaa;">© 2025 Ecnelis FLY · <a href="https://www.ecnelisfly.com" style="color:#1976d2;text-decoration:none;">ecnelis.fly</a></p>
+            <p style="margin:0;font-size:0.75rem;color:#aaa;">© 2021-2026 Ecnelis FLY · <a href="https://www.ecnelisfly.com" style="color:#1976d2;text-decoration:none;">ecnelisfly.com</a></p>
           </td>
         </tr>
       </table>

@@ -145,7 +145,7 @@ L'application est fonctionnellement riche mais il manque des finitions essentiel
 
 ### 4.3 Protection des droits (~1h, mixte code/legal)
 - Ajouter mentions legales / CGU dans une page accessible depuis le sidenav
-- Footer avec copyright "© 2024-2026 Ecnelis FLY - Tous droits reserves"
+- Footer avec copyright "© 2021-2026 Ecnelis FLY - Tous droits reserves"
 - `<meta>` tags pour la protection des images (desactiver clic droit sur les logos n'est pas efficace, mais les meta + watermark digital sont possibles)
 - Licence de l'application clairement affichee
 - **Fichiers** : nouveau composant `features/legal/`, sidenav, `index.html` meta tags
