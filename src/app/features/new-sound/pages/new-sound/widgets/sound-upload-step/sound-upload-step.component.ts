@@ -33,21 +33,20 @@ const ALLOWED_AUDIO_TYPES: Record<string, string[]> = {
 const ALLOWED_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.webm', '.opus'];
 
 @Component({
-  selector: 'app-sound-upload-step',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressBarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatTooltipModule,
-    TranslateModule,
-  ],
-  templateUrl: './sound-upload-step.component.html',
-  styleUrl: './sound-upload-step.component.scss',
+    selector: 'app-sound-upload-step',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressBarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatCardModule,
+        MatTooltipModule,
+        TranslateModule,
+    ],
+    templateUrl: './sound-upload-step.component.html',
+    styleUrl: './sound-upload-step.component.scss'
 })
 export class SoundUploadStepComponent {
   private readonly storageService = inject(StorageService);

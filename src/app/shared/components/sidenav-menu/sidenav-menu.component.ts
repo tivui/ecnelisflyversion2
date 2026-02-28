@@ -13,18 +13,17 @@ import { DailyFeaturedSound } from '../../../core/models/featured-sound.model';
 import { Language } from '../../../core/models/i18n.model';
 
 @Component({
-  selector: 'app-sidenav-menu',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    TranslateModule,
-    MatIconModule,
-    MatRippleModule,
-  ],
-  templateUrl: './sidenav-menu.component.html',
-  styleUrl: './sidenav-menu.component.scss',
+    selector: 'app-sidenav-menu',
+    imports: [
+        CommonModule,
+        RouterLink,
+        RouterLinkActive,
+        TranslateModule,
+        MatIconModule,
+        MatRippleModule,
+    ],
+    templateUrl: './sidenav-menu.component.html',
+    styleUrl: './sidenav-menu.component.scss'
 })
 export class SidenavMenuComponent {
   private readonly featuredSoundService = inject(FeaturedSoundService);

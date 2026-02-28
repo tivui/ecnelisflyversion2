@@ -34,25 +34,24 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-article-settings-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatChipsModule,
-    TranslateModule,
-  ],
-  templateUrl: './article-settings-dialog.component.html',
-  styleUrl: './article-settings-dialog.component.scss',
+    selector: 'app-article-settings-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatChipsModule,
+        TranslateModule,
+    ],
+    templateUrl: './article-settings-dialog.component.html',
+    styleUrl: './article-settings-dialog.component.scss'
 })
 export class ArticleSettingsDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

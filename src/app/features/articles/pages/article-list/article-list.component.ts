@@ -10,17 +10,16 @@ import { ArticleService } from '../../services/article.service';
 import { SoundArticle } from '../../models/article.model';
 
 @Component({
-  selector: 'app-article-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  templateUrl: './article-list.component.html',
-  styleUrl: './article-list.component.scss',
+    selector: 'app-article-list',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    templateUrl: './article-list.component.html',
+    styleUrl: './article-list.component.scss'
 })
 export class ArticleListComponent implements OnInit {
   private readonly articleService = inject(ArticleService);

@@ -60,34 +60,33 @@ interface Option {
 }
 
 @Component({
-  selector: 'app-sound-edit-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatAutocompleteModule,
-    MatDatepickerModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    TranslateModule,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    {
-      provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.currentLang,
-      deps: [TranslateService],
-    },
-  ],
-  templateUrl: './sound-edit-dialog.component.html',
-  styleUrl: './sound-edit-dialog.component.scss',
+    selector: 'app-sound-edit-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatTabsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatAutocompleteModule,
+        MatDatepickerModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        TranslateModule,
+    ],
+    providers: [
+        provideNativeDateAdapter(),
+        {
+            provide: MAT_DATE_LOCALE,
+            useFactory: (translate: TranslateService) => translate.currentLang,
+            deps: [TranslateService],
+        },
+    ],
+    templateUrl: './sound-edit-dialog.component.html',
+    styleUrl: './sound-edit-dialog.component.scss'
 })
 export class SoundEditDialogComponent implements OnInit, OnDestroy {
   private readonly dialogRef = inject(MatDialogRef<SoundEditDialogComponent>);

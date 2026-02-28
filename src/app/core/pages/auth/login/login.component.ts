@@ -5,11 +5,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { I18n } from 'aws-amplify/utils';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, AmplifyAuthenticatorModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+    selector: 'app-login',
+    imports: [CommonModule, AmplifyAuthenticatorModule],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss']
 })
 
 export class LoginComponent {

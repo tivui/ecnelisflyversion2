@@ -34,25 +34,24 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-featured-sound-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatAutocompleteModule,
-    MatSlideToggleModule,
-    TranslateModule,
-  ],
-  templateUrl: './featured-sound-dialog.component.html',
-  styleUrl: './featured-sound-dialog.component.scss',
+    selector: 'app-featured-sound-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatAutocompleteModule,
+        MatSlideToggleModule,
+        TranslateModule,
+    ],
+    templateUrl: './featured-sound-dialog.component.html',
+    styleUrl: './featured-sound-dialog.component.scss'
 })
 export class FeaturedSoundDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

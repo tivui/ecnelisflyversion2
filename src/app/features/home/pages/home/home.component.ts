@@ -24,19 +24,18 @@ import { GooeyAudioService } from '../../../../core/services/gooey-audio.service
 import { SoundsService, CommunityStats } from '../../../../core/services/sounds.service';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    RouterLink,
-    MatIconModule,
-    CarouselCategoriesComponent,
-    FitTextDirective,
-  ],
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-home',
+    imports: [
+        CommonModule,
+        TranslateModule,
+        RouterLink,
+        MatIconModule,
+        CarouselCategoriesComponent,
+        FitTextDirective,
+    ],
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly appUserService = inject(AppUserService);

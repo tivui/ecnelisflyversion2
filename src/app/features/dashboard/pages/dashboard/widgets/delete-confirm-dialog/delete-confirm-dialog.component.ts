@@ -16,17 +16,16 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-delete-confirm-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    TranslateModule,
-  ],
-  templateUrl: './delete-confirm-dialog.component.html',
-  styleUrl: './delete-confirm-dialog.component.scss',
+    selector: 'app-delete-confirm-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        TranslateModule,
+    ],
+    templateUrl: './delete-confirm-dialog.component.html',
+    styleUrl: './delete-confirm-dialog.component.scss'
 })
 export class DeleteConfirmDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<DeleteConfirmDialogComponent>);

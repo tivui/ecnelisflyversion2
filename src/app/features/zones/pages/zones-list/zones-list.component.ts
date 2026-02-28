@@ -11,19 +11,18 @@ import { Zone } from '../../../../core/models/zone.model';
 import { ZoneCardComponent } from '../../../home/pages/home/widgets/zone-card/zone-card.component';
 
 @Component({
-  selector: 'app-zones-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    TranslateModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    ZoneCardComponent,
-  ],
-  templateUrl: './zones-list.component.html',
-  styleUrl: './zones-list.component.scss',
+    selector: 'app-zones-list',
+    imports: [
+        CommonModule,
+        RouterLink,
+        TranslateModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        ZoneCardComponent,
+    ],
+    templateUrl: './zones-list.component.html',
+    styleUrl: './zones-list.component.scss'
 })
 export class ZonesListComponent implements OnInit {
   private readonly zoneService = inject(ZoneService);

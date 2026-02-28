@@ -7,11 +7,10 @@ import { LikeService } from '../../../core/services/like.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-like-button',
-  standalone: true,
-  imports: [CommonModule, MatTooltipModule],
-  templateUrl: './like-button.component.html',
-  styleUrl: './like-button.component.scss',
+    selector: 'app-like-button',
+    imports: [CommonModule, MatTooltipModule],
+    templateUrl: './like-button.component.html',
+    styleUrl: './like-button.component.scss'
 })
 export class LikeButtonComponent implements OnInit, OnChanges {
   private readonly likeService = inject(LikeService);

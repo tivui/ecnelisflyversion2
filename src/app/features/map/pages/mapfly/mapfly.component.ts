@@ -49,12 +49,11 @@ import { HeadphoneReminderService } from '../../../../core/services/headphone-re
 import 'leaflet-minimap';
 
 @Component({
-  selector: 'app-mapfly',
-  standalone: true,
-  imports: [TranslatePipe, MatBottomSheetModule],
-  templateUrl: './mapfly.component.html',
-  styleUrls: ['./mapfly.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-mapfly',
+    imports: [TranslatePipe, MatBottomSheetModule],
+    templateUrl: './mapfly.component.html',
+    styleUrls: ['./mapfly.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class MapflyComponent implements OnInit, OnDestroy {
   private readonly appUserService = inject(AppUserService);

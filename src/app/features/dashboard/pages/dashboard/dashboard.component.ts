@@ -32,23 +32,22 @@ import {
 } from '../../utils/sound-filter.utils';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    TranslateModule,
-    SoundListComponent,
-    SoundFiltersComponent,
-    DashboardStatsComponent,
-  ],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+    selector: 'app-dashboard',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        TranslateModule,
+        SoundListComponent,
+        SoundFiltersComponent,
+        DashboardStatsComponent,
+    ],
+    templateUrl: './dashboard.component.html',
+    styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);

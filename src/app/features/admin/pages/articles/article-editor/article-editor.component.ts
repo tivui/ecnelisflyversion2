@@ -28,22 +28,21 @@ import { ArticlePreviewDialogComponent } from '../article-preview-dialog/article
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-article-editor',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-    CdkDropList,
-    CdkDrag,
-  ],
-  templateUrl: './article-editor.component.html',
-  styleUrl: './article-editor.component.scss',
+    selector: 'app-article-editor',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+        CdkDropList,
+        CdkDrag,
+    ],
+    templateUrl: './article-editor.component.html',
+    styleUrl: './article-editor.component.scss'
 })
 export class ArticleEditorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

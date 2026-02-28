@@ -6,11 +6,10 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { PwaInstallService } from '../../../core/services/pwa-install.service';
 
 @Component({
-  selector: 'app-pwa-install-banner',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, TranslatePipe],
-  templateUrl: './pwa-install-banner.component.html',
-  styleUrls: ['./pwa-install-banner.component.scss'],
+    selector: 'app-pwa-install-banner',
+    imports: [CommonModule, MatButtonModule, MatIconModule, TranslatePipe],
+    templateUrl: './pwa-install-banner.component.html',
+    styleUrls: ['./pwa-install-banner.component.scss']
 })
 export class PwaInstallBannerComponent {
   private readonly pwaService = inject(PwaInstallService);

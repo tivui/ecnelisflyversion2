@@ -61,22 +61,21 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'app-sound-data-meta-step',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatAutocompleteModule,
-    TranslateModule,
-    MatSelectModule,
-    MatTooltipModule,
-  ],
-  templateUrl: './sound-data-meta-step.component.html',
-  styleUrl: './sound-data-meta-step.component.scss',
+    selector: 'app-sound-data-meta-step',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatAutocompleteModule,
+        TranslateModule,
+        MatSelectModule,
+        MatTooltipModule,
+    ],
+    templateUrl: './sound-data-meta-step.component.html',
+    styleUrl: './sound-data-meta-step.component.scss'
 })
 export class SoundDataMetaStepComponent implements OnInit {
   private fb = inject(FormBuilder);

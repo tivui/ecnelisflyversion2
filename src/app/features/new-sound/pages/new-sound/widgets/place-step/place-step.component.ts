@@ -25,12 +25,11 @@ export interface PlaceSelection {
 }
 
 @Component({
-  selector: 'app-place-step',
-  standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatInputModule, MatIconModule, TranslatePipe],
-  templateUrl: './place-step.component.html',
-  styleUrl: './place-step.component.scss',
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-place-step',
+    imports: [CommonModule, MatFormFieldModule, MatInputModule, MatIconModule, TranslatePipe],
+    templateUrl: './place-step.component.html',
+    styleUrl: './place-step.component.scss',
+    encapsulation: ViewEncapsulation.None
 })
 export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   @Output() placeSelected = new EventEmitter<PlaceSelection>();

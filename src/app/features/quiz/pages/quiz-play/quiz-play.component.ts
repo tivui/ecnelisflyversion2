@@ -22,18 +22,17 @@ import {
 type GameState = 'loading' | 'countdown' | 'playing' | 'feedback' | 'finished';
 
 @Component({
-  selector: 'app-quiz-play',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  templateUrl: './quiz-play.component.html',
-  styleUrl: './quiz-play.component.scss',
+    selector: 'app-quiz-play',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    templateUrl: './quiz-play.component.html',
+    styleUrl: './quiz-play.component.scss'
 })
 export class QuizPlayComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);

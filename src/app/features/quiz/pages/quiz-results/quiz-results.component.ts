@@ -18,18 +18,17 @@ import {
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
-  selector: 'app-quiz-results',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-    UserAvatarComponent,
-  ],
-  templateUrl: './quiz-results.component.html',
-  styleUrl: './quiz-results.component.scss',
+    selector: 'app-quiz-results',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+        UserAvatarComponent,
+    ],
+    templateUrl: './quiz-results.component.html',
+    styleUrl: './quiz-results.component.scss'
 })
 export class QuizResultsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

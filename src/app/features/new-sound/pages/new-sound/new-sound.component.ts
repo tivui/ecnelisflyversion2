@@ -35,27 +35,26 @@ import { AppUserService } from '../../../../core/services/app-user.service';
 import { QuotaInfo } from '../../../../core/models/quota.model';
 
 @Component({
-  selector: 'app-new-sound',
-  standalone: true,
-  imports: [
-    MatStepperModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    AsyncPipe,
-    TranslateModule,
-    SoundUploadStepComponent,
-    PlaceStepComponent,
-    SoundDataStepComponent,
-    SoundDataMetaStepComponent,
-    SoundDataInfoStepComponent,
-    ConfirmationStepComponent
-],
-  templateUrl: './new-sound.component.html',
-  styleUrl: './new-sound.component.scss',
+    selector: 'app-new-sound',
+    imports: [
+        MatStepperModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        AsyncPipe,
+        TranslateModule,
+        SoundUploadStepComponent,
+        PlaceStepComponent,
+        SoundDataStepComponent,
+        SoundDataMetaStepComponent,
+        SoundDataInfoStepComponent,
+        ConfirmationStepComponent
+    ],
+    templateUrl: './new-sound.component.html',
+    styleUrl: './new-sound.component.scss'
 })
 export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   private _formBuilder = inject(FormBuilder);

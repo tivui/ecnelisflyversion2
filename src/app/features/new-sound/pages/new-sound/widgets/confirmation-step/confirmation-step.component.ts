@@ -45,23 +45,22 @@ export interface SoundData {
 }
 
 @Component({
-  selector: 'app-confirmation-step',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatIconModule,
-    MatDialogModule,
-    MatProgressSpinnerModule,
-    MatListModule,
-    MatChipsModule,
-    MatTooltipModule,
-    TranslateModule,
-  ],
-  templateUrl: './confirmation-step.component.html',
-  styleUrl: './confirmation-step.component.scss',
+    selector: 'app-confirmation-step',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDividerModule,
+        MatIconModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatListModule,
+        MatChipsModule,
+        MatTooltipModule,
+        TranslateModule,
+    ],
+    templateUrl: './confirmation-step.component.html',
+    styleUrl: './confirmation-step.component.scss'
 })
 export class ConfirmationStepComponent implements OnChanges {
   private amplifyService = inject(AmplifyService);

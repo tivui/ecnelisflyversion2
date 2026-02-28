@@ -15,24 +15,23 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-sound-data-step-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatLabel,
-    AsyncPipe,
-    TranslateModule,
-  ],
-  templateUrl: './sound-data-step-dialog.component.html',
-  styleUrls: ['./sound-data-step-dialog.component.scss'],
+    selector: 'app-sound-data-step-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatDialogClose,
+        MatLabel,
+        AsyncPipe,
+        TranslateModule,
+    ],
+    templateUrl: './sound-data-step-dialog.component.html',
+    styleUrls: ['./sound-data-step-dialog.component.scss']
 })
 export class SoundDataStepDialogComponent {
   private readonly dialogRef = inject(

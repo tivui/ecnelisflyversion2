@@ -45,38 +45,37 @@ interface CategoryOption {
 }
 
 @Component({
-  selector: 'app-sound-filters',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatAutocompleteModule,
-    MatDatepickerModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatBadgeModule,
-    MatTooltipModule,
-    TranslateModule,
-  ],
-  templateUrl: './sound-filters.component.html',
-  styleUrl: './sound-filters.component.scss',
-  providers: [provideNativeDateAdapter()],
-  animations: [
-    trigger('slideDown', [
-      transition(':enter', [
-        style({ height: 0, opacity: 0, overflow: 'hidden' }),
-        animate('200ms ease-out', style({ height: '*', opacity: 1 })),
-      ]),
-      transition(':leave', [
-        style({ height: '*', opacity: 1, overflow: 'hidden' }),
-        animate('150ms ease-in', style({ height: 0, opacity: 0 })),
-      ]),
-    ]),
-  ],
+    selector: 'app-sound-filters',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatAutocompleteModule,
+        MatDatepickerModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        MatBadgeModule,
+        MatTooltipModule,
+        TranslateModule,
+    ],
+    templateUrl: './sound-filters.component.html',
+    styleUrl: './sound-filters.component.scss',
+    providers: [provideNativeDateAdapter()],
+    animations: [
+        trigger('slideDown', [
+            transition(':enter', [
+                style({ height: 0, opacity: 0, overflow: 'hidden' }),
+                animate('200ms ease-out', style({ height: '*', opacity: 1 })),
+            ]),
+            transition(':leave', [
+                style({ height: '*', opacity: 1, overflow: 'hidden' }),
+                animate('150ms ease-in', style({ height: 0, opacity: 0 })),
+            ]),
+        ]),
+    ]
 })
 export class SoundFiltersComponent implements OnInit {
   private readonly translate = inject(TranslateService);

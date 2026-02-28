@@ -25,19 +25,18 @@ export interface ArticlePreviewDialogData {
 }
 
 @Component({
-  selector: 'app-article-preview-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-    SafeHtmlPipe,
-  ],
-  templateUrl: './article-preview-dialog.component.html',
-  styleUrl: './article-preview-dialog.component.scss',
+    selector: 'app-article-preview-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+        SafeHtmlPipe,
+    ],
+    templateUrl: './article-preview-dialog.component.html',
+    styleUrl: './article-preview-dialog.component.scss'
 })
 export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
   private readonly dialogRef = inject(MatDialogRef<ArticlePreviewDialogComponent>);

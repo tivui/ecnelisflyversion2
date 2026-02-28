@@ -17,22 +17,21 @@ import { QuizEditDialogComponent } from '../quiz-edit-dialog/quiz-edit-dialog.co
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-quiz-admin-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    TranslateModule,
-  ],
-  templateUrl: './quiz-admin-list.component.html',
-  styleUrl: './quiz-admin-list.component.scss',
+    selector: 'app-quiz-admin-list',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        TranslateModule,
+    ],
+    templateUrl: './quiz-admin-list.component.html',
+    styleUrl: './quiz-admin-list.component.scss'
 })
 export class QuizAdminListComponent implements OnInit {
   private readonly quizService = inject(QuizService);

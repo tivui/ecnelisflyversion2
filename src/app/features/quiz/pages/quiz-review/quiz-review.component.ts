@@ -22,17 +22,16 @@ interface ReviewItem {
 }
 
 @Component({
-  selector: 'app-quiz-review',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    TranslateModule,
-  ],
-  templateUrl: './quiz-review.component.html',
-  styleUrl: './quiz-review.component.scss',
+    selector: 'app-quiz-review',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        TranslateModule,
+    ],
+    templateUrl: './quiz-review.component.html',
+    styleUrl: './quiz-review.component.scss'
 })
 export class QuizReviewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

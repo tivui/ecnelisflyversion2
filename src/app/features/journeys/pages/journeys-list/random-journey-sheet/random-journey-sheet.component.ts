@@ -21,10 +21,9 @@ interface CategoryChip {
 }
 
 @Component({
-  selector: 'app-random-journey-sheet',
-  standalone: true,
-  imports: [MatIconModule, TranslatePipe],
-  template: `
+    selector: 'app-random-journey-sheet',
+    imports: [MatIconModule, TranslatePipe],
+    template: `
     <div class="sheet-container">
       <div class="sheet-handle"></div>
 
@@ -102,7 +101,7 @@ interface CategoryChip {
       </button>
     </div>
   `,
-  styles: [`
+    styles: [`
     .sheet-container {
       padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px));
       display: flex;
@@ -389,7 +388,7 @@ interface CategoryChip {
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-  `],
+  `]
 })
 export class RandomJourneySheetComponent {
   private readonly sheetRef = inject(MatBottomSheetRef);

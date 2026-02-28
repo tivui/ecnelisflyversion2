@@ -18,23 +18,22 @@ import { ZoneSoundsDialogComponent } from './zone-sounds-dialog/zone-sounds-dial
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-zones',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    TranslateModule,
-    RouterLink,
-  ],
-  templateUrl: './zones.component.html',
-  styleUrl: './zones.component.scss',
+    selector: 'app-zones',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        TranslateModule,
+        RouterLink,
+    ],
+    templateUrl: './zones.component.html',
+    styleUrl: './zones.component.scss'
 })
 export class ZonesComponent implements OnInit {
   private readonly zoneService = inject(ZoneService);

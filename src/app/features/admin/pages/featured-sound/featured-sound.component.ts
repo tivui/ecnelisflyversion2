@@ -20,23 +20,22 @@ import { FeaturedSoundDialogComponent } from './featured-sound-dialog/featured-s
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-featured-sound',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatSlideToggleModule,
-    TranslateModule,
-  ],
-  templateUrl: './featured-sound.component.html',
-  styleUrl: './featured-sound.component.scss',
+    selector: 'app-featured-sound',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatSlideToggleModule,
+        TranslateModule,
+    ],
+    templateUrl: './featured-sound.component.html',
+    styleUrl: './featured-sound.component.scss'
 })
 export class FeaturedSoundComponent implements OnInit {
   private readonly featuredSoundService = inject(FeaturedSoundService);

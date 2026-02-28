@@ -24,17 +24,16 @@ export interface SubcategorySheetData {
 }
 
 @Component({
-  selector: 'app-subcategory-sheet',
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    TranslatePipe,
-  ],
-  template: `
+    selector: 'app-subcategory-sheet',
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+    ],
+    template: `
     <div class="sheet-container">
       <div class="sheet-handle"></div>
 
@@ -71,7 +70,7 @@ export interface SubcategorySheetData {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .sheet-container {
       padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
       max-height: 70vh;

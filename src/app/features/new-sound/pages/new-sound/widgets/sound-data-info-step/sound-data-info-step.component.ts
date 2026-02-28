@@ -43,32 +43,31 @@ interface Option {
 
 
 @Component({
-  selector: 'app-sound-data-info-step',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatAutocompleteModule,
-    TranslateModule,
-    MatSelectModule,
-    MatTooltipModule,
-    MatDatepickerModule,
-  ],
-  providers: [
-    provideNativeDateAdapter(),
-    {
-      provide: MAT_DATE_LOCALE,
-      useFactory: (translate: TranslateService) => translate.currentLang,
-      deps: [TranslateService],
-    },
-  ],
-  templateUrl: './sound-data-info-step.component.html',
-  styleUrl: './sound-data-info-step.component.scss'
+    selector: 'app-sound-data-info-step',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDialogModule,
+        MatAutocompleteModule,
+        TranslateModule,
+        MatSelectModule,
+        MatTooltipModule,
+        MatDatepickerModule,
+    ],
+    providers: [
+        provideNativeDateAdapter(),
+        {
+            provide: MAT_DATE_LOCALE,
+            useFactory: (translate: TranslateService) => translate.currentLang,
+            deps: [TranslateService],
+        },
+    ],
+    templateUrl: './sound-data-info-step.component.html',
+    styleUrl: './sound-data-info-step.component.scss'
 })
 export class SoundDataInfoStepComponent implements OnInit {
   private fb = inject(FormBuilder);

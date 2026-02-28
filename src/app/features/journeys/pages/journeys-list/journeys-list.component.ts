@@ -13,20 +13,19 @@ import { SoundJourney } from '../../../../core/models/sound-journey.model';
 import { RandomJourneySheetComponent } from './random-journey-sheet/random-journey-sheet.component';
 
 @Component({
-  selector: 'app-journeys-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    TranslateModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatRippleModule,
-    MatBottomSheetModule,
-  ],
-  templateUrl: './journeys-list.component.html',
-  styleUrl: './journeys-list.component.scss',
+    selector: 'app-journeys-list',
+    imports: [
+        CommonModule,
+        RouterLink,
+        TranslateModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatBottomSheetModule,
+    ],
+    templateUrl: './journeys-list.component.html',
+    styleUrl: './journeys-list.component.scss'
 })
 export class JourneysListComponent implements OnInit {
   private readonly journeyService = inject(SoundJourneyService);

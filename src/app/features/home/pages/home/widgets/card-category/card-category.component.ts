@@ -26,22 +26,21 @@ interface SubCategoryOption {
 }
 
 @Component({
-  selector: 'app-card-category',
-  standalone: true,
-  imports: [
-    MatCardModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatBottomSheetModule,
-    ReactiveFormsModule,
-    TranslatePipe,
-  ],
-  templateUrl: './card-category.component.html',
-  styleUrl: './card-category.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-card-category',
+    imports: [
+        MatCardModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatBottomSheetModule,
+        ReactiveFormsModule,
+        TranslatePipe,
+    ],
+    templateUrl: './card-category.component.html',
+    styleUrl: './card-category.component.scss',
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CardCategoryComponent implements OnInit, OnDestroy {
 
