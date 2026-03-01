@@ -242,6 +242,58 @@
             </mat-autocomplete>
             <mat-hint>{{ "sound.admin.linked-user-hint" | translate }}</mat-hint>
           </mat-form-field>
+
+          <!-- Create new user toggle -->
+          @if (!showCreateUser()) {
+            <button mat-button class="create-user-btn" (click)="showCreateUser.set(true)">
+              <mat-icon>person_add</mat-icon>
+              {{ 'sound.admin.create-user' | translate }}
+            </button>
+          }
+
+          <!-- Create new user inline form -->
+          @if (showCreateUser()) {
+            <div class="create-user-form">
+              <div class="create-user-fields">
+                <mat-form-field appearance="outline" class="create-field">
+                  <mat-label>{{ 'sound.admin.new-username' | translate }}</mat-label>
+                  <input matInput [formControl]="newUsername" />
+                  <mat-icon matSuffix>person</mat-icon>
+                </mat-form-field>
+
+                <div class="country-field-wrap">
+                  <mat-form-field appearance="outline" class="create-field">
+                    <mat-label>{{ 'sound.admin.country' | translate }}</mat-label>
+                    <input matInput [formControl]="newCountryCode" [matAutocomplete]="countryAuto" />
+                    <mat-icon matSuffix>public</mat-icon>
+                    <mat-autocomplete #countryAuto="matAutocomplete">
+                      @for (c of filteredCountries(); track c.code) {
+                        <mat-option [value]="c.code">
+                          <img [src]="getFlagPath(c.code)" width="20" height="14" style="vertical-align: middle; margin-right: 8px;" />
+                          {{ c.name }}
+                        </mat-option>
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+                  @if (getFlagPath(newCountryCode.value)) {
+                    <img class="flag-preview" [src]="getFlagPath(newCountryCode.value)" alt="" />
+                  }
+                </div>
+              </div>
+
+              <div class="create-user-actions">
+                <button mat-button (click)="cancelCreateUser()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-raised-button color="primary" (click)="createNewUser()" [disabled]="creatingUser() || !newUsername.value?.trim()">
+                  @if (creatingUser()) {
+                    <mat-icon class="spin-icon">sync</mat-icon>
+                  }
+                  {{ 'sound.admin.create-btn' | translate }}
+                </button>
+              </div>
+            </div>
+          }
         </div>
       </div>
     }

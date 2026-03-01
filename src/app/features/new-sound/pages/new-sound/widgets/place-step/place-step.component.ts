@@ -40,6 +40,13 @@ export class PlaceStepComponent implements AfterViewInit, OnDestroy {
   private geoSearchService = inject(GeoSearchService);
 
   nameSelection = signal<string>('');
+  mapExpanded = signal(false);
+
+  toggleMapExpand() {
+    this.mapExpanded.update((v) => !v);
+    // Leaflet needs invalidateSize after container resize
+    setTimeout(() => this.map?.invalidateSize(), 350);
+  }
 
   ngAfterViewInit() {
     this.initMap();

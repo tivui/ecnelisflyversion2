@@ -484,7 +484,14 @@
       "user-section": "User Assignment",
       "linked-user": "User",
       "search-user": "Search for a user",
-      "linked-user-hint": "Select the user to whom this sound will be assigned"
+      "linked-user-hint": "Select the user to whom this sound will be assigned",
+      "create-user": "Create a user",
+      "new-username": "Username",
+      "country": "Country",
+      "create-btn": "Create",
+      "user-created": "User created",
+      "user-create-error": "Error creating user",
+      "username-exists": "This name already exists"
     }
   },
   "admin": {

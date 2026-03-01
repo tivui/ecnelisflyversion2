@@ -1,6 +1,6 @@
 .data-step-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 24px 16px;
   display: flex;
@@ -318,6 +318,86 @@
   }
 }
 
+// Admin: Create new user
+.create-user-btn {
+  margin-top: 4px;
+  color: #7b1fa2;
+  font-weight: 500;
+
+  mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.create-user-form {
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px dashed rgba(156, 39, 176, 0.35);
+  border-radius: 12px;
+  background: rgba(156, 39, 176, 0.04);
+  animation: slideDown 0.25s ease;
+}
+
+.create-user-fields {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .create-field {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.country-field-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+
+  .create-field {
+    flex: 1;
+  }
+}
+
+.flag-preview {
+  width: 28px;
+  height: 20px;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.create-user-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 // Dark mode
 :host-context(.dark-theme) {
   .header-card {
@@ -444,6 +524,15 @@
     .user-email {
       color: rgba(255, 255, 255, 0.5);
     }
+  }
+
+  .create-user-btn {
+    color: #ce93d8;
+  }
+
+  .create-user-form {
+    border-color: rgba(206, 147, 216, 0.3);
+    background: rgba(156, 39, 176, 0.1);
   }
 }
 

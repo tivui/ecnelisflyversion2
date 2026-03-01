@@ -2,7 +2,7 @@
 
 .place-step-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 24px 16px;
   display: flex;
@@ -74,6 +74,134 @@
   position: relative;
   border-radius: 16px;
   overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+// Expand/collapse button — desktop only
+.map-expand-btn {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 500;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s, box-shadow 0.2s;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #555;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+}
+
+@media (min-width: 701px) {
+  .map-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // === Fullscreen map overlay ===
+  .map-card.map-expanded {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 900;
+    border-radius: 0;
+    box-shadow: none;
+
+    .map-wrapper {
+      height: 100% !important;
+      border-radius: 0;
+    }
+
+    .map-expand-btn {
+      z-index: 910;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .map-overlay-hint {
+      bottom: 146px;
+    }
+  }
+
+  // Hide instructions + overlay the input on the map
+  .place-step-container:has(.map-expanded) {
+    .instructions-card {
+      display: none;
+    }
+
+    .place-name-card {
+      position: fixed;
+      bottom: 58px;
+      left: 24px;
+      right: 24px;
+      z-index: 901;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      padding: 10px 20px;
+      margin: 0;
+    }
+  }
+
+  // Stepper prev/next buttons overlay at map bottom
+  app-place-step:has(.map-expanded) ~ .stepper-actions {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 902 !important;
+    margin-top: 0 !important;
+    padding: 8px 24px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 0 !important;
+  }
+
+  // Dark mode overrides for fullscreen overlay
+  body.dark-theme {
+    .place-step-container:has(.map-expanded) .place-name-card {
+      background: rgba(22, 22, 38, 0.92) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    app-place-step:has(.map-expanded) ~ .stepper-actions {
+      background: rgba(22, 22, 38, 0.95) !important;
+      border-top-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
 }
 
 #map-newsound {
@@ -185,6 +313,22 @@ body.dark-theme {
     color: rgba(255, 255, 255, 0.7);
   }
 
+  .map-expand-btn {
+    background: rgba(30, 30, 48, 0.88);
+
+    mat-icon {
+      color: #9a9ab0;
+    }
+
+    &:hover {
+      background: rgba(40, 40, 60, 0.95);
+
+      mat-icon {
+        color: #90caf9;
+      }
+    }
+  }
+
   .place-name-card {
     background: #1f1f2f !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -196,6 +340,13 @@ body.dark-theme {
       border-color: rgba(255, 255, 255, 0.15) !important;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
+  }
+}
+
+// Taller map on wide desktop screens
+@media (min-width: 1100px) {
+  .map-wrapper {
+    height: 520px;
   }
 }
 

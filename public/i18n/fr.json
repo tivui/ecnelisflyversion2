@@ -484,7 +484,14 @@
       "user-section": "Utilisateur à lier",
       "linked-user": "Utilisateur",
       "search-user": "Rechercher un utilisateur",
-      "linked-user-hint": "Sélectionnez l'utilisateur auquel ce son sera attribué"
+      "linked-user-hint": "Sélectionnez l'utilisateur auquel ce son sera attribué",
+      "create-user": "Créer un utilisateur",
+      "new-username": "Nom d'utilisateur",
+      "country": "Pays",
+      "create-btn": "Créer",
+      "user-created": "Utilisateur créé",
+      "user-create-error": "Erreur lors de la création",
+      "username-exists": "Ce nom existe déjà"
     }
   },
   "admin": {

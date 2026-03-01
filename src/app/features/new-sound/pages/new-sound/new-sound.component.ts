@@ -63,6 +63,7 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   private renderer = inject(Renderer2);
 
   @ViewChild(MatStepper) stepper!: MatStepper;
+  @ViewChild('placeStep') placeStep?: PlaceStepComponent;
 
   readonly soundUploaded = signal(false);
   readonly soundPath = signal<string | null>(null);
@@ -211,6 +212,11 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentStepIndex.set(index);
     this.maxStepReached.update(max => Math.max(max, index));
 
+    // Collapse expanded map when leaving place step
+    if (index !== 1 && this.placeStep?.mapExpanded()) {
+      this.placeStep.mapExpanded.set(false);
+    }
+
     if (!this.isMobileWizard() && this.stepper) {
       this.stepper.selectedIndex = index;
     }
@@ -235,6 +241,14 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.soundPath.set(path);
     this.soundUploaded.set(true);
+  }
+
+  onStepChange(index: number) {
+    this.currentStepIndex.set(index);
+    // Collapse expanded map when leaving place step
+    if (index !== 1 && this.placeStep?.mapExpanded()) {
+      this.placeStep.mapExpanded.set(false);
+    }
   }
 
   onPlaceSelected(place: PlaceSelection) {
