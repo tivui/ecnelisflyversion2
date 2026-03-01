@@ -1936,6 +1936,94 @@ Templates HTML inline dans `TRANSLATIONS` constant (FR/EN/ES). Contenu : confirm
 - Open Graph : `og:title`, `og:description`, `og:type`, `og:image` (icon-512x512), `og:site_name`
 - Twitter Card : `summary_large_image` avec titre, description et image
 
+## Articles sonores (`features/articles/`)
+
+### Architecture
+
+Systeme CMS block-based complet pour publier des articles editoriaux lies a l'exploration sonore.
+
+**Modeles** (`article.model.ts`) :
+- `SoundArticle` : metadonnees article (titre, slug, cover, tags, status, readingTime, i18n)
+- `ArticleBlock` : bloc de contenu (heading, paragraph, sound, image, quote, callout) avec i18n et settings
+- `BlockSettings` : level, align, size, variant (separator, list-bullet, list-ordered), imageWidth, richText, attribution
+
+**Types de blocs** : `heading`, `paragraph`, `sound`, `image`, `quote`, `callout`
+**Variantes** : `default`, `separator`, `separator-dots`, `separator-ornament`, `list-bullet`, `list-ordered`
+
+### Editeur admin — Previews visuelles de blocs
+
+Chaque bloc dans l'editeur admin (`article-editor.component`) affiche une mini-preview visuelle selon son type :
+- **Heading** : texte en gras avec badge H1/H2/H3 colore
+- **Image** : vignette 40x40px chargee depuis S3 + caption
+- **Sound** : icone `music_note` avec fond colore + caption
+- **Quote** : guillemet decoratif + texte en italique + bordure gauche
+- **Callout** : fond teinte + icone `info`
+- **Separator** : trait visuel / points / ornement selon variante
+- **List** : puces/numeros avec les premiers items
+- **Paragraph** : texte sur 2 lignes (HTML tags strippés)
+
+Vignettes images chargees via `loadBlockImageThumbs()` au `ngOnInit` et apres chaque ajout/suppression de bloc.
+
+### Player audio WaveSurfer dans les articles
+
+Reutilisation de `createWaveSurferPlayer()` depuis `wavesurfer-player.service.ts` — meme player premium que sur la carte.
+
+**Article detail** (`article-detail.component`) :
+- Container `.ws-article-container` avec styles `::ng-deep` et palette article (brun/terre)
+- Couleurs waveform : `rgba(139,111,71,0.25)` non lue, `#8b6f47` lue (light)
+- `isDarkTheme: false` force (articles toujours sur fond light)
+- Init avec `setTimeout(300ms)` pour attendre le DOM
+- Arret exclusif (un seul son a la fois) + rappel casque + Media Session API
+
+**Preview dialog** (`article-preview-dialog.component`) :
+- Meme pattern, `setTimeout(400ms)` (dialog a besoin de plus de temps)
+- WaveSurfer detruit proprement dans `ngOnDestroy()`
+
+### Liste articles — recherche, filtres, badge mensuel, animations
+
+**Composant** : `article-list.component`
+
+- **Barre de recherche** glassmorphism (filtre titre + description)
+- **Chips de tags** : collecte auto de tous les tags des articles publies, toggle filter
+- **Badge "Article du mois"** : ruban dore (`auto_awesome` + label) sur la card mensuelle
+- **Animation stagger** : `fadeInUp` avec delai incremental par card
+- **Etat "aucun resultat"** quand les filtres ne matchent rien
+- Signal `monthlyArticleId` pour identifier la card mensuelle
+
+### Detail article — section "Continuer la lecture"
+
+Section en bas de l'article avec 2-3 articles recommandes :
+- Algorithme : score par tags communs, fallback sur les plus recents
+- Cards compactes : vignette cover, titre, temps de lecture, 2 tags max
+- Separateur elegante (trait + icone `auto_stories`)
+- Footer branding discret : logo + lien "Ecnelis FLY" vers `/home`
+
+### Temps de lecture auto-calcule
+
+`ArticleService.computeReadingTime(blocks)` : comptage des mots dans tous les blocs texte / 200 mots par minute, minimum 1 min. Mis a jour silencieusement a chaque chargement de l'editeur. Le champ manuel reste dans le dialog settings comme override avec hint.
+
+### Typographie articles
+
+- `$font-serif: 'Merriweather', Georgia, serif` — police optimisee pour la lecture numerique
+- `$font-sans: 'Inter', 'Roboto', sans-serif` — listes et elements UI
+- Google Fonts charge dans `index.html`
+- Palette : `$accent-article: #8b6f47`, `$accent-article-light: #c4a882`
+
+### Block edit dialog — pieges connus
+
+- **Listes** : `isTypeText()` retourne `false` pour les listes (pour masquer l'editeur rich text), mais `save()` doit inclure `|| this.isList()` pour persister le contenu
+- **Dark mode contenteditable** : necessite `-webkit-text-fill-color`, `caret-color`, et `* { color: inherit !important }` pour forcer la lisibilite (les styles inline du `execCommand` du navigateur overrident le CSS normal)
+
+### i18n articles
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `articles.list.searchPlaceholder` | Rechercher un article... | Search articles... | Buscar un articulo... |
+| `articles.list.monthlyBadge` | Article du mois | Monthly article | Articulo del mes |
+| `articles.list.noResults` | Aucun article correspondant | No matching articles | Ningun articulo coincide |
+| `articles.detail.continueReading` | Continuer la lecture | Continue reading | Seguir leyendo |
+| `admin.articles.settings.calculatedTime` | Calcule automatiquement : {{count}} min | Auto-calculated: {{count}} min | Calculado automaticamente: {{count}} min |
+
 ## Fichiers temporaires a ignorer
 
 - `preview-color-proposals.html` (preview design, pas partie de l'app)

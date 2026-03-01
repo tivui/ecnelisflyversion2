@@ -56,6 +56,10 @@ export class ArticleEditorComponent implements OnInit {
   blocks = signal<ArticleBlock[]>([]);
   loading = signal(true);
   activeLang = signal('fr');
+  calculatedReadingTime = signal(0);
+  blockImageThumbs = signal<Record<string, string>>({});
+
+  readonly waveformBars = [8, 14, 6, 18, 10, 16, 7, 12, 15, 9, 17, 11, 6, 14, 8];
 
   private articleId = '';
 
@@ -92,6 +96,18 @@ export class ArticleEditorComponent implements OnInit {
       if (article && article.blockCount !== blocks.length) {
         await this.updateBlockCount();
       }
+
+      // Auto-calculate reading time
+      const calculatedTime = this.articleService.calculateReadingTime(blocks);
+      this.calculatedReadingTime.set(calculatedTime);
+      if (article && article.readingTimeMinutes !== calculatedTime) {
+        await this.articleService.updateArticle(this.articleId, {
+          readingTimeMinutes: calculatedTime,
+        });
+      }
+
+      // Load image thumbnails for image blocks
+      this.loadBlockImageThumbs(blocks);
     } catch (error) {
       console.error('Error loading article:', error);
     } finally {
@@ -237,7 +253,7 @@ export class ArticleEditorComponent implements OnInit {
       width: '90vw',
       maxWidth: '700px',
       maxHeight: '90vh',
-      data: { article: this.article() },
+      data: { article: this.article(), calculatedReadingTime: this.calculatedReadingTime() },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -352,8 +368,9 @@ export class ArticleEditorComponent implements OnInit {
       case 'paragraph':
       case 'quote':
       case 'callout': {
-        const text =
+        const raw =
           block.content_i18n?.[lang] ?? block.content ?? '';
+        const text = raw.replace(/<[^>]*>/g, '');
         return text.length > 100 ? text.substring(0, 100) + '...' : text;
       }
       case 'sound':
@@ -368,6 +385,30 @@ export class ArticleEditorComponent implements OnInit {
   getHeadingLevel(block: ArticleBlock): string {
     if (block.type !== 'heading') return '';
     return `H${block.settings?.level ?? 2}`;
+  }
+
+  getListPreviewItems(block: ArticleBlock): string[] {
+    const lang = this.activeLang();
+    const text = block.content_i18n?.[lang] ?? block.content ?? '';
+    return text.split('\n').filter((l: string) => l.trim()).slice(0, 4);
+  }
+
+  getAttribution(block: ArticleBlock): string {
+    return block.settings?.attribution ?? '';
+  }
+
+  private async loadBlockImageThumbs(blocks: ArticleBlock[]) {
+    const thumbs: Record<string, string> = {};
+    for (const block of blocks) {
+      if (block.type === 'image' && block.imageKey) {
+        try {
+          thumbs[block.id] = await this.articleService.getImageUrl(block.imageKey);
+        } catch {
+          // ignore
+        }
+      }
+    }
+    this.blockImageThumbs.set(thumbs);
   }
 
   setActiveLang(lang: string) {

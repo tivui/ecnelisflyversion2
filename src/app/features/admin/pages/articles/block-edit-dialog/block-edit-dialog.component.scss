@@ -22,6 +22,10 @@ h4 {
   margin: 16px 0 8px;
   font-weight: 600;
   color: #555;
+
+  :host-context(body.dark-theme) & {
+    color: #bbb;
+  }
 }
 
 // Sound
@@ -148,11 +152,20 @@ h4 {
   line-height: 1.6;
   outline: none;
   background: #fff;
+  color: #1a1a2e;
 
   :host-context(body.dark-theme) & {
     background: #1e1e2e;
     border-color: rgba(255, 255, 255, 0.12);
     color: #e0e0e0;
+    -webkit-text-fill-color: #e0e0e0;
+    caret-color: #e0e0e0;
+
+    // Force text color for any inline styles from contenteditable
+    * {
+      color: inherit !important;
+      -webkit-text-fill-color: inherit !important;
+    }
   }
 
   &:focus {
@@ -168,6 +181,11 @@ h4 {
   a {
     color: #8b6f47;
     text-decoration: underline;
+
+    :host-context(body.dark-theme) & {
+      color: #c4a882 !important;
+      -webkit-text-fill-color: #c4a882 !important;
+    }
   }
 }
 

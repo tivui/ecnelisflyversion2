@@ -490,6 +490,35 @@ export class ArticleService {
       .substring(0, 80); // Limit length
   }
 
+  // ============ READING TIME ============
+
+  calculateReadingTime(blocks: ArticleBlock[]): number {
+    const textTypes: ArticleBlockType[] = ['heading', 'paragraph', 'quote', 'callout'];
+    let totalWords = 0;
+
+    for (const block of blocks) {
+      if (!textTypes.includes(block.type)) continue;
+
+      // Count words from all language versions + default content
+      const texts: string[] = [];
+      if (block.content) texts.push(block.content);
+      if (block.content_i18n) {
+        const frText = block.content_i18n['fr'];
+        if (frText) texts.push(frText);
+      }
+
+      // Use the longest version (FR or default) for word count
+      const longestText = texts.reduce((a, b) => a.length > b.length ? a : b, '');
+      const words = longestText
+        .replace(/<[^>]*>/g, '') // Strip HTML tags
+        .split(/\s+/)
+        .filter(w => w.length > 0);
+      totalWords += words.length;
+    }
+
+    return Math.max(1, Math.round(totalWords / 200));
+  }
+
   // ============ IMAGE UPLOAD (S3) ============
 
   uploadArticleImage(

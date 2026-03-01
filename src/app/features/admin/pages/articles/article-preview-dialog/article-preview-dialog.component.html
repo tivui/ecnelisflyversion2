@@ -178,28 +178,10 @@
               <!-- SOUND -->
               @else if (block.type === 'sound' && soundPlayers()[block.id]) {
                 <div class="block-sound-player">
-                  <button
-                    class="play-btn"
-                    (click)="togglePlay(block.id)"
-                  >
-                    <mat-icon>{{ soundPlayers()[block.id].playing ? 'pause' : 'play_arrow' }}</mat-icon>
-                  </button>
-
-                  <div class="player-body">
-                    @if (getLocalizedCaption(block)) {
-                      <span class="player-caption">{{ getLocalizedCaption(block) }}</span>
-                    }
-                    <div class="progress-bar" (click)="seekSound(block.id, $event)">
-                      <div
-                        class="progress-fill"
-                        [style.width.%]="getProgress(block.id)"
-                      ></div>
-                    </div>
-                    <div class="player-time">
-                      <span>{{ formatTime(soundPlayers()[block.id].progress) }}</span>
-                      <span>{{ formatTime(soundPlayers()[block.id].duration) }}</span>
-                    </div>
-                  </div>
+                  @if (getLocalizedCaption(block)) {
+                    <span class="player-caption">{{ getLocalizedCaption(block) }}</span>
+                  }
+                  <div [id]="'ws-preview-player-' + block.id" class="ws-article-container"></div>
                 </div>
               }
 

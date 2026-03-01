@@ -99,6 +99,170 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 }
 
 // =====================
+// Filter section
+// =====================
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto 24px;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within {
+    border-color: rgba($accent-article, 0.3);
+    box-shadow: 0 2px 12px rgba($accent-article, 0.1);
+  }
+
+  :host-context(body.dark-theme) & {
+    background: rgba(30, 30, 46, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+
+    &:focus-within {
+      border-color: rgba($accent-article-light, 0.3);
+    }
+  }
+}
+
+.search-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: #333;
+  outline: none;
+  font-family: inherit;
+
+  &::placeholder {
+    color: #aaa;
+  }
+
+  :host-context(body.dark-theme) & {
+    color: #ddd;
+
+    &::placeholder {
+      color: #777;
+    }
+  }
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #aaa;
+  }
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.filter-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba($accent-article, 0.2);
+  background: transparent;
+  color: $accent-article;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba($accent-article, 0.06);
+  }
+
+  &.active {
+    background: $accent-article;
+    color: #fff;
+    border-color: $accent-article;
+  }
+
+  :host-context(body.dark-theme) & {
+    border-color: rgba($accent-article-light, 0.25);
+    color: $accent-article-light;
+
+    &:hover {
+      background: rgba($accent-article-light, 0.08);
+    }
+
+    &.active {
+      background: $accent-article-light;
+      color: #1a1a2e;
+      border-color: $accent-article-light;
+    }
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #ccc;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #999;
+    font-size: 0.95rem;
+  }
+}
+
+// =====================
+// Stagger animation
+// =====================
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =====================
 // Articles Grid
 // =====================
 .articles-grid {
@@ -132,6 +296,8 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 6px rgba(0, 0, 0, 0.03);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   border-left: 3px solid rgba($accent-article, 0.35);
+  position: relative;
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   :host-context(body.dark-theme) & {
     background: rgba(30, 30, 46, 0.8);
@@ -153,6 +319,41 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
   &:active {
     transform: scale(0.98);
     transition: transform 0.1s ease;
+  }
+
+  // Monthly article — golden accent
+  &.monthly {
+    border-left-color: #b07c10;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(#b07c10, 0.1);
+
+    :host-context(body.dark-theme) & {
+      border-left-color: rgba(#fbbf24, 0.5);
+    }
+  }
+}
+
+// Monthly badge ribbon
+.monthly-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #b07c10, #d4a03a);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(#b07c10, 0.3);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
   }
 }
 

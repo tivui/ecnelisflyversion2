@@ -17,53 +17,109 @@
       <p>{{ 'articles.list.empty' | translate }}</p>
     </div>
   } @else {
-    <div class="articles-grid">
-      @for (article of articles(); track article.id) {
-        <button class="article-card" (click)="goToArticle(article)">
-          <!-- Card visual -->
-          <div class="card-visual" [class.has-cover]="getCoverUrl(article)">
-            @if (getCoverUrl(article)) {
-              <img [src]="getCoverUrl(article)" [alt]="getLocalizedTitle(article)" class="cover-img" />
-            } @else {
-              <div class="card-icon-circle">
-                <mat-icon>menu_book</mat-icon>
-              </div>
-            }
-          </div>
+    <!-- Filter section -->
+    <div class="filter-section">
+      <!-- Search bar -->
+      <div class="search-wrap">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'articles.list.searchPlaceholder' | translate"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+        />
+        @if (searchTerm()) {
+          <button class="search-clear" (click)="searchTerm.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
 
-          <!-- Card body -->
-          <div class="card-body">
-            <h3 class="card-title">{{ getLocalizedTitle(article) }}</h3>
-            @if (getLocalizedDescription(article)) {
-              <p class="card-description">{{ getLocalizedDescription(article) }}</p>
-            }
-          </div>
-
-          <!-- Tags -->
-          @if (article.tags && article.tags.length > 0) {
-            <div class="card-tags">
-              @for (tag of article.tags.slice(0, 3); track tag) {
-                <span class="tag-chip">{{ tag }}</span>
-              }
-            </div>
+      <!-- Tag filter chips -->
+      @if (allTags().length > 0) {
+        <div class="filter-tags">
+          @for (tag of allTags(); track tag) {
+            <button
+              class="filter-chip"
+              [class.active]="activeTag() === tag"
+              (click)="toggleTag(tag)"
+            >
+              {{ tag }}
+            </button>
           }
-
-          <!-- Card footer -->
-          <div class="card-footer">
-            @if (article.readingTimeMinutes) {
-              <span class="reading-time">
-                {{ 'articles.list.readingTime' | translate:{ count: article.readingTimeMinutes } }}
-              </span>
-            }
-            @if (article.authorName) {
-              <span class="author">{{ article.authorName }}</span>
-            }
-            @if (article.publishedAt) {
-              <span class="date">{{ formatDate(article.publishedAt) }}</span>
-            }
-          </div>
-        </button>
+        </div>
       }
     </div>
+
+    <!-- Articles grid -->
+    @if (filteredArticles().length === 0) {
+      <div class="no-results">
+        <mat-icon>search_off</mat-icon>
+        <p>{{ 'articles.list.noResults' | translate }}</p>
+      </div>
+    } @else {
+      <div class="articles-grid">
+        @for (article of filteredArticles(); track article.id; let i = $index) {
+          <button
+            class="article-card"
+            [class.monthly]="isMonthlyArticle(article)"
+            [style.animation-delay]="(i * 0.06) + 's'"
+            (click)="goToArticle(article)"
+          >
+            <!-- Monthly badge -->
+            @if (isMonthlyArticle(article)) {
+              <div class="monthly-badge">
+                <mat-icon>auto_awesome</mat-icon>
+                <span>{{ 'articles.list.monthlyBadge' | translate }}</span>
+              </div>
+            }
+
+            <!-- Card visual -->
+            <div class="card-visual" [class.has-cover]="getCoverUrl(article)">
+              @if (getCoverUrl(article)) {
+                <img [src]="getCoverUrl(article)" [alt]="getLocalizedTitle(article)" class="cover-img" />
+              } @else {
+                <div class="card-icon-circle">
+                  <mat-icon>menu_book</mat-icon>
+                </div>
+              }
+            </div>
+
+            <!-- Card body -->
+            <div class="card-body">
+              <h3 class="card-title">{{ getLocalizedTitle(article) }}</h3>
+              @if (getLocalizedDescription(article)) {
+                <p class="card-description">{{ getLocalizedDescription(article) }}</p>
+              }
+            </div>
+
+            <!-- Tags -->
+            @if (article.tags && article.tags.length > 0) {
+              <div class="card-tags">
+                @for (tag of article.tags.slice(0, 3); track tag) {
+                  <span class="tag-chip">{{ tag }}</span>
+                }
+              </div>
+            }
+
+            <!-- Card footer -->
+            <div class="card-footer">
+              @if (article.readingTimeMinutes) {
+                <span class="reading-time">
+                  {{ 'articles.list.readingTime' | translate:{ count: article.readingTimeMinutes } }}
+                </span>
+              }
+              @if (article.authorName) {
+                <span class="author">{{ article.authorName }}</span>
+              }
+              @if (article.publishedAt) {
+                <span class="date">{{ formatDate(article.publishedAt) }}</span>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    }
   }
 </div>

@@ -46,6 +46,9 @@
             <mat-label>{{ 'admin.articles.list.columns.readingTime' | translate }}</mat-label>
             <input matInput type="number" formControlName="readingTimeMinutes" />
             <span matSuffix>min</span>
+            @if (calculatedReadingTime()) {
+              <mat-hint>{{ 'admin.articles.settings.calculatedTime' | translate:{ count: calculatedReadingTime() } }}</mat-hint>
+            }
           </mat-form-field>
         </div>
       </form>

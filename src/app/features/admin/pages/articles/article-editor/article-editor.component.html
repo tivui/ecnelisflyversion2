@@ -93,9 +93,86 @@
                   <span class="heading-level">{{ getHeadingLevel(block) }}</span>
                 }
               </div>
-              <div class="block-preview">
-                {{ getBlockPreview(block) }}
-              </div>
+
+              <!-- Rich visual preview per block type -->
+              @switch (block.type) {
+                @case ('heading') {
+                  <div class="block-preview preview-heading" [class]="'preview-h' + (block.settings?.level ?? 2)">
+                    {{ getBlockPreview(block) }}
+                  </div>
+                }
+                @case ('paragraph') {
+                  @if (block.settings?.variant === 'list-bullet' || block.settings?.variant === 'list-ordered') {
+                    <div class="block-preview preview-list">
+                      @for (item of getListPreviewItems(block); track $index) {
+                        <div class="list-item">
+                          @if (block.settings?.variant === 'list-bullet') {
+                            <span class="list-bullet-dot"></span>
+                          } @else {
+                            <span class="list-number">{{ $index + 1 }}.</span>
+                          }
+                          <span>{{ item }}</span>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="block-preview preview-paragraph">
+                      {{ getBlockPreview(block) }}
+                    </div>
+                  }
+                }
+                @case ('image') {
+                  <div class="block-preview preview-image">
+                    @if (blockImageThumbs()[block.id]) {
+                      <img [src]="blockImageThumbs()[block.id]" class="image-thumb" alt="" />
+                    } @else {
+                      <div class="image-placeholder"><mat-icon>image</mat-icon></div>
+                    }
+                    <span class="image-caption">{{ getBlockPreview(block) }}</span>
+                  </div>
+                }
+                @case ('sound') {
+                  <div class="block-preview preview-sound">
+                    <div class="sound-icon-wrap">
+                      <mat-icon>music_note</mat-icon>
+                    </div>
+                    <div class="sound-info">
+                      <span class="sound-caption">{{ getBlockPreview(block) }}</span>
+                      <div class="sound-wave-hint">
+                        @for (bar of waveformBars; track $index) {
+                          <span class="wave-bar" [style.height.px]="bar"></span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+                @case ('quote') {
+                  <div class="block-preview preview-quote">
+                    <span class="quote-mark">"</span>
+                    <span class="quote-text">{{ getBlockPreview(block) }}</span>
+                    @if (getAttribution(block)) {
+                      <span class="quote-attribution">— {{ getAttribution(block) }}</span>
+                    }
+                  </div>
+                }
+                @case ('callout') {
+                  @if (block.settings?.variant?.startsWith('separator')) {
+                    <div class="block-preview preview-separator">
+                      <hr class="separator-line" />
+                    </div>
+                  } @else {
+                    <div class="block-preview preview-callout">
+                      <mat-icon class="callout-icon">info</mat-icon>
+                      <span>{{ getBlockPreview(block) }}</span>
+                    </div>
+                  }
+                }
+                @default {
+                  <div class="block-preview">
+                    {{ getBlockPreview(block) }}
+                  </div>
+                }
+              }
             </div>
 
             <div class="block-actions">

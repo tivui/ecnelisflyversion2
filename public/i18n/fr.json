@@ -182,7 +182,10 @@
       "title": "Articles Sonores",
       "empty": "Aucun article pour le moment.",
       "readingTime": "{{count}} min de lecture",
-      "readMore": "Lire la suite"
+      "readMore": "Lire la suite",
+      "searchPlaceholder": "Rechercher un article...",
+      "monthlyBadge": "Article du mois",
+      "noResults": "Aucun article correspondant."
     },
     "detail": {
       "back": "Retour aux articles",
@@ -190,7 +193,8 @@
       "shareSuccess": "Lien copié !",
       "tableOfContents": "Sommaire",
       "by": "Par",
-      "published": "Publié le"
+      "published": "Publié le",
+      "continueReading": "Continuer la lecture"
     }
   },
   "common": {
@@ -920,7 +924,8 @@
           "coverImage": "Image de couverture",
           "tags": "Tags",
           "addTag": "Ajouter un tag..."
-        }
+        },
+        "calculatedTime": "Calculé automatiquement : {{count}} min"
       },
       "block": {
         "edit": "Modifier le bloc",

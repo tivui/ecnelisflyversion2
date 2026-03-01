@@ -8,8 +8,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ArticleService } from '../../../../articles/services/article.service';
 import { SoundsService } from '../../../../../core/services/sounds.service';
+import { HeadphoneReminderService } from '../../../../../core/services/headphone-reminder.service';
 import { SoundArticle, ArticleBlock } from '../../../../articles/models/article.model';
 import { SafeHtmlPipe } from '../../../../../shared/pipes/safe-html.pipe';
+import {
+  createWaveSurferPlayer,
+  WaveSurferPlayerInstance,
+} from '../../../../../core/services/wavesurfer-player.service';
 
 interface SoundPlayerState {
   url: string;
@@ -44,6 +49,7 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
   private readonly articleService = inject(ArticleService);
   private readonly soundsService = inject(SoundsService);
   private readonly translate = inject(TranslateService);
+  private readonly headphoneReminder = inject(HeadphoneReminderService);
 
   article = signal<SoundArticle>(this.data.article);
   blocks = signal<ArticleBlock[]>(this.data.blocks);
@@ -55,6 +61,7 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
   soundPlayers = signal<Record<string, SoundPlayerState>>({});
 
   private audioElements: Record<string, HTMLAudioElement> = {};
+  private wsPlayers: Record<string, WaveSurferPlayerInstance> = {};
 
   readonly languages = ['fr', 'en', 'es'];
 
@@ -85,6 +92,9 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
     // Load block images and sounds
     await this.loadBlockMedia(blocks);
     this.loadingMedia.set(false);
+
+    // Init WaveSurfer players after DOM renders (dialog needs more time)
+    setTimeout(() => this.initWaveSurferPlayers(), 400);
   }
 
   ngOnDestroy() {
@@ -92,6 +102,10 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
       audio.pause();
       audio.src = '';
     }
+    for (const player of Object.values(this.wsPlayers)) {
+      player.destroy();
+    }
+    this.wsPlayers = {};
   }
 
   private async loadBlockMedia(blocks: ArticleBlock[]) {
@@ -128,6 +142,33 @@ export class ArticlePreviewDialogComponent implements OnInit, OnDestroy {
     }
 
     this.imageUrls.set(urls);
+  }
+
+  private initWaveSurferPlayers() {
+    const players = this.soundPlayers();
+    for (const [blockId, playerState] of Object.entries(players)) {
+      const container = document.getElementById(`ws-preview-player-${blockId}`);
+      if (!container || this.wsPlayers[blockId]) continue;
+
+      const wsPlayer = createWaveSurferPlayer({
+        container,
+        audioUrl: playerState.url,
+        isDarkTheme: false,
+        onPlay: () => {
+          this.headphoneReminder.showIfNeeded();
+          for (const [id, p] of Object.entries(this.wsPlayers)) {
+            if (id !== blockId) {
+              p.ws.pause();
+            }
+          }
+        },
+        mediaMetadata: {
+          title: playerState.title,
+        },
+      });
+
+      this.wsPlayers[blockId] = wsPlayer;
+    }
   }
 
   // ============ LANGUAGE ============

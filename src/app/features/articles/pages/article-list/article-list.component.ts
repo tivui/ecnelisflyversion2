@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,10 +29,44 @@ export class ArticleListComponent implements OnInit {
   articles = signal<SoundArticle[]>([]);
   loading = signal(true);
   coverUrls = signal<Record<string, string>>({});
+  searchTerm = signal('');
+  activeTag = signal<string | null>(null);
+  monthlyArticleId = signal<string | null>(null);
+
+  allTags = computed(() => {
+    const tags = new Set<string>();
+    for (const article of this.articles()) {
+      for (const tag of article.tags ?? []) {
+        tags.add(tag);
+      }
+    }
+    return [...tags].sort();
+  });
+
+  filteredArticles = computed(() => {
+    let result = this.articles();
+    const search = this.searchTerm().toLowerCase().trim();
+    if (search) {
+      result = result.filter(a => {
+        const title = this.getLocalizedTitle(a).toLowerCase();
+        const desc = this.getLocalizedDescription(a).toLowerCase();
+        return title.includes(search) || desc.includes(search);
+      });
+    }
+    const tag = this.activeTag();
+    if (tag) {
+      result = result.filter(a => a.tags?.includes(tag));
+    }
+    return result;
+  });
 
   async ngOnInit() {
     try {
-      const articles = await this.articleService.listPublishedArticles();
+      const [articles, monthlyArticle] = await Promise.all([
+        this.articleService.listPublishedArticles(),
+        this.articleService.getMonthlyArticle().catch(() => null),
+      ]);
+
       // Sort by publishedAt DESC
       articles.sort((a, b) => {
         const dateA = a.publishedAt || a.createdAt || '';
@@ -40,6 +74,10 @@ export class ArticleListComponent implements OnInit {
         return dateB.localeCompare(dateA);
       });
       this.articles.set(articles);
+
+      if (monthlyArticle) {
+        this.monthlyArticleId.set(monthlyArticle.articleId);
+      }
 
       // Load cover images
       const urls: Record<string, string> = {};
@@ -87,6 +125,18 @@ export class ArticleListComponent implements OnInit {
       month: 'long',
       day: 'numeric',
     });
+  }
+
+  isMonthlyArticle(article: SoundArticle): boolean {
+    return this.monthlyArticleId() === article.id;
+  }
+
+  toggleTag(tag: string) {
+    this.activeTag.set(this.activeTag() === tag ? null : tag);
+  }
+
+  onSearchInput(event: Event) {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
   goToArticle(article: SoundArticle) {

@@ -31,6 +31,7 @@ import {
 
 interface DialogData {
   article: SoundArticle | null;
+  calculatedReadingTime?: number;
 }
 
 @Component({
@@ -69,6 +70,7 @@ export class ArticleSettingsDialogComponent implements OnInit {
   tags = signal<string[]>([]);
   coverPreviewUrl = signal<string | null>(null);
   uploadingCover = signal(false);
+  calculatedReadingTime = signal<number | null>(null);
 
   statuses: ArticleStatus[] = ['draft', 'published', 'archived'];
   readonly separatorKeyCodes = [ENTER, COMMA] as const;
@@ -96,6 +98,10 @@ export class ArticleSettingsDialogComponent implements OnInit {
 
     if (article?.coverImageKey) {
       this.loadCoverPreview(article.coverImageKey);
+    }
+
+    if (this.data.calculatedReadingTime) {
+      this.calculatedReadingTime.set(this.data.calculatedReadingTime);
     }
   }
 

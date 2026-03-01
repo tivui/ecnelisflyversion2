@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,8 +10,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ArticleService } from '../../services/article.service';
 import { SoundsService } from '../../../../core/services/sounds.service';
+import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
 import { SoundArticle, ArticleBlock } from '../../models/article.model';
 import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
+import {
+  createWaveSurferPlayer,
+  WaveSurferPlayerInstance,
+} from '../../../../core/services/wavesurfer-player.service';
 
 interface SoundPlayerState {
   url: string;
@@ -26,6 +31,7 @@ interface SoundPlayerState {
     selector: 'app-article-detail',
     imports: [
         CommonModule,
+        RouterModule,
         MatButtonModule,
         MatIconModule,
         MatProgressSpinnerModule,
@@ -45,6 +51,7 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   private readonly soundsService = inject(SoundsService);
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly headphoneReminder = inject(HeadphoneReminderService);
 
   article = signal<SoundArticle | null>(null);
   blocks = signal<ArticleBlock[]>([]);
@@ -53,8 +60,11 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   imageUrls = signal<Record<string, string>>({});
   soundPlayers = signal<Record<string, SoundPlayerState>>({});
   readingProgress = signal(0);
+  relatedArticles = signal<SoundArticle[]>([]);
+  relatedCoverUrls = signal<Record<string, string>>({});
 
   private audioElements: Record<string, HTMLAudioElement> = {};
+  private wsPlayers: Record<string, WaveSurferPlayerInstance> = {};
 
   // Table of contents from heading blocks
   headings = computed(() =>
@@ -95,11 +105,16 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
 
       // Set meta tags
       this.setMetaTags(article);
+
+      // Load related articles (non-blocking)
+      this.loadRelatedArticles(article);
     } catch (error) {
       console.error('Error loading article:', error);
       this.router.navigate(['/articles']);
     } finally {
       this.loading.set(false);
+      // Init WaveSurfer players after DOM renders
+      setTimeout(() => this.initWaveSurferPlayers(), 300);
     }
   }
 
@@ -109,6 +124,11 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
       audio.pause();
       audio.src = '';
     }
+    // Cleanup WaveSurfer players
+    for (const player of Object.values(this.wsPlayers)) {
+      player.destroy();
+    }
+    this.wsPlayers = {};
     // Restore default meta
     this.meta.removeTag("property='og:title'");
     this.meta.removeTag("property='og:description'");
@@ -151,6 +171,34 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
     }
 
     this.imageUrls.set(urls);
+  }
+
+  private initWaveSurferPlayers() {
+    const players = this.soundPlayers();
+    for (const [blockId, playerState] of Object.entries(players)) {
+      const container = document.getElementById(`ws-article-player-${blockId}`);
+      if (!container || this.wsPlayers[blockId]) continue;
+
+      const wsPlayer = createWaveSurferPlayer({
+        container,
+        audioUrl: playerState.url,
+        isDarkTheme: false, // Articles always have light background
+        onPlay: () => {
+          this.headphoneReminder.showIfNeeded();
+          // Pause all other WaveSurfer players
+          for (const [id, p] of Object.entries(this.wsPlayers)) {
+            if (id !== blockId) {
+              p.ws.pause();
+            }
+          }
+        },
+        mediaMetadata: {
+          title: playerState.title,
+        },
+      });
+
+      this.wsPlayers[blockId] = wsPlayer;
+    }
   }
 
   private setMetaTags(article: SoundArticle) {
@@ -372,6 +420,62 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
 
   getAttribution(block: ArticleBlock): string {
     return block.settings?.attribution ?? '';
+  }
+
+  // ============ RELATED ARTICLES ============
+
+  private async loadRelatedArticles(currentArticle: SoundArticle) {
+    try {
+      const allArticles = await this.articleService.listPublishedArticles();
+      const others = allArticles.filter(a => a.id !== currentArticle.id);
+
+      // Score by shared tags
+      const currentTags = new Set(currentArticle.tags ?? []);
+      const scored = others.map(a => {
+        const sharedTags = (a.tags ?? []).filter(t => currentTags.has(t)).length;
+        return { article: a, score: sharedTags };
+      });
+
+      // Sort by score DESC, then by publishedAt DESC
+      scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        const dateA = a.article.publishedAt || a.article.createdAt || '';
+        const dateB = b.article.publishedAt || b.article.createdAt || '';
+        return dateB.localeCompare(dateA);
+      });
+
+      const related = scored.slice(0, 3).map(s => s.article);
+      this.relatedArticles.set(related);
+
+      // Load cover URLs
+      const urls: Record<string, string> = {};
+      for (const article of related) {
+        if (article.coverImageKey) {
+          try {
+            urls[article.id] = await this.articleService.getImageUrl(article.coverImageKey);
+          } catch {
+            // ignore
+          }
+        }
+      }
+      this.relatedCoverUrls.set(urls);
+    } catch {
+      // non-critical
+    }
+  }
+
+  getRelatedCoverUrl(article: SoundArticle): string | null {
+    return this.relatedCoverUrls()[article.id] ?? null;
+  }
+
+  getRelatedTitle(article: SoundArticle): string {
+    const lang = this.translate.currentLang;
+    if (article.title_i18n && article.title_i18n[lang]) return article.title_i18n[lang];
+    return article.title;
+  }
+
+  goToRelated(article: SoundArticle) {
+    window.location.href = `/articles/${article.slug}`;
   }
 
   // ============ READING PROGRESS ============

@@ -166,28 +166,10 @@
               <!-- SOUND -->
               @else if (block.type === 'sound' && soundPlayers()[block.id]) {
                 <div class="block-sound-player">
-                  <button
-                    class="play-btn"
-                    (click)="togglePlay(block.id)"
-                  >
-                    <mat-icon>{{ soundPlayers()[block.id].playing ? 'pause' : 'play_arrow' }}</mat-icon>
-                  </button>
-
-                  <div class="player-body">
-                    @if (getLocalizedCaption(block)) {
-                      <span class="player-caption">{{ getLocalizedCaption(block) }}</span>
-                    }
-                    <div class="progress-bar" (click)="seekSound(block.id, $event)">
-                      <div
-                        class="progress-fill"
-                        [style.width.%]="getProgress(block.id)"
-                      ></div>
-                    </div>
-                    <div class="player-time">
-                      <span>{{ formatTime(soundPlayers()[block.id].progress) }}</span>
-                      <span>{{ formatTime(soundPlayers()[block.id].duration) }}</span>
-                    </div>
-                  </div>
+                  @if (getLocalizedCaption(block)) {
+                    <span class="player-caption">{{ getLocalizedCaption(block) }}</span>
+                  }
+                  <div [id]="'ws-article-player-' + block.id" class="ws-article-container"></div>
                 </div>
               }
 
@@ -218,6 +200,52 @@
             <span></span><span></span><span></span>
           </div>
         }
+
+        <!-- Related articles -->
+        @if (relatedArticles().length > 0) {
+          <section class="related-section">
+            <div class="related-divider">
+              <span class="related-line"></span>
+              <mat-icon>auto_stories</mat-icon>
+              <span class="related-line"></span>
+            </div>
+            <h3 class="related-title">{{ 'articles.detail.continueReading' | translate }}</h3>
+            <div class="related-grid">
+              @for (related of relatedArticles(); track related.id) {
+                <button class="related-card" (click)="goToRelated(related)">
+                  <div class="related-cover">
+                    @if (getRelatedCoverUrl(related)) {
+                      <img [src]="getRelatedCoverUrl(related)" [alt]="getRelatedTitle(related)" />
+                    } @else {
+                      <mat-icon>menu_book</mat-icon>
+                    }
+                  </div>
+                  <div class="related-info">
+                    <h4>{{ getRelatedTitle(related) }}</h4>
+                    @if (related.readingTimeMinutes) {
+                      <span class="related-time">{{ related.readingTimeMinutes }} min</span>
+                    }
+                    @if (related.tags && related.tags.length > 0) {
+                      <div class="related-tags">
+                        @for (tag of related.tags.slice(0, 2); track tag) {
+                          <span>{{ tag }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </button>
+              }
+            </div>
+          </section>
+        }
+
+        <!-- Discreet branding footer -->
+        <footer class="article-brand-footer">
+          <a routerLink="/home" class="brand-link">
+            <img src="icons/icon-72x72.png" alt="Ecnelis FLY" class="brand-logo" />
+            <span class="brand-name">Ecnelis FLY</span>
+          </a>
+        </footer>
       </article>
     </div>
   </div>

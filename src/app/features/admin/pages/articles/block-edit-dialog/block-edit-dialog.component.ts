@@ -429,8 +429,8 @@ export class BlockEditDialogComponent implements OnInit, AfterViewInit {
         type,
       };
 
-      // Text content (heading, paragraph, quote, callout)
-      if (this.isTypeText()) {
+      // Text content (heading, paragraph, quote, callout, lists)
+      if (this.isTypeText() || this.isList()) {
         payload['content'] = v.content || undefined;
         payload['content_i18n'] = buildI18n(
           v.content_fr,

@@ -182,7 +182,10 @@
       "title": "Sound Articles",
       "empty": "No articles available at the moment.",
       "readingTime": "{{count}} min read",
-      "readMore": "Read more"
+      "readMore": "Read more",
+      "searchPlaceholder": "Search articles...",
+      "monthlyBadge": "Monthly article",
+      "noResults": "No matching articles."
     },
     "detail": {
       "back": "Back to articles",
@@ -190,7 +193,8 @@
       "shareSuccess": "Link copied!",
       "tableOfContents": "Table of Contents",
       "by": "By",
-      "published": "Published on"
+      "published": "Published on",
+      "continueReading": "Continue reading"
     }
   },
   "common": {
@@ -920,7 +924,8 @@
           "coverImage": "Cover image",
           "tags": "Tags",
           "addTag": "Add a tag..."
-        }
+        },
+        "calculatedTime": "Auto-calculated: {{count}} min"
       },
       "block": {
         "edit": "Edit block",
