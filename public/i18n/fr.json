@@ -1168,9 +1168,11 @@
         "deleteTitle": "Supprimer le fichier orphelin",
         "deleteMessage": "Supprimer {{filename}} ({{size}}) du stockage S3 ? Cette action est irréversible.",
         "deleteRefTitle": "Supprimer la référence cassée",
-        "deleteRefMessage": "Supprimer la référence au son \"{{title}}\" de la base de données ?"
+        "deleteRefMessage": "Supprimer la référence au son \"{{title}}\" de la base de données ?",
+        "repair": "Réparer (corriger le nom de fichier)"
       },
       "deleteSuccess": "Fichier supprimé avec succès",
+      "repairSuccess": "Référence réparée → {{filename}}",
       "deleteRefSuccess": "Référence supprimée avec succès",
       "cleanAllSuccess": "{{count}} fichier(s) orphelin(s) supprimé(s)",
       "noResults": "Aucun résultat pour ces filtres",

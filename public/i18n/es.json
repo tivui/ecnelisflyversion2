@@ -1166,9 +1166,11 @@
         "deleteTitle": "Eliminar archivo huerfano",
         "deleteMessage": "Eliminar {{filename}} ({{size}}) del almacenamiento S3? Esta accion es irreversible.",
         "deleteRefTitle": "Eliminar referencia rota",
-        "deleteRefMessage": "Eliminar la referencia al sonido \"{{title}}\" de la base de datos?"
+        "deleteRefMessage": "Eliminar la referencia al sonido \"{{title}}\" de la base de datos?",
+        "repair": "Reparar (corregir nombre de archivo)"
       },
       "deleteSuccess": "Archivo eliminado con exito",
+      "repairSuccess": "Referencia reparada → {{filename}}",
       "deleteRefSuccess": "Referencia eliminada con exito",
       "cleanAllSuccess": "{{count}} archivo(s) huerfano(s) eliminado(s)",
       "noResults": "Sin resultados para estos filtros",

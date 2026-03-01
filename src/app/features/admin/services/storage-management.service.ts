@@ -29,6 +29,8 @@ export interface BrokenReference {
   status: string;
   category?: string;
   username?: string;
+  /** If a case-insensitive match exists on S3, this is the correct filename */
+  suggestedFilename?: string;
 }
 
 export interface StorageStats {
@@ -76,6 +78,12 @@ export class StorageManagementService {
 
     const s3FilenameSet = new Set(s3Files.map((f) => f.filename));
 
+    // Case-insensitive S3 lookup (lowercase → actual filename)
+    const s3FilenameLCMap = new Map<string, string>();
+    for (const f of s3Files) {
+      s3FilenameLCMap.set(f.filename.toLowerCase(), f.filename);
+    }
+
     // Cross-reference: enrich S3 files with DynamoDB info
     const files: StorageFileEntry[] = s3Files.map((f) => {
       const sound = soundByFilename.get(f.filename);
@@ -98,14 +106,19 @@ export class StorageManagementService {
     // Detect broken references: DynamoDB records without S3 file
     const brokenRefs: BrokenReference[] = allSounds
       .filter((s) => s.filename && !s3FilenameSet.has(s.filename))
-      .map((s) => ({
-        soundId: s.id!,
-        filename: s.filename,
-        title: s.title,
-        status: s.status ?? 'unknown',
-        category: s.category,
-        username: s.user?.username,
-      }));
+      .map((s) => {
+        // Check for case-insensitive match on S3
+        const suggested = s3FilenameLCMap.get(s.filename.toLowerCase());
+        return {
+          soundId: s.id!,
+          filename: s.filename,
+          title: s.title,
+          status: s.status ?? 'unknown',
+          category: s.category,
+          username: s.user?.username,
+          suggestedFilename: suggested && suggested !== s.filename ? suggested : undefined,
+        };
+      });
 
     // Compute stats
     const stats = this.computeStats(files, brokenRefs);
@@ -119,6 +132,13 @@ export class StorageManagementService {
 
   async deleteBrokenRef(soundId: string): Promise<void> {
     await this.amplifyService.client.models.Sound.delete({ id: soundId });
+  }
+
+  async repairBrokenRef(soundId: string, correctFilename: string): Promise<void> {
+    await this.amplifyService.client.models.Sound.update({
+      id: soundId,
+      filename: correctFilename,
+    });
   }
 
   private extractFormat(filename: string): string {

@@ -616,6 +616,24 @@ $primary-light: #90caf9;
     flex-shrink: 0;
   }
 
+  .repair-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #4caf50;
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &.repairable {
+    background: rgba(76, 175, 80, 0.04);
+    border-left: 3px solid #4caf50;
+  }
+
   :host-context(body.dark-theme) & {
     &:hover { background: rgba(255, 255, 255, 0.03); }
     .item-filename { color: #ddd; &.secondary { color: #777; } }
@@ -623,6 +641,11 @@ $primary-light: #90caf9;
     .item-size { color: #888; }
     .item-date { color: #666; }
     .item-username { color: #777; }
+    .repair-hint { color: #66bb6a; }
+    &.repairable {
+      background: rgba(76, 175, 80, 0.06);
+      border-left-color: #66bb6a;
+    }
   }
 }
 

@@ -395,10 +395,16 @@
 
               <div class="integrity-list">
                 @for (ref of brokenRefs(); track ref.soundId) {
-                  <div class="integrity-item">
+                  <div class="integrity-item" [class.repairable]="ref.suggestedFilename">
                     <span class="status-badge" [ngClass]="ref.status">{{ ref.status }}</span>
                     <span class="item-title">{{ ref.title }}</span>
                     <span class="item-filename secondary">{{ ref.filename }}</span>
+                    @if (ref.suggestedFilename) {
+                      <span class="repair-hint">
+                        <mat-icon>arrow_forward</mat-icon>
+                        {{ ref.suggestedFilename }}
+                      </span>
+                    }
                     @if (ref.username) {
                       <span class="item-username">{{ ref.username }}</span>
                     }
@@ -406,6 +412,11 @@
                       @if (actionInProgress() === ref.soundId) {
                         <mat-spinner diameter="18"></mat-spinner>
                       } @else {
+                        @if (ref.suggestedFilename) {
+                          <button mat-icon-button color="primary" (click)="repairBrokenRef(ref)" [matTooltip]="'admin.storage.actions.repair' | translate">
+                            <mat-icon>build</mat-icon>
+                          </button>
+                        }
                         <button mat-icon-button color="warn" (click)="deleteBrokenRef(ref)" [matTooltip]="'admin.storage.actions.delete' | translate">
                           <mat-icon>delete</mat-icon>
                         </button>

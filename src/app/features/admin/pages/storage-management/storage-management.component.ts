@@ -345,6 +345,26 @@ export class StorageManagementComponent implements OnInit {
     });
   }
 
+  async repairBrokenRef(ref: BrokenReference) {
+    if (!ref.suggestedFilename) return;
+    this.actionInProgress.set(ref.soundId);
+    try {
+      await this.storageManagement.repairBrokenRef(ref.soundId, ref.suggestedFilename);
+      this.snackBar.open(
+        this.translate.instant('admin.storage.repairSuccess', {
+          filename: ref.suggestedFilename,
+        }),
+        undefined,
+        { duration: 3000 },
+      );
+      await this.loadData();
+    } catch {
+      this.snackBar.open('Error', undefined, { duration: 3000 });
+    } finally {
+      this.actionInProgress.set(null);
+    }
+  }
+
   // Utilities
   formatBytes(bytes: number): string {
     if (bytes === 0) return '0 B';

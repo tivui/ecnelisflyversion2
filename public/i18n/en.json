@@ -1168,9 +1168,11 @@
         "deleteTitle": "Delete orphan file",
         "deleteMessage": "Delete {{filename}} ({{size}}) from S3 storage? This action is irreversible.",
         "deleteRefTitle": "Delete broken reference",
-        "deleteRefMessage": "Delete the reference to sound \"{{title}}\" from the database?"
+        "deleteRefMessage": "Delete the reference to sound \"{{title}}\" from the database?",
+        "repair": "Repair (fix filename)"
       },
       "deleteSuccess": "File deleted successfully",
+      "repairSuccess": "Reference repaired → {{filename}}",
       "deleteRefSuccess": "Reference deleted successfully",
       "cleanAllSuccess": "{{count}} orphan file(s) deleted",
       "noResults": "No results for these filters",
