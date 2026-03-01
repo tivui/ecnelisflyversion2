@@ -445,7 +445,9 @@
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
       "CC_BY_SA_NDH": "CC BY-SA",
-      "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
+      "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
+      "CC_0": "CC0",
+      "CC_0_tooltip": "Cette œuvre est placée dans le domaine public. Vous pouvez copier, modifier, distribuer et utiliser le contenu, même à des fins commerciales, sans aucune restriction."
     },
     "link-url": "URL",
     "link-title": "Titre du lien",

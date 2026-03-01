@@ -450,7 +450,9 @@
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente y lo distribuya bajo la misma licencia.",
       "CC_BY_SA_NDH": "CC BY-SA",
-      "CC_BY_SA_NDH_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente y lo distribuya bajo la misma licencia."
+      "CC_BY_SA_NDH_tooltip": "Puede compartir y adaptar el contenido, siempre que dé el crédito correspondiente y lo distribuya bajo la misma licencia.",
+      "CC_0": "CC0",
+      "CC_0_tooltip": "Esta obra está en el dominio público. Puede copiar, modificar, distribuir y usar el contenido, incluso con fines comerciales, sin ninguna restricción."
     },
     "link-url": "URL",
     "link-title": "Título del enlace",

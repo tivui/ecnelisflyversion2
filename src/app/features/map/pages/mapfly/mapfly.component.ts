@@ -899,7 +899,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-            ${s.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(s.license)}<span class="license-tooltip">${this.licenseTooltip(s.license)}</span></span>` : ''}
+            ${s.license ? this.licenseBadgeHtml(s.license) : ''}
             <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
               <button class="zoom-btn material-icons" id="zoom-out-${s.filename}">remove</button>
@@ -1481,6 +1481,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const key = `sound.licenses.${license}_tooltip`;
     const t = this.translate.instant(key);
     return t === key ? '' : t;
+  }
+
+  /** Génère le HTML du badge licence avec tooltip conditionnel */
+  private licenseBadgeHtml(license: string): string {
+    const label = this.licenseLabel(license);
+    const tooltip = this.licenseTooltip(license);
+    const tooltipSpan = tooltip ? `<span class="license-tooltip">${tooltip}</span>` : '';
+    return `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${label}${tooltipSpan}</span>`;
   }
 
   private parseI18n(field?: string | Record<string, string>) {
@@ -2313,7 +2321,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${s?.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(s.license)}<span class="license-tooltip">${this.licenseTooltip(s.license)}</span></span>` : ''}
+        ${s?.license ? this.licenseBadgeHtml(s.license) : ''}
         <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
           <button class="zoom-btn material-icons" id="zoom-out-${soundFilename}">remove</button>
@@ -2809,7 +2817,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${sound.license ? `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${this.licenseLabel(sound.license)}<span class="license-tooltip">${this.licenseTooltip(sound.license)}</span></span>` : ''}
+        ${sound.license ? this.licenseBadgeHtml(sound.license) : ''}
         <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
           ${prevBtnHtml}

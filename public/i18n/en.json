@@ -445,7 +445,9 @@
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
       "CC_BY_SA_NDH": "CC BY-SA",
-      "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license."
+      "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
+      "CC_0": "CC0",
+      "CC_0_tooltip": "This work is placed in the public domain. You may copy, modify, distribute and use the content, even for commercial purposes, without any restriction."
     },
     "link-url": "URL",
     "link-title": "Link title",

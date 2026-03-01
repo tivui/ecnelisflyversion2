@@ -1504,8 +1504,9 @@ Cles `admin.soundAttribution.*` : title, subtitle, search, filter (all/imported/
 | `CC_BY` | CC BY | Autorise |
 | `CC_BY_NC` | CC BY-NC | Autorise |
 | `CC_BY_SA` | CC BY-SA | Autorise |
+| `CC_0` | CC0 | Autorise |
 
-Note : `CC_BY_SA` n'est pas dans l'enum `LicenseType` du schema backend mais existe sur des sons importes de l'ancien projet. Les traductions i18n sont presentes pour toutes les licences.
+Note : `CC_BY_SA`, `CC_BY_SA_NDH` et `CC_0` ne sont pas dans l'enum `LicenseType` du schema backend mais existent sur des sons importes de l'ancien projet. Les traductions i18n sont presentes pour toutes les licences. Le HTML du tooltip est conditionnel (`licenseBadgeHtml()`) : si la cle i18n `*_tooltip` est manquante, le span tooltip n'est pas rendu (evite les tooltips vides).
 
 ### Badge et tooltip
 
