@@ -16,9 +16,19 @@ export const handler = async () => {
     new UpdateCommand({
       TableName: tableName,
       Key: { id: today },
-      UpdateExpression: 'SET #count = if_not_exists(#count, :zero) + :inc',
-      ExpressionAttributeNames: { '#count': 'count' },
-      ExpressionAttributeValues: { ':zero': 0, ':inc': 1 },
+      UpdateExpression: 'SET #count = if_not_exists(#count, :zero) + :inc, #typename = :typename, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now',
+      ExpressionAttributeNames: {
+        '#count': 'count',
+        '#typename': '__typename',
+        '#createdAt': 'createdAt',
+        '#updatedAt': 'updatedAt',
+      },
+      ExpressionAttributeValues: {
+        ':zero': 0,
+        ':inc': 1,
+        ':typename': 'SiteVisit',
+        ':now': new Date().toISOString(),
+      },
       ReturnValues: 'ALL_NEW',
     }),
   );

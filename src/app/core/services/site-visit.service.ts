@@ -41,6 +41,7 @@ export class SiteVisitService {
       const result: any = await (this.amplifyService.client as any).models.SiteVisit.list({
         limit: 500,
         nextToken,
+        selectionSet: ['id', 'count'],
         authMode: 'apiKey',
       });
 
