@@ -1311,6 +1311,66 @@ Lambda qui pagine tous les utilisateurs Cognito et retourne des statistiques : t
 
 **Error handling :** `loadCognitoStats()` verifie `result.errors` (Amplify Gen2 peut retourner des erreurs dans le resultat sans throw). Bouton retry si erreur.
 
+## Gestion des utilisateurs admin (`features/admin/pages/user-management/`)
+
+### Route standalone
+
+Route `/admin/users` (pas enfant de database tabs, comme `/admin/dashboard`). Accessible via le menu admin (sidenav) entre "Tableau de bord" et "Gerer la bdd".
+
+### Architecture
+
+**Lambda `manage-cognito-user`** : dispatch sur `event.arguments.action` (6 actions). Piege connu : les mutations Amplify Gen2 passent les arguments dans `event.arguments`, pas directement sur `event`.
+
+**Actions Lambda :**
+- `listUserStatuses` : pagine `ListUsersCommand` + `AdminListGroupsForUserCommand` par user, retourne `{ success, users: JSON.stringify([...]) }`
+- `disableUser` / `enableUser` : `AdminDisableUserCommand` / `AdminEnableUserCommand`
+- `deleteUser` : `AdminDeleteUserCommand`
+- `addToGroup` / `removeFromGroup` : `AdminAddUserToGroupCommand` / `AdminRemoveUserFromGroupCommand`
+
+### Service (`user-management.service.ts`)
+
+- `loadAllUsers()` : pagine `User.list()`, filtre `merged_*`, compte sons par user
+- `enrichWithCognitoData(users)` : appelle mutation `manageCognitoUser({ action: 'listUserStatuses' })`, match par `cognitoSub` (primaire) puis `email` (fallback)
+- `disableUser()`, `enableUser()`, `addToAdminGroup()`, `removeFromAdminGroup()`, `deleteCognitoUser()`, `deleteDynamoUser()`, `deleteUserSounds()`
+
+### Interface `AdminUser`
+
+Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, `cognitoStatus`, `cognitoGroups`, `cognitoProvider`, `cognitoCreatedAt`
+
+### Composant principal
+
+**Signals** : `allUsers`, `loading`, `enriching`, `actionInProgress`, filtres (`searchTerm`, `typeFilter`, `statusFilter`, `roleFilter`), tri (`sortBy`, `sortDirection`), `filteredUsers` computed
+
+**mat-table** : colonnes avatar, username (+ drapeau pays), email, type badge, status badge, role badge, sons, date inscription, actions (mat-menu)
+
+**Self-protection** : actions disable/demote/delete desactivees sur son propre compte (compare `cognitoSub`)
+
+**Users importes** : pas de compte Cognito → `cognitoEnabled = undefined` → affiche "N/A", masque actions Cognito (condition `!isImported(user)`)
+
+### Dialogs
+
+- `UserDetailDialogComponent` : inline template, avatar + infos + stats + donnees Cognito
+- `DeleteUserDialogComponent` : inline template, checkbox "Supprimer les X sons" + confirmation
+
+### Export CSV
+
+`csv-export.util.ts` : fonction pure `exportUsersCsv()` — CSV client-side avec BOM UTF-8, Blob URL
+
+### Drapeaux pays (validation)
+
+`getFlagPath(country)` : `trim()` + validation longueur 2-3 caracteres (ISO codes uniquement). Rejette les codes invalides comme "BASQUE_COUNTRY". Applique aussi dans `sound-attribution.component.ts`.
+
+### Pieges connus
+
+1. **`event.arguments` vs `event`** : les mutations Amplify Gen2 passent les arguments dans `event.arguments`, pas directement sur `event`. Toutes les Lambdas custom doivent utiliser `event.arguments.xxx`
+2. **`.returns(a.json())`** : utiliser `a.json()` (pas `a.ref()`) pour les mutations Lambda — coherent avec `deleteSoundFile`, `startImport`, etc.
+3. **GSI pagination trap** : collecter tous les sound IDs avant de modifier (meme piege que sound-attribution)
+4. **Cognito username != sub** : les commandes admin Cognito prennent le `Username` Cognito (UUID pour OAuth), stocke dans `cognitoUsername` lors de l'enrichissement
+
+### i18n
+
+Cles `toolbar.admin.users` + `admin.users.*` (~80 cles) : title, subtitle, export, search, filtres, tri, badges, actions, dialogs, messages (FR/EN/ES)
+
 ## Upload de son — flux de donnees titre
 
 ### Piege connu (corrige)
@@ -1704,7 +1764,7 @@ Guide complet : `docs/dynamodb-recovery-guide.md`
 
 Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunction()` (`amplify/functions/*/resource.ts`). Migration effectuee en fevrier 2026 suite a l'annonce AWS de fin de support Node.js 20.x (30 avril 2026).
 
-### Liste des Lambdas (16)
+### Liste des Lambdas (17)
 
 | Lambda | Timeout | Memoire | Schedule |
 |--------|---------|---------|----------|
@@ -1715,6 +1775,7 @@ Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunct
 | `list-cognito-users` | 30s | 256 MB | — |
 | `list-sounds-by-zone` | 30s | 1024 MB | — |
 | `list-sounds-for-map` | 30s | 1024 MB | — |
+| `manage-cognito-user` | 30s | 256 MB | — |
 | `pick-daily-featured-sound` | 30s | 512 MB | every day |
 | `pick-monthly-article` | 30s | 512 MB | every day |
 | `pick-monthly-journey` | 30s | 512 MB | every day |

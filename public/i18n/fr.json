@@ -224,7 +224,8 @@
     "admin": {
       "dashboard": "Tableau de bord",
       "manage-database": "Gérer la bdd",
-      "guide": "Guide admin"
+      "guide": "Guide admin",
+      "users": "Gestion des utilisateurs"
     },
     "fullscreen": {
       "enter": "Mode plein écran",
@@ -1007,6 +1008,92 @@
       },
       "success": "{{count}} son(s) transféré(s) vers {{username}}",
       "error": "Erreur lors du transfert"
+    },
+    "users": {
+      "title": "Gestion des utilisateurs",
+      "subtitle": "Gérer les comptes, rôles et statuts des utilisateurs",
+      "export": "Exporter CSV",
+      "search": "Rechercher par nom ou email...",
+      "enriching": "Chargement des données Cognito...",
+      "filter": {
+        "all": "Tous",
+        "imported": "Importés",
+        "registered": "Inscrits",
+        "allStatus": "Statut",
+        "active": "Actifs",
+        "disabled": "Désactivés",
+        "allRoles": "Rôle",
+        "admin": "Admins",
+        "user": "Utilisateurs"
+      },
+      "sort": {
+        "name": "Nom",
+        "sounds": "Sons",
+        "date": "Date"
+      },
+      "type": {
+        "imported": "Importé",
+        "registered": "Inscrit"
+      },
+      "status": {
+        "active": "Actif",
+        "disabled": "Désactivé"
+      },
+      "role": {
+        "admin": "Admin",
+        "user": "Utilisateur"
+      },
+      "table": {
+        "username": "Utilisateur",
+        "email": "Email",
+        "type": "Type",
+        "status": "Statut",
+        "role": "Rôle",
+        "sounds": "Sons",
+        "date": "Inscription"
+      },
+      "you": "vous",
+      "actions": {
+        "view": "Voir les détails",
+        "disable": "Désactiver le compte",
+        "enable": "Réactiver le compte",
+        "promote": "Promouvoir admin",
+        "demote": "Rétrograder utilisateur",
+        "delete": "Supprimer le compte"
+      },
+      "empty": "Aucun utilisateur",
+      "noResults": "Aucun résultat pour cette recherche",
+      "loadError": "Erreur de chargement des utilisateurs",
+      "enrichError": "Impossible de charger les données Cognito",
+      "actionError": "Erreur lors de l'action",
+      "disableConfirm": "Désactiver le compte de {{username}} ? L'utilisateur ne pourra plus se connecter.",
+      "disableSuccess": "Compte désactivé",
+      "enableSuccess": "Compte réactivé",
+      "promoteConfirm": "Promouvoir {{username}} en administrateur ?",
+      "promoteSuccess": "Utilisateur promu administrateur",
+      "demoteConfirm": "Rétrograder {{username}} en utilisateur simple ?",
+      "demoteSuccess": "Utilisateur rétrogradé",
+      "deleteSuccess": "Utilisateur supprimé",
+      "detail": {
+        "title": "Détails de l'utilisateur",
+        "country": "Pays",
+        "sounds": "Sons",
+        "likedSounds": "Sons aimés",
+        "provider": "Fournisseur d'identité",
+        "cognitoStatus": "Statut Cognito",
+        "enabled": "Activé",
+        "groups": "Groupes",
+        "registrationDate": "Date d'inscription",
+        "close": "Fermer"
+      },
+      "deleteDialog": {
+        "title": "Supprimer l'utilisateur",
+        "message": "Êtes-vous sûr de vouloir supprimer le compte de {{username}} ? Cette action est irréversible.",
+        "deleteSounds": "Supprimer aussi les {{count}} son(s) de cet utilisateur",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      }
     },
     "emailTemplates": {
       "title": "Templates email Cognito",

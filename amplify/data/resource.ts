@@ -14,6 +14,7 @@ import { processImport } from '../functions/process-import/resource';
 import { fixImportedUsers } from '../functions/fix-imported-users/resource';
 import { listCognitoUsers } from '../functions/list-cognito-users/resource';
 import { recordSiteVisit } from '../functions/record-site-visit/resource';
+import { manageCognitoUser } from '../functions/manage-cognito-user/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -80,6 +81,7 @@ const schema = a
         allow.publicApiKey().to(['read']),
         allow.authenticated().to(['read', 'update']),
         allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
       ]),
 
     Sound: a
@@ -724,6 +726,17 @@ const schema = a
         allow.guest(),
       ])
       .handler(a.handler.function(recordSiteVisit)),
+
+    manageCognitoUser: a
+      .mutation()
+      .arguments({
+        action: a.string().required(),
+        username: a.string(),
+        groupName: a.string(),
+      })
+      .returns(a.json())
+      .authorization((allow) => [allow.group('ADMIN')])
+      .handler(a.handler.function(manageCognitoUser)),
   })
 
   .authorization((allow) => [
@@ -741,6 +754,7 @@ const schema = a
     allow.resource(fixImportedUsers),
     allow.resource(listCognitoUsers),
     allow.resource(recordSiteVisit),
+    allow.resource(manageCognitoUser),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

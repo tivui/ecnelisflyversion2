@@ -1,0 +1,318 @@
+<div class="user-mgmt-container">
+  <div class="header">
+    <div>
+      <h2>{{ 'admin.users.title' | translate }}</h2>
+      <p class="subtitle">{{ 'admin.users.subtitle' | translate }}</p>
+    </div>
+    <button mat-stroked-button (click)="exportCsv()" [disabled]="loading() || allUsers().length === 0">
+      <mat-icon>download</mat-icon>
+      {{ 'admin.users.export' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <!-- Toolbar: search + filters + sort -->
+    <div class="toolbar">
+      <!-- Search -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>{{ 'admin.users.search' | translate }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTermValue"
+          (input)="onSearchInput()"
+        />
+        @if (searchTermValue) {
+          <button matSuffix mat-icon-button (click)="searchTermValue = ''; onSearchInput()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <!-- Type filter -->
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="typeFilter() === 'all'"
+          (click)="setTypeFilter('all')"
+        >
+          {{ 'admin.users.filter.all' | translate }}
+          <span class="chip-count">{{ totalCount() }}</span>
+        </button>
+        <button
+          class="filter-chip imported"
+          [class.active]="typeFilter() === 'imported'"
+          (click)="setTypeFilter('imported')"
+        >
+          {{ 'admin.users.filter.imported' | translate }}
+          <span class="chip-count">{{ importedCount() }}</span>
+        </button>
+        <button
+          class="filter-chip registered"
+          [class.active]="typeFilter() === 'registered'"
+          (click)="setTypeFilter('registered')"
+        >
+          {{ 'admin.users.filter.registered' | translate }}
+          <span class="chip-count">{{ registeredCount() }}</span>
+        </button>
+      </div>
+
+      <!-- Status filter -->
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="statusFilter() === 'all'"
+          (click)="setStatusFilter('all')"
+        >
+          {{ 'admin.users.filter.allStatus' | translate }}
+        </button>
+        <button
+          class="filter-chip active-chip"
+          [class.active]="statusFilter() === 'active'"
+          (click)="setStatusFilter('active')"
+        >
+          {{ 'admin.users.filter.active' | translate }}
+          <span class="chip-count">{{ activeCount() }}</span>
+        </button>
+        <button
+          class="filter-chip disabled-chip"
+          [class.active]="statusFilter() === 'disabled'"
+          (click)="setStatusFilter('disabled')"
+        >
+          {{ 'admin.users.filter.disabled' | translate }}
+          <span class="chip-count">{{ disabledCount() }}</span>
+        </button>
+      </div>
+
+      <!-- Role filter -->
+      <div class="filter-chips">
+        <button
+          class="filter-chip"
+          [class.active]="roleFilter() === 'all'"
+          (click)="setRoleFilter('all')"
+        >
+          {{ 'admin.users.filter.allRoles' | translate }}
+        </button>
+        <button
+          class="filter-chip admin-chip"
+          [class.active]="roleFilter() === 'admin'"
+          (click)="setRoleFilter('admin')"
+        >
+          {{ 'admin.users.filter.admin' | translate }}
+          <span class="chip-count">{{ adminCount() }}</span>
+        </button>
+        <button
+          class="filter-chip user-chip"
+          [class.active]="roleFilter() === 'user'"
+          (click)="setRoleFilter('user')"
+        >
+          {{ 'admin.users.filter.user' | translate }}
+        </button>
+      </div>
+
+      <!-- Sort -->
+      <div class="sort-controls">
+        <button class="sort-btn" [class.active]="sortBy() === 'username'" (click)="toggleSort('username')">
+          <mat-icon>sort_by_alpha</mat-icon>
+          <span>{{ 'admin.users.sort.name' | translate }}</span>
+          @if (sortBy() === 'username') {
+            <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          }
+        </button>
+        <button class="sort-btn" [class.active]="sortBy() === 'sounds'" (click)="toggleSort('sounds')">
+          <mat-icon>library_music</mat-icon>
+          <span>{{ 'admin.users.sort.sounds' | translate }}</span>
+          @if (sortBy() === 'sounds') {
+            <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          }
+        </button>
+        <button class="sort-btn" [class.active]="sortBy() === 'date'" (click)="toggleSort('date')">
+          <mat-icon>calendar_today</mat-icon>
+          <span>{{ 'admin.users.sort.date' | translate }}</span>
+          @if (sortBy() === 'date') {
+            <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (enriching()) {
+      <div class="enriching-banner">
+        <mat-spinner diameter="16"></mat-spinner>
+        <span>{{ 'admin.users.enriching' | translate }}</span>
+      </div>
+    }
+
+    @if (filteredUsers().length === 0) {
+      <div class="empty-state">
+        <mat-icon>{{ searchTerm() || typeFilter() !== 'all' || statusFilter() !== 'all' || roleFilter() !== 'all' ? 'search_off' : 'people' }}</mat-icon>
+        <p>{{ (searchTerm() || typeFilter() !== 'all' || statusFilter() !== 'all' || roleFilter() !== 'all' ? 'admin.users.noResults' : 'admin.users.empty') | translate }}</p>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="filteredUsers()" class="users-table">
+        <!-- Avatar Column -->
+        <ng-container matColumnDef="avatar">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let user">
+            <img class="user-avatar" [src]="getAvatarUri(user)" alt="" />
+          </td>
+        </ng-container>
+
+        <!-- Username Column -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.username' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-cell">
+              @if (getFlagPath(user.country); as flagPath) {
+                <img
+                  class="flag"
+                  [src]="flagPath"
+                  [alt]="user.country"
+                  (error)="$any($event.target).style.display='none'"
+                />
+              }
+              <span class="username">{{ user.username }}</span>
+              @if (isSelf(user)) {
+                <span class="self-badge">{{ 'admin.users.you' | translate }}</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.email' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="email-cell">{{ user.email }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.type' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="type-badge" [class.imported]="isImported(user)" [class.registered]="!isImported(user)">
+              {{ (isImported(user) ? 'admin.users.type.imported' : 'admin.users.type.registered') | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.status' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            @if (user.cognitoEnabled === undefined) {
+              <span class="status-badge na">N/A</span>
+            } @else if (user.cognitoEnabled) {
+              <span class="status-badge active">{{ 'admin.users.status.active' | translate }}</span>
+            } @else {
+              <span class="status-badge disabled">{{ 'admin.users.status.disabled' | translate }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.role' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            @if (isAdmin(user)) {
+              <span class="role-badge admin">Admin</span>
+            } @else {
+              <span class="role-badge user">{{ 'admin.users.role.user' | translate }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Sounds Column -->
+        <ng-container matColumnDef="sounds">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.sounds' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <mat-chip class="sound-count-chip">{{ user.soundCount }}</mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.table.date' | translate }}</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="date-cell">
+              {{ user.cognitoCreatedAt ? (user.cognitoCreatedAt | date:'shortDate') : '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let user">
+            @if (actionInProgress() === user.id) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <button mat-icon-button [matMenuTriggerFor]="userMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #userMenu="matMenu">
+                <!-- View details -->
+                <button mat-menu-item (click)="viewDetails(user)">
+                  <mat-icon>info</mat-icon>
+                  {{ 'admin.users.actions.view' | translate }}
+                </button>
+
+                <!-- Disable / Enable (non-imported + not self) -->
+                @if (!isImported(user) && !isSelf(user)) {
+                  @if (user.cognitoEnabled !== false) {
+                    <button mat-menu-item (click)="disableUser(user)">
+                      <mat-icon>block</mat-icon>
+                      {{ 'admin.users.actions.disable' | translate }}
+                    </button>
+                  }
+                  @if (user.cognitoEnabled === false) {
+                    <button mat-menu-item (click)="enableUser(user)">
+                      <mat-icon>check_circle</mat-icon>
+                      {{ 'admin.users.actions.enable' | translate }}
+                    </button>
+                  }
+                }
+
+                <!-- Promote / Demote (non-imported + not self) -->
+                @if (!isImported(user) && !isSelf(user)) {
+                  @if (!isAdmin(user)) {
+                    <button mat-menu-item (click)="promoteAdmin(user)">
+                      <mat-icon>admin_panel_settings</mat-icon>
+                      {{ 'admin.users.actions.promote' | translate }}
+                    </button>
+                  } @else {
+                    <button mat-menu-item (click)="demoteAdmin(user)">
+                      <mat-icon>person</mat-icon>
+                      {{ 'admin.users.actions.demote' | translate }}
+                    </button>
+                  }
+                }
+
+                <!-- Delete (not self) -->
+                @if (!isSelf(user)) {
+                  <button mat-menu-item class="delete-action" (click)="deleteUser(user)">
+                    <mat-icon>delete</mat-icon>
+                    {{ 'admin.users.actions.delete' | translate }}
+                  </button>
+                }
+              </mat-menu>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          [class.disabled-user]="row.cognitoEnabled === false"
+          [class.action-in-progress]="actionInProgress() === row.id"
+        ></tr>
+      </table>
+    }
+  }
+</div>

@@ -83,6 +83,10 @@
             <mat-icon>dashboard</mat-icon>
             {{ "toolbar.admin.dashboard" | translate }}
           </button>
+          <button mat-menu-item [routerLink]="'/admin/users'">
+            <mat-icon>people</mat-icon>
+            {{ "toolbar.admin.users" | translate }}
+          </button>
           <button mat-menu-item [routerLink]="'/admin/database'">
             <mat-icon>storage</mat-icon>
             {{ "toolbar.admin.manage-database" | translate }}

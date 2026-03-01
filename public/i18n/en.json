@@ -224,7 +224,8 @@
     "admin": {
       "dashboard": "Admin dashboard",
       "manage-database": "Manage database",
-      "guide": "Admin guide"
+      "guide": "Admin guide",
+      "users": "User management"
     },
     "fullscreen": {
       "enter": "Enter fullscreen",
@@ -1007,6 +1008,92 @@
       },
       "success": "{{count}} sound(s) transferred to {{username}}",
       "error": "Error during transfer"
+    },
+    "users": {
+      "title": "User management",
+      "subtitle": "Manage accounts, roles and statuses",
+      "export": "Export CSV",
+      "search": "Search by name or email...",
+      "enriching": "Loading Cognito data...",
+      "filter": {
+        "all": "All",
+        "imported": "Imported",
+        "registered": "Registered",
+        "allStatus": "Status",
+        "active": "Active",
+        "disabled": "Disabled",
+        "allRoles": "Role",
+        "admin": "Admins",
+        "user": "Users"
+      },
+      "sort": {
+        "name": "Name",
+        "sounds": "Sounds",
+        "date": "Date"
+      },
+      "type": {
+        "imported": "Imported",
+        "registered": "Registered"
+      },
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled"
+      },
+      "role": {
+        "admin": "Admin",
+        "user": "User"
+      },
+      "table": {
+        "username": "User",
+        "email": "Email",
+        "type": "Type",
+        "status": "Status",
+        "role": "Role",
+        "sounds": "Sounds",
+        "date": "Registered"
+      },
+      "you": "you",
+      "actions": {
+        "view": "View details",
+        "disable": "Disable account",
+        "enable": "Enable account",
+        "promote": "Promote to admin",
+        "demote": "Demote to user",
+        "delete": "Delete account"
+      },
+      "empty": "No users",
+      "noResults": "No results found",
+      "loadError": "Error loading users",
+      "enrichError": "Failed to load Cognito data",
+      "actionError": "Action failed",
+      "disableConfirm": "Disable {{username}}'s account? The user will no longer be able to sign in.",
+      "disableSuccess": "Account disabled",
+      "enableSuccess": "Account enabled",
+      "promoteConfirm": "Promote {{username}} to administrator?",
+      "promoteSuccess": "User promoted to administrator",
+      "demoteConfirm": "Demote {{username}} to regular user?",
+      "demoteSuccess": "User demoted",
+      "deleteSuccess": "User deleted",
+      "detail": {
+        "title": "User details",
+        "country": "Country",
+        "sounds": "Sounds",
+        "likedSounds": "Liked sounds",
+        "provider": "Identity provider",
+        "cognitoStatus": "Cognito status",
+        "enabled": "Enabled",
+        "groups": "Groups",
+        "registrationDate": "Registration date",
+        "close": "Close"
+      },
+      "deleteDialog": {
+        "title": "Delete user",
+        "message": "Are you sure you want to delete {{username}}'s account? This action is irreversible.",
+        "deleteSounds": "Also delete {{count}} sound(s) from this user",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
     },
     "emailTemplates": {
       "title": "Cognito Email Templates",
