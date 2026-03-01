@@ -11,6 +11,7 @@ import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialog,
 } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,6 +50,7 @@ import {
   CategoryKey,
   getSubCategoryKeys,
 } from '../../../../../../../../amplify/data/categories';
+import { SoundDataStepDialogComponent } from '../../../../../new-sound/pages/new-sound/widgets/sound-data-step-dialog/sound-data-step-dialog.component';
 
 interface DialogData {
   sound: Sound;
@@ -97,6 +99,7 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
   private readonly amplifyService = inject(AmplifyService);
   private readonly languageDetectionService = inject(LanguageDetectionService);
   private readonly dateAdapter = inject(DateAdapter<Date>);
+  private readonly matDialog = inject(MatDialog);
   private readonly destroy$ = new Subject<void>();
 
   sound: Sound;
@@ -373,9 +376,13 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
     const sourceLanguage = this.languageDetectionService.detect(text);
     if (!sourceLanguage) return;
 
-    const targets = ['fr', 'en', 'es'];
+    // Only translate to OTHER languages (skip source→source)
+    const targets = ['fr', 'en', 'es'].filter(lang => lang !== sourceLanguage);
     const translated =
       field === 'title' ? this.translatedTitle : this.translatedStory;
+
+    // Set source slot directly from original text
+    translated[sourceLanguage] = text;
 
     if (field === 'title') {
       this.translatingTitle.set(true);
@@ -399,6 +406,30 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
         this.translatingStory.set(false);
       }
     }
+  }
+
+  // Open translation dialog to view/edit all 3 language versions
+  async openTranslationDialog(field: 'title' | 'shortStory') {
+    // Auto-translate first if not yet done
+    await this.translateField(field);
+
+    const translated =
+      field === 'title' ? this.translatedTitle : this.translatedStory;
+
+    const dialogRef = this.matDialog.open(SoundDataStepDialogComponent, {
+      width: '400px',
+      data: { translations: { ...translated }, fieldName: field },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+
+      if (field === 'title') {
+        this.translatedTitle = result;
+      } else {
+        this.translatedStory = result;
+      }
+    });
   }
 
   // Map initialization (called when tab 1 is selected)
@@ -470,15 +501,20 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
       // Info
       const infoValues = this.infoForm.value;
       if (infoValues.title) {
+        // Detect source language to set the correct i18n slot
+        const detectedLang = this.languageDetectionService.detect(infoValues.title);
+        const titleLang = detectedLang || this.currentLang;
+        this.translatedTitle[titleLang] = infoValues.title;
+        // Use detected source language for the default title field
         updateData.title = infoValues.title;
-        // Ensure the title in current language is set
-        this.translatedTitle[this.currentLang] = infoValues.title;
         updateData.title_i18n = this.translatedTitle;
       }
       if (infoValues.shortStory !== undefined) {
         updateData.shortStory = infoValues.shortStory || undefined;
         if (infoValues.shortStory) {
-          this.translatedStory[this.currentLang] = infoValues.shortStory;
+          const detectedLang = this.languageDetectionService.detect(infoValues.shortStory);
+          const storyLang = detectedLang || this.currentLang;
+          this.translatedStory[storyLang] = infoValues.shortStory;
         }
         updateData.shortStory_i18n = this.translatedStory;
       }

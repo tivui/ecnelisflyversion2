@@ -18,6 +18,36 @@ export class DashboardService {
    * Handles pagination with nextToken to load all sounds
    */
   async loadUserSounds(userId: string): Promise<Sound[]> {
+    const selectionSet = [
+      'id',
+      'userId',
+      'user.username',
+      'user.country',
+      'title',
+      'title_i18n',
+      'shortStory',
+      'shortStory_i18n',
+      'filename',
+      'status',
+      'latitude',
+      'longitude',
+      'city',
+      'category',
+      'secondaryCategory',
+      'dateTime',
+      'recordDateTime',
+      'equipment',
+      'license',
+      'url',
+      'urlTitle',
+      'secondaryUrl',
+      'secondaryUrlTitle',
+      'hashtags',
+      'likesCount',
+      'createdAt',
+      'updatedAt',
+    ] as const;
+
     try {
       const allSounds: Sound[] = [];
       let nextToken: string | null | undefined = undefined;
@@ -28,6 +58,7 @@ export class DashboardService {
           this.amplifyService.client.models.Sound.listSoundsByUserAndStatus as any
         )({
           userId,
+          selectionSet,
           limit: 100,
           nextToken,
         });

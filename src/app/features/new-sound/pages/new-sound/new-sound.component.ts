@@ -116,6 +116,8 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   soundInfoData: any = {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   soundMetaData: any = {};
+  /** Source language detected from user input (passed through to confirmation step) */
+  sourceLang: string | undefined;
 
   constructor() {
     const breakpointObserver = inject(BreakpointObserver);
@@ -260,6 +262,7 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSoundDataInfoCompleted(data: any) {
     this.soundInfoData = data;
+    this.sourceLang = data.sourceLang;
     // Marquer stepGroup valide si nécessaire
     this.thirdFormGroup.setValue({ thirdCtrl: '' });
   }
@@ -278,6 +281,7 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
       place: this.selectedPlace(),
       ...this.soundInfoData,
       ...this.soundMetaData,
+      sourceLang: this.sourceLang,
     };
   }
 
