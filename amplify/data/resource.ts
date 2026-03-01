@@ -81,7 +81,7 @@ const schema = a
         allow.publicApiKey().to(['read']),
         allow.authenticated().to(['read', 'update']),
         allow.guest().to(['read']),
-        allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
+        allow.groups(['ADMIN']).to(['create', 'read', 'update', 'delete']),
       ]),
 
     Sound: a

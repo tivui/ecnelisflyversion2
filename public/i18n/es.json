@@ -478,7 +478,14 @@
       "user-section": "Usuario a vincular",
       "linked-user": "Usuario",
       "search-user": "Buscar un usuario",
-      "linked-user-hint": "Seleccione el usuario al que se asignará este sonido"
+      "linked-user-hint": "Seleccione el usuario al que se asignará este sonido",
+      "create-user": "Crear un usuario",
+      "new-username": "Nombre de usuario",
+      "country": "País",
+      "create-btn": "Crear",
+      "user-created": "Usuario creado",
+      "user-create-error": "Error al crear",
+      "username-exists": "Este nombre ya existe"
     }
   },
   "admin": {

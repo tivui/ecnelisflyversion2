@@ -11,9 +11,12 @@
   </div>
 
   <!-- Map container -->
-  <div class="map-card">
+  <div class="map-card" [class.map-expanded]="mapExpanded()">
     <div class="map-wrapper">
       <div id="map-newsound"></div>
+      <button class="map-expand-btn" (click)="toggleMapExpand()" type="button">
+        <mat-icon>{{ mapExpanded() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
       <div class="map-overlay-hint">
         <mat-icon>pin_drop</mat-icon>
         <span>{{ "sound.hint-marker" | translate }}</span>

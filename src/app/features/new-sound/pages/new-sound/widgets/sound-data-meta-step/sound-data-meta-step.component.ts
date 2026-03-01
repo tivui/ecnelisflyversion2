@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -16,6 +16,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { firstValueFrom } from 'rxjs';
+import * as countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
+import frLocale from 'i18n-iso-countries/langs/fr.json';
+import esLocale from 'i18n-iso-countries/langs/es.json';
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { AuthService } from '../../../../../../core/services/auth.service';
 import { AppUserService } from '../../../../../../core/services/app-user.service';
@@ -105,6 +109,15 @@ export class SoundDataMetaStepComponent implements OnInit {
   filteredUsers: UserOption[] = [];
   userControl = new FormControl<UserOption | null>(null);
   currentUser: UserOption | null = null;
+
+  /* ================= ADMIN USER CREATION ================= */
+
+  showCreateUser = signal(false);
+  creatingUser = signal(false);
+  newUsername = new FormControl('');
+  newCountryCode = new FormControl('');
+  countryOptions: { code: string; name: string }[] = [];
+  filteredCountries = signal<{ code: string; name: string }[]>([]);
 
   /* ================= FORM ================= */
 
@@ -310,6 +323,17 @@ export class SoundDataMetaStepComponent implements OnInit {
     this.isAdmin = this.authService.isInGroup('ADMIN');
 
     if (this.isAdmin) {
+      // Register i18n-iso-countries locales
+      countries.registerLocale(frLocale);
+      countries.registerLocale(enLocale);
+      countries.registerLocale(esLocale);
+      this.updateCountryList(this.translate.currentLang as 'fr' | 'en' | 'es');
+
+      // Setup country autocomplete filtering
+      this.newCountryCode.valueChanges.subscribe((value) => {
+        this.filterCountries(value ?? '');
+      });
+
       // Get current user
       const appUser = await firstValueFrom(this.appUserService.currentUser$);
       if (appUser) {
@@ -475,6 +499,106 @@ export class SoundDataMetaStepComponent implements OnInit {
       const formatted = this.formatUrl(value);
       window.open(formatted, '_blank', 'noopener,noreferrer');
     }
+  }
+
+  /* ================= ADMIN USER CREATION METHODS ================= */
+
+  private updateCountryList(lang: string) {
+    const locale = ['fr', 'en', 'es'].includes(lang) ? lang : 'en';
+    this.countryOptions = Object.entries(countries.getNames(locale)).map(
+      ([code, name]) => ({ code, name: name as string }),
+    );
+    this.filteredCountries.set(this.countryOptions);
+  }
+
+  private filterCountries(value: string) {
+    if (!value) {
+      this.filteredCountries.set(this.countryOptions);
+      return;
+    }
+    const filter = value.toLowerCase();
+    this.filteredCountries.set(
+      this.countryOptions.filter(
+        (c) => c.name.toLowerCase().includes(filter) || c.code.toLowerCase().includes(filter),
+      ),
+    );
+  }
+
+  getFlagPath(code: string | null): string | null {
+    if (!code) return null;
+    const trimmed = code.trim();
+    if (trimmed.length < 2 || trimmed.length > 3) return null;
+    return `/img/flags/${trimmed.toUpperCase()}.png`;
+  }
+
+  async createNewUser() {
+    const username = this.newUsername.value?.trim();
+    if (!username) return;
+
+    // Check duplicate
+    const exists = this.allUsers.find(
+      (u) => u.username.toLowerCase() === username.toLowerCase(),
+    );
+    if (exists) {
+      this.snackBar.open(
+        this.translate.instant('sound.admin.username-exists'),
+        'OK',
+        { duration: 3000 },
+      );
+      return;
+    }
+
+    this.creatingUser.set(true);
+    try {
+      const safeEmail = `imported_${username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
+      const countryCode = this.newCountryCode.value?.trim().toUpperCase() || undefined;
+      // Validate country code if provided
+      const validCountry = countryCode && countryCode.length >= 2 && countryCode.length <= 3
+        ? countryCode : undefined;
+
+      const result = await this.amplifyService.client.models.User.create({
+        id: crypto.randomUUID(),
+        username,
+        email: safeEmail,
+        country: validCountry,
+        language: 'fr',
+        theme: 'light',
+      } as any);
+
+      if (result.data) {
+        const newUser: UserOption = {
+          id: result.data.id,
+          username: result.data.username,
+          email: result.data.email ?? undefined,
+        };
+        this.allUsers.push(newUser);
+        this.filteredUsers = [...this.allUsers];
+        this.userControl.setValue(newUser);
+        this.showCreateUser.set(false);
+        this.newUsername.reset();
+        this.newCountryCode.reset();
+        this.snackBar.open(
+          this.translate.instant('sound.admin.user-created'),
+          'OK',
+          { duration: 3000 },
+        );
+      }
+    } catch (error) {
+      console.error('[SoundDataMetaStep] Failed to create user:', error);
+      this.snackBar.open(
+        this.translate.instant('sound.admin.user-create-error'),
+        'OK',
+        { duration: 3000 },
+      );
+    } finally {
+      this.creatingUser.set(false);
+    }
+  }
+
+  cancelCreateUser() {
+    this.showCreateUser.set(false);
+    this.newUsername.reset();
+    this.newCountryCode.reset();
   }
 
   onHashtagInput(event: Event) {

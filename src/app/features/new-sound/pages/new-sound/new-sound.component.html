@@ -134,7 +134,7 @@
   [class.highlight-step-1]="isStepHighlighted(1)"
   [class.highlight-step-2]="isStepHighlighted(2)"
   [orientation]="(stepperOrientation | async)!"
-  (selectionChange)="currentStepIndex.set($event.selectedIndex)"
+  (selectionChange)="onStepChange($event.selectedIndex)"
 >
   <!-- Step 1 : upload sound-->
   <mat-step class="mat-step-content step-0" [completed]="soundUploaded()">
@@ -159,7 +159,7 @@
       {{ "sound.place-title" | translate }}
     </ng-template>
 
-    <app-place-step (placeSelected)="onPlaceSelected($event)"></app-place-step>
+    <app-place-step #placeStep (placeSelected)="onPlaceSelected($event)"></app-place-step>
 
     <div class="stepper-actions">
       <button mat-button matStepperPrevious>

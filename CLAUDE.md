@@ -1419,6 +1419,46 @@ Cles `toolbar.admin.users` + `admin.users.*` (~80 cles) : title, subtitle, expor
 
 De plus, des listeners `valueChanges` (debounce 300ms) sur les champs `title` et `shortStory` appellent `emitCompleted()` pour garder le parent a jour en continu.
 
+## Stepper ajout de son — layout desktop elargi
+
+### Largeurs
+
+| Fichier | max-width |
+|---------|-----------|
+| `new-sound.component.scss` `:host` | `1200px` |
+| `place-step.component.scss` `.place-step-container` | `1000px` |
+| `sound-data-info-step.component.scss` | `1000px` |
+| `sound-data-meta-step.component.scss` | `1000px` |
+| `sound-upload-step.component.scss` | `1000px` |
+| `confirmation-step.component.scss` | `1000px` |
+
+### Carte plein ecran (place-step)
+
+Bouton `fullscreen` / `fullscreen_exit` en haut a droite de la carte, visible uniquement en desktop (`@media min-width: 701px`). Signal `mapExpanded` dans `place-step.component.ts`.
+
+**Mode expanse :**
+- `.map-card.map-expanded` : `position: fixed; inset: 0; z-index: 900` — carte couvre tout le viewport
+- `.place-name-card` : `position: fixed; bottom: 58px; z-index: 901` — input superpose en glassmorphism
+- `.stepper-actions` : `position: fixed; bottom: 0; z-index: 902` — boutons prev/next en glassmorphism
+- `.instructions-card` : masquee
+- `.map-overlay-hint` : repositionnee a `bottom: 146px` (au-dessus des controles)
+- Selecteur sibling : `app-place-step:has(.map-expanded) ~ .stepper-actions` (ViewEncapsulation.None)
+
+**Auto-collapse :** `onStepChange()` dans `new-sound.component.ts` reset `placeStep.mapExpanded` quand on quitte le step 1. `@ViewChild('placeStep')` pour acceder au composant.
+
+**Mobile :** bouton masque (`display: none`), pas d'impact.
+
+### Creation d'utilisateur admin (sound-data-meta-step)
+
+Bouton "Creer un utilisateur" dans l'etape metadonnees (admin uniquement). Formulaire inline avec :
+- Champ username (requis, unicite verifiee)
+- Champ pays (autocomplete `i18n-iso-countries` avec preview drapeau)
+- Email genere : `imported_{sanitized}@imported.local`
+- ID : `crypto.randomUUID()`
+- Backend : `User` model autorise `create` pour le groupe ADMIN
+
+**i18n :** cles `sound.admin.*` (create-user, new-username, country, create-btn, user-created, user-create-error, username-exists)
+
 ## Admin icon — Hub listener
 
 Le signal `isAdmin` dans `app.component.ts` est mis a jour dans le handler Hub `signedIn` (pas seulement dans `ngOnInit`) via `await authService.loadCurrentUser()` + `isAdmin.set(authService.isInGroup('ADMIN'))`. Reset a `false` dans le handler `signedOut`.
