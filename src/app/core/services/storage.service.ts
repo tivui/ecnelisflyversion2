@@ -33,6 +33,27 @@ export class StorageService {
     return result.items.map((item) => item.path.replace(this.basePath, ''));
   }
 
+  /**
+   * List all sound files with S3 metadata (size, lastModified)
+   * Uses listAll to bypass pagination limits
+   */
+  async listStorageSoundsWithMetadata(): Promise<
+    { filename: string; path: string; size: number; lastModified: Date }[]
+  > {
+    const result = await list({
+      path: this.basePath,
+      options: { listAll: true },
+    });
+    return result.items
+      .filter((item) => item.size && item.size > 0)
+      .map((item) => ({
+        filename: item.path.replace(this.basePath, ''),
+        path: item.path,
+        size: item.size ?? 0,
+        lastModified: item.lastModified ?? new Date(),
+      }));
+  }
+
 /**
    * Upload a sound file with progress tracking
    * @returns Object with progress$ observable and result promise containing the sanitized filename

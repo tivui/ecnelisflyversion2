@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, inject, OnInit } from '@angular/core';
-import { CommonModule, AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -55,7 +55,6 @@ interface Option {
         MatIconModule,
         MatDialogModule,
         MatAutocompleteModule,
-        AsyncPipe,
         TranslateModule,
         MatSelectModule,
         MatTooltipModule,

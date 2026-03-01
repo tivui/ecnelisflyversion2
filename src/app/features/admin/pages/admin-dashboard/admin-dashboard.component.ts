@@ -14,6 +14,7 @@ import { DashboardService } from '../../../dashboard/services/dashboard.service'
 import { StorageService } from '../../../../core/services/storage.service';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { Sound } from '../../../../core/models/sound.model';
+import { SiteVisitService, VisitStats } from '../../../../core/services/site-visit.service';
 
 interface CognitoStatsResult {
   totalUsers: number;
@@ -46,6 +47,7 @@ export class AdminDashboardComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly storageService = inject(StorageService);
+  private readonly siteVisitService = inject(SiteVisitService);
 
   sounds = signal<Sound[]>([]);
   users = signal<{ id: string; username: string; createdAt?: string }[]>([]);
@@ -90,6 +92,16 @@ export class AdminDashboardComponent implements OnInit {
     selectable: true,
     group: ScaleType.Ordinal,
     domain: ['#1976d2', '#ea4335'],
+  };
+
+  // Site visits
+  visitStats = signal<VisitStats | null>(null);
+
+  visitsColorScheme: Color = {
+    name: 'visits',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#1976d2'],
   };
 
   // KPIs
@@ -268,6 +280,10 @@ export class AdminDashboardComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+    // Load visit stats in parallel (non-blocking for main KPIs)
+    this.siteVisitService.getVisitStats()
+      .then((stats) => this.visitStats.set(stats))
+      .catch((e) => console.warn('[AdminDashboard] Failed to load visit stats:', e));
   }
 
   onTabChange(index: number) {
@@ -276,14 +292,28 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  retryCognitoStats() {
+    this.cognitoStats.set(null);
+    this.cognitoError.set(false);
+    this.loadCognitoStats();
+  }
+
   async loadCognitoStats() {
     if (this.cognitoLoading()) return;
     this.cognitoLoading.set(true);
     this.cognitoError.set(false);
     try {
       const result = await (this.amplifyService.client as any).queries.getCognitoStats();
+      if (result?.errors?.length) {
+        console.error('[AdminDashboard] getCognitoStats errors:', result.errors);
+        this.cognitoError.set(true);
+        return;
+      }
       if (result?.data) {
         this.cognitoStats.set(result.data as CognitoStatsResult);
+      } else {
+        console.warn('[AdminDashboard] getCognitoStats returned no data');
+        this.cognitoError.set(true);
       }
     } catch (e) {
       console.error('[AdminDashboard] getCognitoStats failed:', e);

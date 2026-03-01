@@ -19,6 +19,8 @@ import { processImport } from './functions/process-import/resource';
 import { fixImportedUsers } from './functions/fix-imported-users/resource';
 import { sendSoundConfirmationEmail } from './functions/send-sound-confirmation-email/resource';
 import { postConfirmationNotify } from './functions/post-confirmation-notify/resource';
+import { recordSiteVisit } from './functions/record-site-visit/resource';
+import { manageCognitoUser } from './functions/manage-cognito-user/resource';
 
 const backend = defineBackend({
   auth,
@@ -36,6 +38,8 @@ const backend = defineBackend({
   listCognitoUsers,
   sendSoundConfirmationEmail,
   postConfirmationNotify,
+  recordSiteVisit,
+  manageCognitoUser,
 });
 
 // ➡ Templates email Cognito (verification + reset password)
@@ -209,6 +213,22 @@ listCognitoUsersLambda.addEnvironment(
   backend.auth.resources.userPool.userPoolId,
 );
 
+// ➡ Permissions DynamoDB pour la Lambda record-site-visit
+const recordSiteVisitLambda = backend.recordSiteVisit.resources.lambda as LambdaFunction;
+const siteVisitTable = backend.data.resources.tables['SiteVisit'];
+
+recordSiteVisitLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['dynamodb:UpdateItem', 'dynamodb:GetItem'],
+    resources: [siteVisitTable.tableArn],
+  }),
+);
+
+recordSiteVisitLambda.addEnvironment(
+  'SITE_VISIT_TABLE_NAME',
+  siteVisitTable.tableName,
+);
+
 // ➡ Permissions SES pour la Lambda post-confirmation-notify (notification nouvelle inscription)
 const postConfirmLambda = backend.postConfirmationNotify.resources.lambda as LambdaFunction;
 
@@ -232,4 +252,26 @@ sendSoundEmailLambda.addToRolePolicy(
 sendSoundEmailLambda.addEnvironment('SENDER_EMAIL', 'noreply@ecnelisfly.com');
 sendSoundEmailLambda.addEnvironment('SEND_EMAIL_ENABLED', 'true');
 
+// ➡ Permissions Cognito pour la Lambda manage-cognito-user (admin operations)
+const manageCognitoUserLambda = backend.manageCognitoUser.resources.lambda as LambdaFunction;
 
+manageCognitoUserLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: [
+      'cognito-idp:AdminDisableUser',
+      'cognito-idp:AdminEnableUser',
+      'cognito-idp:AdminDeleteUser',
+      'cognito-idp:AdminAddUserToGroup',
+      'cognito-idp:AdminRemoveUserFromGroup',
+      'cognito-idp:AdminGetUser',
+      'cognito-idp:AdminListGroupsForUser',
+      'cognito-idp:ListUsers',
+    ],
+    resources: [backend.auth.resources.userPool.userPoolArn],
+  }),
+);
+
+manageCognitoUserLambda.addEnvironment(
+  'USER_POOL_ID',
+  backend.auth.resources.userPool.userPoolId,
+);

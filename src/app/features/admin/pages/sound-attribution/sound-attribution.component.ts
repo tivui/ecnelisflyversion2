@@ -304,6 +304,8 @@ export class SoundAttributionComponent implements OnInit {
 
   getFlagPath(country?: string): string | null {
     if (!country) return null;
-    return `/img/flags/${country.toUpperCase()}.png`;
+    const code = country.trim();
+    if (code.length < 2 || code.length > 3) return null;
+    return `/img/flags/${code.toUpperCase()}.png`;
   }
 }

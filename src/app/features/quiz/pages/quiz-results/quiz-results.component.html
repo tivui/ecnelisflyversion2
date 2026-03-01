@@ -43,8 +43,10 @@
             <mat-spinner diameter="20"></mat-spinner>
             {{ 'quiz.results.publishing' | translate }}
           } @else {
-            <mat-icon>publish</mat-icon>
-            {{ 'quiz.results.publish' | translate }}
+            <ng-container>
+              <mat-icon>publish</mat-icon>
+              {{ 'quiz.results.publish' | translate }}
+            </ng-container>
           }
         </button>
       </div>

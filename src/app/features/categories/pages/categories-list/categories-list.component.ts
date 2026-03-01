@@ -1,5 +1,4 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -13,7 +12,6 @@ import { CardCategoryComponent } from '../../../home/pages/home/widgets/card-cat
 @Component({
     selector: 'app-categories-list',
     imports: [
-        RouterLink,
         TranslateModule,
         MatIconModule,
         CardCategoryComponent,

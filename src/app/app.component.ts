@@ -37,6 +37,7 @@ import { PwaInstallBannerComponent } from './shared/components/pwa-install-banne
 import { UserAvatarComponent } from './shared/components/user-avatar/user-avatar.component';
 import { AppUpdateService } from './core/services/app-update.service';
 import { FeaturedSoundService } from './core/services/featured-sound.service';
+import { SiteVisitService } from './core/services/site-visit.service';
 import { DailyFeaturedSound } from './core/models/featured-sound.model';
 import { DashboardService } from './features/dashboard/services/dashboard.service';
 
@@ -78,6 +79,7 @@ export class AppComponent implements OnInit {
   private readonly appUpdateService = inject(AppUpdateService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
   private readonly dashboardService = inject(DashboardService);
+  private readonly siteVisitService = inject(SiteVisitService);
 
   public appUser = signal<AppUser | null>(null);
   public showLogin = signal(false);
@@ -272,6 +274,9 @@ export class AppComponent implements OnInit {
     this.featuredSoundService.getTodayFeatured()
       .then((daily) => this.bottomNavFeatured.set(daily))
       .catch(() => {});
+
+    // Track site visit (1x per session, non-blocking)
+    this.siteVisitService.recordVisit().catch(() => {});
 
     // 2️⃣ Listen to authentication events (Amplify Hub)
     Hub.listen('auth', async ({ payload }) => {

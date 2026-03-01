@@ -224,7 +224,8 @@
     "admin": {
       "dashboard": "Tableau de bord",
       "manage-database": "Gérer la bdd",
-      "guide": "Guide admin"
+      "guide": "Guide admin",
+      "users": "Gestion des utilisateurs"
     },
     "fullscreen": {
       "enter": "Mode plein écran",
@@ -445,7 +446,9 @@
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
       "CC_BY_SA_NDH": "CC BY-SA",
-      "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence."
+      "CC_BY_SA_NDH_tooltip": "Vous pouvez partager et adapter le contenu, à condition d’attribuer l’auteur et de partager sous la même licence.",
+      "CC_0": "CC0",
+      "CC_0_tooltip": "Cette œuvre est placée dans le domaine public. Vous pouvez copier, modifier, distribuer et utiliser le contenu, même à des fins commerciales, sans aucune restriction."
     },
     "link-url": "URL",
     "link-title": "Titre du lien",
@@ -492,7 +495,8 @@
         "dashboard": "Tableau de bord"
       },
       "emailTemplates": "Templates email",
-      "soundAttribution": "Attribution des sons"
+      "soundAttribution": "Attribution des sons",
+      "storage": "Stockage S3"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -506,6 +510,14 @@
       "statusDistribution": "Répartition des statuts",
       "topContributors": "Top contributeurs",
       "topCities": "Villes les plus actives",
+      "visits": {
+        "sectionTitle": "Consultations du site",
+        "total": "Total visites",
+        "today": "Aujourd'hui",
+        "week": "Cette semaine",
+        "month": "Ce mois",
+        "chartTitle": "Visites sur 30 jours"
+      },
       "approve": "Approuver",
       "reject": "Rejeter",
       "approveAll": "Tout approuver",
@@ -526,7 +538,8 @@
         "oauthUsers": "Google OAuth",
         "registrationsOverTime": "Inscriptions sur 12 mois",
         "providerBreakdown": "Répartition par fournisseur",
-        "error": "Impossible de charger les stats Cognito"
+        "error": "Impossible de charger les stats Cognito",
+        "retry": "Réessayer"
       },
       "noPending": "Aucun son en attente de validation",
       "details": "Détails",
@@ -997,6 +1010,92 @@
       "success": "{{count}} son(s) transféré(s) vers {{username}}",
       "error": "Erreur lors du transfert"
     },
+    "users": {
+      "title": "Gestion des utilisateurs",
+      "subtitle": "Gérer les comptes, rôles et statuts des utilisateurs",
+      "export": "Exporter CSV",
+      "search": "Rechercher par nom ou email...",
+      "enriching": "Chargement des données Cognito...",
+      "filter": {
+        "all": "Tous",
+        "imported": "Importés",
+        "registered": "Inscrits",
+        "allStatus": "Statut",
+        "active": "Actifs",
+        "disabled": "Désactivés",
+        "allRoles": "Rôle",
+        "admin": "Admins",
+        "user": "Utilisateurs"
+      },
+      "sort": {
+        "name": "Nom",
+        "sounds": "Sons",
+        "date": "Date"
+      },
+      "type": {
+        "imported": "Importé",
+        "registered": "Inscrit"
+      },
+      "status": {
+        "active": "Actif",
+        "disabled": "Désactivé"
+      },
+      "role": {
+        "admin": "Admin",
+        "user": "Utilisateur"
+      },
+      "table": {
+        "username": "Utilisateur",
+        "email": "Email",
+        "type": "Type",
+        "status": "Statut",
+        "role": "Rôle",
+        "sounds": "Sons",
+        "date": "Inscription"
+      },
+      "you": "vous",
+      "actions": {
+        "view": "Voir les détails",
+        "disable": "Désactiver le compte",
+        "enable": "Réactiver le compte",
+        "promote": "Promouvoir admin",
+        "demote": "Rétrograder utilisateur",
+        "delete": "Supprimer le compte"
+      },
+      "empty": "Aucun utilisateur",
+      "noResults": "Aucun résultat pour cette recherche",
+      "loadError": "Erreur de chargement des utilisateurs",
+      "enrichError": "Impossible de charger les données Cognito",
+      "actionError": "Erreur lors de l'action",
+      "disableConfirm": "Désactiver le compte de {{username}} ? L'utilisateur ne pourra plus se connecter.",
+      "disableSuccess": "Compte désactivé",
+      "enableSuccess": "Compte réactivé",
+      "promoteConfirm": "Promouvoir {{username}} en administrateur ?",
+      "promoteSuccess": "Utilisateur promu administrateur",
+      "demoteConfirm": "Rétrograder {{username}} en utilisateur simple ?",
+      "demoteSuccess": "Utilisateur rétrogradé",
+      "deleteSuccess": "Utilisateur supprimé",
+      "detail": {
+        "title": "Détails de l'utilisateur",
+        "country": "Pays",
+        "sounds": "Sons",
+        "likedSounds": "Sons aimés",
+        "provider": "Fournisseur d'identité",
+        "cognitoStatus": "Statut Cognito",
+        "enabled": "Activé",
+        "groups": "Groupes",
+        "registrationDate": "Date d'inscription",
+        "close": "Fermer"
+      },
+      "deleteDialog": {
+        "title": "Supprimer l'utilisateur",
+        "message": "Êtes-vous sûr de vouloir supprimer le compte de {{username}} ? Cette action est irréversible.",
+        "deleteSounds": "Supprimer aussi les {{count}} son(s) de cet utilisateur",
+        "warning": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
+      }
+    },
     "emailTemplates": {
       "title": "Templates email Cognito",
       "subtitle": "Personnalisez les emails de vérification et de réinitialisation de mot de passe.",
@@ -1016,6 +1115,83 @@
       "saveError": "Erreur lors de l'enregistrement",
       "customTemplate": "Template personnalisé",
       "defaultTemplate": "Template par défaut"
+    },
+    "storage": {
+      "title": "Gestion du stockage S3",
+      "subtitle": "Fichiers audio, statistiques et intégrité du stockage",
+      "loadError": "Erreur lors du chargement des données",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "explorer": "Explorateur",
+        "integrity": "Intégrité"
+      },
+      "kpi": {
+        "totalFiles": "Fichiers totaux",
+        "totalSize": "Taille totale",
+        "avgSize": "Taille moyenne",
+        "largestFile": "Plus gros fichier",
+        "monthlyCost": "Coût mensuel estimé",
+        "orphans": "Fichiers orphelins",
+        "brokenRefs": "Références cassées"
+      },
+      "charts": {
+        "formatDistribution": "Répartition par format",
+        "sizeDistribution": "Distribution des tailles",
+        "categorySpace": "Espace par catégorie (Mo)",
+        "uploadTimeline": "Uploads sur 12 mois"
+      },
+      "search": "Rechercher un fichier...",
+      "export": "Exporter CSV",
+      "filter": {
+        "all": "Tous",
+        "linked": "Liés",
+        "orphan": "Orphelin",
+        "small": "< 1 Mo",
+        "medium": "1-10 Mo",
+        "large": "> 10 Mo"
+      },
+      "sort": {
+        "name": "Nom",
+        "size": "Taille",
+        "date": "Date"
+      },
+      "table": {
+        "filename": "Nom du fichier",
+        "format": "Format",
+        "size": "Taille",
+        "date": "Date",
+        "linkedSound": "Son lié"
+      },
+      "actions": {
+        "play": "Écouter",
+        "delete": "Supprimer",
+        "deleteTitle": "Supprimer le fichier orphelin",
+        "deleteMessage": "Supprimer {{filename}} ({{size}}) du stockage S3 ? Cette action est irréversible.",
+        "deleteRefTitle": "Supprimer la référence cassée",
+        "deleteRefMessage": "Supprimer la référence au son \"{{title}}\" de la base de données ?",
+        "repair": "Réparer (corriger le nom de fichier)"
+      },
+      "deleteSuccess": "Fichier supprimé avec succès",
+      "repairSuccess": "Référence réparée → {{filename}}",
+      "deleteRefSuccess": "Référence supprimée avec succès",
+      "cleanAllSuccess": "{{count}} fichier(s) orphelin(s) supprimé(s)",
+      "noResults": "Aucun résultat pour ces filtres",
+      "empty": "Aucun fichier dans le stockage",
+      "integrity": {
+        "allGood": "Tout est en ordre",
+        "allGoodDesc": "Aucun fichier orphelin ni référence cassée détecté.",
+        "orphans": {
+          "title": "Fichiers orphelins",
+          "desc": "Fichiers S3 sans entrée correspondante dans la base de données",
+          "cleanAll": "Supprimer tous les orphelins",
+          "cleanAllTitle": "Supprimer tous les fichiers orphelins",
+          "cleanAllMessage": "Supprimer {{count}} fichier(s) orphelin(s) ({{size}}) ? Cette action est irréversible."
+        },
+        "brokenRefs": {
+          "title": "Références cassées",
+          "desc": "Entrées en base de données sans fichier S3 correspondant"
+        }
+      }
     }
   },
   "mapfly": {

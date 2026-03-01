@@ -9,7 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { RouterLink } from '@angular/router';
+
 
 import { ZoneService } from '../../../../core/services/zone.service';
 import { Zone } from '../../../../core/models/zone.model';
@@ -30,7 +30,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
         MatProgressSpinnerModule,
         MatChipsModule,
         TranslateModule,
-        RouterLink,
     ],
     templateUrl: './zones.component.html',
     styleUrl: './zones.component.scss'

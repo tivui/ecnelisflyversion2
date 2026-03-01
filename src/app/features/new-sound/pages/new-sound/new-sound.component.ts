@@ -25,7 +25,6 @@ import {
   PlaceSelection,
   PlaceStepComponent,
 } from './widgets/place-step/place-step.component';
-import { SoundDataStepComponent } from "./widgets/sound-data-step/sound-data-step.component";
 import { SoundDataMetaStepComponent } from "./widgets/sound-data-meta-step/sound-data-meta-step.component";
 import { SoundDataInfoStepComponent } from "./widgets/sound-data-info-step/sound-data-info-step.component";
 import { ConfirmationStepComponent } from "./widgets/confirmation-step/confirmation-step.component";
@@ -48,7 +47,6 @@ import { QuotaInfo } from '../../../../core/models/quota.model';
         TranslateModule,
         SoundUploadStepComponent,
         PlaceStepComponent,
-        SoundDataStepComponent,
         SoundDataMetaStepComponent,
         SoundDataInfoStepComponent,
         ConfirmationStepComponent

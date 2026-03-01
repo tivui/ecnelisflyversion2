@@ -548,6 +548,7 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 | `quiz.service.ts` | `listPublishedQuizzes()`, `getQuiz()`, `getQuizQuestions()`, `getMonthlyQuiz()`, `getSoundFilename()`, `getLeaderboard()`, `getAttempt()` |
 | `zone.service.ts` | `listZones()`, `getZoneById()`, `getZoneBySlug()`, `getMonthlyZone()`, `listZoneSoundsByZone()`, `listZoneSoundsBySound()`, `getSoundsForZone()` |
 | `sound-journey.service.ts` | `listPublicJourneys()`, `getJourney()`, `listSteps()` |
+| `site-visit.service.ts` | `recordVisit()`, `getVisitStats()` |
 
 ### Quiz en mode deconnecte
 
@@ -1261,7 +1262,47 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 4. Terroirs sonores (`zones`)
 5. Articles (`articles`)
 6. Attribution des sons (`sound-attribution`)
-7. Importer les sons (`import-sounds`) — en dernier intentionnellement
+7. Importer les sons (`import-sounds`)
+8. Templates email (`email-templates`)
+9. Stockage S3 (`storage`)
+
+## Gestion du stockage S3 (`features/admin/pages/storage-management/`)
+
+### Principe
+
+Page admin pour visualiser et gerer les fichiers audio sur S3. Cross-reference les fichiers S3 avec les enregistrements DynamoDB pour detecter les orphelins (S3 sans DynamoDB) et les references cassees (DynamoDB sans S3). **Aucune Lambda supplementaire** — utilise l'API Amplify Storage `list()` cote frontend.
+
+### Architecture — pas de Lambda
+
+`StorageService.listStorageSoundsWithMetadata()` appelle `list({ path: 'sounds/', options: { listAll: true } })` qui retourne `{ path, size, lastModified, eTag }` par objet S3. Le cross-referencing avec DynamoDB se fait cote client dans `StorageManagementService.loadAll()`.
+
+### Service (`storage-management.service.ts`)
+
+| Methode | Action |
+|---------|--------|
+| `loadAll()` | Charge S3 files + DynamoDB sounds en parallele, cross-ref par filename, calcule stats |
+| `deleteOrphan(filename)` | `storageService.deleteSound()` (reutilise Lambda existante) |
+| `deleteBrokenRef(soundId)` | `amplifyService.client.models.Sound.delete()` |
+
+### Interfaces
+
+- `StorageFileEntry` : fichier S3 enrichi avec info son lie (id, title, status, category, username)
+- `BrokenReference` : enregistrement DynamoDB sans fichier S3
+- `StorageStats` : totalFiles, totalSize, avgSize, largestFile, monthlyCostEstimate ($0.023/Go/mois), orphanCount, orphanSize, brokenRefCount, formatDistribution, sizeDistribution, categoryDistribution, uploadTimeline
+
+### Template — 3 onglets
+
+1. **Vue d'ensemble** : 7 KPI cards + 4 graphiques ngx-charts (format pie, taille bar, categorie pie, uploads timeline bar)
+2. **Explorateur** : search + filter chips (status, format, taille) + sort + mat-table (filename, format badge, taille, date, son lie, actions play/delete) + export CSV
+3. **Integrite** : section orphelins (liste + clean all) + section refs cassees (liste + delete) + etat OK si tout clean. Badge compteur sur l'onglet
+
+### Player audio global
+
+Le player audio (`<audio>`) est place au-dessus du `mat-tab-group` (pas dans un onglet specifique) pour etre visible et fonctionnel depuis l'onglet Explorer comme depuis l'onglet Integrite.
+
+### i18n
+
+Cles `admin.database.storage` (tab label) + `admin.storage.*` (title, subtitle, tabs, kpi, charts, search, export, filter, sort, table, actions, integrity) — FR/EN/ES.
 
 ## Dashboard admin (`features/admin/pages/admin-dashboard/`)
 
@@ -1269,11 +1310,12 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 
 Route `/admin/dashboard` (pas enfant de database tabs). Accessible via le bouton "Tableau de bord" dans le menu admin du sidenav (`app.component.html`).
 
-### 2 onglets
+### 3 onglets
 
 `mat-tab-group` :
-- **Statistiques** (`bar_chart`) : KPIs (total sons, utilisateurs, sons publics, en attente, nouveaux ce mois) + graphiques (sons par categorie, uploads over time, statuts, top contributeurs, top villes)
+- **Statistiques** (`bar_chart`) : KPIs sons (total, utilisateurs, publics, en attente, nouveaux ce mois) + KPIs visites (total, aujourd'hui, semaine, mois) + graphiques (sons par categorie, uploads over time, statuts, top contributeurs, top villes, visites sur 30 jours)
 - **Moderation** (`pending_actions`) : gestion des sons en attente avec badge compteur
+- **Utilisateurs** (`manage_accounts`) : KPIs Cognito (inscrits, nouveaux semaine/mois, email/OAuth) + graphique inscriptions 12 mois + repartition fournisseurs (pie donut)
 
 ### Moderation — preview des metadonnees
 
@@ -1286,6 +1328,88 @@ Chaque son en attente est cliquable/expandable (`toggleExpand(sound)`) avec :
 ### Etat vide
 
 Si aucun son en attente : icone `check_circle` verte + message "Aucun son en attente de validation".
+
+### Visites du site (DynamoDB)
+
+Compteur de consultations du site base sur DynamoDB. Un record par jour (`id` = date YYYY-MM-DD, `count` = nombre de visites).
+
+**Architecture :**
+- Modele `SiteVisit` dans `amplify/data/resource.ts` : `id` (string = date), `count` (integer)
+- Lambda `record-site-visit` : atomic increment DynamoDB (`UpdateCommand` avec `if_not_exists`). `resourceGroupName: 'data'` (evite dependance circulaire CDK)
+- Custom mutation `recordSiteVisitMutation` dans le schema GraphQL → Lambda
+- `SiteVisitService` (`core/services/site-visit.service.ts`) : `recordVisit()` (1x par session via `sessionStorage`) + `getVisitStats()` (pagination + calcul KPIs + time series 30 jours)
+- `app.component.ts` : appel `recordVisit()` fire-and-forget au demarrage (authMode `apiKey` pour visiteurs non connectes)
+- Dashboard admin onglet Statistiques : 4 KPIs (total, aujourd'hui, semaine, mois) + graphique bar-vertical 30 jours
+
+**i18n :** cles `admin.dashboard.visits.*` : sectionTitle, total, today, week, month, chartTitle (FR/EN/ES)
+
+### Utilisateurs Cognito (Lambda `list-cognito-users`)
+
+Lambda qui pagine tous les utilisateurs Cognito et retourne des statistiques : total, nouveaux cette semaine/mois, repartition email/OAuth, time series inscriptions 12 mois.
+
+**Piege connu :** ne pas utiliser `AttributesToGet` dans `ListUsersCommand` (cause `"Input fails to satisfy the constraints"` en sandbox). Laisser Cognito retourner tous les attributs.
+
+**Error handling :** `loadCognitoStats()` verifie `result.errors` (Amplify Gen2 peut retourner des erreurs dans le resultat sans throw). Bouton retry si erreur.
+
+## Gestion des utilisateurs admin (`features/admin/pages/user-management/`)
+
+### Route standalone
+
+Route `/admin/users` (pas enfant de database tabs, comme `/admin/dashboard`). Accessible via le menu admin (sidenav) entre "Tableau de bord" et "Gerer la bdd".
+
+### Architecture
+
+**Lambda `manage-cognito-user`** : dispatch sur `event.arguments.action` (6 actions). Piege connu : les mutations Amplify Gen2 passent les arguments dans `event.arguments`, pas directement sur `event`.
+
+**Actions Lambda :**
+- `listUserStatuses` : pagine `ListUsersCommand` + `AdminListGroupsForUserCommand` par user, retourne `{ success, users: JSON.stringify([...]) }`
+- `disableUser` / `enableUser` : `AdminDisableUserCommand` / `AdminEnableUserCommand`
+- `deleteUser` : `AdminDeleteUserCommand`
+- `addToGroup` / `removeFromGroup` : `AdminAddUserToGroupCommand` / `AdminRemoveUserFromGroupCommand`
+
+### Service (`user-management.service.ts`)
+
+- `loadAllUsers()` : pagine `User.list()`, filtre `merged_*`, compte sons par user
+- `enrichWithCognitoData(users)` : appelle mutation `manageCognitoUser({ action: 'listUserStatuses' })`, match par `cognitoSub` (primaire) puis `email` (fallback)
+- `disableUser()`, `enableUser()`, `addToAdminGroup()`, `removeFromAdminGroup()`, `deleteCognitoUser()`, `deleteDynamoUser()`, `deleteUserSounds()`
+
+### Interface `AdminUser`
+
+Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, `cognitoStatus`, `cognitoGroups`, `cognitoProvider`, `cognitoCreatedAt`
+
+### Composant principal
+
+**Signals** : `allUsers`, `loading`, `enriching`, `actionInProgress`, filtres (`searchTerm`, `typeFilter`, `statusFilter`, `roleFilter`), tri (`sortBy`, `sortDirection`), `filteredUsers` computed
+
+**mat-table** : colonnes avatar, username (+ drapeau pays), email, type badge, status badge, role badge, sons, date inscription, actions (mat-menu)
+
+**Self-protection** : actions disable/demote/delete desactivees sur son propre compte (compare `cognitoSub`)
+
+**Users importes** : pas de compte Cognito → `cognitoEnabled = undefined` → affiche "N/A", masque actions Cognito (condition `!isImported(user)`)
+
+### Dialogs
+
+- `UserDetailDialogComponent` : inline template, avatar + infos + stats + donnees Cognito
+- `DeleteUserDialogComponent` : inline template, checkbox "Supprimer les X sons" + confirmation
+
+### Export CSV
+
+`csv-export.util.ts` : fonction pure `exportUsersCsv()` — CSV client-side avec BOM UTF-8, Blob URL
+
+### Drapeaux pays (validation)
+
+`getFlagPath(country)` : `trim()` + validation longueur 2-3 caracteres (ISO codes uniquement). Rejette les codes invalides comme "BASQUE_COUNTRY". Applique aussi dans `sound-attribution.component.ts`.
+
+### Pieges connus
+
+1. **`event.arguments` vs `event`** : les mutations Amplify Gen2 passent les arguments dans `event.arguments`, pas directement sur `event`. Toutes les Lambdas custom doivent utiliser `event.arguments.xxx`
+2. **`.returns(a.json())`** : utiliser `a.json()` (pas `a.ref()`) pour les mutations Lambda — coherent avec `deleteSoundFile`, `startImport`, etc.
+3. **GSI pagination trap** : collecter tous les sound IDs avant de modifier (meme piege que sound-attribution)
+4. **Cognito username != sub** : les commandes admin Cognito prennent le `Username` Cognito (UUID pour OAuth), stocke dans `cognitoUsername` lors de l'enrichissement
+
+### i18n
+
+Cles `toolbar.admin.users` + `admin.users.*` (~80 cles) : title, subtitle, export, search, filtres, tri, badges, actions, dialogs, messages (FR/EN/ES)
 
 ## Upload de son — flux de donnees titre
 
@@ -1371,11 +1495,15 @@ Grille responsive de cards `app-card-category` (composant reutilisable de la hom
 - **Grands mobiles (390-700px)** : 1 colonne, gap 8px — layout horizontal (icone a gauche, titre a droite) via `::ng-deep` overrides depuis `categories-list.component.scss`
 - **Petits mobiles (< 390px)** : 2 colonnes grille, gap 12px — layout vertical compact (icone centree au-dessus, titre en dessous)
 
+**Click handler (`card-category.component`) :**
+- `(click)="onCardClick($event)"` sur `mat-card` (pas `mat-card-header`) — garantit que le tap fonctionne sur toute la surface de la card
+- Mobile : ouvre `SubcategorySheetComponent` (MatBottomSheet) — meme comportement que les chips de la home page
+- Desktop : navigue vers `/mapfly?category=xxx`, sauf si le clic est dans `mat-card-content` (champ recherche) — `target.closest('mat-card-content')` ignore ces clics
+
 **Card petit mobile (layout vertical, < 390px)** :
 - `flex-direction: column` — icone overlay centree au-dessus, titre centre en dessous
 - `white-space: normal` — texte sur plusieurs lignes si necessaire (evite troncature)
 - Overlay 36px, dot 6px, `font-size: 0.72rem`, `border-radius: 12px`
-- Tap → ouvre `SubcategorySheetComponent` (MatBottomSheet)
 - `mat-card-content` (champ recherche) masque en mobile (`display: none`)
 - Active feedback : `transform: scale(0.97)`
 
@@ -1504,8 +1632,9 @@ Cles `admin.soundAttribution.*` : title, subtitle, search, filter (all/imported/
 | `CC_BY` | CC BY | Autorise |
 | `CC_BY_NC` | CC BY-NC | Autorise |
 | `CC_BY_SA` | CC BY-SA | Autorise |
+| `CC_0` | CC0 | Autorise |
 
-Note : `CC_BY_SA` n'est pas dans l'enum `LicenseType` du schema backend mais existe sur des sons importes de l'ancien projet. Les traductions i18n sont presentes pour toutes les licences.
+Note : `CC_BY_SA`, `CC_BY_SA_NDH` et `CC_0` ne sont pas dans l'enum `LicenseType` du schema backend mais existent sur des sons importes de l'ancien projet. Les traductions i18n sont presentes pour toutes les licences. Le HTML du tooltip est conditionnel (`licenseBadgeHtml()`) : si la cle i18n `*_tooltip` est manquante, le span tooltip n'est pas rendu (evite les tooltips vides).
 
 ### Badge et tooltip
 
@@ -1679,7 +1808,7 @@ Guide complet : `docs/dynamodb-recovery-guide.md`
 
 Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunction()` (`amplify/functions/*/resource.ts`). Migration effectuee en fevrier 2026 suite a l'annonce AWS de fin de support Node.js 20.x (30 avril 2026).
 
-### Liste des Lambdas (15)
+### Liste des Lambdas (17)
 
 | Lambda | Timeout | Memoire | Schedule |
 |--------|---------|---------|----------|
@@ -1690,12 +1819,14 @@ Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunct
 | `list-cognito-users` | 30s | 256 MB | — |
 | `list-sounds-by-zone` | 30s | 1024 MB | — |
 | `list-sounds-for-map` | 30s | 1024 MB | — |
+| `manage-cognito-user` | 30s | 256 MB | — |
 | `pick-daily-featured-sound` | 30s | 512 MB | every day |
 | `pick-monthly-article` | 30s | 512 MB | every day |
 | `pick-monthly-journey` | 30s | 512 MB | every day |
 | `pick-monthly-quiz` | 30s | 512 MB | every day |
 | `pick-monthly-zone` | 30s | 512 MB | every day |
 | `process-import` | 900s | 1024 MB | — |
+| `record-site-visit` | 10s | 128 MB | — |
 | `send-sound-confirmation-email` | 15s | 256 MB | — |
 | `start-import` | 10s | 256 MB | — |
 

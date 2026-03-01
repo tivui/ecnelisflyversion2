@@ -30,6 +30,15 @@ export const routes: Routes = [
     data: { requiredGroup: 'ADMIN' },
   },
   {
+    path: 'admin/users',
+    loadComponent: () =>
+      import('./features/admin/pages/user-management/user-management.component').then(
+        (m) => m.UserManagementComponent,
+      ),
+    canActivate: [authGuard],
+    data: { requiredGroup: 'ADMIN' },
+  },
+  {
     path: 'admin/database',
     loadChildren: () =>
       import('./features/admin/database/database.routes').then(

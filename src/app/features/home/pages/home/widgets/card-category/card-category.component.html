@@ -1,5 +1,5 @@
-<mat-card class="category-card">
-  <mat-card-header (click)="goToMapflyCategory()">
+<mat-card class="category-card" (click)="onCardClick($event)">
+  <mat-card-header>
     <img
       [src]="overlay()"
       [alt]="title()"

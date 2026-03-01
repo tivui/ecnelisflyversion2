@@ -224,7 +224,8 @@
     "admin": {
       "dashboard": "Admin dashboard",
       "manage-database": "Manage database",
-      "guide": "Admin guide"
+      "guide": "Admin guide",
+      "users": "User management"
     },
     "fullscreen": {
       "enter": "Enter fullscreen",
@@ -445,7 +446,9 @@
       "CC_BY_SA": "CC BY-SA",
       "CC_BY_SA_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
       "CC_BY_SA_NDH": "CC BY-SA",
-      "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license."
+      "CC_BY_SA_NDH_tooltip": "You may share and adapt the content as long as you give proper attribution and distribute under the same license.",
+      "CC_0": "CC0",
+      "CC_0_tooltip": "This work is placed in the public domain. You may copy, modify, distribute and use the content, even for commercial purposes, without any restriction."
     },
     "link-url": "URL",
     "link-title": "Link title",
@@ -492,7 +495,8 @@
         "dashboard": "Dashboard"
       },
       "emailTemplates": "Email Templates",
-      "soundAttribution": "Sound Attribution"
+      "soundAttribution": "Sound Attribution",
+      "storage": "S3 Storage"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -506,6 +510,14 @@
       "statusDistribution": "Status distribution",
       "topContributors": "Top contributors",
       "topCities": "Most active cities",
+      "visits": {
+        "sectionTitle": "Site visits",
+        "total": "Total visits",
+        "today": "Today",
+        "week": "This week",
+        "month": "This month",
+        "chartTitle": "Visits over 30 days"
+      },
       "approve": "Approve",
       "reject": "Reject",
       "approveAll": "Approve all",
@@ -526,7 +538,8 @@
         "oauthUsers": "Google OAuth",
         "registrationsOverTime": "Registrations over 12 months",
         "providerBreakdown": "Provider breakdown",
-        "error": "Unable to load Cognito stats"
+        "error": "Unable to load Cognito stats",
+        "retry": "Retry"
       },
       "noPending": "No sounds pending review",
       "details": "Details",
@@ -997,6 +1010,92 @@
       "success": "{{count}} sound(s) transferred to {{username}}",
       "error": "Error during transfer"
     },
+    "users": {
+      "title": "User management",
+      "subtitle": "Manage accounts, roles and statuses",
+      "export": "Export CSV",
+      "search": "Search by name or email...",
+      "enriching": "Loading Cognito data...",
+      "filter": {
+        "all": "All",
+        "imported": "Imported",
+        "registered": "Registered",
+        "allStatus": "Status",
+        "active": "Active",
+        "disabled": "Disabled",
+        "allRoles": "Role",
+        "admin": "Admins",
+        "user": "Users"
+      },
+      "sort": {
+        "name": "Name",
+        "sounds": "Sounds",
+        "date": "Date"
+      },
+      "type": {
+        "imported": "Imported",
+        "registered": "Registered"
+      },
+      "status": {
+        "active": "Active",
+        "disabled": "Disabled"
+      },
+      "role": {
+        "admin": "Admin",
+        "user": "User"
+      },
+      "table": {
+        "username": "User",
+        "email": "Email",
+        "type": "Type",
+        "status": "Status",
+        "role": "Role",
+        "sounds": "Sounds",
+        "date": "Registered"
+      },
+      "you": "you",
+      "actions": {
+        "view": "View details",
+        "disable": "Disable account",
+        "enable": "Enable account",
+        "promote": "Promote to admin",
+        "demote": "Demote to user",
+        "delete": "Delete account"
+      },
+      "empty": "No users",
+      "noResults": "No results found",
+      "loadError": "Error loading users",
+      "enrichError": "Failed to load Cognito data",
+      "actionError": "Action failed",
+      "disableConfirm": "Disable {{username}}'s account? The user will no longer be able to sign in.",
+      "disableSuccess": "Account disabled",
+      "enableSuccess": "Account enabled",
+      "promoteConfirm": "Promote {{username}} to administrator?",
+      "promoteSuccess": "User promoted to administrator",
+      "demoteConfirm": "Demote {{username}} to regular user?",
+      "demoteSuccess": "User demoted",
+      "deleteSuccess": "User deleted",
+      "detail": {
+        "title": "User details",
+        "country": "Country",
+        "sounds": "Sounds",
+        "likedSounds": "Liked sounds",
+        "provider": "Identity provider",
+        "cognitoStatus": "Cognito status",
+        "enabled": "Enabled",
+        "groups": "Groups",
+        "registrationDate": "Registration date",
+        "close": "Close"
+      },
+      "deleteDialog": {
+        "title": "Delete user",
+        "message": "Are you sure you want to delete {{username}}'s account? This action is irreversible.",
+        "deleteSounds": "Also delete {{count}} sound(s) from this user",
+        "warning": "This action is irreversible.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
+    },
     "emailTemplates": {
       "title": "Cognito Email Templates",
       "subtitle": "Customize verification and password reset emails.",
@@ -1016,6 +1115,83 @@
       "saveError": "Error saving template",
       "customTemplate": "Custom template",
       "defaultTemplate": "Default template"
+    },
+    "storage": {
+      "title": "S3 Storage Management",
+      "subtitle": "Audio files, statistics and storage integrity",
+      "loadError": "Error loading data",
+      "tabs": {
+        "overview": "Overview",
+        "explorer": "Explorer",
+        "integrity": "Integrity"
+      },
+      "kpi": {
+        "totalFiles": "Total files",
+        "totalSize": "Total size",
+        "avgSize": "Average size",
+        "largestFile": "Largest file",
+        "monthlyCost": "Estimated monthly cost",
+        "orphans": "Orphan files",
+        "brokenRefs": "Broken references"
+      },
+      "charts": {
+        "formatDistribution": "Format distribution",
+        "sizeDistribution": "Size distribution",
+        "categorySpace": "Space by category (MB)",
+        "uploadTimeline": "Uploads over 12 months"
+      },
+      "search": "Search a file...",
+      "export": "Export CSV",
+      "filter": {
+        "all": "All",
+        "linked": "Linked",
+        "orphan": "Orphan",
+        "small": "< 1 MB",
+        "medium": "1-10 MB",
+        "large": "> 10 MB"
+      },
+      "sort": {
+        "name": "Name",
+        "size": "Size",
+        "date": "Date"
+      },
+      "table": {
+        "filename": "Filename",
+        "format": "Format",
+        "size": "Size",
+        "date": "Date",
+        "linkedSound": "Linked sound"
+      },
+      "actions": {
+        "play": "Play",
+        "delete": "Delete",
+        "deleteTitle": "Delete orphan file",
+        "deleteMessage": "Delete {{filename}} ({{size}}) from S3 storage? This action is irreversible.",
+        "deleteRefTitle": "Delete broken reference",
+        "deleteRefMessage": "Delete the reference to sound \"{{title}}\" from the database?",
+        "repair": "Repair (fix filename)"
+      },
+      "deleteSuccess": "File deleted successfully",
+      "repairSuccess": "Reference repaired → {{filename}}",
+      "deleteRefSuccess": "Reference deleted successfully",
+      "cleanAllSuccess": "{{count}} orphan file(s) deleted",
+      "noResults": "No results for these filters",
+      "empty": "No files in storage",
+      "integrity": {
+        "allGood": "All good",
+        "allGoodDesc": "No orphan files or broken references detected.",
+        "orphans": {
+          "title": "Orphan files",
+          "desc": "S3 files without a matching database entry",
+          "cleanAll": "Delete all orphans",
+          "cleanAllTitle": "Delete all orphan files",
+          "cleanAllMessage": "Delete {{count}} orphan file(s) ({{size}})? This action is irreversible."
+        },
+        "brokenRefs": {
+          "title": "Broken references",
+          "desc": "Database entries without a matching S3 file"
+        }
+      }
     }
   },
   "mapfly": {

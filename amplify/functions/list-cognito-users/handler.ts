@@ -19,7 +19,6 @@ export const handler = async () => {
         UserPoolId: userPoolId,
         PaginationToken: paginationToken,
         Limit: 60,
-        AttributesToGet: ['identities'],
       }),
     );
 

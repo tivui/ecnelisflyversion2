@@ -1,0 +1,434 @@
+<div class="storage-container">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h2>{{ 'admin.storage.title' | translate }}</h2>
+      <p class="subtitle">{{ 'admin.storage.subtitle' | translate }}</p>
+    </div>
+    <button mat-stroked-button (click)="loadData()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (stats(); as s) {
+    <!-- Audio player (global, visible on all tabs) -->
+    @if (audioUrl()) {
+      <div class="audio-player-bar">
+        <span class="audio-filename">{{ playingFile() }}</span>
+        <audio [src]="audioUrl()!" controls autoplay class="audio-element"></audio>
+        <button mat-icon-button (click)="playingFile.set(null); audioUrl.set(null)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+
+    <mat-tab-group>
+      <!-- Tab 1: Overview -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>analytics</mat-icon>
+          <span class="tab-label">{{ 'admin.storage.tabs.overview' | translate }}</span>
+        </ng-template>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">folder</mat-icon>
+            <div class="kpi-value">{{ s.totalFiles }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.totalFiles' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">storage</mat-icon>
+            <div class="kpi-value">{{ formatBytes(s.totalSize) }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.totalSize' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">straighten</mat-icon>
+            <div class="kpi-value">{{ formatBytes(s.avgSize) }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.avgSize' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">trending_up</mat-icon>
+            <div class="kpi-value">{{ s.largestFile ? formatBytes(s.largestFile.size) : '-' }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.largestFile' | translate }}</div>
+            @if (s.largestFile) {
+              <div class="kpi-detail">{{ s.largestFile.filename }}</div>
+            }
+          </div>
+          <div class="kpi-card">
+            <mat-icon class="kpi-icon">payments</mat-icon>
+            <div class="kpi-value">{{ formatCost(s.monthlyCostEstimate) }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.monthlyCost' | translate }}</div>
+          </div>
+          <div class="kpi-card" [class.warning]="s.orphanCount > 0">
+            <mat-icon class="kpi-icon">broken_image</mat-icon>
+            <div class="kpi-value">{{ s.orphanCount }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.orphans' | translate }}</div>
+            @if (s.orphanCount > 0) {
+              <div class="kpi-detail warning-text">{{ formatBytes(s.orphanSize) }}</div>
+            }
+          </div>
+          <div class="kpi-card" [class.warning]="s.brokenRefCount > 0">
+            <mat-icon class="kpi-icon">link_off</mat-icon>
+            <div class="kpi-value">{{ s.brokenRefCount }}</div>
+            <div class="kpi-label">{{ 'admin.storage.kpi.brokenRefs' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          @if (s.formatDistribution.length > 0) {
+            <div class="chart-card">
+              <h3>{{ 'admin.storage.charts.formatDistribution' | translate }}</h3>
+              <ngx-charts-pie-chart
+                [results]="s.formatDistribution"
+                [scheme]="formatColorScheme"
+                [doughnut]="true"
+                [labels]="true"
+                [view]="[350, 250]"
+              ></ngx-charts-pie-chart>
+            </div>
+          }
+
+          @if (s.sizeDistribution.length > 0) {
+            <div class="chart-card">
+              <h3>{{ 'admin.storage.charts.sizeDistribution' | translate }}</h3>
+              <ngx-charts-bar-vertical
+                [results]="s.sizeDistribution"
+                [scheme]="sizeColorScheme"
+                [xAxisLabel]="''"
+                [yAxisLabel]="''"
+                [showXAxisLabel]="false"
+                [showYAxisLabel]="false"
+                [xAxis]="true"
+                [yAxis]="true"
+                [view]="[350, 250]"
+              ></ngx-charts-bar-vertical>
+            </div>
+          }
+
+          @if (s.categoryDistribution.length > 0) {
+            <div class="chart-card">
+              <h3>{{ 'admin.storage.charts.categorySpace' | translate }}</h3>
+              <ngx-charts-pie-chart
+                [results]="s.categoryDistribution"
+                [scheme]="categoryColorScheme"
+                [doughnut]="true"
+                [labels]="true"
+                [view]="[350, 250]"
+              ></ngx-charts-pie-chart>
+            </div>
+          }
+
+          @if (s.uploadTimeline.length > 0) {
+            <div class="chart-card">
+              <h3>{{ 'admin.storage.charts.uploadTimeline' | translate }}</h3>
+              <ngx-charts-bar-vertical
+                [results]="s.uploadTimeline"
+                [scheme]="timelineColorScheme"
+                [xAxis]="true"
+                [yAxis]="true"
+                [showXAxisLabel]="false"
+                [showYAxisLabel]="false"
+                [view]="[350, 250]"
+              ></ngx-charts-bar-vertical>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Explorer -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>explore</mat-icon>
+          <span class="tab-label">{{ 'admin.storage.tabs.explorer' | translate }}</span>
+        </ng-template>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              [(ngModel)]="searchTermValue"
+              (input)="onSearchInput()"
+              [placeholder]="'admin.storage.search' | translate"
+            />
+            @if (searchTermValue) {
+              <button matSuffix mat-icon-button (click)="searchTermValue = ''; onSearchInput()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+
+          <div class="export-btn-wrap">
+            <button mat-stroked-button (click)="exportCsv()" [disabled]="filteredFiles().length === 0">
+              <mat-icon>download</mat-icon>
+              {{ 'admin.storage.export' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter chips -->
+        <div class="filter-section">
+          <!-- Status -->
+          <div class="filter-chips">
+            <button class="filter-chip" [class.active]="statusFilter() === 'all'" (click)="setStatusFilter('all')">
+              {{ 'admin.storage.filter.all' | translate }}
+              <span class="chip-count">{{ files().length }}</span>
+            </button>
+            <button class="filter-chip linked" [class.active]="statusFilter() === 'linked'" (click)="setStatusFilter('linked')">
+              {{ 'admin.storage.filter.linked' | translate }}
+              <span class="chip-count">{{ linkedCount() }}</span>
+            </button>
+            <button class="filter-chip orphan" [class.active]="statusFilter() === 'orphan'" (click)="setStatusFilter('orphan')">
+              {{ 'admin.storage.filter.orphan' | translate }}
+              <span class="chip-count">{{ orphanCount() }}</span>
+            </button>
+          </div>
+
+          <!-- Format chips -->
+          <div class="filter-chips format-chips">
+            @for (entry of formatCounts() | keyvalue; track entry.key) {
+              <button
+                class="filter-chip format"
+                [class.active]="formatFilter() === entry.key"
+                (click)="setFormatFilter($any(entry.key))"
+              >
+                {{ entry.key.toUpperCase() }}
+                <span class="chip-count">{{ entry.value }}</span>
+              </button>
+            }
+          </div>
+
+          <!-- Size -->
+          <div class="filter-chips">
+            <button class="filter-chip" [class.active]="sizeFilter() === 'small'" (click)="setSizeFilter('small')">
+              {{ 'admin.storage.filter.small' | translate }}
+            </button>
+            <button class="filter-chip" [class.active]="sizeFilter() === 'medium'" (click)="setSizeFilter('medium')">
+              {{ 'admin.storage.filter.medium' | translate }}
+            </button>
+            <button class="filter-chip" [class.active]="sizeFilter() === 'large'" (click)="setSizeFilter('large')">
+              {{ 'admin.storage.filter.large' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Sort controls -->
+        <div class="sort-controls">
+          <button class="sort-btn" [class.active]="sortBy() === 'name'" (click)="toggleSort('name')">
+            <mat-icon>sort_by_alpha</mat-icon>
+            <span>{{ 'admin.storage.sort.name' | translate }}</span>
+            @if (sortBy() === 'name') {
+              <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            }
+          </button>
+          <button class="sort-btn" [class.active]="sortBy() === 'size'" (click)="toggleSort('size')">
+            <mat-icon>straighten</mat-icon>
+            <span>{{ 'admin.storage.sort.size' | translate }}</span>
+            @if (sortBy() === 'size') {
+              <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            }
+          </button>
+          <button class="sort-btn" [class.active]="sortBy() === 'date'" (click)="toggleSort('date')">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ 'admin.storage.sort.date' | translate }}</span>
+            @if (sortBy() === 'date') {
+              <mat-icon class="sort-arrow">{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            }
+          </button>
+        </div>
+
+        <!-- Table -->
+        @if (filteredFiles().length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="filteredFiles()" class="files-table">
+              <ng-container matColumnDef="filename">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.storage.table.filename' | translate }}</th>
+                <td mat-cell *matCellDef="let file">
+                  <span class="filename-cell" [matTooltip]="file.filename">{{ file.filename }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="format">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.storage.table.format' | translate }}</th>
+                <td mat-cell *matCellDef="let file">
+                  <span class="format-badge" [ngClass]="getFormatBadgeClass(file.format)">
+                    {{ file.format.toUpperCase() }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="size">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.storage.table.size' | translate }}</th>
+                <td mat-cell *matCellDef="let file">{{ formatBytes(file.size) }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.storage.table.date' | translate }}</th>
+                <td mat-cell *matCellDef="let file">{{ file.lastModified | date:'dd/MM/yyyy' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="linkedSound">
+                <th mat-header-cell *matHeaderCellDef>{{ 'admin.storage.table.linkedSound' | translate }}</th>
+                <td mat-cell *matCellDef="let file">
+                  @if (file.linkedSound) {
+                    <span class="linked-badge">{{ file.linkedSound.title }}</span>
+                  } @else {
+                    <span class="orphan-badge">{{ 'admin.storage.filter.orphan' | translate }}</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let file">
+                  @if (actionInProgress() === file.filename) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <button mat-icon-button [matTooltip]="'admin.storage.actions.play' | translate" (click)="playFile(file)">
+                      <mat-icon>{{ playingFile() === file.filename ? 'stop' : 'play_arrow' }}</mat-icon>
+                    </button>
+                    @if (!file.linkedSound) {
+                      <button mat-icon-button color="warn" [matTooltip]="'admin.storage.actions.delete' | translate" (click)="deleteOrphan(file)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  }
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.orphan-row]="!row.linkedSound"></tr>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>{{ searchTerm() || formatFilter() !== 'all' || statusFilter() !== 'all' ? 'search_off' : 'folder_open' }}</mat-icon>
+            <p>{{ (searchTerm() || formatFilter() !== 'all' || statusFilter() !== 'all' ? 'admin.storage.noResults' : 'admin.storage.empty') | translate }}</p>
+          </div>
+        }
+      </mat-tab>
+
+      <!-- Tab 3: Integrity -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>verified_user</mat-icon>
+          <span class="tab-label">{{ 'admin.storage.tabs.integrity' | translate }}</span>
+          @if (s.orphanCount + s.brokenRefCount > 0) {
+            <span class="tab-badge">{{ s.orphanCount + s.brokenRefCount }}</span>
+          }
+        </ng-template>
+
+        @if (s.orphanCount === 0 && s.brokenRefCount === 0) {
+          <div class="all-good">
+            <mat-icon>check_circle</mat-icon>
+            <h3>{{ 'admin.storage.integrity.allGood' | translate }}</h3>
+            <p>{{ 'admin.storage.integrity.allGoodDesc' | translate }}</p>
+          </div>
+        } @else {
+          <!-- Orphan files -->
+          @if (orphanFiles().length > 0) {
+            <div class="integrity-section">
+              <div class="integrity-header">
+                <div>
+                  <h3>
+                    <mat-icon>broken_image</mat-icon>
+                    {{ 'admin.storage.integrity.orphans.title' | translate }}
+                    <span class="integrity-count">{{ orphanFiles().length }}</span>
+                  </h3>
+                  <p>{{ 'admin.storage.integrity.orphans.desc' | translate }} — {{ formatBytes(s.orphanSize) }}</p>
+                </div>
+                <button mat-stroked-button color="warn" (click)="deleteAllOrphans()" [disabled]="actionInProgress() === 'bulk-delete'">
+                  @if (actionInProgress() === 'bulk-delete') {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>delete_sweep</mat-icon>
+                  }
+                  {{ 'admin.storage.integrity.orphans.cleanAll' | translate }}
+                </button>
+              </div>
+
+              <div class="integrity-list">
+                @for (file of orphanFiles(); track file.filename) {
+                  <div class="integrity-item">
+                    <span class="format-badge" [ngClass]="getFormatBadgeClass(file.format)">{{ file.format.toUpperCase() }}</span>
+                    <span class="item-filename">{{ file.filename }}</span>
+                    <span class="item-size">{{ formatBytes(file.size) }}</span>
+                    <span class="item-date">{{ file.lastModified | date:'dd/MM/yyyy' }}</span>
+                    <div class="item-actions">
+                      @if (actionInProgress() === file.filename) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      } @else {
+                        <button mat-icon-button (click)="playFile(file)" [matTooltip]="'admin.storage.actions.play' | translate">
+                          <mat-icon>{{ playingFile() === file.filename ? 'stop' : 'play_arrow' }}</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteOrphan(file)" [matTooltip]="'admin.storage.actions.delete' | translate">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Broken references -->
+          @if (brokenRefs().length > 0) {
+            <div class="integrity-section">
+              <div class="integrity-header">
+                <div>
+                  <h3>
+                    <mat-icon>link_off</mat-icon>
+                    {{ 'admin.storage.integrity.brokenRefs.title' | translate }}
+                    <span class="integrity-count">{{ brokenRefs().length }}</span>
+                  </h3>
+                  <p>{{ 'admin.storage.integrity.brokenRefs.desc' | translate }}</p>
+                </div>
+              </div>
+
+              <div class="integrity-list">
+                @for (ref of brokenRefs(); track ref.soundId) {
+                  <div class="integrity-item" [class.repairable]="ref.suggestedFilename">
+                    <span class="status-badge" [ngClass]="ref.status">{{ ref.status }}</span>
+                    <span class="item-title">{{ ref.title }}</span>
+                    <span class="item-filename secondary">{{ ref.filename }}</span>
+                    @if (ref.suggestedFilename) {
+                      <span class="repair-hint">
+                        <mat-icon>arrow_forward</mat-icon>
+                        {{ ref.suggestedFilename }}
+                      </span>
+                    }
+                    @if (ref.username) {
+                      <span class="item-username">{{ ref.username }}</span>
+                    }
+                    <div class="item-actions">
+                      @if (actionInProgress() === ref.soundId) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      } @else {
+                        @if (ref.suggestedFilename) {
+                          <button mat-icon-button color="primary" (click)="repairBrokenRef(ref)" [matTooltip]="'admin.storage.actions.repair' | translate">
+                            <mat-icon>build</mat-icon>
+                          </button>
+                        }
+                        <button mat-icon-button color="warn" (click)="deleteBrokenRef(ref)" [matTooltip]="'admin.storage.actions.delete' | translate">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
