@@ -508,6 +508,14 @@
       "statusDistribution": "Status distribution",
       "topContributors": "Top contributors",
       "topCities": "Most active cities",
+      "visits": {
+        "sectionTitle": "Site visits",
+        "total": "Total visits",
+        "today": "Today",
+        "week": "This week",
+        "month": "This month",
+        "chartTitle": "Visits over 30 days"
+      },
       "approve": "Approve",
       "reject": "Reject",
       "approveAll": "Approve all",
@@ -528,7 +536,8 @@
         "oauthUsers": "Google OAuth",
         "registrationsOverTime": "Registrations over 12 months",
         "providerBreakdown": "Provider breakdown",
-        "error": "Unable to load Cognito stats"
+        "error": "Unable to load Cognito stats",
+        "retry": "Retry"
       },
       "noPending": "No sounds pending review",
       "details": "Details",

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +15,6 @@ import { RandomJourneySheetComponent } from './random-journey-sheet/random-journ
     selector: 'app-journeys-list',
     imports: [
         CommonModule,
-        RouterLink,
         TranslateModule,
         MatIconModule,
         MatButtonModule,

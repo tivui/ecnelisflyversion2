@@ -9,7 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { RouterLink } from '@angular/router';
+
 
 import { SoundJourneyService } from '../../../../core/services/sound-journey.service';
 import { SoundJourney } from '../../../../core/models/sound-journey.model';
@@ -30,7 +30,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
         MatProgressSpinnerModule,
         MatChipsModule,
         TranslateModule,
-        RouterLink,
     ],
     templateUrl: './journeys.component.html',
     styleUrl: './journeys.component.scss'

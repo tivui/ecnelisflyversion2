@@ -508,6 +508,14 @@
       "statusDistribution": "Répartition des statuts",
       "topContributors": "Top contributeurs",
       "topCities": "Villes les plus actives",
+      "visits": {
+        "sectionTitle": "Consultations du site",
+        "total": "Total visites",
+        "today": "Aujourd'hui",
+        "week": "Cette semaine",
+        "month": "Ce mois",
+        "chartTitle": "Visites sur 30 jours"
+      },
       "approve": "Approuver",
       "reject": "Rejeter",
       "approveAll": "Tout approuver",
@@ -528,7 +536,8 @@
         "oauthUsers": "Google OAuth",
         "registrationsOverTime": "Inscriptions sur 12 mois",
         "providerBreakdown": "Répartition par fournisseur",
-        "error": "Impossible de charger les stats Cognito"
+        "error": "Impossible de charger les stats Cognito",
+        "retry": "Réessayer"
       },
       "noPending": "Aucun son en attente de validation",
       "details": "Détails",

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +13,6 @@ import { ZoneCardComponent } from '../../../home/pages/home/widgets/zone-card/zo
     selector: 'app-zones-list',
     imports: [
         CommonModule,
-        RouterLink,
         TranslateModule,
         MatIconModule,
         MatButtonModule,

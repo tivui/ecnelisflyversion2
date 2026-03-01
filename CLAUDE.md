@@ -548,6 +548,7 @@ Les appels GraphQL de lecture DOIVENT inclure `{ authMode: 'apiKey' }` pour fonc
 | `quiz.service.ts` | `listPublishedQuizzes()`, `getQuiz()`, `getQuizQuestions()`, `getMonthlyQuiz()`, `getSoundFilename()`, `getLeaderboard()`, `getAttempt()` |
 | `zone.service.ts` | `listZones()`, `getZoneById()`, `getZoneBySlug()`, `getMonthlyZone()`, `listZoneSoundsByZone()`, `listZoneSoundsBySound()`, `getSoundsForZone()` |
 | `sound-journey.service.ts` | `listPublicJourneys()`, `getJourney()`, `listSteps()` |
+| `site-visit.service.ts` | `recordVisit()`, `getVisitStats()` |
 
 ### Quiz en mode deconnecte
 
@@ -1269,11 +1270,12 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 
 Route `/admin/dashboard` (pas enfant de database tabs). Accessible via le bouton "Tableau de bord" dans le menu admin du sidenav (`app.component.html`).
 
-### 2 onglets
+### 3 onglets
 
 `mat-tab-group` :
-- **Statistiques** (`bar_chart`) : KPIs (total sons, utilisateurs, sons publics, en attente, nouveaux ce mois) + graphiques (sons par categorie, uploads over time, statuts, top contributeurs, top villes)
+- **Statistiques** (`bar_chart`) : KPIs sons (total, utilisateurs, publics, en attente, nouveaux ce mois) + KPIs visites (total, aujourd'hui, semaine, mois) + graphiques (sons par categorie, uploads over time, statuts, top contributeurs, top villes, visites sur 30 jours)
 - **Moderation** (`pending_actions`) : gestion des sons en attente avec badge compteur
+- **Utilisateurs** (`manage_accounts`) : KPIs Cognito (inscrits, nouveaux semaine/mois, email/OAuth) + graphique inscriptions 12 mois + repartition fournisseurs (pie donut)
 
 ### Moderation — preview des metadonnees
 
@@ -1286,6 +1288,28 @@ Chaque son en attente est cliquable/expandable (`toggleExpand(sound)`) avec :
 ### Etat vide
 
 Si aucun son en attente : icone `check_circle` verte + message "Aucun son en attente de validation".
+
+### Visites du site (DynamoDB)
+
+Compteur de consultations du site base sur DynamoDB. Un record par jour (`id` = date YYYY-MM-DD, `count` = nombre de visites).
+
+**Architecture :**
+- Modele `SiteVisit` dans `amplify/data/resource.ts` : `id` (string = date), `count` (integer)
+- Lambda `record-site-visit` : atomic increment DynamoDB (`UpdateCommand` avec `if_not_exists`). `resourceGroupName: 'data'` (evite dependance circulaire CDK)
+- Custom mutation `recordSiteVisitMutation` dans le schema GraphQL → Lambda
+- `SiteVisitService` (`core/services/site-visit.service.ts`) : `recordVisit()` (1x par session via `sessionStorage`) + `getVisitStats()` (pagination + calcul KPIs + time series 30 jours)
+- `app.component.ts` : appel `recordVisit()` fire-and-forget au demarrage (authMode `apiKey` pour visiteurs non connectes)
+- Dashboard admin onglet Statistiques : 4 KPIs (total, aujourd'hui, semaine, mois) + graphique bar-vertical 30 jours
+
+**i18n :** cles `admin.dashboard.visits.*` : sectionTitle, total, today, week, month, chartTitle (FR/EN/ES)
+
+### Utilisateurs Cognito (Lambda `list-cognito-users`)
+
+Lambda qui pagine tous les utilisateurs Cognito et retourne des statistiques : total, nouveaux cette semaine/mois, repartition email/OAuth, time series inscriptions 12 mois.
+
+**Piege connu :** ne pas utiliser `AttributesToGet` dans `ListUsersCommand` (cause `"Input fails to satisfy the constraints"` en sandbox). Laisser Cognito retourner tous les attributs.
+
+**Error handling :** `loadCognitoStats()` verifie `result.errors` (Amplify Gen2 peut retourner des erreurs dans le resultat sans throw). Bouton retry si erreur.
 
 ## Upload de son — flux de donnees titre
 
@@ -1680,7 +1704,7 @@ Guide complet : `docs/dynamodb-recovery-guide.md`
 
 Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunction()` (`amplify/functions/*/resource.ts`). Migration effectuee en fevrier 2026 suite a l'annonce AWS de fin de support Node.js 20.x (30 avril 2026).
 
-### Liste des Lambdas (15)
+### Liste des Lambdas (16)
 
 | Lambda | Timeout | Memoire | Schedule |
 |--------|---------|---------|----------|
@@ -1697,6 +1721,7 @@ Toutes les Lambdas utilisent `runtime: 22` (Node.js 22.x) dans leur `defineFunct
 | `pick-monthly-quiz` | 30s | 512 MB | every day |
 | `pick-monthly-zone` | 30s | 512 MB | every day |
 | `process-import` | 900s | 1024 MB | — |
+| `record-site-visit` | 10s | 128 MB | — |
 | `send-sound-confirmation-email` | 15s | 256 MB | — |
 | `start-import` | 10s | 256 MB | — |
 

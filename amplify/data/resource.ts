@@ -13,6 +13,7 @@ import { startImport } from '../functions/start-import/resource';
 import { processImport } from '../functions/process-import/resource';
 import { fixImportedUsers } from '../functions/fix-imported-users/resource';
 import { listCognitoUsers } from '../functions/list-cognito-users/resource';
+import { recordSiteVisit } from '../functions/record-site-visit/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -682,6 +683,18 @@ const schema = a
         }),
       ),
 
+    SiteVisit: a
+      .model({
+        id: a.id().required(),    // = date string YYYY-MM-DD
+        count: a.integer().default(0),
+      })
+      .authorization((allow) => [
+        allow.publicApiKey().to(['read']),
+        allow.authenticated().to(['read']),
+        allow.guest().to(['read']),
+        allow.groups(['ADMIN']).to(['read', 'delete']),
+      ]),
+
     CognitoStats: a.customType({
       totalUsers: a.integer(),
       newThisWeek: a.integer(),
@@ -696,6 +709,21 @@ const schema = a
       .returns(a.ref('CognitoStats'))
       .authorization((allow) => [allow.group('ADMIN')])
       .handler(a.handler.function(listCognitoUsers)),
+
+    SiteVisitResult: a.customType({
+      date: a.string(),
+      count: a.integer(),
+    }),
+
+    recordSiteVisitMutation: a
+      .mutation()
+      .returns(a.ref('SiteVisitResult'))
+      .authorization((allow) => [
+        allow.publicApiKey(),
+        allow.authenticated(),
+        allow.guest(),
+      ])
+      .handler(a.handler.function(recordSiteVisit)),
   })
 
   .authorization((allow) => [
@@ -712,6 +740,7 @@ const schema = a
     allow.resource(processImport),
     allow.resource(fixImportedUsers),
     allow.resource(listCognitoUsers),
+    allow.resource(recordSiteVisit),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

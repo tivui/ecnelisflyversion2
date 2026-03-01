@@ -503,6 +503,14 @@
       "statusDistribution": "Distribución de estados",
       "topContributors": "Principales contribuidores",
       "topCities": "Ciudades más activas",
+      "visits": {
+        "sectionTitle": "Consultas del sitio",
+        "total": "Total visitas",
+        "today": "Hoy",
+        "week": "Esta semana",
+        "month": "Este mes",
+        "chartTitle": "Visitas en 30 días"
+      },
       "moderation": "Moderación",
       "pendingCount": "{{count}} sonido(s) pendiente(s)",
       "noPending": "No hay sonidos pendientes de validación",
@@ -527,7 +535,8 @@
         "oauthUsers": "Google OAuth",
         "registrationsOverTime": "Registros en 12 meses",
         "providerBreakdown": "Distribución por proveedor",
-        "error": "No se pueden cargar las estadísticas de Cognito"
+        "error": "No se pueden cargar las estadísticas de Cognito",
+        "retry": "Reintentar"
       },
       "details": "Detalles",
       "detailTitle": "Título",

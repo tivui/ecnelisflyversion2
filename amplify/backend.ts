@@ -19,6 +19,7 @@ import { processImport } from './functions/process-import/resource';
 import { fixImportedUsers } from './functions/fix-imported-users/resource';
 import { sendSoundConfirmationEmail } from './functions/send-sound-confirmation-email/resource';
 import { postConfirmationNotify } from './functions/post-confirmation-notify/resource';
+import { recordSiteVisit } from './functions/record-site-visit/resource';
 
 const backend = defineBackend({
   auth,
@@ -36,6 +37,7 @@ const backend = defineBackend({
   listCognitoUsers,
   sendSoundConfirmationEmail,
   postConfirmationNotify,
+  recordSiteVisit,
 });
 
 // ➡ Templates email Cognito (verification + reset password)
@@ -207,6 +209,22 @@ listCognitoUsersLambda.addToRolePolicy(
 listCognitoUsersLambda.addEnvironment(
   'USER_POOL_ID',
   backend.auth.resources.userPool.userPoolId,
+);
+
+// ➡ Permissions DynamoDB pour la Lambda record-site-visit
+const recordSiteVisitLambda = backend.recordSiteVisit.resources.lambda as LambdaFunction;
+const siteVisitTable = backend.data.resources.tables['SiteVisit'];
+
+recordSiteVisitLambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ['dynamodb:UpdateItem', 'dynamodb:GetItem'],
+    resources: [siteVisitTable.tableArn],
+  }),
+);
+
+recordSiteVisitLambda.addEnvironment(
+  'SITE_VISIT_TABLE_NAME',
+  siteVisitTable.tableName,
 );
 
 // ➡ Permissions SES pour la Lambda post-confirmation-notify (notification nouvelle inscription)
