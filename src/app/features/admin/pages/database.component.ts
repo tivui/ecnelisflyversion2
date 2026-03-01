@@ -20,6 +20,7 @@ export class DatabaseComponent {
     { route: 'sound-attribution', label: 'admin.database.soundAttribution' },
     { route: 'import-sounds', label: 'admin.database.importSounds' },
     { route: 'email-templates', label: 'admin.database.emailTemplates' },
+    { route: 'storage', label: 'admin.database.storage' },
   ]);
 
   trackTab = (tab: { route: string; label: string }) => tab.route;

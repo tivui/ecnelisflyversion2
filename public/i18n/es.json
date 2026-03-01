@@ -489,7 +489,8 @@
         "dashboard": "Panel de control"
       },
       "emailTemplates": "Plantillas de email",
-      "soundAttribution": "Atribucion de sonidos"
+      "soundAttribution": "Atribucion de sonidos",
+      "storage": "Almacenamiento S3"
     },
     "dashboard": {
       "title": "Panel de control",
@@ -1112,6 +1113,81 @@
       "saveError": "Error al guardar la plantilla",
       "customTemplate": "Plantilla personalizada",
       "defaultTemplate": "Plantilla por defecto"
+    },
+    "storage": {
+      "title": "Gestion del almacenamiento S3",
+      "subtitle": "Archivos de audio, estadisticas e integridad del almacenamiento",
+      "loadError": "Error al cargar los datos",
+      "tabs": {
+        "overview": "Vista general",
+        "explorer": "Explorador",
+        "integrity": "Integridad"
+      },
+      "kpi": {
+        "totalFiles": "Archivos totales",
+        "totalSize": "Tamano total",
+        "avgSize": "Tamano promedio",
+        "largestFile": "Archivo mas grande",
+        "monthlyCost": "Costo mensual estimado",
+        "orphans": "Archivos huerfanos",
+        "brokenRefs": "Referencias rotas"
+      },
+      "charts": {
+        "formatDistribution": "Distribucion por formato",
+        "sizeDistribution": "Distribucion de tamanos",
+        "categorySpace": "Espacio por categoria (MB)",
+        "uploadTimeline": "Uploads en 12 meses"
+      },
+      "search": "Buscar un archivo...",
+      "export": "Exportar CSV",
+      "filter": {
+        "all": "Todos",
+        "linked": "Vinculados",
+        "orphan": "Huerfano",
+        "small": "< 1 MB",
+        "medium": "1-10 MB",
+        "large": "> 10 MB"
+      },
+      "sort": {
+        "name": "Nombre",
+        "size": "Tamano",
+        "date": "Fecha"
+      },
+      "table": {
+        "filename": "Nombre del archivo",
+        "format": "Formato",
+        "size": "Tamano",
+        "date": "Fecha",
+        "linkedSound": "Sonido vinculado"
+      },
+      "actions": {
+        "play": "Escuchar",
+        "delete": "Eliminar",
+        "deleteTitle": "Eliminar archivo huerfano",
+        "deleteMessage": "Eliminar {{filename}} ({{size}}) del almacenamiento S3? Esta accion es irreversible.",
+        "deleteRefTitle": "Eliminar referencia rota",
+        "deleteRefMessage": "Eliminar la referencia al sonido \"{{title}}\" de la base de datos?"
+      },
+      "deleteSuccess": "Archivo eliminado con exito",
+      "deleteRefSuccess": "Referencia eliminada con exito",
+      "cleanAllSuccess": "{{count}} archivo(s) huerfano(s) eliminado(s)",
+      "noResults": "Sin resultados para estos filtros",
+      "empty": "No hay archivos en el almacenamiento",
+      "integrity": {
+        "allGood": "Todo en orden",
+        "allGoodDesc": "No se detectaron archivos huerfanos ni referencias rotas.",
+        "orphans": {
+          "title": "Archivos huerfanos",
+          "desc": "Archivos S3 sin entrada correspondiente en la base de datos",
+          "cleanAll": "Eliminar todos los huerfanos",
+          "cleanAllTitle": "Eliminar todos los archivos huerfanos",
+          "cleanAllMessage": "Eliminar {{count}} archivo(s) huerfano(s) ({{size}})? Esta accion es irreversible."
+        },
+        "brokenRefs": {
+          "title": "Referencias rotas",
+          "desc": "Entradas en la base de datos sin archivo S3 correspondiente"
+        }
+      }
     }
   },
   "mapfly": {

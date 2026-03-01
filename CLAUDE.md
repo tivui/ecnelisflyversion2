@@ -1262,7 +1262,47 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 4. Terroirs sonores (`zones`)
 5. Articles (`articles`)
 6. Attribution des sons (`sound-attribution`)
-7. Importer les sons (`import-sounds`) — en dernier intentionnellement
+7. Importer les sons (`import-sounds`)
+8. Templates email (`email-templates`)
+9. Stockage S3 (`storage`)
+
+## Gestion du stockage S3 (`features/admin/pages/storage-management/`)
+
+### Principe
+
+Page admin pour visualiser et gerer les fichiers audio sur S3. Cross-reference les fichiers S3 avec les enregistrements DynamoDB pour detecter les orphelins (S3 sans DynamoDB) et les references cassees (DynamoDB sans S3). **Aucune Lambda supplementaire** — utilise l'API Amplify Storage `list()` cote frontend.
+
+### Architecture — pas de Lambda
+
+`StorageService.listStorageSoundsWithMetadata()` appelle `list({ path: 'sounds/', options: { listAll: true } })` qui retourne `{ path, size, lastModified, eTag }` par objet S3. Le cross-referencing avec DynamoDB se fait cote client dans `StorageManagementService.loadAll()`.
+
+### Service (`storage-management.service.ts`)
+
+| Methode | Action |
+|---------|--------|
+| `loadAll()` | Charge S3 files + DynamoDB sounds en parallele, cross-ref par filename, calcule stats |
+| `deleteOrphan(filename)` | `storageService.deleteSound()` (reutilise Lambda existante) |
+| `deleteBrokenRef(soundId)` | `amplifyService.client.models.Sound.delete()` |
+
+### Interfaces
+
+- `StorageFileEntry` : fichier S3 enrichi avec info son lie (id, title, status, category, username)
+- `BrokenReference` : enregistrement DynamoDB sans fichier S3
+- `StorageStats` : totalFiles, totalSize, avgSize, largestFile, monthlyCostEstimate ($0.023/Go/mois), orphanCount, orphanSize, brokenRefCount, formatDistribution, sizeDistribution, categoryDistribution, uploadTimeline
+
+### Template — 3 onglets
+
+1. **Vue d'ensemble** : 7 KPI cards + 4 graphiques ngx-charts (format pie, taille bar, categorie pie, uploads timeline bar)
+2. **Explorateur** : search + filter chips (status, format, taille) + sort + mat-table (filename, format badge, taille, date, son lie, actions play/delete) + export CSV
+3. **Integrite** : section orphelins (liste + clean all) + section refs cassees (liste + delete) + etat OK si tout clean. Badge compteur sur l'onglet
+
+### Player audio global
+
+Le player audio (`<audio>`) est place au-dessus du `mat-tab-group` (pas dans un onglet specifique) pour etre visible et fonctionnel depuis l'onglet Explorer comme depuis l'onglet Integrite.
+
+### i18n
+
+Cles `admin.database.storage` (tab label) + `admin.storage.*` (title, subtitle, tabs, kpi, charts, search, export, filter, sort, table, actions, integrity) — FR/EN/ES.
 
 ## Dashboard admin (`features/admin/pages/admin-dashboard/`)
 

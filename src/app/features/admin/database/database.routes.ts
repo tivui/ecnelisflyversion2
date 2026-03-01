@@ -76,6 +76,13 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.EmailTemplatesComponent,
           ),
       },
+      {
+        path: 'storage',
+        loadComponent: () =>
+          import('../pages/storage-management/storage-management.component').then(
+            (m) => m.StorageManagementComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'featured-sound' },
     ],
   },

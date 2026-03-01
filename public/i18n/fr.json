@@ -495,7 +495,8 @@
         "dashboard": "Tableau de bord"
       },
       "emailTemplates": "Templates email",
-      "soundAttribution": "Attribution des sons"
+      "soundAttribution": "Attribution des sons",
+      "storage": "Stockage S3"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -1114,6 +1115,81 @@
       "saveError": "Erreur lors de l'enregistrement",
       "customTemplate": "Template personnalisé",
       "defaultTemplate": "Template par défaut"
+    },
+    "storage": {
+      "title": "Gestion du stockage S3",
+      "subtitle": "Fichiers audio, statistiques et intégrité du stockage",
+      "loadError": "Erreur lors du chargement des données",
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "explorer": "Explorateur",
+        "integrity": "Intégrité"
+      },
+      "kpi": {
+        "totalFiles": "Fichiers totaux",
+        "totalSize": "Taille totale",
+        "avgSize": "Taille moyenne",
+        "largestFile": "Plus gros fichier",
+        "monthlyCost": "Coût mensuel estimé",
+        "orphans": "Fichiers orphelins",
+        "brokenRefs": "Références cassées"
+      },
+      "charts": {
+        "formatDistribution": "Répartition par format",
+        "sizeDistribution": "Distribution des tailles",
+        "categorySpace": "Espace par catégorie (Mo)",
+        "uploadTimeline": "Uploads sur 12 mois"
+      },
+      "search": "Rechercher un fichier...",
+      "export": "Exporter CSV",
+      "filter": {
+        "all": "Tous",
+        "linked": "Liés",
+        "orphan": "Orphelin",
+        "small": "< 1 Mo",
+        "medium": "1-10 Mo",
+        "large": "> 10 Mo"
+      },
+      "sort": {
+        "name": "Nom",
+        "size": "Taille",
+        "date": "Date"
+      },
+      "table": {
+        "filename": "Nom du fichier",
+        "format": "Format",
+        "size": "Taille",
+        "date": "Date",
+        "linkedSound": "Son lié"
+      },
+      "actions": {
+        "play": "Écouter",
+        "delete": "Supprimer",
+        "deleteTitle": "Supprimer le fichier orphelin",
+        "deleteMessage": "Supprimer {{filename}} ({{size}}) du stockage S3 ? Cette action est irréversible.",
+        "deleteRefTitle": "Supprimer la référence cassée",
+        "deleteRefMessage": "Supprimer la référence au son \"{{title}}\" de la base de données ?"
+      },
+      "deleteSuccess": "Fichier supprimé avec succès",
+      "deleteRefSuccess": "Référence supprimée avec succès",
+      "cleanAllSuccess": "{{count}} fichier(s) orphelin(s) supprimé(s)",
+      "noResults": "Aucun résultat pour ces filtres",
+      "empty": "Aucun fichier dans le stockage",
+      "integrity": {
+        "allGood": "Tout est en ordre",
+        "allGoodDesc": "Aucun fichier orphelin ni référence cassée détecté.",
+        "orphans": {
+          "title": "Fichiers orphelins",
+          "desc": "Fichiers S3 sans entrée correspondante dans la base de données",
+          "cleanAll": "Supprimer tous les orphelins",
+          "cleanAllTitle": "Supprimer tous les fichiers orphelins",
+          "cleanAllMessage": "Supprimer {{count}} fichier(s) orphelin(s) ({{size}}) ? Cette action est irréversible."
+        },
+        "brokenRefs": {
+          "title": "Références cassées",
+          "desc": "Entrées en base de données sans fichier S3 correspondant"
+        }
+      }
     }
   },
   "mapfly": {

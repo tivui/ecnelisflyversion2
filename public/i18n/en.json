@@ -495,7 +495,8 @@
         "dashboard": "Dashboard"
       },
       "emailTemplates": "Email Templates",
-      "soundAttribution": "Sound Attribution"
+      "soundAttribution": "Sound Attribution",
+      "storage": "S3 Storage"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -1114,6 +1115,81 @@
       "saveError": "Error saving template",
       "customTemplate": "Custom template",
       "defaultTemplate": "Default template"
+    },
+    "storage": {
+      "title": "S3 Storage Management",
+      "subtitle": "Audio files, statistics and storage integrity",
+      "loadError": "Error loading data",
+      "tabs": {
+        "overview": "Overview",
+        "explorer": "Explorer",
+        "integrity": "Integrity"
+      },
+      "kpi": {
+        "totalFiles": "Total files",
+        "totalSize": "Total size",
+        "avgSize": "Average size",
+        "largestFile": "Largest file",
+        "monthlyCost": "Estimated monthly cost",
+        "orphans": "Orphan files",
+        "brokenRefs": "Broken references"
+      },
+      "charts": {
+        "formatDistribution": "Format distribution",
+        "sizeDistribution": "Size distribution",
+        "categorySpace": "Space by category (MB)",
+        "uploadTimeline": "Uploads over 12 months"
+      },
+      "search": "Search a file...",
+      "export": "Export CSV",
+      "filter": {
+        "all": "All",
+        "linked": "Linked",
+        "orphan": "Orphan",
+        "small": "< 1 MB",
+        "medium": "1-10 MB",
+        "large": "> 10 MB"
+      },
+      "sort": {
+        "name": "Name",
+        "size": "Size",
+        "date": "Date"
+      },
+      "table": {
+        "filename": "Filename",
+        "format": "Format",
+        "size": "Size",
+        "date": "Date",
+        "linkedSound": "Linked sound"
+      },
+      "actions": {
+        "play": "Play",
+        "delete": "Delete",
+        "deleteTitle": "Delete orphan file",
+        "deleteMessage": "Delete {{filename}} ({{size}}) from S3 storage? This action is irreversible.",
+        "deleteRefTitle": "Delete broken reference",
+        "deleteRefMessage": "Delete the reference to sound \"{{title}}\" from the database?"
+      },
+      "deleteSuccess": "File deleted successfully",
+      "deleteRefSuccess": "Reference deleted successfully",
+      "cleanAllSuccess": "{{count}} orphan file(s) deleted",
+      "noResults": "No results for these filters",
+      "empty": "No files in storage",
+      "integrity": {
+        "allGood": "All good",
+        "allGoodDesc": "No orphan files or broken references detected.",
+        "orphans": {
+          "title": "Orphan files",
+          "desc": "S3 files without a matching database entry",
+          "cleanAll": "Delete all orphans",
+          "cleanAllTitle": "Delete all orphan files",
+          "cleanAllMessage": "Delete {{count}} orphan file(s) ({{size}})? This action is irreversible."
+        },
+        "brokenRefs": {
+          "title": "Broken references",
+          "desc": "Database entries without a matching S3 file"
+        }
+      }
     }
   },
   "mapfly": {
