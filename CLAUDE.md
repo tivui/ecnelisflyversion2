@@ -1455,11 +1455,15 @@ Grille responsive de cards `app-card-category` (composant reutilisable de la hom
 - **Grands mobiles (390-700px)** : 1 colonne, gap 8px — layout horizontal (icone a gauche, titre a droite) via `::ng-deep` overrides depuis `categories-list.component.scss`
 - **Petits mobiles (< 390px)** : 2 colonnes grille, gap 12px — layout vertical compact (icone centree au-dessus, titre en dessous)
 
+**Click handler (`card-category.component`) :**
+- `(click)="onCardClick($event)"` sur `mat-card` (pas `mat-card-header`) — garantit que le tap fonctionne sur toute la surface de la card
+- Mobile : ouvre `SubcategorySheetComponent` (MatBottomSheet) — meme comportement que les chips de la home page
+- Desktop : navigue vers `/mapfly?category=xxx`, sauf si le clic est dans `mat-card-content` (champ recherche) — `target.closest('mat-card-content')` ignore ces clics
+
 **Card petit mobile (layout vertical, < 390px)** :
 - `flex-direction: column` — icone overlay centree au-dessus, titre centre en dessous
 - `white-space: normal` — texte sur plusieurs lignes si necessaire (evite troncature)
 - Overlay 36px, dot 6px, `font-size: 0.72rem`, `border-radius: 12px`
-- Tap → ouvre `SubcategorySheetComponent` (MatBottomSheet)
 - `mat-card-content` (champ recherche) masque en mobile (`display: none`)
 - Active feedback : `transform: scale(0.97)`
 

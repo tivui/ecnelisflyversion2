@@ -117,6 +117,22 @@ export class CardCategoryComponent implements OnInit, OnDestroy {
     this.subCategoryControl.setValue('', { emitEvent: false });
   }
 
+  onCardClick(event: MouseEvent) {
+    // On desktop, ignore clicks inside mat-card-content (search field area)
+    const target = event.target as HTMLElement;
+    if (!this.isMobilePortrait() && target.closest('mat-card-content')) {
+      return;
+    }
+
+    if (this.isMobilePortrait()) {
+      this.openSubcategorySheet();
+    } else {
+      this.router.navigate(['/mapfly'], {
+        queryParams: { category: this.category() },
+      });
+    }
+  }
+
   goToMapflyCategory() {
     if (this.isMobilePortrait()) {
       this.openSubcategorySheet();
