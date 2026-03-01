@@ -17,37 +17,69 @@
         <div class="tab-content">
           <form [formGroup]="infoForm" class="form-grid">
             <!-- Title -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ "sound.title" | translate }}</mat-label>
-              <input
-                matInput
-                formControlName="title"
-                [placeholder]="'sound.title-placeholder' | translate"
-                (blur)="translateField('title')"
-              />
-              <mat-icon matSuffix>title</mat-icon>
-              @if (translatingTitle()) {
-                <mat-spinner matSuffix diameter="20"></mat-spinner>
-              }
-              @if (infoForm.get('title')?.hasError('required')) {
-                <mat-error>{{ "sound.validation.title" | translate }}</mat-error>
-              }
-            </mat-form-field>
+            <div class="field-with-translate">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ "sound.title" | translate }}</mat-label>
+                <input
+                  matInput
+                  formControlName="title"
+                  [placeholder]="'sound.title-placeholder' | translate"
+                  (blur)="translateField('title')"
+                />
+                <mat-icon matSuffix>title</mat-icon>
+                @if (translatingTitle()) {
+                  <mat-spinner matSuffix diameter="20"></mat-spinner>
+                }
+                @if (infoForm.get('title')?.hasError('required')) {
+                  <mat-error>{{ "sound.validation.title" | translate }}</mat-error>
+                }
+              </mat-form-field>
+              <button
+                mat-mini-fab
+                color="accent"
+                type="button"
+                class="translate-btn"
+                [disabled]="infoForm.get('title')?.invalid || translatingTitle()"
+                (click)="openTranslationDialog('title')"
+                [matTooltip]="'common.action.translate' | translate">
+                @if (translatingTitle()) {
+                  <mat-icon class="spinning">sync</mat-icon>
+                } @else {
+                  <mat-icon>translate</mat-icon>
+                }
+              </button>
+            </div>
 
             <!-- Short Story -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ "sound.short-story" | translate }}</mat-label>
-              <textarea
-                matInput
-                formControlName="shortStory"
-                rows="3"
-                [placeholder]="'sound.short-story-placeholder' | translate"
-                (blur)="translateField('shortStory')"
-              ></textarea>
-              @if (translatingStory()) {
-                <mat-spinner matSuffix diameter="20"></mat-spinner>
-              }
-            </mat-form-field>
+            <div class="field-with-translate">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ "sound.short-story" | translate }}</mat-label>
+                <textarea
+                  matInput
+                  formControlName="shortStory"
+                  rows="3"
+                  [placeholder]="'sound.short-story-placeholder' | translate"
+                  (blur)="translateField('shortStory')"
+                ></textarea>
+                @if (translatingStory()) {
+                  <mat-spinner matSuffix diameter="20"></mat-spinner>
+                }
+              </mat-form-field>
+              <button
+                mat-mini-fab
+                color="accent"
+                type="button"
+                class="translate-btn"
+                [disabled]="translatingStory()"
+                (click)="openTranslationDialog('shortStory')"
+                [matTooltip]="'common.action.translate' | translate">
+                @if (translatingStory()) {
+                  <mat-icon class="spinning">sync</mat-icon>
+                } @else {
+                  <mat-icon>translate</mat-icon>
+                }
+              </button>
+            </div>
 
             <!-- Category -->
             <mat-form-field appearance="outline">

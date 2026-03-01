@@ -83,6 +83,7 @@ export class SoundDataInfoStepComponent implements OnInit {
   @Output() completed = new EventEmitter<{
     title_i18n: Record<string, string>;
     shortStory_i18n: Record<string, string>;
+    sourceLang?: string;
     category?: CategoryKey;
     secondaryCategory?: string;
     recordDateTime?: Date;
@@ -128,6 +129,10 @@ export class SoundDataInfoStepComponent implements OnInit {
 
   translatedTitle: Record<string, string> = { fr: '', en: '', es: '' };
   translatedStory: Record<string, string> = { fr: '', en: '', es: '' };
+
+  /** Detected source language for title/story (set by translateField or language detection) */
+  detectedTitleLang: string | null = null;
+  detectedStoryLang: string | null = null;
 
   private lastTranslatedSource: {
     title?: string;
@@ -257,9 +262,20 @@ export class SoundDataInfoStepComponent implements OnInit {
       return;
     }
 
-    const targets = ['fr', 'en', 'es'];
+    // Track detected source language
+    if (field === 'title') {
+      this.detectedTitleLang = sourceLanguage;
+    } else {
+      this.detectedStoryLang = sourceLanguage;
+    }
+
+    // Only translate to OTHER languages (skip source→source to preserve original text)
+    const targets = ['fr', 'en', 'es'].filter(lang => lang !== sourceLanguage);
     const translated =
       field === 'title' ? this.translatedTitle : this.translatedStory;
+
+    // Set source language slot directly from the original text (no API call needed)
+    translated[sourceLanguage] = text;
 
     if (field === 'title') {
       this.translatingTitle = true;
@@ -315,21 +331,34 @@ export class SoundDataInfoStepComponent implements OnInit {
   /* ================= EMIT ================= */
 
   private emitCompleted() {
-    // Synchroniser le titre/story brut dans la langue courante
-    // pour éviter que title_i18n soit vide si la traduction n'a pas encore été déclenchée
-    const currentLang = this.translate.currentLang || 'fr';
+    // Detect source language from raw text if not yet detected
     const rawTitle = this.form.get('title')?.value?.trim() || '';
-    if (rawTitle && !this.translatedTitle[currentLang]) {
-      this.translatedTitle[currentLang] = rawTitle;
-    }
     const rawStory = this.form.get('shortStory')?.value?.trim() || '';
-    if (rawStory && !this.translatedStory[currentLang]) {
-      this.translatedStory[currentLang] = rawStory;
+
+    // Auto-detect language from raw text (for the fallback slot)
+    if (rawTitle && !this.detectedTitleLang) {
+      this.detectedTitleLang = this.languageDetectionService.detect(rawTitle) || null;
+    }
+    if (rawStory && !this.detectedStoryLang) {
+      this.detectedStoryLang = this.languageDetectionService.detect(rawStory) || null;
+    }
+
+    // Use detected source language to sync raw text to the correct slot
+    // Falls back to UI language if detection failed
+    const titleLang = this.detectedTitleLang || this.translate.currentLang || 'fr';
+    if (rawTitle && !this.translatedTitle[titleLang]) {
+      this.translatedTitle[titleLang] = rawTitle;
+    }
+
+    const storyLang = this.detectedStoryLang || this.translate.currentLang || 'fr';
+    if (rawStory && !this.translatedStory[storyLang]) {
+      this.translatedStory[storyLang] = rawStory;
     }
 
     this.completed.emit({
       title_i18n: this.translatedTitle,
       shortStory_i18n: this.translatedStory,
+      sourceLang: this.detectedTitleLang || undefined,
       category: this.categoryControl.value?.key as CategoryKey | undefined,
       secondaryCategory: this.secondaryCategoryControl.value?.key,
       recordDateTime: this.form.value.recordDateTime ?? undefined,

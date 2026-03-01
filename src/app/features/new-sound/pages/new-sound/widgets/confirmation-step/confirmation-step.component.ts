@@ -30,6 +30,7 @@ export interface SoundData {
   } | null;
   title_i18n?: Record<string, string>;
   shortStory_i18n?: Record<string, string>;
+  sourceLang?: string;
   category?: string;
   secondaryCategory?: string;
   recordDateTime?: Date;
@@ -97,11 +98,15 @@ export class ConfirmationStepComponent implements OnChanges {
   }
 
   get displayTitle(): string {
-    return this.soundData?.title_i18n?.[this.currentLang] || '';
+    return this.soundData?.title_i18n?.[this.currentLang]
+      || this.getFirstNonEmptyTranslation(this.soundData?.title_i18n)
+      || '';
   }
 
   get displayShortStory(): string {
-    return this.soundData?.shortStory_i18n?.[this.currentLang] || '';
+    return this.soundData?.shortStory_i18n?.[this.currentLang]
+      || this.getFirstNonEmptyTranslation(this.soundData?.shortStory_i18n)
+      || '';
   }
 
   get displayCategory(): string {
@@ -149,7 +154,7 @@ export class ConfirmationStepComponent implements OnChanges {
     if (!this.soundData?.place || !this.soundData.place.lat || !this.soundData.place.lng || !this.soundData.place.name) {
       missing.push(this.translate.instant('sound.validation.location'));
     }
-    if (!this.soundData?.title_i18n || !this.soundData.title_i18n[this.currentLang]) {
+    if (!this.soundData?.title_i18n || !this.getFirstNonEmptyTranslation(this.soundData.title_i18n)) {
       missing.push(this.translate.instant('sound.validation.title'));
     }
     if (!this.soundData?.category) {
@@ -164,6 +169,15 @@ export class ConfirmationStepComponent implements OnChanges {
     const header = this.translate.instant('sound.confirmation-validation-error');
     const fieldsList = this.missingRequiredFields.map(field => `• ${field}`).join('\n');
     return `${header}\n\n${fieldsList}`;
+  }
+
+  /** Get first non-empty translation from i18n record */
+  private getFirstNonEmptyTranslation(i18n?: Record<string, string>): string | undefined {
+    if (!i18n) return undefined;
+    for (const lang of ['en', 'fr', 'es']) {
+      if (i18n[lang]?.trim()) return i18n[lang];
+    }
+    return undefined;
   }
 
   private capitalizeFirst(str: string): string {
@@ -193,13 +207,21 @@ export class ConfirmationStepComponent implements OnChanges {
 
       // Préparer les données pour DynamoDB
       // Si un admin a sélectionné un autre utilisateur, utiliser son ID
+      // Use source language for the default title/shortStory fields (fallback to UI lang)
+      const sourceLang = this.soundData.sourceLang || this.currentLang;
       const soundToCreate = {
         userId: this.soundData.linkedUserId || appUser.id,
-        title: this.soundData.title_i18n?.[this.currentLang] || '',
+        title: this.soundData.title_i18n?.[sourceLang]
+          || this.soundData.title_i18n?.[this.currentLang]
+          || this.getFirstNonEmptyTranslation(this.soundData.title_i18n)
+          || '',
         title_i18n: this.soundData.title_i18n
           ? JSON.stringify(this.soundData.title_i18n)
           : undefined,
-        shortStory: this.soundData.shortStory_i18n?.[this.currentLang] || undefined,
+        shortStory: this.soundData.shortStory_i18n?.[sourceLang]
+          || this.soundData.shortStory_i18n?.[this.currentLang]
+          || this.getFirstNonEmptyTranslation(this.soundData.shortStory_i18n)
+          || undefined,
         shortStory_i18n: this.soundData.shortStory_i18n
           ? JSON.stringify(this.soundData.shortStory_i18n)
           : undefined,
@@ -296,7 +318,7 @@ export class ConfirmationStepComponent implements OnChanges {
     }
 
     // Step 2: Infos son (title, category)
-    if (!this.soundData?.title_i18n || !this.soundData.title_i18n[this.currentLang] || !this.soundData?.category) {
+    if (!this.soundData?.title_i18n || !this.getFirstNonEmptyTranslation(this.soundData.title_i18n) || !this.soundData?.category) {
       indices.push(2);
     }
 
