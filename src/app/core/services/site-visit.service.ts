@@ -17,9 +17,15 @@ export class SiteVisitService {
   async recordVisit(): Promise<void> {
     if (sessionStorage.getItem('ecnelis_visit_recorded')) return;
     try {
-      await (this.amplifyService.client as any).mutations.recordSiteVisitMutation({
+      const result: any = await (this.amplifyService.client as any).mutations.recordSiteVisitMutation({
         authMode: 'apiKey',
       });
+
+      if (result?.errors?.length) {
+        console.error('[SiteVisit] recordVisit mutation errors:', result.errors);
+        return; // Don't set sessionStorage — retry on next load
+      }
+
       sessionStorage.setItem('ecnelis_visit_recorded', '1');
     } catch (e) {
       console.warn('[SiteVisit] recordVisit failed:', e);
@@ -37,6 +43,12 @@ export class SiteVisitService {
         nextToken,
         authMode: 'apiKey',
       });
+
+      if (result?.errors?.length) {
+        console.error('[SiteVisit] getVisitStats errors:', result.errors);
+        break;
+      }
+
       for (const item of result.data ?? []) {
         if (!item) continue;
         allVisits.push({ id: item.id, count: item.count ?? 0 });
