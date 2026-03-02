@@ -45,6 +45,9 @@ export class Sound {
   likesCount?: number;
   createdAt?: Date;
 
+  waveformPeaks?: number[][];
+  waveformDuration?: number;
+
   constructor(init?: Partial<Sound>) {
     Object.assign(this, init);
   }

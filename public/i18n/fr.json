@@ -257,6 +257,7 @@
       "status": "Statut",
       "location": "Lieu",
       "date": "Date",
+      "createdAt": "Ajouté le",
       "likes": "Likes",
       "actions": "Actions"
     },
@@ -507,7 +508,8 @@
       },
       "emailTemplates": "Templates email",
       "soundAttribution": "Attribution des sons",
-      "storage": "Stockage S3"
+      "storage": "Stockage S3",
+      "waveformPeaks": "Waveform"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -1204,6 +1206,21 @@
           "desc": "Entrées en base de données sans fichier S3 correspondant"
         }
       }
+    },
+    "waveformPeaks": {
+      "title": "Migration Waveform",
+      "subtitle": "Pré-calcul des peaks pour un affichage instantané de la waveform",
+      "scan": "Scanner les sons sans peaks",
+      "total": "Total",
+      "processed": "Traités",
+      "errors": "Erreurs",
+      "start": "Démarrer",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "stop": "Arrêter",
+      "complete": "Migration terminée !",
+      "noMissing": "Tous les sons ont déjà leurs peaks waveform.",
+      "errorLog": "Journal des erreurs"
     }
   },
   "mapfly": {

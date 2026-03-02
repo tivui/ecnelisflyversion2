@@ -83,6 +83,13 @@ export const DATABASE_ROUTES: Routes = [
             (m) => m.StorageManagementComponent,
           ),
       },
+      {
+        path: 'waveform-peaks',
+        loadComponent: () =>
+          import('../pages/waveform-migration/waveform-migration.component').then(
+            (m) => m.WaveformMigrationComponent,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'featured-sound' },
     ],
   },

@@ -44,7 +44,7 @@ Application web PWA d'exploration sonore geolocalisee. Decouvrez, ecoutez et par
 | Frontend | Angular 20 (standalone components, signals, TypeScript 5.9) |
 | UI | Angular Material |
 | Carte | Leaflet + MarkerCluster + MiniMap |
-| Audio | WaveSurfer.js v7 |
+| Audio | WaveSurfer.js v7 (pre-computed peaks pour rendu instantane) |
 | Backend | AWS Amplify Gen2 (AppSync GraphQL, DynamoDB) |
 | Auth | Amazon Cognito (email + Google OAuth) |
 | Storage | AWS S3 |
@@ -81,7 +81,7 @@ src/app/
     guide/          # Guide utilisateur
     legal/          # Mentions legales
   core/
-    services/       # Services metier (auth, sons, quiz, etc.)
+    services/       # Services metier (auth, sons, quiz, peak-extraction, etc.)
     models/         # Modeles TypeScript et queries GraphQL
     pages/          # Pages systeme (login, 404)
   shared/

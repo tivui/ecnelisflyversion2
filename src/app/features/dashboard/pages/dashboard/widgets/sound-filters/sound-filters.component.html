@@ -98,7 +98,6 @@
             [formControl]="filterForm.controls.secondaryCategory"
             [matAutocomplete]="subCategoryAuto"
             (input)="filterSecondaryCategories($any($event.target).value)"
-            [disabled]="!filterForm.controls.category.value"
           />
           <mat-autocomplete
             #subCategoryAuto="matAutocomplete"
@@ -170,13 +169,13 @@
       }
       @if (filterForm.controls.category.value) {
         <mat-chip (removed)="removeCategoryFilter()">
-          {{ filterForm.controls.category.value.label }}
+          {{ displayFn(filterForm.controls.category.value) }}
           <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
       }
       @if (filterForm.controls.secondaryCategory.value) {
         <mat-chip (removed)="removeSecondaryFilter()">
-          {{ filterForm.controls.secondaryCategory.value.label }}
+          {{ displayFn(filterForm.controls.secondaryCategory.value) }}
           <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
       }

@@ -104,6 +104,10 @@ export function sortSounds(sounds: Sound[], sort: SoundSort, currentLang: string
         valueA = a.recordDateTime?.getTime() || 0;
         valueB = b.recordDateTime?.getTime() || 0;
         break;
+      case 'createdAt':
+        valueA = a.createdAt?.getTime() || 0;
+        valueB = b.createdAt?.getTime() || 0;
+        break;
       case 'user':
         valueA = a.user?.username || '';
         valueB = b.user?.username || '';

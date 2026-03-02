@@ -122,6 +122,9 @@ const schema = a
         hashtags: a.string(),
         shortHashtags: a.string(),
 
+        waveformPeaks: a.string(),
+        waveformDuration: a.float(),
+
         zoneSounds: a.hasMany('ZoneSound', 'soundId'),
         featuredSoundCandidates: a.hasMany('FeaturedSoundCandidate', 'soundId'),
         dailyFeaturedSounds: a.hasMany('DailyFeaturedSound', 'soundId'),

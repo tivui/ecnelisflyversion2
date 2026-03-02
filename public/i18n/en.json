@@ -257,6 +257,7 @@
       "status": "Status",
       "location": "Location",
       "date": "Date",
+      "createdAt": "Added on",
       "likes": "Likes",
       "actions": "Actions"
     },
@@ -507,7 +508,8 @@
       },
       "emailTemplates": "Email Templates",
       "soundAttribution": "Sound Attribution",
-      "storage": "S3 Storage"
+      "storage": "S3 Storage",
+      "waveformPeaks": "Waveform"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -1204,6 +1206,21 @@
           "desc": "Database entries without a matching S3 file"
         }
       }
+    },
+    "waveformPeaks": {
+      "title": "Waveform Migration",
+      "subtitle": "Pre-compute peaks for instant waveform rendering",
+      "scan": "Scan sounds without peaks",
+      "total": "Total",
+      "processed": "Processed",
+      "errors": "Errors",
+      "start": "Start",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "complete": "Migration complete!",
+      "noMissing": "All sounds already have their waveform peaks.",
+      "errorLog": "Error log"
     }
   },
   "mapfly": {

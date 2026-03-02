@@ -1,0 +1,127 @@
+<div class="migration-container">
+  <mat-card class="migration-card">
+    <mat-card-header>
+      <mat-icon class="header-icon">graphic_eq</mat-icon>
+      <mat-card-title>{{ 'admin.waveformPeaks.title' | translate }}</mat-card-title>
+      <mat-card-subtitle>{{ 'admin.waveformPeaks.subtitle' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Scan / Status section -->
+      @if (!scanComplete() && !isRunning()) {
+        <div class="scan-section">
+          <button mat-raised-button color="primary" (click)="scan()" [disabled]="isScanning()">
+            <mat-icon>search</mat-icon>
+            {{ 'admin.waveformPeaks.scan' | translate }}
+          </button>
+          @if (isScanning()) {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }
+        </div>
+      }
+
+      <!-- No missing peaks -->
+      @if (scanComplete() && totalSounds() === 0 && !isRunning()) {
+        <div class="no-missing">
+          <mat-icon class="check-icon">check_circle</mat-icon>
+          <span>{{ 'admin.waveformPeaks.noMissing' | translate }}</span>
+        </div>
+      }
+
+      <!-- Ready to migrate -->
+      @if (scanComplete() && totalSounds() > 0) {
+        <!-- Progress info -->
+        <div class="progress-section">
+          <div class="progress-stats">
+            <span class="stat">
+              <mat-icon>pending</mat-icon>
+              {{ 'admin.waveformPeaks.total' | translate }}: {{ totalSounds() }}
+            </span>
+            <span class="stat success">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'admin.waveformPeaks.processed' | translate }}: {{ processedCount() }}
+            </span>
+            @if (errorCount() > 0) {
+              <span class="stat error">
+                <mat-icon>error</mat-icon>
+                {{ 'admin.waveformPeaks.errors' | translate }}: {{ errorCount() }}
+              </span>
+            }
+          </div>
+
+          <mat-progress-bar
+            [mode]="isRunning() && !isPaused() ? 'determinate' : 'determinate'"
+            [value]="progressPercent">
+          </mat-progress-bar>
+
+          <div class="progress-label">{{ progressPercent }}%</div>
+        </div>
+
+        @if (isRunning() && currentFilename()) {
+          <div class="current-file">
+            <mat-icon>music_note</mat-icon>
+            <span class="filename">{{ currentFilename() }}</span>
+          </div>
+        }
+
+        <!-- Action buttons -->
+        <div class="actions">
+          @if (!isRunning()) {
+            <button mat-raised-button color="primary" (click)="start()">
+              <mat-icon>play_arrow</mat-icon>
+              {{ 'admin.waveformPeaks.start' | translate }}
+            </button>
+          }
+
+          @if (isRunning() && !isPaused()) {
+            <button mat-raised-button color="accent" (click)="pause()">
+              <mat-icon>pause</mat-icon>
+              {{ 'admin.waveformPeaks.pause' | translate }}
+            </button>
+          }
+
+          @if (isRunning() && isPaused()) {
+            <button mat-raised-button color="primary" (click)="resume()">
+              <mat-icon>play_arrow</mat-icon>
+              {{ 'admin.waveformPeaks.resume' | translate }}
+            </button>
+          }
+
+          @if (isRunning()) {
+            <button mat-raised-button color="warn" (click)="stop()">
+              <mat-icon>stop</mat-icon>
+              {{ 'admin.waveformPeaks.stop' | translate }}
+            </button>
+          }
+        </div>
+
+        <!-- Complete message -->
+        @if (!isRunning() && processedCount() > 0 && progressPercent === 100) {
+          <div class="complete-message">
+            <mat-icon>celebration</mat-icon>
+            <span>{{ 'admin.waveformPeaks.complete' | translate }}</span>
+          </div>
+        }
+      }
+
+      <!-- Error log -->
+      @if (errors().length > 0) {
+        <div class="error-log">
+          <h3>
+            <mat-icon>warning</mat-icon>
+            {{ 'admin.waveformPeaks.errorLog' | translate }}
+          </h3>
+          <mat-list>
+            @for (err of errors(); track err.filename) {
+              <mat-list-item>
+                <mat-icon matListItemIcon class="error-icon">error_outline</mat-icon>
+                <span matListItemTitle>{{ err.filename }}</span>
+                <span matListItemLine>{{ err.error }}</span>
+              </mat-list-item>
+            }
+          </mat-list>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

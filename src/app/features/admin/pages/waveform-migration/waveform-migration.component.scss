@@ -1,0 +1,187 @@
+.migration-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.migration-card {
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .header-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: #1976d2;
+    }
+  }
+}
+
+.scan-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.no-missing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+  color: #2e7d32;
+
+  .check-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  span {
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+}
+
+.progress-section {
+  margin-bottom: 16px;
+
+  .progress-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &.success {
+        color: #2e7d32;
+      }
+      &.error {
+        color: #c62828;
+      }
+    }
+  }
+
+  .progress-label {
+    text-align: right;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    color: #666;
+  }
+}
+
+.current-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: rgba(25, 118, 210, 0.06);
+  border-radius: 8px;
+  font-size: 0.85rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #1976d2;
+  }
+
+  .filename {
+    word-break: break-all;
+    color: #333;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.complete-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(46, 125, 50, 0.08);
+  border-radius: 8px;
+  color: #2e7d32;
+  font-weight: 500;
+  margin-top: 16px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.error-log {
+  margin-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 16px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c62828;
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+  }
+
+  .error-icon {
+    color: #c62828;
+  }
+}
+
+// Dark theme
+:host-context(body.dark-theme) {
+  .migration-card .header-icon {
+    color: #90caf9;
+  }
+
+  .no-missing {
+    color: #66bb6a;
+  }
+
+  .progress-section {
+    .stat.success { color: #66bb6a; }
+    .stat.error { color: #ef5350; }
+    .progress-label { color: #aaa; }
+  }
+
+  .current-file {
+    background: rgba(144, 202, 249, 0.08);
+
+    mat-icon { color: #90caf9; }
+    .filename { color: #ccc; }
+  }
+
+  .complete-message {
+    background: rgba(102, 187, 106, 0.1);
+    color: #66bb6a;
+  }
+
+  .error-log {
+    border-top-color: rgba(255, 255, 255, 0.08);
+
+    h3 { color: #ef5350; }
+    .error-icon { color: #ef5350; }
+  }
+}

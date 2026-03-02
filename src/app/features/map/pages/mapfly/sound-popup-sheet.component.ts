@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
+import { AmplifyService } from '../../../../core/services/amplify.service';
 import L from 'leaflet';
 
 export interface SoundPopupSheetData {
@@ -35,6 +36,8 @@ export interface SoundPopupSheetData {
     latitude?: number;
     longitude?: number;
     license?: string;
+    category?: string;
+    secondaryCategory?: string;
   };
   audioUrl: string;
   mimeType: string;
@@ -52,6 +55,13 @@ export interface SoundPopupSheetData {
 
   // Marker color (for selection circle)
   markerColor?: string;
+
+  // Sound ID for on-demand peaks loading (normal sounds)
+  soundId?: string;
+
+  // Pre-computed waveform peaks for instant rendering (featured/journey — already fetched via Sound.get())
+  waveformPeaks?: number[][];
+  waveformDuration?: number;
 
   // Current map zoom level (for radar visibility)
   mapZoom?: number;
@@ -229,6 +239,14 @@ export interface SoundPopupSheetData {
           <p class="sheet-record-info" [innerHTML]="recordInfoHtml()"></p>
         }
 
+        <!-- Secondary category chip -->
+        @if (secondaryCategoryLabel()) {
+          <a class="sheet-subcategory-chip" [style.--chip-color]="chipColor()" (click)="navigateToCategory($event)">
+            <img [src]="subcategoryIconSrc()" class="subcategory-chip-icon" alt="" />
+            <span>{{ secondaryCategoryLabel() }}</span>
+          </a>
+        }
+
         <!-- License badge -->
         @if (data.sound.license) {
           <span class="sheet-license-badge" (click)="toggleLicenseTooltip()">
@@ -257,6 +275,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private el = inject(ElementRef);
   private storageService = inject(StorageService);
   private headphoneReminder = inject(HeadphoneReminderService);
+  private amplifyService = inject(AmplifyService);
 
   @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
   private playerInstance: WaveSurferPlayerInstance | null = null;
@@ -286,6 +305,28 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private radarMap: L.Map | null = null;
   currentZoom = signal(this.data.mapZoom ?? 17);
   showRadar = computed(() => this.currentZoom() >= 5);
+
+  // Secondary category chip
+  private readonly categoryColors: Record<string, string> = {
+    ambiancefly: '#3AE27A', animalfly: '#FF54F9', foodfly: '#E8A849',
+    humanfly: '#FFC1F7', itemfly: '#888888', musicfly: '#D60101',
+    naturalfly: '#39AFF7', sportfly: '#A24C06', transportfly: '#E8D000',
+  };
+
+  secondaryCategoryLabel = computed(() => {
+    const { category, secondaryCategory } = this.data.sound;
+    if (!category || !secondaryCategory) return '';
+    const key = `categories.${category}.${secondaryCategory}`;
+    const t = this.translateService.instant(key);
+    return t !== key ? t : '';
+  });
+
+  chipColor = computed(() => this.categoryColors[this.data.sound.category ?? ''] ?? '#1976d2');
+
+  subcategoryIconSrc = computed(() => {
+    const sc = this.data.sound.secondaryCategory ?? '';
+    return `img/markers/marker_${sc.slice(0, -3)}.png`;
+  });
 
   likeIcon = computed(() =>
     this.isLiked()
@@ -331,12 +372,35 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     });
   });
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     const isDark = document.body.classList.contains('dark-theme');
+
+    // For normal sounds, peaks are not in the list query (AppSync 1MB limit).
+    // Fetch on-demand. Featured/journey already have peaks from their own Sound.get().
+    let peaks = this.data.waveformPeaks;
+    let duration = this.data.waveformDuration;
+
+    if (!peaks && this.data.soundId && this.data.type === 'normal') {
+      try {
+        const peakResult: any = await this.amplifyService.client.models.Sound.get(
+          { id: this.data.soundId },
+          { selectionSet: ['waveformPeaks', 'waveformDuration'] } as any,
+        );
+        if (peakResult.data?.waveformPeaks) {
+          peaks = JSON.parse(peakResult.data.waveformPeaks);
+          duration = peakResult.data.waveformDuration ?? undefined;
+        }
+      } catch {
+        // Fallback: WaveSurfer will decode natively
+      }
+    }
+
     this.playerInstance = createWaveSurferPlayer({
       container: this.waveformContainer.nativeElement,
       audioUrl: this.data.audioUrl,
       isDarkTheme: isDark,
+      peaks,
+      duration,
       mediaMetadata: {
         title: this.data.sound.title ?? 'Ecnelis FLY',
         artist: this.data.sound.city ?? undefined,
@@ -439,6 +503,16 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     if (!this.data.sound.userId) return;
     const tree = this.router.createUrlTree(['/mapfly'], {
       queryParams: { userId: this.data.sound.userId },
+    });
+    window.location.href = window.location.origin + this.router.serializeUrl(tree);
+  }
+
+  navigateToCategory(event: Event) {
+    event.preventDefault();
+    const { category, secondaryCategory } = this.data.sound;
+    if (!category || !secondaryCategory) return;
+    const tree = this.router.createUrlTree(['/mapfly'], {
+      queryParams: { category, secondaryCategory },
     });
     window.location.href = window.location.origin + this.router.serializeUrl(tree);
   }

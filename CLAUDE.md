@@ -29,7 +29,7 @@ Si OOM en local : `NODE_OPTIONS=--max-old-space-size=4096 npx ng build` (TypeScr
 - **Angular 20** : standalone components (defaut depuis Angular 19), signals (`signal()`, `computed()`, `toSignal()`), TypeScript 5.9
 - **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth, Lambda Node.js 22)
 - **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
-- **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
+- **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip, pre-computed peaks pour rendu instantane)
 - **i18n** : @ngx-translate (FR/EN/ES, fichiers JSON dans public/i18n/)
 - **Versioning** : `APP_VERSION` importe depuis `src/environments/version.ts` (lit `package.json`)
 - **UI** : Angular Material (MatDialog, MatBottomSheet, MatIcon)
@@ -908,6 +908,73 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 
 5 barres animees (`ws-eq-bounce`, stagger 0.12s) aux couleurs accent du player (`#1976d2` light / `#90caf9` dark). S'affichent immediatement a l'ouverture du popup/sheet, disparaissent en fade-out (0.35s) quand wavesurfer emet `ready`. Element retire du DOM apres 400ms.
 
+#### Pre-computed waveform peaks (rendu instantane)
+
+WaveSurfer telecharge et decode l'integralite du fichier audio (~1-50 MB) pour dessiner la waveform, causant 2-10s de chargement skeleton. Les peaks pre-calcules (~1-8 KB par son stockes en DynamoDB) permettent un rendu instantane (<200ms) puis le chargement paresseux de l'audio pour la lecture.
+
+**Aucun impact sur la qualite audio** — les peaks ne servent qu'a dessiner la courbe visuelle. Le fichier audio original reste intact sur S3.
+
+**Schema backend** (`amplify/data/resource.ts`) :
+- `waveformPeaks: a.string()` — JSON : `"[[ch0_peaks], [ch1_peaks]]"` (~1-8 KB)
+- `waveformDuration: a.float()` — duree en secondes
+
+**Modele frontend** (`sound.model.ts`) : `waveformPeaks?: number[][]`, `waveformDuration?: number`
+
+**Service d'extraction** (`peak-extraction.service.ts`) :
+- `extractPeaksFromFile(file, maxLength?)` et `extractPeaksFromArrayBuffer(arrayBuffer, maxLength?)`
+- Reproduit exactement l'algorithme `exportPeaks()` de WaveSurfer v7 :
+  - Decodage a **8000 Hz** (`new AudioContext({ sampleRate: 8000 })`) — meme defaut que WaveSurfer
+  - **Canaux separes** (pas de fusion mono) : `[[ch0], [ch1]]` pour stereo, `[[ch0]]` pour mono
+  - **1 valeur par bucket** : sample avec la plus grande magnitude absolue, conservant son signe (`if (Math.abs(n) > Math.abs(max)) max = n`)
+  - **Precision 10000** (4 decimales) : `Math.round(max * 10000) / 10000`
+  - **Limites de bucket** : `[Math.floor(j * sampleSize), Math.ceil((j + 1) * sampleSize))`
+  - Defaut 800 buckets par canal
+
+**Integration player** (`wavesurfer-player.service.ts`) :
+- `WaveSurferPlayerConfig` : `peaks?: number[][]`, `duration?: number`
+- Passe a `WaveSurfer.create()` : `peaks: config.peaks, duration: config.duration`
+- Si peaks fourni : affiche la duree immediatement dans `timeTotal`
+- Fallback transparent : si peaks absent → comportement actuel (download + decode)
+
+**Flux d'upload** (`sound-upload-step.component.ts`) :
+- Apres validation du fichier dans `processFile()`, appelle `extractPeaksFromFile(file)` en async
+- `@Output() peaksExtracted` transmet les peaks au parent `new-sound.component.ts`
+- `confirmation-step.component.ts` serialise : `waveformPeaks: JSON.stringify(peaks)`
+
+**Callers (mapfly)** :
+- Sons normaux : `soundsService.map()` parse le JSON → `s.waveformPeaks` est `number[][]`
+- Sons featured/journey : raw GraphQL (`any`) → parse JSON inline
+- 6 points de modification dans `mapfly.component.ts` (3 desktop popups + 3 mobile sheetData)
+- SelectionSets featured et journey : ajout de `'waveformPeaks'` et `'waveformDuration'`
+
+**Queries GraphQL** (`amplify-queries.model.ts`) :
+- `waveformPeaks` et `waveformDuration` ajoutes dans `ListSoundsForMapWithAppUser` et `ListSoundsByZoneWithUser`
+
+**Compatibilite arriere** : si `waveformPeaks` est `undefined` (ancien son sans migration), le player tombe sur le comportement actuel (download + decode complet). Le fallback Chromium WAV 32-bit continue de fonctionner.
+
+**Pieges connus** :
+- Le sample rate de decodage (8000 Hz) doit correspondre au defaut WaveSurfer — sinon le filtre anti-aliasing du navigateur produit des cretes differentes
+- Les canaux stereo ne doivent PAS etre fusionnes en mono (WaveSurfer rend canal 0 en haut, canal 1 en bas → asymetrie naturelle)
+- Le format est 1 valeur/bucket (pas de paires entrelacees max/min)
+
+**TODO mise a l'echelle** : `waveformPeaks` est inclus dans `ListSoundsForMapWithAppUser` (requete de chargement carte). A ~550 sons × ~8 KB = ~4.4 MB, c'est acceptable. Si le nombre de sons depasse ~2000+, retirer `waveformPeaks` du selectionSet de la requete liste et le charger uniquement a l'ouverture du popup/sheet via `Sound.get()` (requete unitaire).
+
+#### Outil de migration waveform admin (`features/admin/pages/waveform-migration/`)
+
+Composant standalone admin pour generer les peaks des sons existants.
+
+**Fonctionnement** :
+1. Scan : pagine tous les sons sans `waveformPeaks` en DynamoDB
+2. Pour chaque son sequentiellement : fetch audio S3 → `extractPeaksFromArrayBuffer()` → `Sound.update()`
+3. Boutons Start / Pause / Resume / Stop
+4. Progress bar + journal d'erreurs
+
+**Signals** : `totalSounds`, `processedCount`, `errorCount`, `skippedCount`, `currentFilename`, `isRunning`, `isPaused`, `isScanning`, `scanComplete`, `errors[]`
+
+**Route** : `/admin/database/waveform-peaks` (tab "Waveform" dans database admin)
+
+**i18n** : cles `admin.waveformPeaks.*` (title, subtitle, scan, total, processed, errors, start, pause, resume, stop, complete, noMissing, errorLog) — FR/EN/ES
+
 #### Fallback Chromium WAV 32-bit float
 
 Les navigateurs Chromium (Chrome, Edge, Opera, Brave) ne peuvent pas lire les fichiers WAV 32-bit float via `<audio>`, mais `AudioContext.decodeAudioData()` reussit (la waveform s'affiche normalement).
@@ -958,6 +1025,18 @@ Container stylise dans `map.scss` (desktop uniquement, absent du bottom sheet mo
 - Methode `wireReadMore(storyId, btnId)` dans `mapfly.component.ts` : cable le toggle Lire plus/moins
 - Appelee dans les 3 callbacks `popupopen` (normal, featured, journey)
 - i18n : `mapfly.popup.readMore` / `mapfly.popup.readLess` (FR/EN/ES)
+
+#### Chip sous-categorie (popup desktop + bottom sheet mobile)
+
+Lien cliquable vers la carte filtree par sous-categorie, place entre le record-info et le badge licence. Present dans les 3 types de popup (normal, featured, journey) et le bottom sheet mobile.
+
+- **Contenu** : icone marker de la sous-categorie (`marker_{catTronquee}.png`) + label i18n traduit (`categories.{category}.{secondaryCategory}`)
+- **Couleur dynamique** : CSS `color-mix()` via `--chip-color` (couleur de la categorie parente). Fond teinte 10%/14% (light/dark), bordure 18%/22%, texte mixe
+- **Clic** : `window.location.href` vers `/mapfly?category={cat}&secondaryCategory={subCat}` (full reload, meme pattern que le lien username)
+- **Conditionnel** : n'apparait que si `secondaryCategory` existe et que la traduction i18n est trouvee
+- **Desktop** : methode `secondaryCategoryChipHtml(category, secondaryCategory)` genere le HTML (`<a class="popup-subcategory-chip">`)
+- **Mobile** : template Angular avec computed signals `secondaryCategoryLabel()`, `chipColor()`, `subcategoryIconSrc()` et methode `navigateToCategory()`
+- **Styles** : `.popup-subcategory-chip` dans `map.scss`, `.sheet-subcategory-chip` dans `sound-popup-sheet.component.scss`
 
 #### Anti-clustering popup (piege connu)
 
@@ -1202,7 +1281,7 @@ La query GraphQL `ListSoundsForMapWithAppUser` inclut le champ `status` pour que
 
 ### Redirect post-upload
 
-Toujours vers `/mapfly` avec coordonnees, quel que soit le statut. Snackbar informatif si `public_to_be_approved`.
+Toujours vers `/mapfly` avec coordonnees + `soundFilename`, quel que soit le statut. Le parametre `soundFilename` declenche l'auto-ouverture de la popup (desktop) ou bottom sheet (mobile) du son nouvellement cree, via `markersCluster.zoomToShowLayer()` (meme pattern que `selectSearchResult`). Snackbar informatif si `public_to_be_approved`.
 
 ## Dashboard utilisateur (`features/dashboard/`)
 
@@ -1217,6 +1296,19 @@ Le header (titre + boutons "Ma carte" / "+ Ajouter un son") reste au-dessus des 
 ### Dark mode (piege connu)
 
 Le `mat-slide-toggle` admin ("Voir tous les sons") necessite `::ng-deep .mdc-label` pour styler le texte du label en dark mode — Angular Material encapsule le label dans un element interne que le selecteur `.admin-toggle { color }` seul ne peut pas atteindre. Selecteur : `:host-context(body.dark-theme)` (pas `.dark-theme` seul).
+
+### Filtres sons — pieges connus (`sound-filters.component`)
+
+**mat-autocomplete et valeurs string (piege connu)** : les champs categorie et sous-categorie utilisent `mat-autocomplete` avec des objets `CategoryOption { key, label }`. Quand le panneau se ferme (blur), Angular Material peut ecraser l'objet par le texte brut (string). Le code gere les deux types :
+- `displayFn()` retourne le string tel quel si ce n'est pas un objet
+- `extractCategoryKey()` / `extractSecondaryKey()` cherchent la cle correspondante par label si la valeur est un string
+- Les chips actifs utilisent `displayFn()` au lieu de `.value.label`
+
+**FormControl disabled et formGroup.value** : `formGroup.value` exclut les controles disabled. Le champ sous-categorie demarre disabled (`ngOnInit`) et est enable/disable programmatiquement dans le `category.valueChanges`. `emitFilters()` lit les valeurs via `controls.xxx.value` (pas `formGroup.value`) pour eviter l'exclusion.
+
+### Colonnes du tableau sons (`sound-list.component`)
+
+Colonnes : `title`, `category`, `status`, `city`, `date` (recordDateTime), `createdAt` (date d'ajout DynamoDB), `likes`, `actions`. Plus `user` si `showUserColumn` (admin). Toutes triables via `mat-sort-header`.
 
 ### Stats visuelles (`dashboard-stats` widget)
 
@@ -1265,6 +1357,7 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 7. Importer les sons (`import-sounds`)
 8. Templates email (`email-templates`)
 9. Stockage S3 (`storage`)
+10. Waveform peaks (`waveform-peaks`)
 
 ## Gestion du stockage S3 (`features/admin/pages/storage-management/`)
 
@@ -2063,6 +2156,41 @@ Section en bas de l'article avec 2-3 articles recommandes :
 | `articles.list.noResults` | Aucun article correspondant | No matching articles | Ningun articulo coincide |
 | `articles.detail.continueReading` | Continuer la lecture | Continue reading | Seguir leyendo |
 | `admin.articles.settings.calculatedTime` | Calcule automatiquement : {{count}} min | Auto-calculated: {{count}} min | Calculado automaticamente: {{count}} min |
+
+## TODO scalabilite (audit mars 2026 — ~550 sons)
+
+Points de vigilance si la volumetrie augmente. Seuils indicatifs.
+
+**Prochain goulot d'etranglement** : le payload AppSync de `listSoundsForMap` (~1.2 KB/son moyen, limite 1 MB). Marge actuelle ~380 KB → **seuil critique ~850 sons**. Le champ `shortStory_i18n` (histoire trilingue) est le plus lourd et le plus variable. Solution a moyen terme : retirer `shortStory`/`shortStory_i18n`/`title_i18n` du selectionSet liste et les charger on-demand au popup (meme pattern que `waveformPeaks`).
+
+### Critique (>2000 sons)
+
+| Composant | Fichier | Pattern | Solution |
+|-----------|---------|---------|----------|
+| Lambda `list-sounds-for-map` | `amplify/functions/list-sounds-for-map/handler.ts` | `while(nextToken)` pagine TOUS les sons publics (limit 100). 10K sons = ~100 appels par ouverture de carte | Index GSI geographique ou pagination limite avec viewport |
+| `getCommunityStats()` | `sounds.service.ts` | Pagine tous les sons publics + Sets de deduplication. Appele a chaque home load (cache 5min) | Compteur denormalise (Lambda schedule → record `SiteStats`) |
+| Lambda `list-sounds-by-zone` | `amplify/functions/list-sounds-by-zone/handler.ts` | N+1 : pagine ZoneSounds puis `Sound.get()` unitaire par son. Zone 500 sons = 501 appels | `BatchGetItem` DynamoDB |
+| `user-management.service` | `admin/services/user-management.service.ts` | Boucle imbriquee : pagine users × pagine sons par user. O(n×m) | Denormaliser `soundCount` sur le modele `User` |
+| `sound-attribution` | `admin/pages/sound-attribution/` | Collecte IDs puis `Sound.update()` sequentiel. 200 sons = 201 round-trips | Lambda batch mutation |
+| **Payload AppSync `listSoundsForMap`** | `list-sounds-for-map/handler.ts` | Reponse unique contenant TOUS les sons. ~1.2 KB/son moyen (shortStory_i18n est le champ le plus lourd). **550 sons ≈ 660 KB, limite AppSync = 1 MB → seuil critique ~850 sons.** | Pagination cote client (Lambda retourne par pages), ou selectionSet allege pour la carte (retirer shortStory/i18n de la liste, charger au popup) |
+| ~~`waveformPeaks` dans query liste~~ | ~~`amplify-queries.model.ts`~~ | ~~RESOLU mars 2026~~ : peaks retires du selectionSet liste, charges on-demand par `Sound.get()` a l'ouverture popup/sheet | ~~Fait~~ |
+
+### Haut (>5000 sons)
+
+| Composant | Fichier | Pattern | Solution |
+|-----------|---------|---------|----------|
+| Admin dashboard | `admin-dashboard.component.ts` | `loadAllSounds()` + 5 `computed()` filtres/tris | Pre-calculer KPIs dans Lambda schedule → modele `AdminStats` |
+| Storage management | `storage.service.ts` | `list({ listAll: true })` charge toute la liste S3 | Paginer avec continuation tokens |
+| Quota service | `quota.service.ts` | Pagine les sons du user a chaque verification d'upload | Cache par session, invalider a l'upload |
+| Dashboard stats | `dashboard-stats.component.ts` | 5 `computed()` O(n) chacun sur le meme tableau | Reduire en un seul pass ou pre-calculer |
+
+### Moyen (>10K sons ou croissance temporelle)
+
+| Composant | Pattern | Solution |
+|-----------|---------|----------|
+| Site visits | Pagine tout l'historique quotidien (~365/an) | Agreger par mois apres 90 jours |
+| Lambdas pick-monthly | Pagine l'historique des elements mis en valeur (~12/an) | Acceptable long terme |
+| Mapfly time filter + markers | `removeLayer/addLayer` sur markersCluster, 10K markers lent | Filtrage cote serveur |
 
 ## Fichiers temporaires a ignorer
 

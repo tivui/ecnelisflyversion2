@@ -869,8 +869,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
               secondaryUrl: s.secondaryUrl, secondaryUrlTitle: s.secondaryUrlTitle,
               likesCount: s.likesCount, userId: s.userId, user: s.user,
               latitude: s.latitude, longitude: s.longitude, license: s.license,
+              category: s.category, secondaryCategory: s.secondaryCategory,
             },
             audioUrl: url, mimeType,
+            soundId: s.id,
             markerColor: this.categoryColors[category] || '#1976d2',
             mapZoom: this.map.getZoom(),
             onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, 17),
@@ -899,6 +901,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+            ${s.secondaryCategory && s.category ? this.secondaryCategoryChipHtml(s.category, s.secondaryCategory) : ''}
             ${s.license ? this.licenseBadgeHtml(s.license) : ''}
             <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
@@ -1194,12 +1197,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           const wsContainer = document.getElementById(`ws-player-${s.filename}`);
           if (wsContainer) {
             this.activePopupPlayer?.destroy();
-            requestAnimationFrame(() => {
+            requestAnimationFrame(async () => {
               const isDark = document.body.classList.contains('dark-theme');
+              // Fetch peaks on-demand (not included in list query to avoid payload overflow)
+              let peaks: number[][] | undefined;
+              let duration: number | undefined;
+              try {
+                const peakResult: any = await this.amplifyService.client.models.Sound.get(
+                  { id: s.id! },
+                  { selectionSet: ['waveformPeaks', 'waveformDuration'] },
+                );
+                if (peakResult.data?.waveformPeaks) {
+                  peaks = JSON.parse(peakResult.data.waveformPeaks);
+                  duration = peakResult.data.waveformDuration ?? undefined;
+                }
+              } catch { /* fallback: WaveSurfer decodes natively */ }
               this.activePopupPlayer = createWaveSurferPlayer({
                 container: wsContainer,
                 audioUrl: url,
                 isDarkTheme: isDark,
+                peaks,
+                duration,
                 mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
                 onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
                 onPause: () => this.ambientAudio?.unduck?.(),
@@ -1309,6 +1327,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
         ignoreLocation: true,
         distance: 1000,
       });
+      // --- Auto-open popup/sheet if soundFilename is provided (e.g., post-upload redirect) ---
+      if (soundFilename && !featuredMode && this.markerLookup[soundFilename]) {
+        const targetMarker = this.markerLookup[soundFilename];
+        // Small delay to let the map settle after marker clustering
+        setTimeout(() => {
+          this.markersCluster.zoomToShowLayer(targetMarker, () => {
+            if (this.isMobilePortrait) {
+              const sheetData = (targetMarker as any).__soundSheetData;
+              if (sheetData) this.openSoundSheet(sheetData);
+            } else {
+              targetMarker.openPopup();
+            }
+          });
+        }, 500);
+      }
     } finally {
       this.isLoading.set(false);
     }
@@ -1489,6 +1522,14 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const tooltip = this.licenseTooltip(license);
     const tooltipSpan = tooltip ? `<span class="license-tooltip">${tooltip}</span>` : '';
     return `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${label}${tooltipSpan}</span>`;
+  }
+
+  /** Génère le chip cliquable de sous-catégorie (navigue vers la carte filtrée) */
+  private secondaryCategoryChipHtml(category: string, secondaryCategory: string): string {
+    const label = this.translate.instant(`categories.${category}.${secondaryCategory}`);
+    const iconName = secondaryCategory.slice(0, -3); // dogfly → dog
+    const color = this.categoryColors[category] ?? '#1976d2';
+    return `<a class="popup-subcategory-chip" href="/mapfly?category=${encodeURIComponent(category)}&secondaryCategory=${encodeURIComponent(secondaryCategory)}" style="--chip-color: ${color}"><img src="img/markers/marker_${iconName}.png" class="subcategory-chip-icon" alt="" /><span>${label}</span></a>`;
   }
 
   private parseI18n(field?: string | Record<string, string>) {
@@ -2246,6 +2287,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
               'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
               'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
               'user.username', 'user.country',
+              'waveformPeaks', 'waveformDuration',
             ],
           },
         );
@@ -2294,6 +2336,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
         latitude: lat, longitude: lng, license: s?.license,
       },
       audioUrl: url, mimeType,
+      waveformPeaks: s?.waveformPeaks ? JSON.parse(s.waveformPeaks) : undefined,
+      waveformDuration: s?.waveformDuration,
       featuredLabel, displayTeasing, soundTeasingI18n: soundTeasingI18n ?? undefined,
       markerColor: '#7c4dff',
       mapZoom: this.map.getZoom(),
@@ -2321,6 +2365,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        ${s?.secondaryCategory && s?.category ? this.secondaryCategoryChipHtml(s.category, s.secondaryCategory) : ''}
         ${s?.license ? this.licenseBadgeHtml(s.license) : ''}
         <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
@@ -2501,6 +2546,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
             container: wsContainer,
             audioUrl: url,
             isDarkTheme: isDark,
+            peaks: s?.waveformPeaks ? JSON.parse(s.waveformPeaks) : undefined,
+            duration: s?.waveformDuration,
             mediaMetadata: { title: soundTitle ?? 'Ecnelis FLY', artist: soundCity ?? undefined },
             onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
             onPause: () => this.ambientAudio?.unduck?.(),
@@ -2684,6 +2731,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
                 'filename', 'city', 'latitude', 'longitude', 'category', 'secondaryCategory',
                 'url', 'urlTitle', 'secondaryUrl', 'secondaryUrlTitle',
                 'user.username', 'user.country',
+                'waveformPeaks', 'waveformDuration',
               ],
             },
           );
@@ -2788,6 +2836,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
         latitude: sound.latitude, longitude: sound.longitude, license: sound.license,
       },
       audioUrl: url, mimeType,
+      waveformPeaks: sound.waveformPeaks ? JSON.parse(sound.waveformPeaks) : undefined,
+      waveformDuration: sound.waveformDuration,
       stepIndex, totalSteps: this.totalJourneySteps(), journeyColor: color, themeText,
       markerColor: color,
       mapZoom: this.map.getZoom(),
@@ -2817,6 +2867,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
+        ${sound.secondaryCategory && sound.category ? this.secondaryCategoryChipHtml(sound.category, sound.secondaryCategory) : ''}
         ${sound.license ? this.licenseBadgeHtml(sound.license) : ''}
         <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
@@ -2952,6 +3003,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
             container: wsContainer,
             audioUrl: url,
             isDarkTheme: isDark,
+            peaks: sound.waveformPeaks ? JSON.parse(sound.waveformPeaks) : undefined,
+            duration: sound.waveformDuration,
             mediaMetadata: { title: sound.title ?? 'Ecnelis FLY', artist: sound.city ?? undefined },
             onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
             onPause: () => this.ambientAudio?.unduck?.(),

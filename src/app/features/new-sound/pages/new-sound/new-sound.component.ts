@@ -69,6 +69,9 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly soundPath = signal<string | null>(null);
   readonly confirmed = signal(false);
 
+  readonly waveformPeaks = signal<number[][] | null>(null);
+  readonly waveformDuration = signal<number | null>(null);
+
   readonly selectedPlace = signal<PlaceSelection | null>(null);
 
   readonly highlightedSteps = signal<number[]>([]);
@@ -234,6 +237,11 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  onPeaksExtracted(data: { peaks: number[][]; duration: number }) {
+    this.waveformPeaks.set(data.peaks);
+    this.waveformDuration.set(data.duration);
+  }
+
   onSoundUploaded(path: string) {
     // Si un fichier précédent existe (re-upload), supprimer l'ancien
     const previousPath = this.soundPath();
@@ -282,6 +290,8 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
       ...this.soundInfoData,
       ...this.soundMetaData,
       sourceLang: this.sourceLang,
+      waveformPeaks: this.waveformPeaks(),
+      waveformDuration: this.waveformDuration(),
     };
   }
 
