@@ -1026,6 +1026,18 @@ Container stylise dans `map.scss` (desktop uniquement, absent du bottom sheet mo
 - Appelee dans les 3 callbacks `popupopen` (normal, featured, journey)
 - i18n : `mapfly.popup.readMore` / `mapfly.popup.readLess` (FR/EN/ES)
 
+#### Chip sous-categorie (popup desktop + bottom sheet mobile)
+
+Lien cliquable vers la carte filtree par sous-categorie, place entre le record-info et le badge licence. Present dans les 3 types de popup (normal, featured, journey) et le bottom sheet mobile.
+
+- **Contenu** : icone marker de la sous-categorie (`marker_{catTronquee}.png`) + label i18n traduit (`categories.{category}.{secondaryCategory}`)
+- **Couleur dynamique** : CSS `color-mix()` via `--chip-color` (couleur de la categorie parente). Fond teinte 10%/14% (light/dark), bordure 18%/22%, texte mixe
+- **Clic** : `window.location.href` vers `/mapfly?category={cat}&secondaryCategory={subCat}` (full reload, meme pattern que le lien username)
+- **Conditionnel** : n'apparait que si `secondaryCategory` existe et que la traduction i18n est trouvee
+- **Desktop** : methode `secondaryCategoryChipHtml(category, secondaryCategory)` genere le HTML (`<a class="popup-subcategory-chip">`)
+- **Mobile** : template Angular avec computed signals `secondaryCategoryLabel()`, `chipColor()`, `subcategoryIconSrc()` et methode `navigateToCategory()`
+- **Styles** : `.popup-subcategory-chip` dans `map.scss`, `.sheet-subcategory-chip` dans `sound-popup-sheet.component.scss`
+
 #### Anti-clustering popup (piege connu)
 
 Quand un marker passe dans un cluster pendant que sa popup est ouverte, Leaflet ferme la popup.

@@ -36,6 +36,8 @@ export interface SoundPopupSheetData {
     latitude?: number;
     longitude?: number;
     license?: string;
+    category?: string;
+    secondaryCategory?: string;
   };
   audioUrl: string;
   mimeType: string;
@@ -237,6 +239,14 @@ export interface SoundPopupSheetData {
           <p class="sheet-record-info" [innerHTML]="recordInfoHtml()"></p>
         }
 
+        <!-- Secondary category chip -->
+        @if (secondaryCategoryLabel()) {
+          <a class="sheet-subcategory-chip" [style.--chip-color]="chipColor()" (click)="navigateToCategory($event)">
+            <img [src]="subcategoryIconSrc()" class="subcategory-chip-icon" alt="" />
+            <span>{{ secondaryCategoryLabel() }}</span>
+          </a>
+        }
+
         <!-- License badge -->
         @if (data.sound.license) {
           <span class="sheet-license-badge" (click)="toggleLicenseTooltip()">
@@ -295,6 +305,28 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private radarMap: L.Map | null = null;
   currentZoom = signal(this.data.mapZoom ?? 17);
   showRadar = computed(() => this.currentZoom() >= 5);
+
+  // Secondary category chip
+  private readonly categoryColors: Record<string, string> = {
+    ambiancefly: '#3AE27A', animalfly: '#FF54F9', foodfly: '#E8A849',
+    humanfly: '#FFC1F7', itemfly: '#888888', musicfly: '#D60101',
+    naturalfly: '#39AFF7', sportfly: '#A24C06', transportfly: '#E8D000',
+  };
+
+  secondaryCategoryLabel = computed(() => {
+    const { category, secondaryCategory } = this.data.sound;
+    if (!category || !secondaryCategory) return '';
+    const key = `categories.${category}.${secondaryCategory}`;
+    const t = this.translateService.instant(key);
+    return t !== key ? t : '';
+  });
+
+  chipColor = computed(() => this.categoryColors[this.data.sound.category ?? ''] ?? '#1976d2');
+
+  subcategoryIconSrc = computed(() => {
+    const sc = this.data.sound.secondaryCategory ?? '';
+    return `img/markers/marker_${sc.slice(0, -3)}.png`;
+  });
 
   likeIcon = computed(() =>
     this.isLiked()
@@ -471,6 +503,16 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     if (!this.data.sound.userId) return;
     const tree = this.router.createUrlTree(['/mapfly'], {
       queryParams: { userId: this.data.sound.userId },
+    });
+    window.location.href = window.location.origin + this.router.serializeUrl(tree);
+  }
+
+  navigateToCategory(event: Event) {
+    event.preventDefault();
+    const { category, secondaryCategory } = this.data.sound;
+    if (!category || !secondaryCategory) return;
+    const tree = this.router.createUrlTree(['/mapfly'], {
+      queryParams: { category, secondaryCategory },
     });
     window.location.href = window.location.origin + this.router.serializeUrl(tree);
   }
