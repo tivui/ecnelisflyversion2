@@ -271,53 +271,12 @@
     }
   }
 
-  // Secondary category chip — clickable link to filtered map
-  .popup-subcategory-chip {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    width: fit-content;
-    margin: 6px auto 4px;
-    padding: 4px 10px 4px 6px;
-    border-radius: 12px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.15s;
-    background: color-mix(in srgb, var(--chip-color) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--chip-color) 18%, transparent);
-    color: color-mix(in srgb, var(--chip-color) 80%, #333);
-
-    .subcategory-chip-icon {
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-    }
-
-    &:hover {
-      background: color-mix(in srgb, var(--chip-color) 18%, transparent);
-      transform: translateY(-1px);
-    }
-
-    body.dark-theme & {
-      background: color-mix(in srgb, var(--chip-color) 14%, transparent);
-      border-color: color-mix(in srgb, var(--chip-color) 22%, transparent);
-      color: color-mix(in srgb, var(--chip-color) 60%, #ddd);
-
-      &:hover {
-        background: color-mix(in srgb, var(--chip-color) 22%, transparent);
-      }
-    }
-  }
-
   .popup-license-badge {
     display: flex;
     align-items: center;
     justify-content: center;
     width: fit-content;
-    margin: 4px auto 12px;
+    margin: 4px auto 8px;
     font-size: 0.7rem;
     font-weight: 600;
     padding: 3px 8px;

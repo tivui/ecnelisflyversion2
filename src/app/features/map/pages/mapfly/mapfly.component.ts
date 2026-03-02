@@ -901,7 +901,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
             <div id="btn-container-shortStory-${s.filename}"></div>
             <div id="links-${s.filename}" class="popup-links"></div>
             <p id="record-info-${s.filename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-            ${s.secondaryCategory && s.category ? this.secondaryCategoryChipHtml(s.category, s.secondaryCategory) : ''}
             ${s.license ? this.licenseBadgeHtml(s.license) : ''}
             <div class="ws-popup-player" id="ws-player-${s.filename}"></div>
             <div id="btn-container-${s.filename}" class="popup-btn-group">
@@ -1522,14 +1521,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const tooltip = this.licenseTooltip(license);
     const tooltipSpan = tooltip ? `<span class="license-tooltip">${tooltip}</span>` : '';
     return `<span class="popup-license-badge"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:3px;">copyright</span>${label}${tooltipSpan}</span>`;
-  }
-
-  /** Génère le chip cliquable de sous-catégorie (navigue vers la carte filtrée) */
-  private secondaryCategoryChipHtml(category: string, secondaryCategory: string): string {
-    const label = this.translate.instant(`categories.${category}.${secondaryCategory}`);
-    const iconName = secondaryCategory.slice(0, -3); // dogfly → dog
-    const color = this.categoryColors[category] ?? '#1976d2';
-    return `<a class="popup-subcategory-chip" href="/mapfly?category=${encodeURIComponent(category)}&secondaryCategory=${encodeURIComponent(secondaryCategory)}" style="--chip-color: ${color}"><img src="img/markers/marker_${iconName}.png" class="subcategory-chip-icon" alt="" /><span>${label}</span></a>`;
   }
 
   private parseI18n(field?: string | Record<string, string>) {
@@ -2365,7 +2356,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="btn-container-shortStory-${soundFilename}"></div>
         <div id="links-${soundFilename}" class="popup-links"></div>
         <p id="record-info-${soundFilename}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${s?.secondaryCategory && s?.category ? this.secondaryCategoryChipHtml(s.category, s.secondaryCategory) : ''}
         ${s?.license ? this.licenseBadgeHtml(s.license) : ''}
         <div class="ws-popup-player" id="ws-player-featured-${soundFilename}"></div>
         <div id="btn-container-${soundFilename}" class="popup-btn-group">
@@ -2867,7 +2857,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
         <div id="journey-translate-container-${stepIndex}"></div>
         <div id="journey-links-${stepIndex}" class="popup-links"></div>
         <p id="journey-record-info-${stepIndex}" class="popup-record-info" style="font-style: italic; font-size: 0.9em; margin-top: 6px;"></p>
-        ${sound.secondaryCategory && sound.category ? this.secondaryCategoryChipHtml(sound.category, sound.secondaryCategory) : ''}
         ${sound.license ? this.licenseBadgeHtml(sound.license) : ''}
         <div class="ws-popup-player" id="ws-player-journey-${stepIndex}"></div>
         <div class="journey-nav-buttons">
