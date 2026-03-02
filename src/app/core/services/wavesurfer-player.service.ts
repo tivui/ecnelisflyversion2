@@ -335,8 +335,8 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
       chromeFallbackApplied = true;
       (async () => {
         try {
-          // Re-fetch from browser cache + decode at native sample rate
-          const response = await fetch(audioUrl);
+          // Re-fetch from browser cache + decode at native sample rate (bypass service worker)
+          const response = await fetch(audioUrl, { headers: { 'ngsw-bypass': 'true' } });
           const arrayBuffer = await response.arrayBuffer();
           const audioCtx = new AudioContext();
           const fullQualityBuffer = await audioCtx.decodeAudioData(arrayBuffer);

@@ -111,8 +111,8 @@ export class WaveformMigrationComponent implements OnDestroy {
           // Get presigned S3 URL
           const url = await this.storageService.getSoundUrl(filename);
 
-          // Fetch the audio file
-          const response = await fetch(url);
+          // Fetch the audio file (bypass Angular service worker to avoid interception errors on large files)
+          const response = await fetch(url, { headers: { 'ngsw-bypass': 'true' } });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
