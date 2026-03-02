@@ -1327,6 +1327,21 @@ export class MapflyComponent implements OnInit, OnDestroy {
         ignoreLocation: true,
         distance: 1000,
       });
+      // --- Auto-open popup/sheet if soundFilename is provided (e.g., post-upload redirect) ---
+      if (soundFilename && !featuredMode && this.markerLookup[soundFilename]) {
+        const targetMarker = this.markerLookup[soundFilename];
+        // Small delay to let the map settle after marker clustering
+        setTimeout(() => {
+          this.markersCluster.zoomToShowLayer(targetMarker, () => {
+            if (this.isMobilePortrait) {
+              const sheetData = (targetMarker as any).__soundSheetData;
+              if (sheetData) this.openSoundSheet(sheetData);
+            } else {
+              targetMarker.openPopup();
+            }
+          });
+        }, 500);
+      }
     } finally {
       this.isLoading.set(false);
     }

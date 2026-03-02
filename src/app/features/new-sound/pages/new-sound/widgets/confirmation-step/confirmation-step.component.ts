@@ -262,6 +262,7 @@ export class ConfirmationStepComponent implements OnChanges {
 
       // Rediriger après l'animation — toujours vers la carte
       const finalStatus = soundToCreate.status;
+      const soundFilename = soundToCreate.filename;
       setTimeout(() => {
         this.router.navigate(['/mapfly'], {
           queryParams: {
@@ -269,6 +270,7 @@ export class ConfirmationStepComponent implements OnChanges {
             [MAP_QUERY_KEYS.lng]: this.soundData.place?.lng?.toFixed(4),
             [MAP_QUERY_KEYS.zoom]: 16,
             [MAP_QUERY_KEYS.basemap]: 'mapbox',
+            soundFilename,
           },
         });
         if (finalStatus === 'public_to_be_approved') {

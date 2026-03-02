@@ -1281,7 +1281,7 @@ La query GraphQL `ListSoundsForMapWithAppUser` inclut le champ `status` pour que
 
 ### Redirect post-upload
 
-Toujours vers `/mapfly` avec coordonnees, quel que soit le statut. Snackbar informatif si `public_to_be_approved`.
+Toujours vers `/mapfly` avec coordonnees + `soundFilename`, quel que soit le statut. Le parametre `soundFilename` declenche l'auto-ouverture de la popup (desktop) ou bottom sheet (mobile) du son nouvellement cree, via `markersCluster.zoomToShowLayer()` (meme pattern que `selectSearchResult`). Snackbar informatif si `public_to_be_approved`.
 
 ## Dashboard utilisateur (`features/dashboard/`)
 
