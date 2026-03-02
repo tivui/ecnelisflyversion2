@@ -957,6 +957,8 @@ WaveSurfer telecharge et decode l'integralite du fichier audio (~1-50 MB) pour d
 - Les canaux stereo ne doivent PAS etre fusionnes en mono (WaveSurfer rend canal 0 en haut, canal 1 en bas → asymetrie naturelle)
 - Le format est 1 valeur/bucket (pas de paires entrelacees max/min)
 
+**TODO mise a l'echelle** : `waveformPeaks` est inclus dans `ListSoundsForMapWithAppUser` (requete de chargement carte). A ~550 sons × ~8 KB = ~4.4 MB, c'est acceptable. Si le nombre de sons depasse ~2000+, retirer `waveformPeaks` du selectionSet de la requete liste et le charger uniquement a l'ouverture du popup/sheet via `Sound.get()` (requete unitaire).
+
 #### Outil de migration waveform admin (`features/admin/pages/waveform-migration/`)
 
 Composant standalone admin pour generer les peaks des sons existants.
@@ -2129,6 +2131,38 @@ Section en bas de l'article avec 2-3 articles recommandes :
 | `articles.list.noResults` | Aucun article correspondant | No matching articles | Ningun articulo coincide |
 | `articles.detail.continueReading` | Continuer la lecture | Continue reading | Seguir leyendo |
 | `admin.articles.settings.calculatedTime` | Calcule automatiquement : {{count}} min | Auto-calculated: {{count}} min | Calculado automaticamente: {{count}} min |
+
+## TODO scalabilite (audit mars 2026 — ~550 sons)
+
+Points de vigilance si la volumetrie augmente. Seuils indicatifs.
+
+### Critique (>2000 sons)
+
+| Composant | Fichier | Pattern | Solution |
+|-----------|---------|---------|----------|
+| Lambda `list-sounds-for-map` | `amplify/functions/list-sounds-for-map/handler.ts` | `while(nextToken)` pagine TOUS les sons publics (limit 100). 10K sons = ~100 appels par ouverture de carte | Index GSI geographique ou pagination limite avec viewport |
+| `getCommunityStats()` | `sounds.service.ts` | Pagine tous les sons publics + Sets de deduplication. Appele a chaque home load (cache 5min) | Compteur denormalise (Lambda schedule → record `SiteStats`) |
+| Lambda `list-sounds-by-zone` | `amplify/functions/list-sounds-by-zone/handler.ts` | N+1 : pagine ZoneSounds puis `Sound.get()` unitaire par son. Zone 500 sons = 501 appels | `BatchGetItem` DynamoDB |
+| `user-management.service` | `admin/services/user-management.service.ts` | Boucle imbriquee : pagine users × pagine sons par user. O(n×m) | Denormaliser `soundCount` sur le modele `User` |
+| `sound-attribution` | `admin/pages/sound-attribution/` | Collecte IDs puis `Sound.update()` sequentiel. 200 sons = 201 round-trips | Lambda batch mutation |
+| `waveformPeaks` dans query liste | `amplify-queries.model.ts` | ~8 KB × N sons charges pour la carte. 2000 sons = 16 MB | Retirer du selectionSet liste, charger par `Sound.get()` a l'ouverture popup |
+
+### Haut (>5000 sons)
+
+| Composant | Fichier | Pattern | Solution |
+|-----------|---------|---------|----------|
+| Admin dashboard | `admin-dashboard.component.ts` | `loadAllSounds()` + 5 `computed()` filtres/tris | Pre-calculer KPIs dans Lambda schedule → modele `AdminStats` |
+| Storage management | `storage.service.ts` | `list({ listAll: true })` charge toute la liste S3 | Paginer avec continuation tokens |
+| Quota service | `quota.service.ts` | Pagine les sons du user a chaque verification d'upload | Cache par session, invalider a l'upload |
+| Dashboard stats | `dashboard-stats.component.ts` | 5 `computed()` O(n) chacun sur le meme tableau | Reduire en un seul pass ou pre-calculer |
+
+### Moyen (>10K sons ou croissance temporelle)
+
+| Composant | Pattern | Solution |
+|-----------|---------|----------|
+| Site visits | Pagine tout l'historique quotidien (~365/an) | Agreger par mois apres 90 jours |
+| Lambdas pick-monthly | Pagine l'historique des elements mis en valeur (~12/an) | Acceptable long terme |
+| Mapfly time filter + markers | `removeLayer/addLayer` sur markersCluster, 10K markers lent | Filtrage cote serveur |
 
 ## Fichiers temporaires a ignorer
 
