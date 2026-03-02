@@ -29,7 +29,7 @@ Si OOM en local : `NODE_OPTIONS=--max-old-space-size=4096 npx ng build` (TypeScr
 - **Angular 20** : standalone components (defaut depuis Angular 19), signals (`signal()`, `computed()`, `toSignal()`), TypeScript 5.9
 - **Backend** : AWS Amplify Gen2 (GraphQL API, S3 storage, Cognito auth, Lambda Node.js 22)
 - **Carte** : Leaflet + leaflet.markercluster + leaflet-search + leaflet-minimap
-- **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip)
+- **Audio** : wavesurfer.js v7 (waveform player custom, ~30 kB gzip, pre-computed peaks pour rendu instantane)
 - **i18n** : @ngx-translate (FR/EN/ES, fichiers JSON dans public/i18n/)
 - **Versioning** : `APP_VERSION` importe depuis `src/environments/version.ts` (lit `package.json`)
 - **UI** : Angular Material (MatDialog, MatBottomSheet, MatIcon)
@@ -908,6 +908,71 @@ Remplace le `<audio controls>` HTML5 natif par un player custom avec waveform cl
 
 5 barres animees (`ws-eq-bounce`, stagger 0.12s) aux couleurs accent du player (`#1976d2` light / `#90caf9` dark). S'affichent immediatement a l'ouverture du popup/sheet, disparaissent en fade-out (0.35s) quand wavesurfer emet `ready`. Element retire du DOM apres 400ms.
 
+#### Pre-computed waveform peaks (rendu instantane)
+
+WaveSurfer telecharge et decode l'integralite du fichier audio (~1-50 MB) pour dessiner la waveform, causant 2-10s de chargement skeleton. Les peaks pre-calcules (~1-8 KB par son stockes en DynamoDB) permettent un rendu instantane (<200ms) puis le chargement paresseux de l'audio pour la lecture.
+
+**Aucun impact sur la qualite audio** — les peaks ne servent qu'a dessiner la courbe visuelle. Le fichier audio original reste intact sur S3.
+
+**Schema backend** (`amplify/data/resource.ts`) :
+- `waveformPeaks: a.string()` — JSON : `"[[ch0_peaks], [ch1_peaks]]"` (~1-8 KB)
+- `waveformDuration: a.float()` — duree en secondes
+
+**Modele frontend** (`sound.model.ts`) : `waveformPeaks?: number[][]`, `waveformDuration?: number`
+
+**Service d'extraction** (`peak-extraction.service.ts`) :
+- `extractPeaksFromFile(file, maxLength?)` et `extractPeaksFromArrayBuffer(arrayBuffer, maxLength?)`
+- Reproduit exactement l'algorithme `exportPeaks()` de WaveSurfer v7 :
+  - Decodage a **8000 Hz** (`new AudioContext({ sampleRate: 8000 })`) — meme defaut que WaveSurfer
+  - **Canaux separes** (pas de fusion mono) : `[[ch0], [ch1]]` pour stereo, `[[ch0]]` pour mono
+  - **1 valeur par bucket** : sample avec la plus grande magnitude absolue, conservant son signe (`if (Math.abs(n) > Math.abs(max)) max = n`)
+  - **Precision 10000** (4 decimales) : `Math.round(max * 10000) / 10000`
+  - **Limites de bucket** : `[Math.floor(j * sampleSize), Math.ceil((j + 1) * sampleSize))`
+  - Defaut 800 buckets par canal
+
+**Integration player** (`wavesurfer-player.service.ts`) :
+- `WaveSurferPlayerConfig` : `peaks?: number[][]`, `duration?: number`
+- Passe a `WaveSurfer.create()` : `peaks: config.peaks, duration: config.duration`
+- Si peaks fourni : affiche la duree immediatement dans `timeTotal`
+- Fallback transparent : si peaks absent → comportement actuel (download + decode)
+
+**Flux d'upload** (`sound-upload-step.component.ts`) :
+- Apres validation du fichier dans `processFile()`, appelle `extractPeaksFromFile(file)` en async
+- `@Output() peaksExtracted` transmet les peaks au parent `new-sound.component.ts`
+- `confirmation-step.component.ts` serialise : `waveformPeaks: JSON.stringify(peaks)`
+
+**Callers (mapfly)** :
+- Sons normaux : `soundsService.map()` parse le JSON → `s.waveformPeaks` est `number[][]`
+- Sons featured/journey : raw GraphQL (`any`) → parse JSON inline
+- 6 points de modification dans `mapfly.component.ts` (3 desktop popups + 3 mobile sheetData)
+- SelectionSets featured et journey : ajout de `'waveformPeaks'` et `'waveformDuration'`
+
+**Queries GraphQL** (`amplify-queries.model.ts`) :
+- `waveformPeaks` et `waveformDuration` ajoutes dans `ListSoundsForMapWithAppUser` et `ListSoundsByZoneWithUser`
+
+**Compatibilite arriere** : si `waveformPeaks` est `undefined` (ancien son sans migration), le player tombe sur le comportement actuel (download + decode complet). Le fallback Chromium WAV 32-bit continue de fonctionner.
+
+**Pieges connus** :
+- Le sample rate de decodage (8000 Hz) doit correspondre au defaut WaveSurfer — sinon le filtre anti-aliasing du navigateur produit des cretes differentes
+- Les canaux stereo ne doivent PAS etre fusionnes en mono (WaveSurfer rend canal 0 en haut, canal 1 en bas → asymetrie naturelle)
+- Le format est 1 valeur/bucket (pas de paires entrelacees max/min)
+
+#### Outil de migration waveform admin (`features/admin/pages/waveform-migration/`)
+
+Composant standalone admin pour generer les peaks des sons existants.
+
+**Fonctionnement** :
+1. Scan : pagine tous les sons sans `waveformPeaks` en DynamoDB
+2. Pour chaque son sequentiellement : fetch audio S3 → `extractPeaksFromArrayBuffer()` → `Sound.update()`
+3. Boutons Start / Pause / Resume / Stop
+4. Progress bar + journal d'erreurs
+
+**Signals** : `totalSounds`, `processedCount`, `errorCount`, `skippedCount`, `currentFilename`, `isRunning`, `isPaused`, `isScanning`, `scanComplete`, `errors[]`
+
+**Route** : `/admin/database/waveform-peaks` (tab "Waveform" dans database admin)
+
+**i18n** : cles `admin.waveformPeaks.*` (title, subtitle, scan, total, processed, errors, start, pause, resume, stop, complete, noMissing, errorLog) — FR/EN/ES
+
 #### Fallback Chromium WAV 32-bit float
 
 Les navigateurs Chromium (Chrome, Edge, Opera, Brave) ne peuvent pas lire les fichiers WAV 32-bit float via `<audio>`, mais `AudioContext.decodeAudioData()` reussit (la waveform s'affiche normalement).
@@ -1265,6 +1330,7 @@ Ordre defini dans le signal `tabs` du `DatabaseComponent` :
 7. Importer les sons (`import-sounds`)
 8. Templates email (`email-templates`)
 9. Stockage S3 (`storage`)
+10. Waveform peaks (`waveform-peaks`)
 
 ## Gestion du stockage S3 (`features/admin/pages/storage-management/`)
 

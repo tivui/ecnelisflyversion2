@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { StorageService } from '../../../../../../core/services/storage.service';
+import { extractPeaksFromFile } from '../../../../../../core/services/peak-extraction.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -57,6 +58,7 @@ export class SoundUploadStepComponent {
   readonly allowedExtensions = ALLOWED_EXTENSIONS.map((e) => e.toUpperCase().slice(1)).join(', ');
 
   @Output() uploaded = new EventEmitter<string>();
+  @Output() peaksExtracted = new EventEmitter<{ peaks: number[][]; duration: number }>();
 
   selectedFile?: File;
   progress = 0;
@@ -114,6 +116,11 @@ export class SoundUploadStepComponent {
 
     this.error = undefined;
     this.selectedFile = file;
+
+    // Extract waveform peaks in background (non-blocking for the upload flow)
+    extractPeaksFromFile(file)
+      .then((data) => this.peaksExtracted.emit(data))
+      .catch((err) => console.warn('[SoundUpload] Peak extraction failed:', err));
   }
 
   /**

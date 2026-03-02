@@ -53,6 +53,10 @@ export interface SoundPopupSheetData {
   // Marker color (for selection circle)
   markerColor?: string;
 
+  // Pre-computed waveform peaks for instant rendering
+  waveformPeaks?: number[][];
+  waveformDuration?: number;
+
   // Current map zoom level (for radar visibility)
   mapZoom?: number;
 
@@ -337,6 +341,8 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
       container: this.waveformContainer.nativeElement,
       audioUrl: this.data.audioUrl,
       isDarkTheme: isDark,
+      peaks: this.data.waveformPeaks,
+      duration: this.data.waveformDuration,
       mediaMetadata: {
         title: this.data.sound.title ?? 'Ecnelis FLY',
         artist: this.data.sound.city ?? undefined,

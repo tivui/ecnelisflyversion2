@@ -54,6 +54,8 @@ export class SoundsService {
       hashtags: raw.hashtags,
       likesCount: raw.likesCount ?? 0,
       createdAt: raw.createdAt ? new Date(raw.createdAt) : undefined,
+      waveformPeaks: raw.waveformPeaks ? JSON.parse(raw.waveformPeaks) : undefined,
+      waveformDuration: raw.waveformDuration ?? undefined,
     });
   }
 

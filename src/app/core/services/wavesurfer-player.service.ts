@@ -13,6 +13,10 @@ export interface WaveSurferPlayerConfig {
     title: string;
     artist?: string;
   };
+  /** Pre-computed waveform peaks. When provided, waveform renders instantly without downloading audio. */
+  peaks?: number[][];
+  /** Pre-computed audio duration in seconds. Used with peaks for immediate time display. */
+  duration?: number;
 }
 
 export interface WaveSurferPlayerInstance {
@@ -155,8 +159,14 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
 
   container.appendChild(wrapper);
 
+  // Show duration immediately when peaks are pre-computed
+  if (config.peaks?.length && config.duration) {
+    timeTotal.textContent = formatTime(config.duration);
+  }
+
   // Create WaveSurfer instance
-  const ws = WaveSurfer.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wsOptions: any = {
     container: waveformDiv,
     url: audioUrl,
     height: 32,
@@ -171,7 +181,17 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     waveColor,
     progressColor,
     cursorColor,
-  });
+  };
+
+  // When pre-computed peaks are provided, WaveSurfer renders the waveform
+  // instantly from peaks data instead of downloading+decoding the full audio file.
+  // The audio URL is still provided for playback (streamed lazily on play).
+  if (config.peaks?.length && config.duration) {
+    wsOptions.peaks = config.peaks;
+    wsOptions.duration = config.duration;
+  }
+
+  const ws = WaveSurfer.create(wsOptions);
 
   // Error overlay (shown when audio fetch fails — e.g. expired presigned URL)
   let errorOverlay: HTMLDivElement | null = null;

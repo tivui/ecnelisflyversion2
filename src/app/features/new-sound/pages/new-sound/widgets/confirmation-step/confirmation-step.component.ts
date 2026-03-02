@@ -43,6 +43,8 @@ export interface SoundData {
   status?: string;
   hashtags?: string;
   linkedUserId?: string;
+  waveformPeaks?: number[][] | null;
+  waveformDuration?: number | null;
 }
 
 @Component({
@@ -242,6 +244,10 @@ export class ConfirmationStepComponent implements OnChanges {
         secondaryUrl: this.soundData.secondaryUrl,
         secondaryUrlTitle: this.soundData.secondaryUrlTitle,
         hashtags: this.soundData.hashtags,
+        waveformPeaks: this.soundData.waveformPeaks
+          ? JSON.stringify(this.soundData.waveformPeaks)
+          : undefined,
+        waveformDuration: this.soundData.waveformDuration ?? undefined,
       };
 
       // Créer le son dans DynamoDB
