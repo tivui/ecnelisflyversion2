@@ -103,13 +103,16 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   waveformDiv.className = 'ws-waveform';
   wrapper.appendChild(waveformDiv);
 
-  // Skeleton equalizer loader
+  // Skeleton equalizer loader (only when no pre-computed peaks — waveform must be decoded)
+  const hasPeaks = !!(config.peaks?.length && config.duration);
   const skeleton = document.createElement('div');
   skeleton.className = 'ws-skeleton';
   for (let i = 0; i < 5; i++) {
     skeleton.appendChild(document.createElement('span'));
   }
-  waveformDiv.appendChild(skeleton);
+  if (!hasPeaks) {
+    waveformDiv.appendChild(skeleton);
+  }
 
   const controlsDiv = document.createElement('div');
   controlsDiv.className = 'ws-controls';
@@ -120,7 +123,15 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   playBtn.type = 'button';
   const playIcon = document.createElement('span');
   playIcon.className = 'material-icons';
-  playIcon.textContent = 'play_arrow';
+  // When peaks are pre-computed, the waveform is instant but audio is still loading.
+  // Show a loading spinner on the play button until <audio> emits canplay.
+  if (hasPeaks) {
+    playIcon.textContent = 'hourglass_top';
+    playBtn.classList.add('ws-audio-loading');
+    playBtn.disabled = true;
+  } else {
+    playIcon.textContent = 'play_arrow';
+  }
   playBtn.appendChild(playIcon);
 
   // Time display
@@ -192,6 +203,21 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   }
 
   const ws = WaveSurfer.create(wsOptions);
+
+  // When peaks are pre-computed, unlock the play button once audio is playable.
+  // The waveform renders instantly but <audio> still needs to buffer first.
+  if (hasPeaks) {
+    const mediaEl = ws.getMediaElement();
+    const unlockPlay = () => {
+      playIcon.textContent = 'play_arrow';
+      playBtn.classList.remove('ws-audio-loading');
+      playBtn.disabled = false;
+    };
+    // canplay: browser has enough data to start playback
+    mediaEl.addEventListener('canplay', unlockPlay, { once: true });
+    // Safety: also unlock on decode (WaveSurfer finished processing)
+    ws.once('decode', unlockPlay);
+  }
 
   // Error overlay (shown when audio fetch fails — e.g. expired presigned URL)
   let errorOverlay: HTMLDivElement | null = null;
@@ -338,6 +364,10 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     // Suppress stale errors from the original <audio> src after Chrome fallback swap
     if (chromeFallbackApplied) return;
     if (ws.isPlaying()) onPause?.();
+    // Reset play button loading state on error (retry button handles reload)
+    playIcon.textContent = 'play_arrow';
+    playBtn.classList.remove('ws-audio-loading');
+    playBtn.disabled = false;
     showErrorOverlay();
   });
 
@@ -364,6 +394,10 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
         chromeFallbackBlobUrl = null;
       }
       hideErrorOverlay();
+      // Set play button to loading state during reload
+      playIcon.textContent = 'hourglass_top';
+      playBtn.classList.add('ws-audio-loading');
+      playBtn.disabled = true;
       // Re-add skeleton for loading state
       const reloadSkeleton = document.createElement('div');
       reloadSkeleton.className = 'ws-skeleton';
@@ -374,6 +408,10 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
       ws.once('ready', () => {
         reloadSkeleton.classList.add('ws-skeleton-out');
         setTimeout(() => reloadSkeleton.remove(), 400);
+        // Unlock play button when audio is ready after reload
+        playIcon.textContent = 'play_arrow';
+        playBtn.classList.remove('ws-audio-loading');
+        playBtn.disabled = false;
       });
       ws.load(newUrl);
     },

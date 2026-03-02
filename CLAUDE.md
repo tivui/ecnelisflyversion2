@@ -2136,6 +2136,8 @@ Section en bas de l'article avec 2-3 articles recommandes :
 
 Points de vigilance si la volumetrie augmente. Seuils indicatifs.
 
+**Prochain goulot d'etranglement** : le payload AppSync de `listSoundsForMap` (~1.2 KB/son moyen, limite 1 MB). Marge actuelle ~380 KB → **seuil critique ~850 sons**. Le champ `shortStory_i18n` (histoire trilingue) est le plus lourd et le plus variable. Solution a moyen terme : retirer `shortStory`/`shortStory_i18n`/`title_i18n` du selectionSet liste et les charger on-demand au popup (meme pattern que `waveformPeaks`).
+
 ### Critique (>2000 sons)
 
 | Composant | Fichier | Pattern | Solution |
@@ -2145,7 +2147,8 @@ Points de vigilance si la volumetrie augmente. Seuils indicatifs.
 | Lambda `list-sounds-by-zone` | `amplify/functions/list-sounds-by-zone/handler.ts` | N+1 : pagine ZoneSounds puis `Sound.get()` unitaire par son. Zone 500 sons = 501 appels | `BatchGetItem` DynamoDB |
 | `user-management.service` | `admin/services/user-management.service.ts` | Boucle imbriquee : pagine users × pagine sons par user. O(n×m) | Denormaliser `soundCount` sur le modele `User` |
 | `sound-attribution` | `admin/pages/sound-attribution/` | Collecte IDs puis `Sound.update()` sequentiel. 200 sons = 201 round-trips | Lambda batch mutation |
-| `waveformPeaks` dans query liste | `amplify-queries.model.ts` | ~8 KB × N sons charges pour la carte. 2000 sons = 16 MB | Retirer du selectionSet liste, charger par `Sound.get()` a l'ouverture popup |
+| **Payload AppSync `listSoundsForMap`** | `list-sounds-for-map/handler.ts` | Reponse unique contenant TOUS les sons. ~1.2 KB/son moyen (shortStory_i18n est le champ le plus lourd). **550 sons ≈ 660 KB, limite AppSync = 1 MB → seuil critique ~850 sons.** | Pagination cote client (Lambda retourne par pages), ou selectionSet allege pour la carte (retirer shortStory/i18n de la liste, charger au popup) |
+| ~~`waveformPeaks` dans query liste~~ | ~~`amplify-queries.model.ts`~~ | ~~RESOLU mars 2026~~ : peaks retires du selectionSet liste, charges on-demand par `Sound.get()` a l'ouverture popup/sheet | ~~Fait~~ |
 
 ### Haut (>5000 sons)
 

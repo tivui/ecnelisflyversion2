@@ -124,7 +124,7 @@ export const handler: Schema['listSoundsByZone']['functionHandler'] = async (
   // --------------------------------------------------------------------
   // Return in GraphQL shape
   // --------------------------------------------------------------------
-  return filtered.map((sound) => ({
+  return filtered.map(({ waveformPeaks, ...sound }) => ({
     ...sound,
     __typename: 'Sound',
     userId: sound.userId,

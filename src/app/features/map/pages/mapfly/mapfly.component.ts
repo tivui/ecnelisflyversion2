@@ -871,8 +871,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
               latitude: s.latitude, longitude: s.longitude, license: s.license,
             },
             audioUrl: url, mimeType,
-            waveformPeaks: s.waveformPeaks,
-            waveformDuration: s.waveformDuration,
+            soundId: s.id,
             markerColor: this.categoryColors[category] || '#1976d2',
             mapZoom: this.map.getZoom(),
             onZoomIn: () => this.centerMarkerAboveSheet(s.latitude!, s.longitude!, 17),
@@ -1196,14 +1195,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
           const wsContainer = document.getElementById(`ws-player-${s.filename}`);
           if (wsContainer) {
             this.activePopupPlayer?.destroy();
-            requestAnimationFrame(() => {
+            requestAnimationFrame(async () => {
               const isDark = document.body.classList.contains('dark-theme');
+              // Fetch peaks on-demand (not included in list query to avoid payload overflow)
+              let peaks: number[][] | undefined;
+              let duration: number | undefined;
+              try {
+                const peakResult: any = await this.amplifyService.client.models.Sound.get(
+                  { id: s.id! },
+                  { selectionSet: ['waveformPeaks', 'waveformDuration'] },
+                );
+                if (peakResult.data?.waveformPeaks) {
+                  peaks = JSON.parse(peakResult.data.waveformPeaks);
+                  duration = peakResult.data.waveformDuration ?? undefined;
+                }
+              } catch { /* fallback: WaveSurfer decodes natively */ }
               this.activePopupPlayer = createWaveSurferPlayer({
                 container: wsContainer,
                 audioUrl: url,
                 isDarkTheme: isDark,
-                peaks: s.waveformPeaks,
-                duration: s.waveformDuration,
+                peaks,
+                duration,
                 mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
                 onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
                 onPause: () => this.ambientAudio?.unduck?.(),

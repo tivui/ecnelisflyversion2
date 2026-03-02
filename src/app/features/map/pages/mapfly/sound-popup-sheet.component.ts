@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
+import { AmplifyService } from '../../../../core/services/amplify.service';
 import L from 'leaflet';
 
 export interface SoundPopupSheetData {
@@ -53,7 +54,10 @@ export interface SoundPopupSheetData {
   // Marker color (for selection circle)
   markerColor?: string;
 
-  // Pre-computed waveform peaks for instant rendering
+  // Sound ID for on-demand peaks loading (normal sounds)
+  soundId?: string;
+
+  // Pre-computed waveform peaks for instant rendering (featured/journey — already fetched via Sound.get())
   waveformPeaks?: number[][];
   waveformDuration?: number;
 
@@ -261,6 +265,7 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   private el = inject(ElementRef);
   private storageService = inject(StorageService);
   private headphoneReminder = inject(HeadphoneReminderService);
+  private amplifyService = inject(AmplifyService);
 
   @ViewChild('waveformContainer', { static: false }) waveformContainer!: ElementRef<HTMLElement>;
   private playerInstance: WaveSurferPlayerInstance | null = null;
@@ -335,14 +340,35 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
     });
   });
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     const isDark = document.body.classList.contains('dark-theme');
+
+    // For normal sounds, peaks are not in the list query (AppSync 1MB limit).
+    // Fetch on-demand. Featured/journey already have peaks from their own Sound.get().
+    let peaks = this.data.waveformPeaks;
+    let duration = this.data.waveformDuration;
+
+    if (!peaks && this.data.soundId && this.data.type === 'normal') {
+      try {
+        const peakResult: any = await this.amplifyService.client.models.Sound.get(
+          { id: this.data.soundId },
+          { selectionSet: ['waveformPeaks', 'waveformDuration'] } as any,
+        );
+        if (peakResult.data?.waveformPeaks) {
+          peaks = JSON.parse(peakResult.data.waveformPeaks);
+          duration = peakResult.data.waveformDuration ?? undefined;
+        }
+      } catch {
+        // Fallback: WaveSurfer will decode natively
+      }
+    }
+
     this.playerInstance = createWaveSurferPlayer({
       container: this.waveformContainer.nativeElement,
       audioUrl: this.data.audioUrl,
       isDarkTheme: isDark,
-      peaks: this.data.waveformPeaks,
-      duration: this.data.waveformDuration,
+      peaks,
+      duration,
       mediaMetadata: {
         title: this.data.sound.title ?? 'Ecnelis FLY',
         artist: this.data.sound.city ?? undefined,

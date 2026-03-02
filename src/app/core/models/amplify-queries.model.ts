@@ -30,8 +30,6 @@ export const ListSoundsForMapWithAppUser = /* GraphQL */ `
       status
       likesCount
       createdAt
-      waveformPeaks
-      waveformDuration
     }
   }
 `;
@@ -67,8 +65,6 @@ export const ListSoundsByZoneWithUser = /* GraphQL */ `
       hashtags
       likesCount
       createdAt
-      waveformPeaks
-      waveformDuration
     }
   }
 `;
