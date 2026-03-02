@@ -115,6 +115,8 @@ export class SoundFiltersComponent implements OnInit {
   ngOnInit() {
     this.loadCategories();
     this.setupFormSubscriptions();
+    // Start with secondary category disabled (no primary category selected)
+    this.filterForm.controls.secondaryCategory.disable();
   }
 
   private loadCategories() {
@@ -134,8 +136,18 @@ export class SoundFiltersComponent implements OnInit {
 
     // Category change - load secondary categories
     this.filterForm.controls.category.valueChanges.subscribe((category) => {
-      this.updateSecondaryCategories(category?.key as CategoryKey | undefined);
+      // category can be a CategoryOption (from autocomplete selection) or a string (from typing)
+      const categoryKey = typeof category === 'object' && category?.key
+        ? category.key as CategoryKey
+        : undefined;
+      this.updateSecondaryCategories(categoryKey);
       this.filterForm.controls.secondaryCategory.setValue(null);
+      // Programmatically enable/disable secondary category (avoid [disabled] on reactive form inputs)
+      if (categoryKey) {
+        this.filterForm.controls.secondaryCategory.enable();
+      } else {
+        this.filterForm.controls.secondaryCategory.disable();
+      }
       this.emitFilters();
     });
 
@@ -170,15 +182,16 @@ export class SoundFiltersComponent implements OnInit {
   }
 
   private emitFilters() {
-    const form = this.filterForm.value;
+    // Read control values directly (formGroup.value excludes disabled controls)
+    const controls = this.filterForm.controls;
     const filters: SoundFilters = {
-      searchQuery: form.searchQuery || '',
-      category: (form.category?.key as CategoryKey) || null,
-      secondaryCategory: form.secondaryCategory?.key || null,
-      status: form.status || null,
+      searchQuery: controls.searchQuery.value || '',
+      category: this.extractCategoryKey(controls.category.value),
+      secondaryCategory: this.extractSecondaryKey(controls.secondaryCategory.value),
+      status: controls.status.value || null,
       dateRange: {
-        start: form.dateStart || null,
-        end: form.dateEnd || null,
+        start: controls.dateStart.value || null,
+        end: controls.dateEnd.value || null,
       },
       favoritesOnly: this.favoritesOnly(),
     };
@@ -202,8 +215,32 @@ export class SoundFiltersComponent implements OnInit {
     );
   }
 
-  displayFn = (option: CategoryOption | null): string => {
-    return option?.label || '';
+  // Extract category key from value (handles both CategoryOption object and raw string from autocomplete)
+  private extractCategoryKey(value: CategoryOption | string | null): CategoryKey | null {
+    if (!value) return null;
+    if (typeof value === 'object' && value.key) return value.key as CategoryKey;
+    if (typeof value === 'string') {
+      const match = this.categoryOptions.find(o => o.label === value);
+      return (match?.key as CategoryKey) || null;
+    }
+    return null;
+  }
+
+  private extractSecondaryKey(value: CategoryOption | string | null): string | null {
+    if (!value) return null;
+    if (typeof value === 'object' && value.key) return value.key;
+    if (typeof value === 'string') {
+      const match = this.secondaryCategoryOptions.find(o => o.label === value);
+      return match?.key || null;
+    }
+    return null;
+  }
+
+  displayFn = (option: CategoryOption | string | null): string => {
+    if (!option) return '';
+    // mat-autocomplete can overwrite the CategoryOption with a raw string on blur
+    if (typeof option === 'string') return option;
+    return option.label || '';
   };
 
   toggleExpanded() {
@@ -217,6 +254,7 @@ export class SoundFiltersComponent implements OnInit {
 
   resetFilters() {
     this.filterForm.reset();
+    this.filterForm.controls.secondaryCategory.disable();
     this.favoritesOnly.set(false);
     this.emitFilters();
   }

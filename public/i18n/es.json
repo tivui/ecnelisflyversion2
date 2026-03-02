@@ -257,6 +257,8 @@
       "status": "Estado",
       "location": "Ubicación",
       "date": "Fecha",
+      "createdAt": "Añadido el",
+      "likes": "Likes",
       "actions": "Acciones"
     },
     "actions": {

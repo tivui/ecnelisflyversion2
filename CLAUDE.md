@@ -1297,6 +1297,19 @@ Le header (titre + boutons "Ma carte" / "+ Ajouter un son") reste au-dessus des 
 
 Le `mat-slide-toggle` admin ("Voir tous les sons") necessite `::ng-deep .mdc-label` pour styler le texte du label en dark mode — Angular Material encapsule le label dans un element interne que le selecteur `.admin-toggle { color }` seul ne peut pas atteindre. Selecteur : `:host-context(body.dark-theme)` (pas `.dark-theme` seul).
 
+### Filtres sons — pieges connus (`sound-filters.component`)
+
+**mat-autocomplete et valeurs string (piege connu)** : les champs categorie et sous-categorie utilisent `mat-autocomplete` avec des objets `CategoryOption { key, label }`. Quand le panneau se ferme (blur), Angular Material peut ecraser l'objet par le texte brut (string). Le code gere les deux types :
+- `displayFn()` retourne le string tel quel si ce n'est pas un objet
+- `extractCategoryKey()` / `extractSecondaryKey()` cherchent la cle correspondante par label si la valeur est un string
+- Les chips actifs utilisent `displayFn()` au lieu de `.value.label`
+
+**FormControl disabled et formGroup.value** : `formGroup.value` exclut les controles disabled. Le champ sous-categorie demarre disabled (`ngOnInit`) et est enable/disable programmatiquement dans le `category.valueChanges`. `emitFilters()` lit les valeurs via `controls.xxx.value` (pas `formGroup.value`) pour eviter l'exclusion.
+
+### Colonnes du tableau sons (`sound-list.component`)
+
+Colonnes : `title`, `category`, `status`, `city`, `date` (recordDateTime), `createdAt` (date d'ajout DynamoDB), `likes`, `actions`. Plus `user` si `showUserColumn` (admin). Toutes triables via `mat-sort-header`.
+
 ### Stats visuelles (`dashboard-stats` widget)
 
 Composant `app-dashboard-stats` avec `@swimlane/ngx-charts` :

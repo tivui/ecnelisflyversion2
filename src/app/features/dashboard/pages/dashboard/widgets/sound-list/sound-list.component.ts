@@ -85,7 +85,7 @@ export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
 
   // Table columns
   get displayedColumns(): string[] {
-    const cols = ['title', 'category', 'status', 'city', 'date', 'likes', 'actions'];
+    const cols = ['title', 'category', 'status', 'city', 'date', 'createdAt', 'likes', 'actions'];
     if (this.showUserColumn) {
       cols.splice(1, 0, 'user');
     }
@@ -215,6 +215,12 @@ export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
           return this.compare(
             a.recordDateTime?.getTime() || 0,
             b.recordDateTime?.getTime() || 0,
+            isAsc,
+          );
+        case 'createdAt':
+          return this.compare(
+            a.createdAt?.getTime() || 0,
+            b.createdAt?.getTime() || 0,
             isAsc,
           );
         case 'user':

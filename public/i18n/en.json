@@ -257,6 +257,7 @@
       "status": "Status",
       "location": "Location",
       "date": "Date",
+      "createdAt": "Added on",
       "likes": "Likes",
       "actions": "Actions"
     },

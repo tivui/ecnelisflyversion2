@@ -25,7 +25,7 @@ export const DEFAULT_FILTERS: SoundFilters = {
   favoritesOnly: false,
 };
 
-export type SortField = 'title' | 'category' | 'status' | 'city' | 'date' | 'user';
+export type SortField = 'title' | 'category' | 'status' | 'city' | 'date' | 'createdAt' | 'user';
 export type SortDirection = 'asc' | 'desc';
 
 export interface SoundSort {
