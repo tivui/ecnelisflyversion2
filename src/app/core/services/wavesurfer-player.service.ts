@@ -192,6 +192,8 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     waveColor,
     progressColor,
     cursorColor,
+    // Bypass Angular service worker for WaveSurfer's internal fetch (waveform decoding)
+    fetchParams: { headers: { 'ngsw-bypass': 'true' } },
   };
 
   // When pre-computed peaks are provided, WaveSurfer renders the waveform
@@ -264,6 +266,29 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     errorOverlay?.remove();
     errorOverlay = null;
   }
+
+  // --- Service worker bypass for <audio> element ---
+  // Angular's ngsw-worker.js intercepts <audio> element requests to S3 presigned URLs.
+  // Its progress tracking wrapper fails on large binary audio streams.
+  // We background-fetch with ngsw-bypass header and swap <audio> src to a Blob URL.
+  let swBypassBlobUrl: string | null = null;
+  let swBypassInProgress = true;
+
+  (async () => {
+    try {
+      const response = await fetch(audioUrl, { headers: { 'ngsw-bypass': 'true' } });
+      const blob = await response.blob();
+      swBypassBlobUrl = URL.createObjectURL(blob);
+      ws.getMediaElement().src = swBypassBlobUrl;
+    } catch {
+      // Bypass fetch failed — if <audio> also errored, show error overlay
+      if (ws.getMediaElement().error) {
+        showErrorOverlay();
+      }
+    } finally {
+      swBypassInProgress = false;
+    }
+  })();
 
   // Event wiring
   let isMuted = false;
@@ -343,6 +368,11 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
           await audioCtx.close();
 
           const wav16Blob = audioBufferToWav16(fullQualityBuffer);
+          // Revoke SW bypass blob URL — Chrome fallback takes over
+          if (swBypassBlobUrl) {
+            URL.revokeObjectURL(swBypassBlobUrl);
+            swBypassBlobUrl = null;
+          }
           chromeFallbackBlobUrl = URL.createObjectURL(wav16Blob);
           // Directly swap the internal <audio> element's src
           const mediaEl = ws.getMediaElement();
@@ -363,6 +393,8 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   ws.on('error', () => {
     // Suppress stale errors from the original <audio> src after Chrome fallback swap
     if (chromeFallbackApplied) return;
+    // Suppress errors while SW bypass fetch is in progress (it will swap src on success)
+    if (swBypassInProgress) return;
     if (ws.isPlaying()) onPause?.();
     // Reset play button loading state on error (retry button handles reload)
     playIcon.textContent = 'play_arrow';
@@ -387,6 +419,12 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     ws,
     el: wrapper,
     loadUrl: (newUrl: string) => {
+      // Reset SW bypass state for new URL
+      swBypassInProgress = false;
+      if (swBypassBlobUrl) {
+        URL.revokeObjectURL(swBypassBlobUrl);
+        swBypassBlobUrl = null;
+      }
       // Reset Chrome fallback state for new URL
       chromeFallbackApplied = false;
       if (chromeFallbackBlobUrl) {
@@ -417,6 +455,9 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     },
     destroy: () => {
       if (ws.isPlaying()) onPause?.();
+      if (swBypassBlobUrl) {
+        URL.revokeObjectURL(swBypassBlobUrl);
+      }
       if (chromeFallbackBlobUrl) {
         URL.revokeObjectURL(chromeFallbackBlobUrl);
       }

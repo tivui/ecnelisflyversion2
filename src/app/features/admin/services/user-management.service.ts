@@ -231,4 +231,53 @@ export class UserManagementService {
 
     return allSoundIds.length;
   }
+
+  /**
+   * Merge an imported user into another: transfer all sounds, then neutralize the source.
+   * Uses the same 2-phase approach as sound-attribution (collect IDs → transfer → neutralize).
+   */
+  async mergeImportedUsers(sourceUserId: string, targetUserId: string): Promise<number> {
+    // Phase 1: Collect ALL sound IDs (full pagination before any modification)
+    const allSoundIds: string[] = [];
+    let nextToken: string | null | undefined = undefined;
+
+    do {
+      const page: any =
+        await this.amplifyService.client.models.Sound.listSoundsByUserAndStatus(
+          { userId: sourceUserId },
+          { limit: 500, nextToken: nextToken ?? undefined, selectionSet: ['id'] },
+        );
+      for (const s of page.data ?? []) {
+        if (s?.id) allSoundIds.push(s.id);
+      }
+      nextToken = page.nextToken ?? null;
+    } while (nextToken);
+
+    // Phase 2: Transfer all sounds to target
+    let transferred = 0;
+    for (const soundId of allSoundIds) {
+      try {
+        await this.amplifyService.client.models.Sound.update({
+          id: soundId,
+          userId: targetUserId,
+        });
+        transferred++;
+      } catch (e) {
+        console.warn(`[UserManagement] Failed to transfer sound ${soundId}:`, e);
+      }
+    }
+
+    // Phase 3: Neutralize source user
+    try {
+      await this.amplifyService.client.models.User.update({
+        id: sourceUserId,
+        email: `merged_${sourceUserId}@deleted`,
+        cognitoSub: `merged_${sourceUserId}`,
+      });
+    } catch (e) {
+      console.warn(`[UserManagement] Failed to neutralize user ${sourceUserId}:`, e);
+    }
+
+    return transferred;
+  }
 }

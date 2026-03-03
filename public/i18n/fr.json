@@ -1074,7 +1074,19 @@
         "enable": "Réactiver le compte",
         "promote": "Promouvoir admin",
         "demote": "Rétrograder utilisateur",
-        "delete": "Supprimer le compte"
+        "delete": "Supprimer le compte",
+        "merge": "Fusionner avec un autre importé"
+      },
+      "merge": {
+        "title": "Fusionner {{username}}",
+        "soundCount": "{{count}} son(s) à transférer",
+        "hint": "Sélectionnez l'utilisateur importé cible. Ses sons seront conservés et ceux de l'utilisateur source y seront ajoutés. L'utilisateur source sera ensuite supprimé.",
+        "searchPlaceholder": "Rechercher un utilisateur importé...",
+        "noResults": "Aucun autre utilisateur importé trouvé",
+        "confirm": "Fusionner",
+        "cancel": "Annuler",
+        "success": "{{count}} son(s) transféré(s) vers {{username}}",
+        "error": "Erreur lors de la fusion"
       },
       "empty": "Aucun utilisateur",
       "noResults": "Aucun résultat pour cette recherche",

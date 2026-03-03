@@ -293,6 +293,14 @@
                   }
                 }
 
+                <!-- Merge (imported only) -->
+                @if (isImported(user)) {
+                  <button mat-menu-item (click)="mergeImported(user)">
+                    <mat-icon>merge_type</mat-icon>
+                    {{ 'admin.users.actions.merge' | translate }}
+                  </button>
+                }
+
                 <!-- Delete (not self) -->
                 @if (!isSelf(user)) {
                   <button mat-menu-item class="delete-action" (click)="deleteUser(user)">

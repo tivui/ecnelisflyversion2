@@ -1074,7 +1074,19 @@
         "enable": "Enable account",
         "promote": "Promote to admin",
         "demote": "Demote to user",
-        "delete": "Delete account"
+        "delete": "Delete account",
+        "merge": "Merge with another imported"
+      },
+      "merge": {
+        "title": "Merge {{username}}",
+        "soundCount": "{{count}} sound(s) to transfer",
+        "hint": "Select the target imported user. Their sounds will be kept and the source user's sounds will be added. The source user will then be deleted.",
+        "searchPlaceholder": "Search for an imported user...",
+        "noResults": "No other imported user found",
+        "confirm": "Merge",
+        "cancel": "Cancel",
+        "success": "{{count}} sound(s) transferred to {{username}}",
+        "error": "Error during merge"
       },
       "empty": "No users",
       "noResults": "No results found",

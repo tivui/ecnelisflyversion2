@@ -361,15 +361,27 @@ export class SoundDataMetaStepComponent implements OnInit {
    */
   private async loadAllUsers() {
     try {
-      const result = await this.amplifyService.client.models.User.list();
-      if (result.data) {
-        this.allUsers = result.data.map((u) => ({
+      const allData: { id: string; username: string; email?: string | null }[] = [];
+      let nextToken: string | undefined | null = undefined;
+      do {
+        const result: any = await this.amplifyService.client.models.User.list({
+          limit: 500,
+          ...(nextToken ? { nextToken } : {}),
+        });
+        if (result.data) {
+          allData.push(...result.data);
+        }
+        nextToken = result.nextToken;
+      } while (nextToken);
+
+      this.allUsers = allData
+        .filter((u) => !u.email?.startsWith('merged_'))
+        .map((u) => ({
           id: u.id,
           username: u.username,
           email: u.email ?? undefined,
         }));
-        this.filteredUsers = [...this.allUsers];
-      }
+      this.filteredUsers = [...this.allUsers];
     } catch (error) {
       console.error('[SoundDataMetaStep] Failed to load users:', error);
     }
