@@ -81,7 +81,9 @@ export class SoundDataInfoStepComponent implements OnInit {
   /* ================= OUTPUT ================= */
 
   @Output() completed = new EventEmitter<{
+    title: string;
     title_i18n: Record<string, string>;
+    shortStory: string;
     shortStory_i18n: Record<string, string>;
     sourceLang?: string;
     category?: CategoryKey;
@@ -377,7 +379,9 @@ export class SoundDataInfoStepComponent implements OnInit {
     }
 
     this.completed.emit({
+      title: rawTitle,
       title_i18n: this.translatedTitle,
+      shortStory: rawStory,
       shortStory_i18n: this.translatedStory,
       sourceLang: this.detectedTitleLang || undefined,
       category: this.categoryControl.value?.key as CategoryKey | undefined,
