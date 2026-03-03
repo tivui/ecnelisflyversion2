@@ -102,6 +102,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
   .hero-cards-secondary {
     animation: fadeInUp 0.6s $reveal-ease 0.35s both;
+    opacity: 1;
   }
   .scroll-dots {
     animation: fadeInUp 0.45s $reveal-ease 0.45s both;
@@ -222,9 +223,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   height: 100px;
   border-radius: 18px;
   flex-shrink: 0;
-  opacity: 0;
   background: linear-gradient(110deg, rgba($logo-dark-blue, 0.06) 30%, rgba($logo-dark-blue, 0.12) 50%, rgba($logo-dark-blue, 0.06) 70%);
   background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 
   :host-context(body.dark-theme) & {
     background: linear-gradient(110deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 70%);
@@ -247,23 +248,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     max-width: 320px;
   }
 
-  // Staggered skeleton reveal: map + 3 secondary together
-  .home-container.structure-ready {
-    .skeleton-card-map {
-      animation: fadeInUp 0.6s $reveal-ease 0.25s both, shimmer 1.5s ease-in-out 0.85s infinite;
-    }
-
-    .hero-cards-secondary {
-      > .skeleton-card:nth-child(1) {
-        animation: fadeInUp 0.6s $reveal-ease 0.30s both, shimmer 1.5s ease-in-out 0.9s infinite;
-      }
-      > .skeleton-card:nth-child(2) {
-        animation: fadeInUp 0.6s $reveal-ease 0.35s both, shimmer 1.5s ease-in-out 0.95s infinite;
-      }
-      > .skeleton-card:nth-child(3) {
-        animation: fadeInUp 0.6s $reveal-ease 0.40s both, shimmer 1.5s ease-in-out 1.0s infinite;
-      }
-    }
+  // Skeleton shimmer — visibility controlled by parent containers (.hero-cards-secondary, .hero-actions)
+  .skeleton-card-map {
+    animation: shimmer 1.5s ease-in-out infinite;
   }
 }
 
@@ -280,14 +267,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     border-radius: 26px;
   }
 
-  .home-container.structure-ready {
-    .skeleton-card-map {
-      animation: fadeInUp 0.5s $reveal-ease 0.25s both, shimmer 1.5s ease-in-out 0.75s infinite;
-    }
-
-    .hero-cards-secondary > .skeleton-card {
-      animation: fadeInUp 0.5s $reveal-ease 0.35s both, shimmer 1.5s ease-in-out 0.85s infinite;
-    }
+  // Skeleton shimmer — visibility controlled by parent (.hero-cards-secondary opacity)
+  .skeleton-card-map {
+    animation: shimmer 1.5s ease-in-out infinite;
   }
 }
 
