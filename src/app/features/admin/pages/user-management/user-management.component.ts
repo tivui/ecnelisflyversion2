@@ -27,6 +27,7 @@ import {
 import { exportUsersCsv } from '../../services/csv-export.util';
 import { UserDetailDialogComponent } from './user-detail-dialog.component';
 import { DeleteUserDialogComponent } from './delete-user-dialog.component';
+import { MergeImportedDialogComponent } from './merge-imported-dialog.component';
 
 @Component({
   selector: 'app-user-management',
@@ -425,6 +426,49 @@ export class UserManagementComponent implements OnInit {
       } catch {
         this.snackBar.open(
           this.translate.instant('admin.users.actionError'),
+          '',
+          { duration: 3000 },
+        );
+      } finally {
+        this.actionInProgress.set(null);
+      }
+    });
+  }
+
+  mergeImported(user: AdminUser) {
+    // Get all imported users from the loaded list
+    const importedUsers = this.allUsers().filter(u => u.email.startsWith('imported_'));
+
+    const dialogRef = this.dialog.open(MergeImportedDialogComponent, {
+      width: '90vw',
+      maxWidth: '550px',
+      maxHeight: '90vh',
+      data: { sourceUser: user, importedUsers },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (!result?.targetUserId) return;
+
+      this.actionInProgress.set(user.id);
+      try {
+        const transferred = await this.userService.mergeImportedUsers(
+          user.id,
+          result.targetUserId,
+        );
+
+        this.snackBar.open(
+          this.translate.instant('admin.users.merge.success', {
+            count: transferred,
+            username: result.targetUsername,
+          }),
+          '',
+          { duration: 4000 },
+        );
+
+        await this.loadUsers();
+      } catch {
+        this.snackBar.open(
+          this.translate.instant('admin.users.merge.error'),
           '',
           { duration: 3000 },
         );

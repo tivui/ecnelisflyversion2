@@ -271,15 +271,14 @@ export class NewSoundComponent implements OnInit, OnDestroy, AfterViewInit {
   onSoundDataInfoCompleted(data: any) {
     this.soundInfoData = data;
     this.sourceLang = data.sourceLang;
-    // Marquer stepGroup valide si nécessaire
-    this.thirdFormGroup.setValue({ thirdCtrl: '' });
+    this.thirdFormGroup.setValue({ thirdCtrl: 'completed' });
   }
 
   // Step 3B : Links & Meta
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSoundDataMetaCompleted(data: any) {
     this.soundMetaData = data;
-    this.fourthFormGroup.setValue({ fourthCtrl: '' });
+    this.fourthFormGroup.setValue({ fourthCtrl: 'completed' });
   }
 
   // Optionnel : récupérer toutes les données avant confirmation
