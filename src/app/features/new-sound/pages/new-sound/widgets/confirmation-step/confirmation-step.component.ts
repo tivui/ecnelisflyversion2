@@ -28,7 +28,9 @@ export interface SoundData {
     lng: number;
     name: string;
   } | null;
+  title?: string;
   title_i18n?: Record<string, string>;
+  shortStory?: string;
   shortStory_i18n?: Record<string, string>;
   sourceLang?: string;
   category?: string;
@@ -100,15 +102,11 @@ export class ConfirmationStepComponent implements OnChanges {
   }
 
   get displayTitle(): string {
-    return this.soundData?.title_i18n?.[this.currentLang]
-      || this.getFirstNonEmptyTranslation(this.soundData?.title_i18n)
-      || '';
+    return this.soundData?.title || '';
   }
 
   get displayShortStory(): string {
-    return this.soundData?.shortStory_i18n?.[this.currentLang]
-      || this.getFirstNonEmptyTranslation(this.soundData?.shortStory_i18n)
-      || '';
+    return this.soundData?.shortStory || '';
   }
 
   get displayCategory(): string {
@@ -156,7 +154,7 @@ export class ConfirmationStepComponent implements OnChanges {
     if (!this.soundData?.place || !this.soundData.place.lat || !this.soundData.place.lng || !this.soundData.place.name) {
       missing.push(this.translate.instant('sound.validation.location'));
     }
-    if (!this.soundData?.title_i18n || !this.getFirstNonEmptyTranslation(this.soundData.title_i18n)) {
+    if (!this.soundData?.title?.trim()) {
       missing.push(this.translate.instant('sound.validation.title'));
     }
     if (!this.soundData?.category) {
@@ -209,21 +207,14 @@ export class ConfirmationStepComponent implements OnChanges {
 
       // Préparer les données pour DynamoDB
       // Si un admin a sélectionné un autre utilisateur, utiliser son ID
-      // Use source language for the default title/shortStory fields (fallback to UI lang)
-      const sourceLang = this.soundData.sourceLang || this.currentLang;
+      // title/shortStory = raw user input (independent of translations)
       const soundToCreate = {
         userId: this.soundData.linkedUserId || appUser.id,
-        title: this.soundData.title_i18n?.[sourceLang]
-          || this.soundData.title_i18n?.[this.currentLang]
-          || this.getFirstNonEmptyTranslation(this.soundData.title_i18n)
-          || '',
+        title: this.soundData.title || '',
         title_i18n: this.soundData.title_i18n
           ? JSON.stringify(this.soundData.title_i18n)
           : undefined,
-        shortStory: this.soundData.shortStory_i18n?.[sourceLang]
-          || this.soundData.shortStory_i18n?.[this.currentLang]
-          || this.getFirstNonEmptyTranslation(this.soundData.shortStory_i18n)
-          || undefined,
+        shortStory: this.soundData.shortStory || undefined,
         shortStory_i18n: this.soundData.shortStory_i18n
           ? JSON.stringify(this.soundData.shortStory_i18n)
           : undefined,
@@ -326,7 +317,7 @@ export class ConfirmationStepComponent implements OnChanges {
     }
 
     // Step 2: Infos son (title, category)
-    if (!this.soundData?.title_i18n || !this.getFirstNonEmptyTranslation(this.soundData.title_i18n) || !this.soundData?.category) {
+    if (!this.soundData?.title?.trim() || !this.soundData?.category) {
       indices.push(2);
     }
 

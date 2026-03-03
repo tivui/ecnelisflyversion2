@@ -81,7 +81,9 @@ export class SoundDataInfoStepComponent implements OnInit {
   /* ================= OUTPUT ================= */
 
   @Output() completed = new EventEmitter<{
+    title: string;
     title_i18n: Record<string, string>;
+    shortStory: string;
     shortStory_i18n: Record<string, string>;
     sourceLang?: string;
     category?: CategoryKey;
@@ -138,6 +140,9 @@ export class SoundDataInfoStepComponent implements OnInit {
     title?: string;
     shortStory?: string;
   } = {};
+
+  /** In-flight translation promises for deduplication (blur + click race condition) */
+  private pendingTranslation: Partial<Record<'title' | 'shortStory', Promise<void>>> = {};
 
   /* ================= INIT ================= */
 
@@ -248,6 +253,12 @@ export class SoundDataInfoStepComponent implements OnInit {
   }
 
   async translateField(field: 'title' | 'shortStory') {
+    // Deduplication: if a translation is already in progress for this field,
+    // return the existing promise (avoids blur + click race condition)
+    if (this.pendingTranslation[field]) {
+      return this.pendingTranslation[field];
+    }
+
     const control = this.form.get(field);
     if (!control || control.invalid) return;
 
@@ -283,24 +294,33 @@ export class SoundDataInfoStepComponent implements OnInit {
       this.translatingStory = true;
     }
 
-    try {
-      for (const lang of targets) {
-        const result = await this.amplifyService.client.queries.translate({
-          sourceLanguage,
-          targetLanguage: lang,
-          text,
-        });
-        translated[lang] = result.data ?? '';
-      }
+    const promise = (async () => {
+      try {
+        for (const lang of targets) {
+          const result = await this.amplifyService.client.queries.translate({
+            sourceLanguage,
+            targetLanguage: lang,
+            text,
+          });
+          translated[lang] = result.data ?? '';
+        }
 
-      this.lastTranslatedSource[field] = text;
-      this.emitCompleted();
-    } finally {
-      if (field === 'title') {
-        this.translatingTitle = false;
-      } else {
-        this.translatingStory = false;
+        this.lastTranslatedSource[field] = text;
+        this.emitCompleted();
+      } finally {
+        if (field === 'title') {
+          this.translatingTitle = false;
+        } else {
+          this.translatingStory = false;
+        }
       }
+    })();
+
+    this.pendingTranslation[field] = promise;
+    try {
+      await promise;
+    } finally {
+      delete this.pendingTranslation[field];
     }
   }
 
@@ -318,10 +338,13 @@ export class SoundDataInfoStepComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
 
+      // Merge dialog result with existing translations to preserve
+      // non-fr/en/es source language keys (e.g., 'pt', 'de', 'it')
+      // that franc-min may have detected but the dialog doesn't show
       if (field === 'title') {
-        this.translatedTitle = result;
+        this.translatedTitle = { ...this.translatedTitle, ...result };
       } else {
-        this.translatedStory = result;
+        this.translatedStory = { ...this.translatedStory, ...result };
       }
 
       this.emitCompleted();
@@ -356,7 +379,9 @@ export class SoundDataInfoStepComponent implements OnInit {
     }
 
     this.completed.emit({
+      title: rawTitle,
       title_i18n: this.translatedTitle,
+      shortStory: rawStory,
       shortStory_i18n: this.translatedStory,
       sourceLang: this.detectedTitleLang || undefined,
       category: this.categoryControl.value?.key as CategoryKey | undefined,

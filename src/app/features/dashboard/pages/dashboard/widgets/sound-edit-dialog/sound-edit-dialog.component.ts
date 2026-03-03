@@ -203,11 +203,10 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
   private initializeForms() {
     const sound = this.sound;
 
-    // Info form
+    // Info form — title/shortStory are independent of translations
     this.infoForm.patchValue({
-      title: sound.title_i18n?.[this.currentLang] || sound.title || '',
-      shortStory:
-        sound.shortStory_i18n?.[this.currentLang] || sound.shortStory || '',
+      title: sound.title || '',
+      shortStory: sound.shortStory || '',
       recordDateTime: sound.recordDateTime || null,
       equipment: sound.equipment || '',
     });
@@ -424,10 +423,12 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
 
+      // Merge dialog result with existing translations to preserve
+      // non-fr/en/es source language keys that franc-min may have detected
       if (field === 'title') {
-        this.translatedTitle = result;
+        this.translatedTitle = { ...this.translatedTitle, ...result };
       } else {
-        this.translatedStory = result;
+        this.translatedStory = { ...this.translatedStory, ...result };
       }
     });
   }
@@ -505,7 +506,6 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
         const detectedLang = this.languageDetectionService.detect(infoValues.title);
         const titleLang = detectedLang || this.currentLang;
         this.translatedTitle[titleLang] = infoValues.title;
-        // Use detected source language for the default title field
         updateData.title = infoValues.title;
         updateData.title_i18n = this.translatedTitle;
       }

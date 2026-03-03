@@ -124,9 +124,9 @@ export class SoundListComponent implements OnInit, OnDestroy, OnChanges {
     return this.translate.currentLang || 'fr';
   }
 
-  // Get display title in current language
+  // Get display title (raw title, independent of translations)
   getDisplayTitle(sound: Sound): string {
-    return sound.title_i18n?.[this.currentLang] || sound.title || '';
+    return sound.title || '';
   }
 
   // Get display category

@@ -37,7 +37,7 @@
             color="accent"
             type="button"
             class="translate-button"
-            [disabled]="form.get('title')?.invalid || translatingTitle"
+            [disabled]="form.get('title')?.invalid"
             (click)="openTranslationDialog('title')"
             [matTooltip]="'common.action.translate' | translate">
             @if (translatingTitle) {
@@ -68,7 +68,7 @@
             color="accent"
             type="button"
             class="translate-button"
-            [disabled]="form.get('shortStory')?.invalid || translatingStory"
+            [disabled]="form.get('shortStory')?.invalid"
             (click)="openTranslationDialog('shortStory')"
             [matTooltip]="'common.action.translate' | translate">
             @if (translatingStory) {
