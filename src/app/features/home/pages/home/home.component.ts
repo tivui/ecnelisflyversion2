@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 
 import { AppUserService } from '../../../../core/services/app-user.service';
@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('bouncingLogo') bouncingLogoEl?: ElementRef<HTMLImageElement>;
   hasScrolled = signal(false);
   activeCardIndex = signal(0);
+  structureReady = signal(false);
   dataLoaded = signal(false);
   isMobileGrid = signal(false);
 
@@ -123,6 +124,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   async ngOnInit() {
+    // Wait for i18n translations to be loaded before showing structure
+    await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
+    this.structureReady.set(true);
+
     const [dailyResult, monthlyQuizResult, articleResult, monthlyZoneResult, monthlyJourneyResult, statsResult] = await Promise.allSettled([
       this.featuredSoundService.getTodayFeatured(),
       this.quizService.getMonthlyQuiz(),

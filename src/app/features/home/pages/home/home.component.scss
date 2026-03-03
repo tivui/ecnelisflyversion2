@@ -84,7 +84,9 @@ $noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
 $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-.home-container.ready {
+// Phase 1 — Structure immediately visible (before API calls complete)
+// Static elements + skeleton placeholders cascade in
+.home-container.structure-ready {
   .hero-main-logo {
     animation: fadeInUp 0.55s $reveal-ease 0.05s both, float 3s ease-in-out 1.2s infinite;
   }
@@ -94,11 +96,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   .hero-subtitle {
     animation: fadeInUp 0.55s $reveal-ease 0.18s both;
   }
-  .hero-card-map {
-    animation: fadeInUp 0.6s $reveal-ease 0.25s both;
-  }
   .alaune-section {
     animation: fadeInUp 0.6s $reveal-ease 0.30s both;
+    opacity: 1;
   }
   .hero-cards-secondary {
     animation: fadeInUp 0.6s $reveal-ease 0.35s both;
@@ -107,12 +107,22 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     animation: fadeInUp 0.45s $reveal-ease 0.45s both;
   }
   .onboarding-section {
-    animation: fadeInUp 0.5s $reveal-ease 0.48s both;
-    opacity: 1; // Fallback if animation doesn't fire
+    animation: fadeInUp 0.5s $reveal-ease 0.40s both;
+    opacity: 1;
   }
   .carousel-section {
-    animation: slideUpBar 0.5s $reveal-ease 0.5s both;
-    opacity: 1; // Fallback if animation doesn't fire
+    animation: slideUpBar 0.5s $reveal-ease 0.45s both;
+    opacity: 1;
+  }
+}
+
+// Phase 2 — Data loaded: real cards cascade in (replaces skeletons via @if)
+.home-container.ready {
+  .hero-card-map {
+    animation: fadeInUp 0.6s $reveal-ease 0.05s both;
+  }
+  .hero-cards-secondary {
+    animation: fadeInUp 0.6s $reveal-ease 0.10s both;
   }
 }
 
@@ -122,46 +132,52 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     opacity: 0;
   }
 
-  .home-container.ready {
+  .home-container.structure-ready {
     // À la une section: appears just before cards
     .alaune-section {
       animation: fadeInUp 0.5s $reveal-ease 0.28s both;
       opacity: 1;
     }
-    // Secondary cards container: no animation (children stagger individually)
+    // Secondary cards container (skeletons visible immediately)
     .hero-cards-secondary {
       animation: none;
       opacity: 1;
     }
     // Stats appear after grid cards
     .onboarding-section {
-      animation: fadeInUp 0.5s $reveal-ease 0.50s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.40s both;
       opacity: 1;
     }
     // Carousel appears last
     .carousel-section {
-      animation: fadeInUp 0.5s $reveal-ease 0.55s both;
+      animation: fadeInUp 0.5s $reveal-ease 0.45s both;
       opacity: 1;
     }
   }
 
-  // Individual card stagger (featured first via CSS order: -1)
-  .home-container.ready .hero-cards-secondary {
-    > .hero-card:nth-child(1) {
-      animation: fadeInUp 0.5s $reveal-ease 0.28s both;
+  // Phase 2: real map card + real secondary cards stagger in when data loaded
+  .home-container.ready {
+    .hero-card-map {
+      animation: fadeInUp 0.5s $reveal-ease 0.05s both;
     }
-    > .hero-card:nth-child(2) {
-      animation: fadeInUp 0.5s $reveal-ease 0.34s both;
-    }
-    > .hero-card:nth-child(3) {
-      animation: fadeInUp 0.5s $reveal-ease 0.40s both;
-    }
-    > .hero-card:nth-child(4) {
-      animation: fadeInUp 0.5s $reveal-ease 0.46s both;
-    }
-    // Tripled cards for infinite loop — all appear with last stagger
-    > .hero-card:nth-child(n+5) {
-      animation: fadeInUp 0.5s $reveal-ease 0.46s both;
+
+    .hero-cards-secondary {
+      > .hero-card:nth-child(1) {
+        animation: fadeInUp 0.5s $reveal-ease 0.08s both;
+      }
+      > .hero-card:nth-child(2) {
+        animation: fadeInUp 0.5s $reveal-ease 0.14s both;
+      }
+      > .hero-card:nth-child(3) {
+        animation: fadeInUp 0.5s $reveal-ease 0.20s both;
+      }
+      > .hero-card:nth-child(4) {
+        animation: fadeInUp 0.5s $reveal-ease 0.26s both;
+      }
+      // Tripled cards for infinite loop — all appear with last stagger
+      > .hero-card:nth-child(n+5) {
+        animation: fadeInUp 0.5s $reveal-ease 0.26s both;
+      }
     }
   }
 }
@@ -184,17 +200,108 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     > .hero-card:nth-child(1) {
-      animation: fadeInUp 0.6s $reveal-ease 0.33s backwards;
+      animation: fadeInUp 0.6s $reveal-ease 0.05s backwards;
     }
     > .hero-card:nth-child(2) {
-      animation: fadeInUp 0.6s $reveal-ease 0.41s backwards;
+      animation: fadeInUp 0.6s $reveal-ease 0.13s backwards;
     }
     > .hero-card:nth-child(3) {
-      animation: fadeInUp 0.6s $reveal-ease 0.49s backwards;
+      animation: fadeInUp 0.6s $reveal-ease 0.21s backwards;
     }
     > .hero-card:nth-child(4) {
-      animation: fadeInUp 0.6s $reveal-ease 0.57s backwards;
+      animation: fadeInUp 0.6s $reveal-ease 0.29s backwards;
     }
+  }
+}
+
+// =====================
+// Skeleton shimmer placeholders (shown during API loading)
+// =====================
+.skeleton-card {
+  min-width: 65vw;
+  height: 100px;
+  border-radius: 18px;
+  flex-shrink: 0;
+  opacity: 0;
+  background: linear-gradient(110deg, rgba($logo-dark-blue, 0.06) 30%, rgba($logo-dark-blue, 0.12) 50%, rgba($logo-dark-blue, 0.06) 70%);
+  background-size: 200% 100%;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(110deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 70%);
+    background-size: 200% 100%;
+  }
+}
+
+// Desktop: skeleton cards match hero-card sizing in flex row
+@media (min-width: 701px) {
+  .skeleton-card {
+    min-width: 0;
+    flex: 1 1 0;
+    max-width: 320px;
+    height: 200px;
+    border-radius: 20px;
+  }
+
+  // Map skeleton: same height as secondary skeletons for uniform row
+  .skeleton-card-map {
+    max-width: 320px;
+  }
+
+  // Staggered skeleton reveal: map + 3 secondary together
+  .home-container.structure-ready {
+    .skeleton-card-map {
+      animation: fadeInUp 0.6s $reveal-ease 0.25s both, shimmer 1.5s ease-in-out 0.85s infinite;
+    }
+
+    .hero-cards-secondary {
+      > .skeleton-card:nth-child(1) {
+        animation: fadeInUp 0.6s $reveal-ease 0.30s both, shimmer 1.5s ease-in-out 0.9s infinite;
+      }
+      > .skeleton-card:nth-child(2) {
+        animation: fadeInUp 0.6s $reveal-ease 0.35s both, shimmer 1.5s ease-in-out 0.95s infinite;
+      }
+      > .skeleton-card:nth-child(3) {
+        animation: fadeInUp 0.6s $reveal-ease 0.40s both, shimmer 1.5s ease-in-out 1.0s infinite;
+      }
+    }
+  }
+}
+
+// Mobile: skeleton cards reveal inside à la une section
+@media (max-width: 700px) and (orientation: portrait) {
+  // Map skeleton on mobile: matches real map card position and height
+  .skeleton-card-map {
+    order: 2;
+    flex: 0 0 auto;
+    min-width: unset;
+    width: auto;
+    margin: 20px 16px 8px;
+    height: 200px;
+    border-radius: 26px;
+  }
+
+  .home-container.structure-ready {
+    .skeleton-card-map {
+      animation: fadeInUp 0.5s $reveal-ease 0.25s both, shimmer 1.5s ease-in-out 0.75s infinite;
+    }
+
+    .hero-cards-secondary > .skeleton-card {
+      animation: fadeInUp 0.5s $reveal-ease 0.35s both, shimmer 1.5s ease-in-out 0.85s infinite;
+    }
+  }
+}
+
+.shimmer-bar {
+  display: inline-block;
+  color: transparent;
+  border-radius: 4px;
+  background: linear-gradient(110deg, rgba($logo-dark-blue, 0.08) 30%, rgba($logo-dark-blue, 0.16) 50%, rgba($logo-dark-blue, 0.08) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  :host-context(body.dark-theme) & {
+    background: linear-gradient(110deg, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 70%);
+    background-size: 200% 100%;
   }
 }
 
@@ -1449,7 +1556,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     border-radius: 0;
     box-shadow: none;
 
-    // Wave shape — decorative, scrolls with content (hidden until .ready)
+    // Wave shape — decorative, scrolls with content (hidden until .structure-ready)
     &::after {
       content: '';
       position: absolute;
@@ -1466,7 +1573,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
       transition: opacity 0.8s ease 0.3s;
     }
 
-    &.ready::after {
+    &.structure-ready::after {
       opacity: 1;
     }
 
@@ -1504,7 +1611,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     position: relative;
 
     // Left decorative shape — absolute, scrolls with content
-    // Hidden until .ready to avoid flash before orchestrated reveal
+    // Hidden until .structure-ready to avoid flash before orchestrated reveal
     &::before {
       content: '';
       position: absolute;
@@ -2521,9 +2628,9 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   // Categories section: open layout, no extra dark padding needed
 
-  // Orchestrated reveal — decorative blobs fade in with content
-  .home-container.ready .hero-content::before,
-  .home-container.ready .hero-content::after {
+  // Orchestrated reveal — decorative blobs fade in with structure
+  .home-container.structure-ready .hero-content::before,
+  .home-container.structure-ready .hero-content::after {
     opacity: 1;
   }
 }
