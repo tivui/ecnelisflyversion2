@@ -35,7 +35,7 @@ export interface SoundData {
   sourceLang?: string;
   category?: string;
   secondaryCategory?: string;
-  recordDateTime?: Date;
+  recordDateTime?: string;
   equipment?: string;
   url?: string;
   urlTitle?: string;
@@ -225,9 +225,7 @@ export class ConfirmationStepComponent implements OnChanges {
         city: this.soundData.place?.name,
         category: this.soundData.category as CategoryKey | undefined,
         secondaryCategory: this.soundData.secondaryCategory,
-        recordDateTime: this.soundData.recordDateTime
-          ? this.soundData.recordDateTime.toISOString().split('T')[0]
-          : undefined,
+        recordDateTime: this.soundData.recordDateTime || undefined,
         equipment: this.soundData.equipment,
         license: (this.soundData.license || 'CC_BY') as 'READ_ONLY' | 'PUBLIC_DOMAIN' | 'CC_BY' | 'CC_BY_NC',
         url: this.soundData.url,

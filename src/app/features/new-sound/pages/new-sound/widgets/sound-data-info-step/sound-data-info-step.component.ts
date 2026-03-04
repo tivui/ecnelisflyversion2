@@ -15,12 +15,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  DateAdapter,
-  MAT_DATE_LOCALE,
-  provideNativeDateAdapter,
-} from '@angular/material/core';
 
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { LanguageDetectionService } from '../../../../../../core/services/language-detection.service';
@@ -56,15 +50,6 @@ interface Option {
         TranslateModule,
         MatSelectModule,
         MatTooltipModule,
-        MatDatepickerModule,
-    ],
-    providers: [
-        provideNativeDateAdapter(),
-        {
-            provide: MAT_DATE_LOCALE,
-            useFactory: (translate: TranslateService) => translate.currentLang,
-            deps: [TranslateService],
-        },
     ],
     templateUrl: './sound-data-info-step.component.html',
     styleUrl: './sound-data-info-step.component.scss'
@@ -76,7 +61,6 @@ export class SoundDataInfoStepComponent implements OnInit {
   private dialog = inject(MatDialog);
   private amplifyService = inject(AmplifyService);
   private translate = inject(TranslateService);
-  private dateAdapter = inject(DateAdapter<Date>);
 
   /* ================= OUTPUT ================= */
 
@@ -88,7 +72,7 @@ export class SoundDataInfoStepComponent implements OnInit {
     sourceLang?: string;
     category?: CategoryKey;
     secondaryCategory?: string;
-    recordDateTime?: Date;
+    recordDateTime?: string;
     equipment?: string;
   }>();
 
@@ -147,16 +131,11 @@ export class SoundDataInfoStepComponent implements OnInit {
   /* ================= INIT ================= */
 
   ngOnInit() {
-    // Initialize date locale
-    this.setDateLocale(this.translate.currentLang);
-
     // Initial build
     this.buildCategories();
 
     // 🔁 Rebuild on language change
     this.translate.onLangChange.subscribe((event) => {
-      this.setDateLocale(event.lang);
-
       this.buildCategories();
       // Si une catégorie est déjà sélectionnée → reconstruire les sous-catégories
       const selected = this.categoryControl.value;
@@ -414,17 +393,6 @@ export class SoundDataInfoStepComponent implements OnInit {
     if (updated) {
       control.setValue(updated, { emitEvent: false });
     }
-  }
-
-  private setDateLocale(lang: string) {
-    // Mapping si besoin
-    const localeMap: Record<string, string> = {
-      fr: 'fr-FR',
-      en: 'en-GB',
-      es: 'es-ES',
-    };
-
-    this.dateAdapter.setLocale(localeMap[lang] ?? lang);
   }
 
   /**
