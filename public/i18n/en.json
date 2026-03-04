@@ -243,6 +243,7 @@
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
     "myMap": "My map",
+    "myFavorites": "My favorites",
     "loadError": "Failed to load sounds.",
     "userNotFound": "User not found",
     "refresh": "Refresh",
@@ -1298,6 +1299,10 @@
     },
     "user": {
       "soundsOf": "Sounds by {{username}}",
+      "exploreFullMap": "Explore full map"
+    },
+    "favorites": {
+      "title": "My favorites",
       "exploreFullMap": "Explore full map"
     },
     "share": {

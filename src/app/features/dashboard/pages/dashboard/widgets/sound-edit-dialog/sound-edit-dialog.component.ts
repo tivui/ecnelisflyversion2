@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
+import { environment } from '../../../../../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -451,9 +452,10 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
       attributionControl: false,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(this.map);
+    L.tileLayer(
+      `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${environment.mapboxToken}`,
+      { maxZoom: 19 },
+    ).addTo(this.map);
 
     // Add marker with category-specific icon or Leaflet default
     const markerIcon = this.getMarkerIcon();

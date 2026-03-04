@@ -243,6 +243,7 @@
     "addFirstSound": "Ajouter votre premier son",
     "addSound": "Ajouter un son",
     "myMap": "Ma carte",
+    "myFavorites": "Mes favoris",
     "loadError": "Erreur lors du chargement des sons.",
     "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
@@ -1298,6 +1299,10 @@
     },
     "user": {
       "soundsOf": "Sons de {{username}}",
+      "exploreFullMap": "Explorer la carte complète"
+    },
+    "favorites": {
+      "title": "Mes favoris",
       "exploreFullMap": "Explorer la carte complète"
     },
     "share": {
