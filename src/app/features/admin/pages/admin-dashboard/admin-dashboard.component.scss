@@ -358,6 +358,111 @@
   margin-top: 4px;
 }
 
+// Month users panel (cognito chart detail)
+.month-users-panel {
+  width: 100%;
+  margin-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  animation: slideDown 0.2s ease;
+}
+
+.month-users-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #3f51b5;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  span {
+    flex: 1;
+  }
+}
+
+.month-users-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.month-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+.month-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.month-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.month-user-email {
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.month-user-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.month-user-provider {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(25, 118, 210, 0.1);
+  color: #1976d2;
+
+  &.provider-oauth {
+    background: rgba(234, 67, 53, 0.1);
+    color: #ea4335;
+  }
+}
+
+.month-user-date {
+  font-size: 0.75rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.month-users-empty {
+  padding: 16px 0;
+  text-align: center;
+  color: #888;
+  font-size: 0.85rem;
+}
+
 // Dark mode
 :host-context(body.dark-theme) {
   .kpi-card,
@@ -451,6 +556,44 @@
 
   .tab-badge {
     background: rgba(255, 152, 0, 0.85);
+  }
+
+  .month-users-panel {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .month-users-header {
+    color: #7986cb;
+  }
+
+  .month-user-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .month-user-name {
+    color: #e8eaf6;
+  }
+
+  .month-user-email {
+    color: #7a7f9e;
+  }
+
+  .month-user-provider {
+    background: rgba(25, 118, 210, 0.15);
+    color: #90caf9;
+
+    &.provider-oauth {
+      background: rgba(234, 67, 53, 0.15);
+      color: #ef9a9a;
+    }
+  }
+
+  .month-user-date {
+    color: #7a7f9e;
+  }
+
+  .month-users-empty {
+    color: #7a7f9e;
   }
 
   // ngx-charts dark mode

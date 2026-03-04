@@ -707,6 +707,7 @@ const schema = a
       emailCount: a.integer(),
       oauthCount: a.integer(),
       timeSeriesJson: a.string(),
+      usersJson: a.string(),
     }),
 
     getCognitoStats: a

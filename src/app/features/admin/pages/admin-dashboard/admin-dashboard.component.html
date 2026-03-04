@@ -414,7 +414,43 @@
                   [showXAxisLabel]="false"
                   [showYAxisLabel]="false"
                   [view]="[640, 280]"
+                  (select)="onBarSelect($event)"
                 ></ngx-charts-bar-vertical>
+
+                <!-- User details for selected month -->
+                @if (selectedMonth()) {
+                  <div class="month-users-panel">
+                    <div class="month-users-header">
+                      <mat-icon>people</mat-icon>
+                      <span>{{ selectedMonth() }} — {{ selectedMonthUsers().length }} {{ 'admin.dashboard.cognito.users' | translate }}</span>
+                      <button mat-icon-button (click)="selectedMonth.set(null)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                    @if (cognitoUsers().length === 0) {
+                      <div class="month-users-empty">{{ 'admin.dashboard.cognito.deployRequired' | translate }}</div>
+                    } @else if (selectedMonthUsers().length === 0) {
+                      <div class="month-users-empty">{{ 'admin.dashboard.cognito.noUsersMonth' | translate }}</div>
+                    } @else {
+                      <div class="month-users-list">
+                        @for (user of selectedMonthUsers(); track user.email) {
+                          <div class="month-user-row">
+                            <div class="month-user-info">
+                              <span class="month-user-name">{{ user.name || '—' }}</span>
+                              <span class="month-user-email">{{ user.email }}</span>
+                            </div>
+                            <div class="month-user-meta">
+                              <span class="month-user-provider" [class.provider-oauth]="user.provider !== 'EMAIL'">
+                                {{ user.provider === 'EMAIL' ? 'Email' : 'OAuth' }}
+                              </span>
+                              <span class="month-user-date">{{ user.createdAt | date:'shortDate' }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             </div>
           }

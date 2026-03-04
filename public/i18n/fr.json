@@ -552,7 +552,10 @@
         "registrationsOverTime": "Inscriptions sur 12 mois",
         "providerBreakdown": "Répartition par fournisseur",
         "error": "Impossible de charger les stats Cognito",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "users": "utilisateur(s)",
+        "noUsersMonth": "Aucune inscription ce mois",
+        "deployRequired": "Déployer le backend pour activer le détail utilisateurs"
       },
       "noPending": "Aucun son en attente de validation",
       "details": "Détails",

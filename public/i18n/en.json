@@ -552,7 +552,10 @@
         "registrationsOverTime": "Registrations over 12 months",
         "providerBreakdown": "Provider breakdown",
         "error": "Unable to load Cognito stats",
-        "retry": "Retry"
+        "retry": "Retry",
+        "users": "user(s)",
+        "noUsersMonth": "No registrations this month",
+        "deployRequired": "Deploy backend to enable user details"
       },
       "noPending": "No sounds pending review",
       "details": "Details",

@@ -23,6 +23,14 @@ interface CognitoStatsResult {
   emailCount: number;
   oauthCount: number;
   timeSeriesJson: string;
+  usersJson: string;
+}
+
+interface CognitoUser {
+  name: string;
+  email: string;
+  provider: string;
+  createdAt: string;
 }
 
 @Component({
@@ -59,6 +67,17 @@ export class AdminDashboardComponent implements OnInit {
   cognitoStats = signal<CognitoStatsResult | null>(null);
   cognitoLoading = signal(false);
   cognitoError = signal(false);
+  selectedMonth = signal<string | null>(null);
+
+  cognitoUsers = computed<CognitoUser[]>(() => {
+    const raw = this.cognitoStats()?.usersJson;
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw) as CognitoUser[];
+    } catch {
+      return [];
+    }
+  });
 
   cognitoTimeSeries = computed(() => {
     const raw = this.cognitoStats()?.timeSeriesJson;
@@ -69,6 +88,13 @@ export class AdminDashboardComponent implements OnInit {
     } catch {
       return [];
     }
+  });
+
+  selectedMonthUsers = computed<CognitoUser[]>(() => {
+    const month = this.selectedMonth();
+    if (!month) return [];
+    const users = this.cognitoUsers();
+    return users.filter((u) => u.createdAt.startsWith(month));
   });
 
   cognitoProviderData = computed(() => {
@@ -368,6 +394,11 @@ export class AdminDashboardComponent implements OnInit {
     for (const sound of pending) {
       await this.approveSound(sound);
     }
+  }
+
+  onBarSelect(event: { name: string }) {
+    const month = event.name; // format: "2026-03"
+    this.selectedMonth.set(this.selectedMonth() === month ? null : month);
   }
 
   async toggleExpand(sound: Sound) {
