@@ -224,6 +224,7 @@ export class AppUserService {
         avatarOptions: userRecord.avatarOptions && userRecord.avatarOptions !== '{}'
           ? JSON.parse(userRecord.avatarOptions as string)
           : null,
+        unlimitedQuota: userRecord.unlimitedQuota ?? false,
       };
 
       this._currentUser.next(appUser);

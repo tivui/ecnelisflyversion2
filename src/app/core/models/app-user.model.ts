@@ -18,6 +18,7 @@ export interface AppUser {
   avatarSeed?: string | null;
   avatarBgColor?: string | null;
   avatarOptions?: Record<string, string> | null;
+  unlimitedQuota?: boolean;
 }
 export { Language };
 

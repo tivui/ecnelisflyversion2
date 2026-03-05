@@ -2,7 +2,7 @@
   <div id="mapfly"></div>
 
   <!-- Unified search bar (normal mode only) -->
-  @if (!isLoading() && !isFeaturedMode() && !isJourneyMode() && !isUserMode()) {
+  @if (!isLoading() && !isFeaturedMode() && !isJourneyMode() && !isUserMode() && !isFavoritesMode()) {
     <div class="unified-search" [class.focused]="searchFocused()">
       <div class="unified-search-bar">
         <div class="unified-search-toggle">
@@ -238,8 +238,33 @@
     </button>
   }
 
+  <!-- Favorites filter banner -->
+  @if (isFavoritesMode() && !isEmptyResults() && !isLoading()) {
+    <div class="favorites-banner">
+      <button class="favorites-banner-globe" (click)="goToFullMap()">
+        <span class="material-icons">public</span>
+      </button>
+      <span class="material-icons favorites-banner-icon">favorite</span>
+      <span class="favorites-banner-label">{{ 'mapfly.favorites.title' | translate }}</span>
+      <span class="favorites-banner-divider"></span>
+      @if (favoritesSoundCount() === 1) {
+        <span class="favorites-banner-count">{{ 'mapfly.category.countOne' | translate }}</span>
+      } @else {
+        <span class="favorites-banner-count">{{ 'mapfly.category.count' | translate:{ count: favoritesSoundCount() } }}</span>
+      }
+    </div>
+  }
+
+  <!-- Favorites mode: "Explore full map" button (desktop only) -->
+  @if (isFavoritesMode() && !isEmptyResults() && !isLoading()) {
+    <button class="favorites-explore-btn" (click)="goToFullMap()">
+      <span class="material-icons">public</span>
+      <span>{{ 'mapfly.favorites.exploreFullMap' | translate }}</span>
+    </button>
+  }
+
   <!-- Time-based filter (normal mode only) -->
-  @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0 && !isUserMode()) {
+  @if (!isLoading() && !isEmptyResults() && normalModeMarkerMap.length > 0 && !isUserMode() && !isFavoritesMode()) {
     <!-- Desktop: horizontal chips (unchanged) -->
     <div class="time-filter time-filter-desktop">
       <button class="time-filter-chip" [class.active]="timeFilter() === 'all'" (click)="toggleTimeFilter('all')">

@@ -15,6 +15,7 @@ export interface AdminUser {
   avatarBgColor?: string;
   avatarOptions?: string;
   likedSoundIds?: string;
+  unlimitedQuota?: boolean;
   soundCount: number;
   // Cognito enrichment
   cognitoUsername?: string;
@@ -45,7 +46,7 @@ export class UserManagementService {
         selectionSet: [
           'id', 'username', 'email', 'country', 'firstName', 'lastName',
           'cognitoSub', 'avatarStyle', 'avatarSeed', 'avatarBgColor',
-          'avatarOptions', 'likedSoundIds',
+          'avatarOptions', 'likedSoundIds', 'unlimitedQuota',
         ],
       });
       rawUsers.push(...(page.data ?? []));
@@ -86,6 +87,7 @@ export class UserManagementService {
         avatarBgColor: user.avatarBgColor ?? undefined,
         avatarOptions: user.avatarOptions ?? undefined,
         likedSoundIds: user.likedSoundIds ?? undefined,
+        unlimitedQuota: user.unlimitedQuota ?? false,
         soundCount,
       });
     }
@@ -279,5 +281,12 @@ export class UserManagementService {
     }
 
     return transferred;
+  }
+
+  async toggleUnlimitedQuota(userId: string, unlimited: boolean): Promise<void> {
+    await (this.amplifyService.client.models.User as any).update({
+      id: userId,
+      unlimitedQuota: unlimited,
+    });
   }
 }

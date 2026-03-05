@@ -16,6 +16,7 @@ export const MAP_QUERY_KEYS = {
   lng: 'lng',
   zoom: 'zoom',
   basemap: 'basemap',
+  favorites: 'favorites',
 } as const;
 
 export const ALL_GROUP_KEYS = ['TOUT', 'ALL', 'TODO'] as const;

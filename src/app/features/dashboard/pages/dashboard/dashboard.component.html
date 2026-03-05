@@ -28,6 +28,16 @@
         {{ "dashboard.myMap" | translate }}
       </button>
 
+      <!-- My favorites button -->
+      <button
+        mat-stroked-button
+        (click)="goToMyFavorites()"
+        class="my-favorites-btn"
+      >
+        <mat-icon>favorite</mat-icon>
+        {{ "dashboard.myFavorites" | translate }}
+      </button>
+
       <!-- Add sound button -->
       <button
         mat-raised-button

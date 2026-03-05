@@ -18,6 +18,9 @@ export class LikeService {
   /** Sound IDs currently being processed (anti-double-click) */
   private readonly processing = signal<Set<string>>(new Set());
 
+  /** Cached applause audio element */
+  private applauseAudio: HTMLAudioElement | null = null;
+
   constructor() {
     // Sync liked IDs from current user
     this.appUserService.currentUser$
@@ -39,6 +42,15 @@ export class LikeService {
   /** Check if a sound is currently being processed */
   isProcessing(soundId: string): boolean {
     return this.processing().has(soundId);
+  }
+
+  private playApplause(): void {
+    if (!this.applauseAudio) {
+      this.applauseAudio = new Audio('sounds/applause.mp3');
+      this.applauseAudio.volume = 0.5;
+    }
+    this.applauseAudio.currentTime = 0;
+    this.applauseAudio.play().catch(() => {/* user gesture required — silent fail */});
   }
 
   /**
@@ -69,6 +81,7 @@ export class LikeService {
       newSet.delete(soundId);
     } else {
       newSet.add(soundId);
+      this.playApplause();
     }
     this.likedSoundIds.set(newSet);
 

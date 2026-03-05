@@ -243,6 +243,7 @@
     "addFirstSound": "Ajouter votre premier son",
     "addSound": "Ajouter un son",
     "myMap": "Ma carte",
+    "myFavorites": "Mes favoris",
     "loadError": "Erreur lors du chargement des sons.",
     "userNotFound": "Utilisateur non trouvé",
     "refresh": "Actualiser",
@@ -552,7 +553,10 @@
         "registrationsOverTime": "Inscriptions sur 12 mois",
         "providerBreakdown": "Répartition par fournisseur",
         "error": "Impossible de charger les stats Cognito",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "users": "utilisateur(s)",
+        "noUsersMonth": "Aucune inscription ce mois",
+        "deployRequired": "Déployer le backend pour activer le détail utilisateurs"
       },
       "noPending": "Aucun son en attente de validation",
       "details": "Détails",
@@ -565,6 +569,20 @@
       "detailHashtags": "Hashtags",
       "detailDate": "Date d'ajout",
       "detailAudio": "Écouter"
+    },
+    "moderation": {
+      "dialog": {
+        "title": "Examiner le son",
+        "review": "Examiner",
+        "soundBy": "Par {{username}}",
+        "approve": "Approuver",
+        "reject": "Refuser",
+        "note": "Note (optionnelle)",
+        "reason": "Motif du refus",
+        "reasonRequired": "Le motif est obligatoire pour un refus",
+        "cancel": "Annuler",
+        "error": "Erreur lors de la modération"
+      }
     },
     "featuredSound": {
       "title": "Son du jour",
@@ -1075,7 +1093,9 @@
         "promote": "Promouvoir admin",
         "demote": "Rétrograder utilisateur",
         "delete": "Supprimer le compte",
-        "merge": "Fusionner avec un autre importé"
+        "merge": "Fusionner avec un autre importé",
+        "grantUnlimitedQuota": "Octroyer quota illimité",
+        "removeUnlimitedQuota": "Retirer quota illimité"
       },
       "merge": {
         "title": "Fusionner {{username}}",
@@ -1100,6 +1120,9 @@
       "promoteSuccess": "Utilisateur promu administrateur",
       "demoteConfirm": "Rétrograder {{username}} en utilisateur simple ?",
       "demoteSuccess": "Utilisateur rétrogradé",
+      "quotaGranted": "Quota illimité accordé",
+      "quotaRemoved": "Quota illimité retiré",
+      "quotaError": "Erreur lors de la modification du quota",
       "deleteSuccess": "Utilisateur supprimé",
       "detail": {
         "title": "Détails de l'utilisateur",
@@ -1297,6 +1320,10 @@
       "soundsOf": "Sons de {{username}}",
       "exploreFullMap": "Explorer la carte complète"
     },
+    "favorites": {
+      "title": "Mes favoris",
+      "exploreFullMap": "Explorer la carte complète"
+    },
     "share": {
       "button": "Partager",
       "copied": "Lien copié !"
@@ -1376,7 +1403,6 @@
     "ambiancefly.factoryfly": "Ambiance d'usine",
     "ambiancefly.cityfly": "Ambiance de ville",
     "ambiancefly.zoofly": "Ambiance de zoo, de parc animalier",
-    "ambiancefly.naturefly": "Ambiance de nature, de plein air",
     "ambiancefly.interiorfly": "Ambiance d'intérieur",
     "ambiancefly.publicfly": "Ambiance de lieux publics",
     "ambiancefly.transportationfly": "Ambiance de transports",
@@ -1755,7 +1781,7 @@
         "name": "Ecnelis FLY — Projet personnel",
         "hosting": "Hébergement",
         "hostingDetail": "Amazon Web Services (AWS) via AWS Amplify",
-        "contact": "Contact : contact@ecnelisfly.com"
+        "contact": "Contact : ecnelisfly@gmail.com"
       },
       "terms": {
         "title": "Conditions générales d'utilisation",

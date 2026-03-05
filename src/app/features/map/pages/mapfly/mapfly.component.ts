@@ -149,6 +149,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
   public userFilterLabel = signal('');
   public userSoundCount = signal(0);
 
+  // Favorites filter info
+  public isFavoritesMode = signal(false);
+  public favoritesSoundCount = signal(0);
+
   // Time-based filter (normal mode only)
   public timeFilter = signal<'all' | 'latest10' | 'week' | 'month'>('all');
   public timeFilterCounts = signal<{ all: number; latest10: number; week: number; month: number }>({
@@ -477,6 +481,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     const zoneId = params.get('zoneId') ?? undefined;
     const soundFilename = params.get('soundFilename') ?? undefined;
     const featuredMode = params.get('featuredMode') === 'true';
+    const favoritesMode = params.get(MAP_QUERY_KEYS.favorites) === 'true';
 
     // --- Paramètres initiaux de la carte ---
     const lat = parseFloat(params.get(MAP_QUERY_KEYS.lat) ?? '30');
@@ -782,6 +787,17 @@ export class MapflyComponent implements OnInit, OnDestroy {
         }
       }
 
+      // --- Favorites filter (client-side) ---
+      if (favoritesMode && !userId && !category && !zoneId) {
+        const likedIds = this.likeService.likedSoundIds();
+        sounds = sounds.filter(s => s.id && likedIds.has(s.id));
+        this.isFavoritesMode.set(true);
+        this.favoritesSoundCount.set(sounds.length);
+        if (sounds.length === 0) {
+          this.isEmptyResults.set(true);
+        }
+      }
+
       // --- MarkerCluster ---
       this.markersCluster = L.markerClusterGroup({
         iconCreateFunction: (cluster) => {
@@ -834,7 +850,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       // --- 4️⃣ Préparation markers ---
       this.markerLookup = {};
 
-      const isNormalMode = !zoneId && !category && !secondaryCategory && !userId;
+      const isNormalMode = !zoneId && !category && !secondaryCategory && !userId && !favoritesMode;
 
       for (const s of sounds.filter((s) => s.latitude && s.longitude)) {
         const catTronquee = s.secondaryCategory
@@ -1277,7 +1293,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }
 
       // --- Fit bounds when filtering by category or user ---
-      if ((category || secondaryCategory || userId) && sounds.length > 0) {
+      if ((category || secondaryCategory || userId || favoritesMode) && sounds.length > 0) {
         const bounds = this.markersCluster.getBounds();
         if (bounds.isValid()) {
           this.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });

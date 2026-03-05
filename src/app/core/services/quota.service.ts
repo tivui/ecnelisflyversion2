@@ -24,6 +24,29 @@ export class QuotaService {
       };
     }
 
+    // Check if user has unlimited quota granted by admin
+    try {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const userResult = await (this.amplifyService.client.models.User as any).get(
+        { id: userId },
+        { selectionSet: ['id', 'unlimitedQuota'] },
+      );
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+      if (userResult.data?.unlimitedQuota) {
+        return {
+          weekCount: 0,
+          monthCount: 0,
+          weekLimit: Infinity,
+          monthLimit: Infinity,
+          canUpload: true,
+          weekRemaining: Infinity,
+          monthRemaining: Infinity,
+        };
+      }
+    } catch {
+      // Silently ignore — fall through to normal quota check
+    }
+
     const now = new Date();
 
     // Start of current week (Monday)

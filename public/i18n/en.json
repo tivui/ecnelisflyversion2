@@ -243,6 +243,7 @@
     "addFirstSound": "Add your first sound",
     "addSound": "Add sound",
     "myMap": "My map",
+    "myFavorites": "My favorites",
     "loadError": "Failed to load sounds.",
     "userNotFound": "User not found",
     "refresh": "Refresh",
@@ -552,7 +553,10 @@
         "registrationsOverTime": "Registrations over 12 months",
         "providerBreakdown": "Provider breakdown",
         "error": "Unable to load Cognito stats",
-        "retry": "Retry"
+        "retry": "Retry",
+        "users": "user(s)",
+        "noUsersMonth": "No registrations this month",
+        "deployRequired": "Deploy backend to enable user details"
       },
       "noPending": "No sounds pending review",
       "details": "Details",
@@ -565,6 +569,20 @@
       "detailHashtags": "Hashtags",
       "detailDate": "Added on",
       "detailAudio": "Listen"
+    },
+    "moderation": {
+      "dialog": {
+        "title": "Review sound",
+        "review": "Review",
+        "soundBy": "By {{username}}",
+        "approve": "Approve",
+        "reject": "Reject",
+        "note": "Note (optional)",
+        "reason": "Rejection reason",
+        "reasonRequired": "A reason is required for rejection",
+        "cancel": "Cancel",
+        "error": "Moderation error"
+      }
     },
     "featuredSound": {
       "title": "Sound of the Day",
@@ -1075,7 +1093,9 @@
         "promote": "Promote to admin",
         "demote": "Demote to user",
         "delete": "Delete account",
-        "merge": "Merge with another imported"
+        "merge": "Merge with another imported",
+        "grantUnlimitedQuota": "Grant unlimited quota",
+        "removeUnlimitedQuota": "Remove unlimited quota"
       },
       "merge": {
         "title": "Merge {{username}}",
@@ -1100,6 +1120,9 @@
       "promoteSuccess": "User promoted to administrator",
       "demoteConfirm": "Demote {{username}} to regular user?",
       "demoteSuccess": "User demoted",
+      "quotaGranted": "Unlimited quota granted",
+      "quotaRemoved": "Unlimited quota removed",
+      "quotaError": "Failed to update quota",
       "deleteSuccess": "User deleted",
       "detail": {
         "title": "User details",
@@ -1297,6 +1320,10 @@
       "soundsOf": "Sounds by {{username}}",
       "exploreFullMap": "Explore full map"
     },
+    "favorites": {
+      "title": "My favorites",
+      "exploreFullMap": "Explore full map"
+    },
     "share": {
       "button": "Share",
       "copied": "Link copied!"
@@ -1377,7 +1404,6 @@
     "ambiancefly.factoryfly": "Factory ambiance",
     "ambiancefly.cityfly": "City ambiance",
     "ambiancefly.zoofly": "Zoo, wildlife park ambiance",
-    "ambiancefly.naturefly": "Nature, outdoor ambiance",
     "ambiancefly.interiorfly": "Indoor ambiance",
     "ambiancefly.publicfly": "Public places ambiance",
     "ambiancefly.transportationfly": "Transportation ambiance",
@@ -1756,7 +1782,7 @@
         "name": "Ecnelis FLY — Personal project",
         "hosting": "Hosting",
         "hostingDetail": "Amazon Web Services (AWS) via AWS Amplify",
-        "contact": "Contact: contact@ecnelisfly.com"
+        "contact": "Contact: ecnelisfly@gmail.com"
       },
       "terms": {
         "title": "Terms of Use",

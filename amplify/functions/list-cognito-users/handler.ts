@@ -9,7 +9,7 @@ export const handler = async () => {
   const userPoolId = process.env['USER_POOL_ID'];
   if (!userPoolId) throw new Error('USER_POOL_ID not set');
 
-  const allUsers: Array<{ createdAt: Date; provider: string }> = [];
+  const allUsers: Array<{ createdAt: Date; provider: string; email: string; name: string }> = [];
   let paginationToken: string | undefined;
 
   // Paginate through all Cognito users
@@ -23,9 +23,10 @@ export const handler = async () => {
     );
 
     for (const user of response.Users ?? []) {
-      const identitiesAttr = user.Attributes?.find(
-        (a) => a.Name === 'identities',
-      )?.Value;
+      const attrs = user.Attributes ?? [];
+      const getAttr = (name: string) => attrs.find((a) => a.Name === name)?.Value ?? '';
+
+      const identitiesAttr = getAttr('identities');
 
       let provider = 'EMAIL';
       if (identitiesAttr) {
@@ -39,9 +40,14 @@ export const handler = async () => {
         }
       }
 
+      const email = getAttr('email');
+      const name = getAttr('name') || getAttr('preferred_username') || user.Username || '';
+
       allUsers.push({
         createdAt: user.UserCreateDate ?? new Date(0),
         provider,
+        email,
+        name,
       });
     }
 
@@ -64,6 +70,16 @@ export const handler = async () => {
     months.push({ label, count });
   }
 
+  // Build user details list (sorted by most recent first)
+  const userDetails = allUsers
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .map((u) => ({
+      name: u.name,
+      email: u.email,
+      provider: u.provider,
+      createdAt: u.createdAt.toISOString(),
+    }));
+
   return {
     totalUsers: allUsers.length,
     newThisWeek: allUsers.filter((u) => u.createdAt >= weekStart).length,
@@ -71,5 +87,6 @@ export const handler = async () => {
     emailCount: allUsers.filter((u) => u.provider === 'EMAIL').length,
     oauthCount: allUsers.filter((u) => u.provider !== 'EMAIL').length,
     timeSeriesJson: JSON.stringify(months),
+    usersJson: JSON.stringify(userDetails),
   };
 };

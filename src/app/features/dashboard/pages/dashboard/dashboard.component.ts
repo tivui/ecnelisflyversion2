@@ -172,6 +172,10 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  goToMyFavorites() {
+    this.router.navigate(['/mapfly'], { queryParams: { favorites: 'true' } });
+  }
+
   onFiltersChanged(filters: SoundFilters) {
     this.currentFilters.set(filters);
   }

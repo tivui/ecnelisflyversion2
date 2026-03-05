@@ -23,6 +23,8 @@ export class DashboardService {
       'userId',
       'user.username',
       'user.country',
+      'user.email',
+      'user.language',
       'title',
       'title_i18n',
       'shortStory',
@@ -46,6 +48,7 @@ export class DashboardService {
       'likesCount',
       'createdAt',
       'updatedAt',
+      'moderationNote',
     ] as const;
 
     try {
@@ -88,6 +91,8 @@ export class DashboardService {
       'userId',
       'user.username',
       'user.country',
+      'user.email',
+      'user.language',
       'title',
       'title_i18n',
       'shortStory',
@@ -111,6 +116,7 @@ export class DashboardService {
       'likesCount',
       'createdAt',
       'updatedAt',
+      'moderationNote',
     ] as const;
 
     try {
@@ -213,6 +219,7 @@ export class DashboardService {
       if (data['license'] !== undefined) updatePayload['license'] = data['license'];
       if (data['status'] !== undefined) updatePayload['status'] = data['status'];
       if (data['hashtags'] !== undefined) updatePayload['hashtags'] = data['hashtags'];
+      if (data['moderationNote'] !== undefined) updatePayload['moderationNote'] = data['moderationNote'];
 
       // Cast to any for Amplify client compatibility
       const result = await this.amplifyService.client.models.Sound.update(

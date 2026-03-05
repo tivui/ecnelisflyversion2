@@ -203,8 +203,17 @@
   line-height: 1.2;
 }
 
+// Native date input styling
+input[type="date"] {
+  color-scheme: light;
+}
+
 // Dark mode
 :host-context(.dark-theme) {
+  input[type="date"] {
+    color-scheme: dark;
+  }
+
   .header-card {
     background: linear-gradient(135deg, #2a2a3c 0%, #1f1f2f 100%);
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);

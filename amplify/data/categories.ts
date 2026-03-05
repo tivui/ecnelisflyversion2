@@ -67,7 +67,6 @@ export const categories: Record<string, Category> = {
       { key: 'factoryfly' },
       { key: 'cityfly' },
       { key: 'zoofly' },
-      { key: 'naturefly' },
       { key: 'interiorfly' },
       { key: 'publicfly' },
       { key: 'transportationfly' },
