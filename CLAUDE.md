@@ -1307,6 +1307,8 @@ La Lambda (`amplify/functions/list-sounds-for-map/handler.ts`) fetch les sons `p
 
 La query GraphQL `ListSoundsForMapWithAppUser` inclut le champ `status` pour que le frontend connaisse le statut du son.
 
+**Piege connu (pagination GSI)** : les queries GSI Amplify Gen2 (`listSoundsByUserAndStatus`, etc.) attendent **deux arguments separes** : `(indexKeys, options)`. Passer `limit` et `nextToken` dans le meme objet que les cles d'index les fait ignorer silencieusement, causant un retour partiel (seule la premiere page avec limit par defaut). Corrige en mars 2026.
+
 ### Redirect post-upload
 
 Toujours vers `/mapfly` avec coordonnees + `soundFilename`, quel que soit le statut. Le parametre `soundFilename` declenche l'auto-ouverture de la popup (desktop) ou bottom sheet (mobile) du son nouvellement cree, via `markersCluster.zoomToShowLayer()` (meme pattern que `selectSearchResult`). Snackbar informatif si `public_to_be_approved`.
