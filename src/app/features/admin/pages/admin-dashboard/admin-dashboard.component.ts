@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -59,6 +59,16 @@ export class AdminDashboardComponent implements OnInit {
   private readonly storageService = inject(StorageService);
   private readonly siteVisitService = inject(SiteVisitService);
   private readonly dialog = inject(MatDialog);
+
+  // Responsive chart dimensions
+  private screenWidth = signal(window.innerWidth);
+  chartWide = computed<[number, number]>(() => this.screenWidth() < 768 ? [this.screenWidth() - 40, 220] : [640, 240]);
+  chartMedium = computed<[number, number]>(() => this.screenWidth() < 768 ? [this.screenWidth() - 40, 240] : [480, 300]);
+  chartSmall = computed<[number, number]>(() => this.screenWidth() < 768 ? [this.screenWidth() - 40, 220] : [380, 280]);
+  chartPie = computed<[number, number]>(() => this.screenWidth() < 768 ? [this.screenWidth() - 40, 220] : [300, 240]);
+
+  @HostListener('window:resize')
+  onResize() { this.screenWidth.set(window.innerWidth); }
 
   sounds = signal<Sound[]>([]);
   users = signal<{ id: string; username: string; createdAt?: string }[]>([]);

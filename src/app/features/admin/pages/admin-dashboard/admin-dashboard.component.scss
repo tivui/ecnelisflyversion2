@@ -690,19 +690,6 @@
 
   .chart-card {
     padding: 14px 10px;
-
-    // Force compact chart dimensions on mobile
-    ::ng-deep ngx-charts-bar-vertical,
-    ::ng-deep ngx-charts-bar-horizontal,
-    ::ng-deep ngx-charts-line-chart {
-      width: 100% !important;
-      height: 260px !important;
-    }
-
-    ::ng-deep ngx-charts-pie-chart {
-      width: 100% !important;
-      height: 240px !important;
-    }
   }
 
   .moderation-header {

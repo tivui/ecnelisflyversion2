@@ -76,6 +76,7 @@
                 <ngx-charts-bar-vertical
                   [results]="visitStats()!.timeSeries"
                   [scheme]="visitsColorScheme"
+                  [view]="chartWide()"
                   [xAxis]="true"
                   [yAxis]="true"
                   [showXAxisLabel]="false"
@@ -95,6 +96,7 @@
               <ngx-charts-bar-horizontal
                 [results]="categoryData()"
                 [scheme]="categoryColorScheme()"
+                [view]="chartMedium()"
                 [xAxis]="true"
                 [yAxis]="true"
                 [showXAxisLabel]="false"
@@ -110,6 +112,7 @@
               <ngx-charts-line-chart
                 [results]="uploadsOverTime()"
                 [scheme]="lineColorScheme"
+                [view]="chartMedium()"
                 [xAxis]="true"
                 [yAxis]="true"
                 [showXAxisLabel]="false"
@@ -127,6 +130,7 @@
               <ngx-charts-pie-chart
                 [results]="statusData()"
                 [scheme]="statusColorScheme"
+                [view]="chartPie()"
                 [labels]="true"
                 [doughnut]="true"
               ></ngx-charts-pie-chart>
@@ -139,6 +143,7 @@
                 <ngx-charts-bar-horizontal
                   [results]="topContributors()"
                   [scheme]="contributorsColorScheme"
+                  [view]="chartSmall()"
                   [xAxis]="true"
                   [yAxis]="true"
                   [showXAxisLabel]="false"
@@ -156,6 +161,7 @@
                 <ngx-charts-bar-vertical
                   [results]="topCities()"
                   [scheme]="citiesColorScheme"
+                  [view]="chartSmall()"
                   [xAxis]="true"
                   [yAxis]="true"
                   [showXAxisLabel]="false"
@@ -395,6 +401,7 @@
                 <ngx-charts-bar-vertical
                   [results]="cognitoTimeSeries()"
                   [scheme]="cognitoColorScheme"
+                  [view]="chartWide()"
                   [xAxis]="true"
                   [yAxis]="true"
                   [showXAxisLabel]="false"
@@ -448,6 +455,7 @@
                 <ngx-charts-pie-chart
                   [results]="cognitoProviderData()"
                   [scheme]="cognitoProviderScheme"
+                  [view]="chartPie()"
                   [labels]="true"
                   [doughnut]="true"
                   ></ngx-charts-pie-chart>
