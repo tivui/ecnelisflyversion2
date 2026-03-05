@@ -1237,11 +1237,21 @@ Pas de champ en base. `QuotaService` (`core/services/quota.service.ts`) compte l
 
 `QuotaInfo` (`core/models/quota.model.ts`) : `weekCount`, `monthCount`, `weekLimit`, `monthLimit`, `canUpload`, `weekRemaining`, `monthRemaining`.
 
+### Quota illimite (`unlimitedQuota`)
+
+L'admin peut accorder un quota illimite a un utilisateur specifique via la page gestion des utilisateurs (`/admin/users`).
+
+- **Schema** : `User.unlimitedQuota: a.boolean().default(false)` dans `amplify/data/resource.ts`
+- **QuotaService** : apres le check admin, verifie `User.get({ id, selectionSet: ['id', 'unlimitedQuota'] })` → si `true`, retourne limites `Infinity`
+- **AppUserService** : mappe `unlimitedQuota: userRecord.unlimitedQuota ?? false`
+- **User management** : `toggleUnlimitedQuota(userId, enabled)` dans `user-management.service.ts`, bouton dans le mat-menu actions
+
 ### Enforcement
 
 - `new-sound.component.ts` : verifie le quota au `ngOnInit`, affiche overlay bloquant si limite atteinte
 - `confirmation-step.component.ts` : double-verification avant `Sound.create()`
 - Admins : bypass automatique (`quotaService` verifie `isAdmin`)
+- Users avec `unlimitedQuota: true` : bypass automatique (verifie apres le check admin)
 
 ### Affichage
 
@@ -1253,7 +1263,34 @@ Barres de progression dans `dashboard-stats.component` (onglet Statistiques du d
 
 1. Utilisateur non-admin uploade un son en "public" → statut force a `public_to_be_approved` via `resolveStatus()` dans `confirmation-step.component.ts`
 2. Admin uploade en "public" → statut reste `public` directement
-3. Admin approuve/rejette dans le dashboard admin → statut passe a `public` ou `private`
+3. Admin ouvre le dialog de moderation (`ModerationDialogComponent`) → approuve (avec modification optionnelle de categorie) ou rejette (avec motif obligatoire)
+4. Statut passe a `public` (approuve) ou `private` (rejete) + `moderationNote` sauvegardee
+5. Email envoye a l'utilisateur dans sa langue via mutation `sendSoundEmail` (fire-and-forget, skip `imported_*`)
+6. Notification in-app : `newNotificationCount` incremente (read-then-write, pas d'atomic increment)
+
+### Dialog de moderation (`moderation-dialog.component.ts`)
+
+Standalone component dans `admin-dashboard/`. Ouvert au clic du bouton "Examiner" (`rate_review`) sur chaque son en attente.
+
+**Contenu :**
+- Resume son (titre, username, lieu)
+- Radio group : Approuver / Rejeter
+- Autocomplete categorie + sous-categorie (pre-remplis, editables, visibles uniquement en approbation) — pattern `Option { key, label }` + `displayFn` + `getSubCategoryKeys()`
+- Textarea motif/note (optionnel pour approbation, requis pour rejet)
+
+**Interfaces :**
+- `ModerationDialogData { sound: Sound }`
+- `ModerationDialogResult { action: 'approved'|'rejected', category?, secondaryCategory?, moderationNote?, categoryChanged: boolean }`
+
+**Pieges connus :**
+- `mat-autocomplete` peut ecraser l'objet par un string au blur — `displayFn` gere les deux types
+- `originalCategory` / `originalSecondaryCategory` captures au `ngOnInit` pour detecter les changements
+
+### Schema backend — champs moderation
+
+- `Sound.moderationNote: a.string()` — note/motif de moderation
+- `User.unlimitedQuota: a.boolean().default(false)` — quota illimite
+- Mutation `sendSoundEmail` dans `amplify/data/resource.ts` → Lambda `send-sound-confirmation-email`
 
 ### Visibilite sur la carte (Lambda `list-sounds-for-map`)
 
@@ -1270,6 +1307,25 @@ La query GraphQL `ListSoundsForMapWithAppUser` inclut le champ `status` pour que
 ### Redirect post-upload
 
 Toujours vers `/mapfly` avec coordonnees + `soundFilename`, quel que soit le statut. Le parametre `soundFilename` declenche l'auto-ouverture de la popup (desktop) ou bottom sheet (mobile) du son nouvellement cree, via `markersCluster.zoomToShowLayer()` (meme pattern que `selectSearchResult`). Snackbar informatif si `public_to_be_approved`.
+
+### i18n moderation et quota
+
+| Cle | FR | EN | ES |
+|-----|----|----|-----|
+| `admin.moderation.dialog.title` | Moderation | Moderation | Moderacion |
+| `admin.moderation.dialog.review` | Examiner | Review | Revisar |
+| `admin.moderation.dialog.approve` | Approuver | Approve | Aprobar |
+| `admin.moderation.dialog.reject` | Rejeter | Reject | Rechazar |
+| `admin.moderation.dialog.reason` | Motif du rejet | Rejection reason | Motivo del rechazo |
+| `admin.moderation.dialog.reasonRequired` | Le motif est requis | Reason is required | El motivo es obligatorio |
+| `admin.moderation.dialog.note` | Note (optionnel) | Note (optional) | Nota (opcional) |
+| `admin.moderation.dialog.cancel` | Annuler | Cancel | Cancelar |
+| `admin.moderation.dialog.soundBy` | Son de {{username}} | Sound by {{username}} | Sonido de {{username}} |
+| `admin.dashboard.moderationError` | Erreur de moderation | Moderation error | Error de moderacion |
+| `admin.users.actions.grantUnlimitedQuota` | Quota illimite | Unlimited quota | Cuota ilimitada |
+| `admin.users.actions.removeUnlimitedQuota` | Revoquer quota illimite | Revoke unlimited quota | Revocar cuota ilimitada |
+| `admin.users.quotaGranted` | Quota illimite accorde | Unlimited quota granted | Cuota ilimitada concedida |
+| `admin.users.quotaRemoved` | Quota illimite revoque | Unlimited quota revoked | Cuota ilimitada revocada |
 
 ## Dashboard utilisateur (`features/dashboard/`)
 
@@ -1404,7 +1460,19 @@ Chaque son en attente est cliquable/expandable (`toggleExpand(sound)`) avec :
 - Titre (toutes langues), histoire, categorie + sous-categorie, lieu + coordonnees
 - Equipement, licence, hashtags (chips), URLs, date d'ajout
 - **Lecteur audio** integre (charge l'URL S3 via `StorageService` au clic)
-- Boutons approuver/rejeter + "Tout approuver"
+- Bouton "Examiner" (`rate_review`) → ouvre `ModerationDialogComponent`
+- "Tout approuver" : approve direct sans dialog ni email (batch simplifie)
+
+### Moderation — flux complet (`applyModerationDecision`)
+
+1. `DashboardService.updateSound()` : status + category (si changee) + `moderationNote`
+2. Email via `(client as any).mutations.sendSoundEmail({...})` — fire-and-forget, skip si email `imported_*`
+3. Notification : `User.get` (count actuel) → `User.update({ newNotificationCount: current + 1, flashNew: true })`
+4. Update signal local + snackbar
+
+**Pieges connus :**
+- Pas d'increment atomique pour `newNotificationCount` : read-then-write (acceptable car admin-only, pas de concurrence)
+- `event.arguments` : la Lambda recoit les args dans `event.arguments` (pas directement sur `event`) — Amplify Gen2 specifique
 
 ### Etat vide
 
@@ -1453,10 +1521,11 @@ Route `/admin/users` (pas enfant de database tabs, comme `/admin/dashboard`). Ac
 - `loadAllUsers()` : pagine `User.list()`, filtre `merged_*`, compte sons par user
 - `enrichWithCognitoData(users)` : appelle mutation `manageCognitoUser({ action: 'listUserStatuses' })`, match par `cognitoSub` (primaire) puis `email` (fallback)
 - `disableUser()`, `enableUser()`, `addToAdminGroup()`, `removeFromAdminGroup()`, `deleteCognitoUser()`, `deleteDynamoUser()`, `deleteUserSounds()`
+- `toggleUnlimitedQuota(userId, unlimited)` : `User.update({ id, unlimitedQuota })` — accorde/revoque quota illimite
 
 ### Interface `AdminUser`
 
-Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, `cognitoStatus`, `cognitoGroups`, `cognitoProvider`, `cognitoCreatedAt`
+Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, `cognitoStatus`, `cognitoGroups`, `cognitoProvider`, `cognitoCreatedAt`, `unlimitedQuota`
 
 ### Composant principal
 
@@ -1998,7 +2067,7 @@ Lambda enregistree dans `amplify/backend.ts`. Activee quand `SEND_EMAIL_ENABLED=
 3. `SENDER_EMAIL=noreply@ecnelisfly.com` (env var dans backend.ts)
 4. `SEND_EMAIL_ENABLED=true` (env var dans backend.ts)
 5. Permission IAM `ses:SendEmail` sur `identity/ecnelisfly.com`
-6. Câbler l'appel depuis `confirmation-step.component.ts` apres `Sound.create()` (a faire)
+6. Mutation GraphQL `sendSoundEmail` (admin-only) dans `amplify/data/resource.ts` → cable dans `admin-dashboard.component.ts`
 
 ### Interface
 
@@ -2007,14 +2076,29 @@ interface SoundEmailPayload {
   toEmail: string;
   username: string;
   soundTitle: string;
-  soundStatus: 'public_to_be_approved' | 'public' | 'private';
-  lang?: 'fr' | 'en' | 'es';
+  soundStatus: string;
+  lang?: string;
+  action?: string;           // 'created' | 'approved' | 'approved_with_changes' | 'rejected'
+  moderationNote?: string;   // motif de rejet ou note admin
+  oldCategory?: string;      // categorie avant changement
+  newCategory?: string;      // categorie apres changement
 }
 ```
 
-### Email trilingue
+### Email trilingue — 4 actions
 
-Templates HTML inline dans `TRANSLATIONS` constant (FR/EN/ES). Contenu : confirmation creation, statut du son (approuve / en attente / prive), lien vers la carte.
+Templates HTML inline dans `TRANSLATIONS` constant (FR/EN/ES).
+
+| Action | Sujet | Contenu | CTA |
+|--------|-------|---------|-----|
+| `created` (defaut) | "Votre son a ete ajoute" | Confirmation creation + statut | Explorer la carte |
+| `approved` | "Votre son a ete approuve" | Approbation | Explorer la carte |
+| `approved_with_changes` | "Votre son a ete approuve" | Approbation + mention ajustements + detail categorie changee + note optionnelle | Explorer la carte |
+| `rejected` | "Decision concernant votre son" | Rejet + motif obligatoire + mention son reste consultable en prive | Pas de CTA |
+
+**Header email** : gradient bleu (defaut) ou rouge (`#c62828`) pour rejet.
+
+**Invocation** : mutation GraphQL `sendSoundEmail` (admin-only) → Lambda. Handler : `const payload = event.arguments ?? event` (piege `event.arguments` Amplify Gen2).
 
 ### Dependance npm
 
