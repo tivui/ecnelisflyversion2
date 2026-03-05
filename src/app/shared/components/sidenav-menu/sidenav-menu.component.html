@@ -4,7 +4,7 @@
     <button class="close-btn" (click)="close()">
       <mat-icon>close</mat-icon>
     </button>
-    <a class="brand" routerLink="/home" (click)="close()">
+    <a class="brand" href="/home" (click)="onLogoTap($event)">
       <img src="/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis Fly" class="brand-logo" />
       <span class="brand-name">ECNELIS FLY</span>
     </a>
@@ -28,6 +28,26 @@
       </a>
     }
   </nav>
+
+  <!-- Admin menu (revealed by triple-tap on logo) -->
+  @if (showAdminMenu()) {
+    <div class="admin-separator"></div>
+    <nav class="admin-nav">
+      @for (item of adminMenuItems; track item.route) {
+        <a
+          class="nav-item admin-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          matRipple
+          (click)="close()"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span class="nav-label">{{ item.labelKey | translate }}</span>
+          <mat-icon class="nav-arrow">chevron_right</mat-icon>
+        </a>
+      }
+    </nav>
+  }
 
   <!-- Sound of the Day -->
   @if (dailyFeatured()) {

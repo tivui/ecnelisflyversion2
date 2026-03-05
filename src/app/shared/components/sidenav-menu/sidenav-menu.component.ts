@@ -31,6 +31,7 @@ export class SidenavMenuComponent {
   private readonly router = inject(Router);
   isOpen = input(false);
   isDark = input(false);
+  isAdmin = input(false);
   currentLanguage = input<Language>('fr');
   languages = input<Language[]>(['fr', 'en', 'es']);
   closed = output<void>();
@@ -38,12 +39,25 @@ export class SidenavMenuComponent {
   languageChanged = output<Language>();
 
   dailyFeatured = signal<DailyFeaturedSound | null>(null);
+  showAdminMenu = signal(false);
   readonly appVersion = APP_VERSION;
+
+  private tapCount = 0;
+  private tapTimer: ReturnType<typeof setTimeout> | null = null;
+
+  adminMenuItems = [
+    { icon: 'dashboard', labelKey: 'toolbar.admin.dashboard', route: '/admin/dashboard' },
+    { icon: 'people', labelKey: 'toolbar.admin.users', route: '/admin/users' },
+    { icon: 'storage', labelKey: 'toolbar.admin.database', route: '/admin/database' },
+    { icon: 'help_outline', labelKey: 'toolbar.admin.guide', route: '/admin/guide' },
+  ];
 
   constructor() {
     effect(() => {
       if (this.isOpen()) {
         this.loadDailyFeatured();
+      } else {
+        this.showAdminMenu.set(false);
       }
     });
   }
@@ -151,6 +165,30 @@ export class SidenavMenuComponent {
       params.set('soundTeasingI18n', JSON.stringify(daily.teasing_i18n));
     }
     window.location.href = `/mapfly?${params.toString()}`;
+  }
+
+  onLogoTap(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.tapCount++;
+
+    if (this.tapCount >= 3 && this.isAdmin()) {
+      this.showAdminMenu.set(true);
+      this.tapCount = 0;
+      if (this.tapTimer) { clearTimeout(this.tapTimer); this.tapTimer = null; }
+      return;
+    }
+
+    if (this.tapCount === 1) {
+      this.tapTimer = setTimeout(() => {
+        if (this.tapCount === 1) {
+          this.router.navigate(['/home']);
+          this.close();
+        }
+        this.tapCount = 0;
+        this.tapTimer = null;
+      }, 500);
+    }
   }
 
   close() {

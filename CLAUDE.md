@@ -803,6 +803,7 @@ Badges numeriques sur les icones de navigation, geres par deux signals dans `app
 - **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
 - **Nav scrollable** : `.sidenav-nav` a `flex: 1; overflow-y: auto; min-height: 0` — si les items de navigation depassent l'espace disponible, le nav scrolle en interne. Featured sound et liens sociaux restent toujours visibles en bas (`flex-shrink: 0`)
 - **Small phones** (`@media max-height: 700px`) : espacements compacts — header padding reduit, close-btn margin reduit, nav padding/gap reduits, nav-item padding compact (11px 16px) + font 0.92rem, featured-sound padding/margin reduits, footer padding reduit. Permet a tout le contenu de tenir sans scroll sur 375x667
+- **Acces admin discret** : triple tap rapide sur le logo "ECNELIS FLY" dans le header du sidenav revele 4 items admin (dashboard, users, database, guide) sous les items normaux. Visible uniquement si `isAdmin()`. Tap simple (apres 500ms) navigue vers `/home`. Menu admin masque a la fermeture du sidenav. Icones admin en orange (`#f57c00` light / `#ffb74d` dark) pour distinguer visuellement
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
 
