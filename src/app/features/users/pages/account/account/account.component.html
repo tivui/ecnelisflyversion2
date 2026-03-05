@@ -64,7 +64,11 @@
                     [autoActiveFirstOption]="true"
                   >
                     @for (country of filteredCountriesSignal(); track country.code) {
-                      <mat-option [value]="country.code">{{ country.name }}</mat-option>
+                      <mat-option [value]="country.code">
+                        <img class="option-flag" [src]="getFlagPathFn(country.code)" [alt]="country.code"
+                          (error)="$any($event.target).style.display='none'" />
+                        {{ country.name }}
+                      </mat-option>
                     }
                   </mat-autocomplete>
                 </mat-form-field>

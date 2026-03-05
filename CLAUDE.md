@@ -332,6 +332,8 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 - CTA pill compact : glassmorphism blanc, `align-self: flex-start`, `width: fit-content`
 - `min-height: 280px`, `border-radius: 22px`
 - Accent top bar : gradient `$primary-blue → $primary-indigo → $primary-violet`, 3px
+- **Hover identique aux secondary cards** : `translateY(-6px) scale(1.02)` (pas de traitement special)
+- **Reveal identique** : `fadeInUp 0.6s backwards` (meme fill mode que les secondary cards)
 
 **Secondary cards :**
 - Visual gradient compact : `height: 90px` (icone + badge)
@@ -801,6 +803,7 @@ Badges numeriques sur les icones de navigation, geres par deux signals dans `app
 - **Footer** (theme toggle + langue + "Sounds of the world") : masque en desktop (`display: none` pour `min-width: 701px`), visible uniquement en mobile. Styles dans `sidenav-menu.component.scss` (`.sidenav-footer`)
 - **Nav scrollable** : `.sidenav-nav` a `flex: 1; overflow-y: auto; min-height: 0` — si les items de navigation depassent l'espace disponible, le nav scrolle en interne. Featured sound et liens sociaux restent toujours visibles en bas (`flex-shrink: 0`)
 - **Small phones** (`@media max-height: 700px`) : espacements compacts — header padding reduit, close-btn margin reduit, nav padding/gap reduits, nav-item padding compact (11px 16px) + font 0.92rem, featured-sound padding/margin reduits, footer padding reduit. Permet a tout le contenu de tenir sans scroll sur 375x667
+- **Acces admin discret** : triple tap rapide sur le logo "ECNELIS FLY" dans le header du sidenav revele 4 items admin (dashboard, users, database, guide) sous les items normaux. Visible uniquement si `isAdmin()`. Tap simple (apres 500ms) navigue vers `/home`. Menu admin masque a la fermeture du sidenav. Icones admin en orange (`#f57c00` light / `#ffb74d` dark) pour distinguer visuellement
 
 ### Pages avec elements fixes en bas (compatibilite bottom nav)
 
@@ -1546,9 +1549,26 @@ Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, 
 
 `csv-export.util.ts` : fonction pure `exportUsersCsv()` — CSV client-side avec BOM UTF-8, Blob URL
 
-### Drapeaux pays (validation)
+### Drapeaux pays et territoires speciaux
 
-`getFlagPath(country)` : `trim()` + validation longueur 2-3 caracteres (ISO codes uniquement). Rejette les codes invalides comme "BASQUE_COUNTRY". Applique aussi dans `sound-attribution.component.ts`.
+**Fonction universelle** `getFlagPath(country)` dans `core/models/special-territories.ts` — utilisee par tous les composants (user-management, sound-attribution, reassign-dialog, sound-data-meta-step, account). Supporte :
+- Codes ISO standard 2-3 lettres (`FR`, `ES`, `GB`) → `/img/flags/FR.png`
+- Codes territoires speciaux (`XBQ`, `XSC`, `XWA`, `XEN`, `XKO`) → `/img/flags/_basque-country.png` etc.
+- Codes legacy d'import (`_basque-country`, `_scotland`) → resolus via `LEGACY_TO_CODE` mapping
+
+**Territoires speciaux** (`SPECIAL_TERRITORIES` dans `special-territories.ts`) :
+
+| Code | Drapeau | FR | EN | ES |
+|------|---------|----|----|-----|
+| `XBQ` | `_basque-country.png` | Pays basque | Basque Country | Pais Vasco |
+| `XSC` | `_scotland.png` | Ecosse | Scotland | Escocia |
+| `XWA` | `_wales.png` | Pays de Galles | Wales | Gales |
+| `XEN` | `_england.png` | Angleterre | England | Inglaterra |
+| `XKO` | `_kosovo.png` | Kosovo | Kosovo | Kosovo |
+
+**Selecteurs pays** (account + sound-data-meta-step) : `i18n-iso-countries` + `getAllTerritories()` concatenes et tries alphabetiquement. Preview drapeau dans chaque `mat-option`.
+
+**Codes legacy** : les users importes ont `country: "_basque-country"` en base. `resolveCountryCode()` convertit a la volee vers `XBQ`. Pas de migration en base necessaire.
 
 ### Pieges connus
 

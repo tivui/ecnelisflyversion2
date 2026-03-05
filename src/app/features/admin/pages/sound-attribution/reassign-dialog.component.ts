@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AmplifyService } from '../../../../core/services/amplify.service';
+import { getFlagPath } from '../../../../core/models/special-territories';
 import type { SoundUser } from './sound-attribution.component';
 
 interface UserResult {
@@ -83,10 +84,10 @@ interface UserResult {
               (click)="selectUser(user)"
             >
               <div class="user-info">
-                @if (user.country) {
+                @if (getFlagPath(user.country); as flagSrc) {
                   <img
                     class="flag"
-                    [src]="'/img/flags/' + user.country.toUpperCase() + '.png'"
+                    [src]="flagSrc"
                     [alt]="user.country"
                     (error)="$any($event.target).style.display='none'"
                   />
@@ -288,6 +289,7 @@ export class ReassignDialogComponent {
   private readonly amplifyService = inject(AmplifyService);
   readonly data: { sourceUser: SoundUser } = inject(MAT_DIALOG_DATA);
 
+  getFlagPath = getFlagPath;
   searchTermValue = '';
   searching = signal(false);
   hasSearched = signal(false);

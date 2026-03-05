@@ -195,6 +195,50 @@
 }
 
 // =====================
+// Admin menu (triple-tap reveal)
+// =====================
+.admin-separator {
+  height: 1px;
+  margin: 0 24px;
+  background: rgba(0, 0, 0, 0.08);
+
+  :host-context(body.dark-theme) & {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.admin-nav {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-item {
+  mat-icon:first-child {
+    color: #f57c00;
+  }
+
+  :host-context(body.dark-theme) & {
+    mat-icon:first-child {
+      color: #ffb74d;
+    }
+  }
+
+  &:hover mat-icon:first-child {
+    color: #e65100;
+
+    :host-context(body.dark-theme) & {
+      color: #ffa726;
+    }
+  }
+
+  &.active mat-icon:first-child {
+    color: #fff;
+  }
+}
+
+// =====================
 // Featured Sound of the Day
 // =====================
 .featured-sound-section {
