@@ -332,6 +332,8 @@ Layout premium pour grands ecrans. **Ne touche PAS aux autres formats** (mobile,
 - CTA pill compact : glassmorphism blanc, `align-self: flex-start`, `width: fit-content`
 - `min-height: 280px`, `border-radius: 22px`
 - Accent top bar : gradient `$primary-blue → $primary-indigo → $primary-violet`, 3px
+- **Hover identique aux secondary cards** : `translateY(-6px) scale(1.02)` (pas de traitement special)
+- **Reveal identique** : `fadeInUp 0.6s backwards` (meme fill mode que les secondary cards)
 
 **Secondary cards :**
 - Visual gradient compact : `height: 90px` (icone + badge)

@@ -120,7 +120,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 // Phase 2 — Data loaded: real cards cascade in (replaces skeletons via @if)
 .home-container.ready {
   .hero-card-map {
-    animation: fadeInUp 0.6s $reveal-ease 0.05s both;
+    animation: fadeInUp 0.6s $reveal-ease 0.05s backwards;
     opacity: 1;
   }
   .hero-cards-secondary {
@@ -1092,7 +1092,7 @@ $reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     &:hover {
-      transform: translateY(-3px);
+      transform: translateY(-6px) scale(1.02);
       box-shadow: 0 20px 64px rgba($primary-blue, 0.14), 0 8px 24px rgba(0, 0, 0, 0.06);
 
       :host-context(body.dark-theme) & {
