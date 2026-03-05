@@ -135,6 +135,16 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  min-width: 0; // Prevent flex/grid overflow
+
+  // Make ngx-charts responsive inside the card
+  ::ng-deep ngx-charts-bar-vertical,
+  ::ng-deep ngx-charts-bar-horizontal,
+  ::ng-deep ngx-charts-line-chart,
+  ::ng-deep ngx-charts-pie-chart {
+    width: 100% !important;
+    max-width: 100%;
+  }
 }
 
 .chart-title {
@@ -678,8 +688,16 @@
     font-size: 0.65rem;
   }
 
+  .admin-dashboard {
+    padding: 12px;
+  }
+
   .charts-row {
     grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    padding: 14px 10px;
   }
 
   .moderation-header {
