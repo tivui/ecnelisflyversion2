@@ -55,22 +55,27 @@ export const handler: Schema['listSoundsForMap']['functionHandler'] = async (
   const allItems: any[] = [];
 
   // --- Pagination utilitaire ---
-  const fetchAllPages = async <T extends keyof typeof client.models.Sound>(
-    query: T,
-    variables: Parameters<(typeof client.models.Sound)[T]>[0],
+  // IMPORTANT: Amplify Gen2 GSI queries expect TWO arguments:
+  //   arg1 = index key conditions (partition + sort key)
+  //   arg2 = options (limit, nextToken, selectionSet)
+  // Mixing them in a single object causes limit/nextToken to be IGNORED.
+  const fetchAllPages = async (
+    query: string,
+    indexKeys: Record<string, any>,
   ) => {
     let nextToken: string | null | undefined = undefined;
     do {
       try {
         console.log(
-          `Fetching ${query} with variables:`,
-          JSON.stringify({ ...variables, nextToken }),
-        );
-        const pageResult = await (client.models.Sound[query] as any)({
-          ...variables,
-          limit: 100,
+          `Fetching ${query} with keys:`,
+          JSON.stringify(indexKeys),
+          'nextToken:',
           nextToken,
-        });
+        );
+        const pageResult = await (client.models.Sound as any)[query](
+          indexKeys,
+          { limit: 100, nextToken },
+        );
         if (pageResult.errors?.length) {
           console.error(
             `Errors in ${query}:`,
