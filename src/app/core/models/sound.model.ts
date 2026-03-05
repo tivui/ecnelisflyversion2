@@ -11,6 +11,8 @@ export class Sound {
   user?: {
     username: string;
     country?: string;
+    email?: string;
+    language?: string;
   };
 
   title!: string;
@@ -47,6 +49,7 @@ export class Sound {
 
   waveformPeaks?: number[][];
   waveformDuration?: number;
+  moderationNote?: string;
 
   constructor(init?: Partial<Sound>) {
     Object.assign(this, init);

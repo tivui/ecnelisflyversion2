@@ -301,6 +301,14 @@
                   </button>
                 }
 
+                <!-- Unlimited quota toggle (not self) -->
+                @if (!isSelf(user)) {
+                  <button mat-menu-item (click)="toggleUnlimitedQuota(user)">
+                    <mat-icon>{{ user.unlimitedQuota ? 'remove_circle' : 'all_inclusive' }}</mat-icon>
+                    {{ (user.unlimitedQuota ? 'admin.users.actions.removeUnlimitedQuota' : 'admin.users.actions.grantUnlimitedQuota') | translate }}
+                  </button>
+                }
+
                 <!-- Delete (not self) -->
                 @if (!isSelf(user)) {
                   <button mat-menu-item class="delete-action" (click)="deleteUser(user)">

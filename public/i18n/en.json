@@ -570,6 +570,20 @@
       "detailDate": "Added on",
       "detailAudio": "Listen"
     },
+    "moderation": {
+      "dialog": {
+        "title": "Review sound",
+        "review": "Review",
+        "soundBy": "By {{username}}",
+        "approve": "Approve",
+        "reject": "Reject",
+        "note": "Note (optional)",
+        "reason": "Rejection reason",
+        "reasonRequired": "A reason is required for rejection",
+        "cancel": "Cancel",
+        "error": "Moderation error"
+      }
+    },
     "featuredSound": {
       "title": "Sound of the Day",
       "subtitle": "Configure the list of sounds eligible for the daily pick",
@@ -1079,7 +1093,9 @@
         "promote": "Promote to admin",
         "demote": "Demote to user",
         "delete": "Delete account",
-        "merge": "Merge with another imported"
+        "merge": "Merge with another imported",
+        "grantUnlimitedQuota": "Grant unlimited quota",
+        "removeUnlimitedQuota": "Remove unlimited quota"
       },
       "merge": {
         "title": "Merge {{username}}",
@@ -1104,6 +1120,9 @@
       "promoteSuccess": "User promoted to administrator",
       "demoteConfirm": "Demote {{username}} to regular user?",
       "demoteSuccess": "User demoted",
+      "quotaGranted": "Unlimited quota granted",
+      "quotaRemoved": "Unlimited quota removed",
+      "quotaError": "Failed to update quota",
       "deleteSuccess": "User deleted",
       "detail": {
         "title": "User details",

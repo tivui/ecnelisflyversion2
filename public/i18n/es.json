@@ -569,6 +569,20 @@
       "detailDate": "Fecha de adición",
       "detailAudio": "Escuchar"
     },
+    "moderation": {
+      "dialog": {
+        "title": "Examinar el sonido",
+        "review": "Examinar",
+        "soundBy": "Por {{username}}",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "note": "Nota (opcional)",
+        "reason": "Motivo del rechazo",
+        "reasonRequired": "El motivo es obligatorio para un rechazo",
+        "cancel": "Cancelar",
+        "error": "Error de moderación"
+      }
+    },
     "featuredSound": {
       "title": "Sonido del día",
       "subtitle": "Configure la lista de sonidos elegibles para la selección diaria",
@@ -1078,7 +1092,9 @@
         "promote": "Promover a admin",
         "demote": "Degradar a usuario",
         "delete": "Eliminar cuenta",
-        "merge": "Fusionar con otro importado"
+        "merge": "Fusionar con otro importado",
+        "grantUnlimitedQuota": "Otorgar cuota ilimitada",
+        "removeUnlimitedQuota": "Retirar cuota ilimitada"
       },
       "merge": {
         "title": "Fusionar {{username}}",
@@ -1103,6 +1119,9 @@
       "promoteSuccess": "Usuario promovido a administrador",
       "demoteConfirm": "¿Degradar a {{username}} a usuario normal?",
       "demoteSuccess": "Usuario degradado",
+      "quotaGranted": "Cuota ilimitada otorgada",
+      "quotaRemoved": "Cuota ilimitada retirada",
+      "quotaError": "Error al modificar la cuota",
       "deleteSuccess": "Usuario eliminado",
       "detail": {
         "title": "Detalles del usuario",

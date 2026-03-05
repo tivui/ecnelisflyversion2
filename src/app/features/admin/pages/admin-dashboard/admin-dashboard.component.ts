@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgxChartsModule, Color, ScaleType } from '@swimlane/ngx-charts';
 
@@ -15,6 +16,7 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { Sound } from '../../../../core/models/sound.model';
 import { SiteVisitService, VisitStats } from '../../../../core/services/site-visit.service';
+import { ModerationDialogComponent, ModerationDialogResult } from './moderation-dialog.component';
 
 interface CognitoStatsResult {
   totalUsers: number;
@@ -56,6 +58,7 @@ export class AdminDashboardComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly storageService = inject(StorageService);
   private readonly siteVisitService = inject(SiteVisitService);
+  private readonly dialog = inject(MatDialog);
 
   sounds = signal<Sound[]>([]);
   users = signal<{ id: string; username: string; createdAt?: string }[]>([]);
@@ -349,51 +352,119 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  async approveSound(sound: Sound) {
+  openModerationDialog(sound: Sound) {
+    const dialogRef = this.dialog.open(ModerationDialogComponent, {
+      width: '560px',
+      data: { sound },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result: ModerationDialogResult | undefined) => {
+      if (!result) return;
+      await this.applyModerationDecision(sound, result);
+    });
+  }
+
+  private async applyModerationDecision(sound: Sound, result: ModerationDialogResult) {
     try {
-      const updated = await this.dashboardService.updateSound(sound.id!, { status: 'public' });
-      if (updated) {
-        this.sounds.update(list => list.map(s => s.id === sound.id ? { ...s, status: 'public' as const } : s));
-        this.snackBar.open(
-          this.translate.instant('admin.dashboard.approved'),
-          undefined,
-          { duration: 3000 }
-        );
+      const isApproved = result.action === 'approved';
+      const newStatus = isApproved ? 'public' : 'private';
+
+      // Build update payload
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = {
+        status: newStatus,
+        moderationNote: result.moderationNote || undefined,
+      };
+      if (isApproved && result.category) {
+        updateData.category = result.category;
       }
+      if (isApproved && result.secondaryCategory !== undefined) {
+        updateData.secondaryCategory = result.secondaryCategory || undefined;
+      }
+
+      const updated = await this.dashboardService.updateSound(sound.id!, updateData);
+      if (!updated) return;
+
+      // Update local signal
+      this.sounds.update(list =>
+        list.map(s => s.id === sound.id
+          ? { ...s, status: newStatus as 'public' | 'private', ...updateData }
+          : s
+        ),
+      );
+
+      // Send email notification (fire-and-forget, skip imported users)
+      const userEmail = sound.user?.email;
+      if (userEmail && !userEmail.startsWith('imported_')) {
+        const action = result.categoryChanged ? 'approved_with_changes' : result.action;
+        const oldCat = result.categoryChanged
+          ? this.translate.instant(`categories.${sound.category}`)
+          : undefined;
+        const newCat = result.categoryChanged && result.category
+          ? this.translate.instant(`categories.${result.category}`)
+          : undefined;
+
+        (this.amplifyService.client as any).mutations.sendSoundEmail({
+          toEmail: userEmail,
+          username: sound.user?.username || '—',
+          soundTitle: sound.title,
+          soundStatus: newStatus,
+          lang: sound.user?.language || 'fr',
+          action,
+          moderationNote: result.moderationNote,
+          oldCategory: oldCat,
+          newCategory: newCat,
+        }).catch((e: any) => console.warn('[AdminDashboard] Email send failed (non-blocking):', e));
+      }
+
+      // Increment notification count on user (read-then-write)
+      try {
+        const userResult = await (this.amplifyService.client.models.User as any).get(
+          { id: sound.userId },
+          { selectionSet: ['id', 'newNotificationCount'] },
+        );
+        const currentCount = userResult.data?.newNotificationCount ?? 0;
+        await this.amplifyService.client.models.User.update({
+          id: sound.userId,
+          newNotificationCount: currentCount + 1,
+          flashNew: true,
+        } as any);
+      } catch (e) {
+        console.warn('[AdminDashboard] Notification increment failed (non-blocking):', e);
+      }
+
+      this.snackBar.open(
+        this.translate.instant(isApproved ? 'admin.dashboard.approved' : 'admin.dashboard.rejected'),
+        undefined,
+        { duration: 3000 },
+      );
     } catch {
       this.snackBar.open(
-        this.translate.instant('admin.dashboard.approveError'),
+        this.translate.instant('admin.moderation.dialog.error' ),
         undefined,
-        { duration: 3000 }
+        { duration: 3000 },
       );
     }
   }
 
-  async rejectSound(sound: Sound) {
-    try {
-      const updated = await this.dashboardService.updateSound(sound.id!, { status: 'private' });
-      if (updated) {
-        this.sounds.update(list => list.map(s => s.id === sound.id ? { ...s, status: 'private' as const } : s));
-        this.snackBar.open(
-          this.translate.instant('admin.dashboard.rejected'),
-          undefined,
-          { duration: 3000 }
-        );
-      }
-    } catch {
-      this.snackBar.open(
-        this.translate.instant('admin.dashboard.rejectError'),
-        undefined,
-        { duration: 3000 }
-      );
-    }
-  }
-
+  /** Approve all pending sounds directly (no dialog, no email) */
   async approveAll() {
     const pending = this.pendingSoundsList();
     for (const sound of pending) {
-      await this.approveSound(sound);
+      try {
+        const updated = await this.dashboardService.updateSound(sound.id!, { status: 'public' });
+        if (updated) {
+          this.sounds.update(list => list.map(s => s.id === sound.id ? { ...s, status: 'public' as const } : s));
+        }
+      } catch {
+        // Continue with next sound
+      }
     }
+    this.snackBar.open(
+      this.translate.instant('admin.dashboard.approved'),
+      undefined,
+      { duration: 3000 },
+    );
   }
 
   onBarSelect(event: { name: string }) {

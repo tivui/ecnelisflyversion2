@@ -389,6 +389,33 @@ export class UserManagementComponent implements OnInit {
     }
   }
 
+  async toggleUnlimitedQuota(user: AdminUser) {
+    if (this.isSelf(user)) return;
+    const newValue = !user.unlimitedQuota;
+    this.actionInProgress.set(user.id);
+    try {
+      await this.userService.toggleUnlimitedQuota(user.id, newValue);
+      user.unlimitedQuota = newValue;
+      this.allUsers.set([...this.allUsers()]);
+      this.snackBar.open(
+        this.translate.instant(
+          newValue ? 'admin.users.quotaGranted' : 'admin.users.quotaRemoved',
+        ),
+        undefined,
+        { duration: 3000 },
+      );
+    } catch (e) {
+      console.error('[UserManagement] toggleUnlimitedQuota failed:', e);
+      this.snackBar.open(
+        this.translate.instant('admin.users.quotaError'),
+        undefined,
+        { duration: 3000 },
+      );
+    } finally {
+      this.actionInProgress.set(null);
+    }
+  }
+
   deleteUser(user: AdminUser) {
     if (this.isSelf(user)) return;
 

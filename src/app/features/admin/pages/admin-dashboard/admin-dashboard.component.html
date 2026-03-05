@@ -224,18 +224,10 @@
                       <button
                         mat-icon-button
                         color="primary"
-                        (click)="approveSound(sound); $event.stopPropagation()"
-                        [matTooltip]="'admin.dashboard.approve' | translate"
+                        (click)="openModerationDialog(sound); $event.stopPropagation()"
+                        [matTooltip]="'admin.moderation.dialog.review' | translate"
                       >
-                        <mat-icon>check_circle</mat-icon>
-                      </button>
-                      <button
-                        mat-icon-button
-                        color="warn"
-                        (click)="rejectSound(sound); $event.stopPropagation()"
-                        [matTooltip]="'admin.dashboard.reject' | translate"
-                      >
-                        <mat-icon>cancel</mat-icon>
+                        <mat-icon>rate_review</mat-icon>
                       </button>
                     </div>
                   </div>

@@ -570,6 +570,20 @@
       "detailDate": "Date d'ajout",
       "detailAudio": "Écouter"
     },
+    "moderation": {
+      "dialog": {
+        "title": "Examiner le son",
+        "review": "Examiner",
+        "soundBy": "Par {{username}}",
+        "approve": "Approuver",
+        "reject": "Refuser",
+        "note": "Note (optionnelle)",
+        "reason": "Motif du refus",
+        "reasonRequired": "Le motif est obligatoire pour un refus",
+        "cancel": "Annuler",
+        "error": "Erreur lors de la modération"
+      }
+    },
     "featuredSound": {
       "title": "Son du jour",
       "subtitle": "Configurez la liste des sons éligibles au tirage quotidien",
@@ -1079,7 +1093,9 @@
         "promote": "Promouvoir admin",
         "demote": "Rétrograder utilisateur",
         "delete": "Supprimer le compte",
-        "merge": "Fusionner avec un autre importé"
+        "merge": "Fusionner avec un autre importé",
+        "grantUnlimitedQuota": "Octroyer quota illimité",
+        "removeUnlimitedQuota": "Retirer quota illimité"
       },
       "merge": {
         "title": "Fusionner {{username}}",
@@ -1104,6 +1120,9 @@
       "promoteSuccess": "Utilisateur promu administrateur",
       "demoteConfirm": "Rétrograder {{username}} en utilisateur simple ?",
       "demoteSuccess": "Utilisateur rétrogradé",
+      "quotaGranted": "Quota illimité accordé",
+      "quotaRemoved": "Quota illimité retiré",
+      "quotaError": "Erreur lors de la modification du quota",
       "deleteSuccess": "Utilisateur supprimé",
       "detail": {
         "title": "Détails de l'utilisateur",

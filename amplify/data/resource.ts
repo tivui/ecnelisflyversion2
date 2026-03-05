@@ -15,6 +15,7 @@ import { fixImportedUsers } from '../functions/fix-imported-users/resource';
 import { listCognitoUsers } from '../functions/list-cognito-users/resource';
 import { recordSiteVisit } from '../functions/record-site-visit/resource';
 import { manageCognitoUser } from '../functions/manage-cognito-user/resource';
+import { sendSoundConfirmationEmail } from '../functions/send-sound-confirmation-email/resource';
 
 /**
  * Single-table schema definition (DynamoDB)
@@ -71,6 +72,8 @@ const schema = a
         avatarSeed: a.string(),
         avatarBgColor: a.string(),
         avatarOptions: a.string(),
+
+        unlimitedQuota: a.boolean().default(false),
       })
       .secondaryIndexes((index) => [
         index('cognitoSub').queryField('getUserByCognitoSub'),
@@ -124,6 +127,8 @@ const schema = a
 
         waveformPeaks: a.string(),
         waveformDuration: a.float(),
+
+        moderationNote: a.string(),
 
         zoneSounds: a.hasMany('ZoneSound', 'soundId'),
         featuredSoundCandidates: a.hasMany('FeaturedSoundCandidate', 'soundId'),
@@ -741,6 +746,23 @@ const schema = a
       .returns(a.json())
       .authorization((allow) => [allow.group('ADMIN')])
       .handler(a.handler.function(manageCognitoUser)),
+
+    sendSoundEmail: a
+      .mutation()
+      .arguments({
+        toEmail: a.string().required(),
+        username: a.string().required(),
+        soundTitle: a.string().required(),
+        soundStatus: a.string().required(),
+        lang: a.string(),
+        action: a.string(),
+        moderationNote: a.string(),
+        oldCategory: a.string(),
+        newCategory: a.string(),
+      })
+      .returns(a.json())
+      .authorization((allow) => [allow.group('ADMIN')])
+      .handler(a.handler.function(sendSoundConfirmationEmail)),
   })
 
   .authorization((allow) => [
@@ -759,6 +781,7 @@ const schema = a
     allow.resource(listCognitoUsers),
     allow.resource(recordSiteVisit),
     allow.resource(manageCognitoUser),
+    allow.resource(sendSoundConfirmationEmail),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

@@ -26,6 +26,8 @@ export class SoundsService {
         ? {
             username: raw.user.username,
             country: raw.user.country,
+            email: raw.user.email,
+            language: raw.user.language,
           }
         : undefined,
       title: raw.title,
@@ -56,6 +58,7 @@ export class SoundsService {
       createdAt: raw.createdAt ? new Date(raw.createdAt) : undefined,
       waveformPeaks: raw.waveformPeaks ? JSON.parse(raw.waveformPeaks) : undefined,
       waveformDuration: raw.waveformDuration ?? undefined,
+      moderationNote: raw.moderationNote,
     });
   }
 
