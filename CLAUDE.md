@@ -1546,9 +1546,26 @@ Champs DynamoDB + enrichissement Cognito : `cognitoUsername`, `cognitoEnabled`, 
 
 `csv-export.util.ts` : fonction pure `exportUsersCsv()` — CSV client-side avec BOM UTF-8, Blob URL
 
-### Drapeaux pays (validation)
+### Drapeaux pays et territoires speciaux
 
-`getFlagPath(country)` : `trim()` + validation longueur 2-3 caracteres (ISO codes uniquement). Rejette les codes invalides comme "BASQUE_COUNTRY". Applique aussi dans `sound-attribution.component.ts`.
+**Fonction universelle** `getFlagPath(country)` dans `core/models/special-territories.ts` — utilisee par tous les composants (user-management, sound-attribution, reassign-dialog, sound-data-meta-step, account). Supporte :
+- Codes ISO standard 2-3 lettres (`FR`, `ES`, `GB`) → `/img/flags/FR.png`
+- Codes territoires speciaux (`XBQ`, `XSC`, `XWA`, `XEN`, `XKO`) → `/img/flags/_basque-country.png` etc.
+- Codes legacy d'import (`_basque-country`, `_scotland`) → resolus via `LEGACY_TO_CODE` mapping
+
+**Territoires speciaux** (`SPECIAL_TERRITORIES` dans `special-territories.ts`) :
+
+| Code | Drapeau | FR | EN | ES |
+|------|---------|----|----|-----|
+| `XBQ` | `_basque-country.png` | Pays basque | Basque Country | Pais Vasco |
+| `XSC` | `_scotland.png` | Ecosse | Scotland | Escocia |
+| `XWA` | `_wales.png` | Pays de Galles | Wales | Gales |
+| `XEN` | `_england.png` | Angleterre | England | Inglaterra |
+| `XKO` | `_kosovo.png` | Kosovo | Kosovo | Kosovo |
+
+**Selecteurs pays** (account + sound-data-meta-step) : `i18n-iso-countries` + `getAllTerritories()` concatenes et tries alphabetiquement. Preview drapeau dans chaque `mat-option`.
+
+**Codes legacy** : les users importes ont `country: "_basque-country"` en base. `resolveCountryCode()` convertit a la volee vers `XBQ`. Pas de migration en base necessaire.
 
 ### Pieges connus
 

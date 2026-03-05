@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { getFlagPath } from '../../../../core/models/special-territories';
 
 import { AmplifyService } from '../../../../core/services/amplify.service';
 import { ReassignDialogComponent } from './reassign-dialog.component';
@@ -302,10 +303,5 @@ export class SoundAttributionComponent implements OnInit {
     }
   }
 
-  getFlagPath(country?: string): string | null {
-    if (!country) return null;
-    const code = country.trim();
-    if (code.length < 2 || code.length > 3) return null;
-    return `/img/flags/${code.toUpperCase()}.png`;
-  }
+  getFlagPath = getFlagPath;
 }

@@ -20,6 +20,7 @@ import * as countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import frLocale from 'i18n-iso-countries/langs/fr.json';
 import esLocale from 'i18n-iso-countries/langs/es.json';
+import { getFlagPath, getAllTerritories, isSpecialTerritory } from '../../../../../../core/models/special-territories';
 import { AmplifyService } from '../../../../../../core/services/amplify.service';
 import { AuthService } from '../../../../../../core/services/auth.service';
 import { AppUserService } from '../../../../../../core/services/app-user.service';
@@ -517,9 +518,11 @@ export class SoundDataMetaStepComponent implements OnInit {
 
   private updateCountryList(lang: string) {
     const locale = ['fr', 'en', 'es'].includes(lang) ? lang : 'en';
-    this.countryOptions = Object.entries(countries.getNames(locale)).map(
+    const iso = Object.entries(countries.getNames(locale)).map(
       ([code, name]) => ({ code, name: name as string }),
     );
+    const special = getAllTerritories(locale);
+    this.countryOptions = [...iso, ...special].sort((a, b) => a.name.localeCompare(b.name));
     this.filteredCountries.set(this.countryOptions);
   }
 
@@ -536,12 +539,7 @@ export class SoundDataMetaStepComponent implements OnInit {
     );
   }
 
-  getFlagPath(code: string | null): string | null {
-    if (!code) return null;
-    const trimmed = code.trim();
-    if (trimmed.length < 2 || trimmed.length > 3) return null;
-    return `/img/flags/${trimmed.toUpperCase()}.png`;
-  }
+  getFlagPath = getFlagPath;
 
   async createNewUser() {
     const username = this.newUsername.value?.trim();
@@ -563,10 +561,11 @@ export class SoundDataMetaStepComponent implements OnInit {
     this.creatingUser.set(true);
     try {
       const safeEmail = `imported_${username.toLowerCase().replace(/[^a-z0-9]/g, '_')}@imported.local`;
-      const countryCode = this.newCountryCode.value?.trim().toUpperCase() || undefined;
-      // Validate country code if provided
-      const validCountry = countryCode && countryCode.length >= 2 && countryCode.length <= 3
-        ? countryCode : undefined;
+      const countryCode = this.newCountryCode.value?.trim() || undefined;
+      // Validate country code: ISO 2-3 letter codes or special territory codes
+      const validCountry = countryCode && (
+        (countryCode.length >= 2 && countryCode.length <= 3) || isSpecialTerritory(countryCode)
+      ) ? countryCode.toUpperCase() : undefined;
 
       const result = await this.amplifyService.client.models.User.create({
         id: crypto.randomUUID(),

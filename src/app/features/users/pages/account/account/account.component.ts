@@ -35,6 +35,7 @@ import * as countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import frLocale from 'i18n-iso-countries/langs/fr.json';
 import esLocale from 'i18n-iso-countries/langs/es.json';
+import { getAllTerritories, isSpecialTerritory, getSpecialTerritoryName, getFlagPath } from '../../../../../core/models/special-territories';
 
 @Component({
     selector: 'app-account',
@@ -69,6 +70,7 @@ export class AccountComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   readonly appVersion = APP_VERSION;
   readonly avatarService = inject(AvatarService);
+  readonly getFlagPathFn = getFlagPath;
 
   public appUser = signal<AppUser | null>(null);
   public saving = signal(false);
@@ -181,9 +183,11 @@ export class AccountComponent implements OnInit {
     if (lang === 'fr') locale = 'fr';
     if (lang === 'es') locale = 'es';
 
-    this.countryOptions = Object.entries(countries.getNames(locale)).map(
+    const iso = Object.entries(countries.getNames(locale)).map(
       ([code, name]) => ({ code, name }),
     );
+    const special = getAllTerritories(locale);
+    this.countryOptions = [...iso, ...special].sort((a, b) => a.name.localeCompare(b.name));
 
     // Apply filtering based on current country field value
     const val = this.accountForm.get('country')?.value || '';
@@ -336,7 +340,10 @@ export class AccountComponent implements OnInit {
 
   // Get country name by its code
   countryName(code?: string | null): string {
-    return this.countryOptions.find((c) => c.code === code)?.name || '';
+    if (!code) return '';
+    return this.countryOptions.find((c) => c.code === code)?.name
+      || getSpecialTerritoryName(code, this.translate.currentLang || 'en')
+      || '';
   }
 
   // Called when a country is selected from the dropdown

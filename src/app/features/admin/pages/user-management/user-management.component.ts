@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { getFlagPath } from '../../../../core/models/special-territories';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AvatarService } from '../../../../core/services/avatar.service';
 import {
@@ -210,13 +211,7 @@ export class UserManagementComponent implements OnInit {
     );
   }
 
-  getFlagPath(country?: string): string | null {
-    if (!country) return null;
-    const code = country.trim();
-    // Only standard ISO 2-3 letter codes have flag PNGs
-    if (code.length < 2 || code.length > 3) return null;
-    return `/img/flags/${code.toUpperCase()}.png`;
-  }
+  getFlagPath = getFlagPath;
 
   // Search
   onSearchInput() {
