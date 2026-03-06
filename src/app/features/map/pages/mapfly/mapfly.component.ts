@@ -235,6 +235,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private journeyData: SoundJourney | null = null;
   private journeySteps: SoundJourneyStep[] = [];
   private journeySounds: any[] = [];
+  private journeyAudioUrls: Map<number, { url: string; mimeType: string }> = new Map();
   private journeyMarkers: L.Marker[] = [];
   private journeyPulseCircles: L.CircleMarker[] = [];
   private journeyStepperControl: L.Control | null = null;
@@ -2665,8 +2666,32 @@ export class MapflyComponent implements OnInit, OnDestroy {
       soundId: s.id!,
       stepOrder: i,
     } as SoundJourneyStep));
-    this.journeySounds = sounds;
     this.totalJourneySteps.set(sounds.length);
+
+    // Ephemeral sounds come from ListSoundsForMapWithAppUser (no peaks).
+    // Enrich with waveformPeaks/Duration via Sound.get() + pre-load audio URLs in parallel.
+    this.journeyAudioUrls.clear();
+    const enrichPromises = sounds.map(async (sound, i) => {
+      if (!sound?.id) return sound;
+      try {
+        const [peakResult, audioUrl] = await Promise.all([
+          (this.amplifyService.client.models.Sound.get as any)(
+            { id: sound.id },
+            { authMode: 'apiKey', selectionSet: ['waveformPeaks', 'waveformDuration'] },
+          ),
+          sound.filename ? this.storageService.getSoundUrl(sound.filename) : Promise.resolve(null),
+        ]);
+        if (peakResult.data?.waveformPeaks) {
+          sound.waveformPeaks = peakResult.data.waveformPeaks;
+          sound.waveformDuration = peakResult.data.waveformDuration;
+        }
+        if (audioUrl) {
+          this.journeyAudioUrls.set(i, { url: audioUrl, mimeType: this.soundsService.getMimeType(sound.filename) });
+        }
+      } catch { /* ignore */ }
+      return sound;
+    });
+    this.journeySounds = await Promise.all(enrichPromises);
 
     // Clean up ephemeral data
     this.ephemeralJourneyService.clear();
@@ -2748,6 +2773,18 @@ export class MapflyComponent implements OnInit, OnDestroy {
       });
       this.journeySounds = await Promise.all(soundPromises);
 
+      // Pre-load all S3 presigned URLs in parallel (avoids delay at each step)
+      this.journeyAudioUrls.clear();
+      const urlPromises = this.journeySounds.map(async (sound, i) => {
+        if (!sound?.filename) return;
+        try {
+          const url = await this.storageService.getSoundUrl(sound.filename);
+          const mimeType = this.soundsService.getMimeType(sound.filename);
+          this.journeyAudioUrls.set(i, { url, mimeType });
+        } catch { /* ignore — will fallback in flyToJourneyStep */ }
+      });
+      await Promise.all(urlPromises);
+
       // Show overlay
       await firstValueFrom(this.translate.use(this.translate.currentLang || 'fr'));
       this.journeyOverlayVisible.set(true);
@@ -2782,9 +2819,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.currentJourneyStep.set(stepIndex);
     this.updateJourneyStepper();
 
-    // Load audio
-    const url = await this.storageService.getSoundUrl(sound.filename);
-    const mimeType = this.soundsService.getMimeType(sound.filename);
+    // Use pre-loaded audio URL (fallback to on-demand if not cached)
+    const cached = this.journeyAudioUrls.get(stepIndex);
+    const url = cached?.url ?? await this.storageService.getSoundUrl(sound.filename);
+    const mimeType = cached?.mimeType ?? this.soundsService.getMimeType(sound.filename);
 
     // Create marker for this step
     const secondaryCat = sound.secondaryCategory || '';
@@ -2880,10 +2918,33 @@ export class MapflyComponent implements OnInit, OnDestroy {
           ${nextBtnHtml}
         </div>
       </div>
-    `, { maxWidth: 350, minWidth: 280 });
+    `, { maxWidth: 350, minWidth: 280, autoPan: false });
 
     // Popup open logic
     marker.on('popupopen', () => {
+      // Recentre map so the popup + marker are vertically centered in the viewport
+      requestAnimationFrame(() => {
+        const popupEl = marker.getPopup()?.getElement();
+        if (popupEl && this.map) {
+          const mapSize = this.map.getSize();
+          const popupHeight = popupEl.offsetHeight;
+          const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
+          const tipOffset = 43; // popup tip above marker anchor
+          const popupTop = markerPoint.y - tipOffset - popupHeight;
+          const popupBottom = markerPoint.y + 10; // small margin below marker
+          const totalHeight = popupBottom - popupTop;
+          // Center the popup+marker vertically with top padding for stepper/toolbar
+          const topPadding = 70;
+          const availableHeight = mapSize.y - topPadding;
+          const idealCenter = topPadding + availableHeight / 2;
+          const currentCenter = popupTop + totalHeight / 2;
+          const panY = currentCenter - idealCenter;
+          if (Math.abs(panY) > 10) {
+            this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+          }
+        }
+      });
+
       // Record info
       // External links
       const linksEl = document.getElementById(`journey-links-${stepIndex}`);

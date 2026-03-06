@@ -434,6 +434,9 @@ Chaque voyage sonore peut avoir une image de couverture configurable par l'admin
 - `ViewEncapsulation.None` (styles globaux pour popups Leaflet)
 - **Featured mode** : animation cinematique fly-in, overlay violet, popup sans limitation de hauteur (maxHeight retire)
 - **Journey mode** : navigation multi-etapes, couleur dynamique via `--journey-color`
+- **Journey audio pre-loading** : toutes les URLs S3 pre-signees sont chargees en parallele au demarrage du voyage (pendant l'overlay cinematique), elimine le delai `getSoundUrl()` a chaque etape
+- **Journey popup recentrage dynamique** (desktop) : `autoPan: false` + calcul pixel post-ouverture. Mesure la hauteur reelle de la popup, calcule le centre vertical de l'ensemble popup+marker, et `panBy` fluide (0.4s) pour le placer au milieu du viewport disponible (sous le stepper/toolbar 70px). S'adapte a toute taille de popup
+- **Ephemeral journey peaks** : les sons des voyages aleatoires viennent de `ListSoundsForMapWithAppUser` (sans peaks). Enrichissement via `Sound.get()` leger (`waveformPeaks` + `waveformDuration`) en parallele avec le pre-chargement des URLs
 - Offset popup : `lat + 0.0012` pour centrer popup visible au zoom 17
 
 #### Mobile Bottom Sheet (`sound-popup-sheet.component`)
