@@ -278,6 +278,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private groupedLayersControl: any;
   private minimapControl: L.Control.MiniMap | null = null;
   private minimapTileLayer: L.TileLayer | null = null;
+  private minimapDot: L.CircleMarker | null = null;
 
   private createMinimapTileLayer(): L.TileLayer {
     if (this.map.hasLayer(this.mapbox)) {
@@ -360,7 +361,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     // Center dot indicator on the minimap — always visible even when aimingRect is tiny
     const miniMap = (this.minimapControl as any)._miniMap as L.Map;
     if (miniMap) {
-      const centerDot = L.circleMarker(this.map.getCenter(), {
+      this.minimapDot = L.circleMarker(this.map.getCenter(), {
         radius: 5,
         color: '#ef4444',
         fillColor: '#ef4444',
@@ -370,9 +371,27 @@ export class MapflyComponent implements OnInit, OnDestroy {
       }).addTo(miniMap);
 
       this.map.on('move', () => {
-        centerDot.setLatLng(this.map.getCenter());
+        this.minimapDot?.setLatLng(this.map.getCenter());
       });
     }
+  }
+
+  /** Show country label on the desktop minimap dot (like the mobile radar) */
+  private updateMinimapCountryLabel(city?: string): void {
+    if (!this.minimapDot) return;
+    // Remove existing tooltip
+    this.minimapDot.unbindTooltip();
+    if (!city) return;
+    const parts = city.split(',');
+    const country = parts.length > 1 ? parts[parts.length - 1].trim() : city.trim();
+    if (!country) return;
+    const isDark = document.body.classList.contains('dark-theme');
+    this.minimapDot.bindTooltip(country, {
+      permanent: true,
+      direction: 'right',
+      offset: [8, 0],
+      className: isDark ? 'radar-country-label dark' : 'radar-country-label',
+    });
   }
 
   private syncMinimapLayer(): void {
@@ -1260,6 +1279,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
             });
           }
 
+          // --- Minimap country label ---
+          this.updateMinimapCountryLabel(s.city);
+
           // --- Read more toggle ---
           this.wireReadMore(`shortStory-${s.filename}`, `rmb-${s.filename}`);
 
@@ -1289,6 +1311,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
             this.stopThemeObserver();
             this.activePopupPlayer?.destroy();
             this.activePopupPlayer = null;
+            this.updateMinimapCountryLabel();
           });
         });
         } // end if (!this.isMobilePortrait)
@@ -2557,6 +2580,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
           }).catch(() => {});
         });
 
+      // --- Minimap country label ---
+      this.updateMinimapCountryLabel(soundCity);
+
       // --- Read more toggle ---
       this.wireReadMore(`shortStory-${soundFilename}`, `rmb-featured-${soundFilename}`);
 
@@ -2586,6 +2612,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
+      this.updateMinimapCountryLabel();
     });
     } // end if (!this.isMobilePortrait) — featured popup
 
@@ -3073,6 +3100,9 @@ export class MapflyComponent implements OnInit, OnDestroy {
         });
       }
 
+      // --- Minimap country label ---
+      this.updateMinimapCountryLabel(sound.city);
+
       // --- Read more toggle ---
       this.wireReadMore(`journey-story-${stepIndex}`, `rmb-journey-${stepIndex}`);
 
@@ -3102,6 +3132,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       this.stopThemeObserver();
       this.activePopupPlayer?.destroy();
       this.activePopupPlayer = null;
+      this.updateMinimapCountryLabel();
     });
     } // end if (!this.isMobilePortrait) — journey popup
 
@@ -3687,6 +3718,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
       this.minimapControl.remove();
       this.minimapControl = null;
       this.minimapTileLayer = null;
+      this.minimapDot = null;
     }
 
     this.stopTimeline();

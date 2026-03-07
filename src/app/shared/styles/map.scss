@@ -2347,6 +2347,32 @@ $radar-icon-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
   }
 }
 
+// Country label tooltip on desktop minimap radar
+.radar-country-label {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: none;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #1a1a2e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+
+  &::before {
+    display: none;
+  }
+
+  &.dark {
+    background: rgba(14, 14, 28, 0.80);
+    color: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+}
+
 // Mobile portrait
 @media (max-width: 700px) and (orientation: portrait) {
   .leaflet-control-minimap {
