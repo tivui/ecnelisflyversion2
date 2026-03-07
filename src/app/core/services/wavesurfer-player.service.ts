@@ -208,13 +208,20 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
 
   // When peaks are pre-computed, unlock the play button once audio is playable.
   // The waveform renders instantly but <audio> still needs to buffer first.
+  // IMPORTANT: SW bypass and Chrome fallback swap <audio>.src later, which resets
+  // readyState. We must re-lock then re-unlock when the new src is playable.
+  function lockPlay() {
+    playIcon.textContent = 'hourglass_top';
+    playBtn.classList.add('ws-audio-loading');
+    playBtn.disabled = true;
+  }
+  function unlockPlay() {
+    playIcon.textContent = 'play_arrow';
+    playBtn.classList.remove('ws-audio-loading');
+    playBtn.disabled = false;
+  }
   if (hasPeaks) {
     const mediaEl = ws.getMediaElement();
-    const unlockPlay = () => {
-      playIcon.textContent = 'play_arrow';
-      playBtn.classList.remove('ws-audio-loading');
-      playBtn.disabled = false;
-    };
     // canplay: browser has enough data to start playback
     mediaEl.addEventListener('canplay', unlockPlay, { once: true });
     // Safety: also unlock on decode (WaveSurfer finished processing)
@@ -271,15 +278,27 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   // Angular's ngsw-worker.js intercepts <audio> element requests to S3 presigned URLs.
   // Its progress tracking wrapper fails on large binary audio streams.
   // We background-fetch with ngsw-bypass header and swap <audio> src to a Blob URL.
+  // IMPORTANT: only swap src when NOT playing to avoid cutting audio mid-playback.
   let swBypassBlobUrl: string | null = null;
   let swBypassInProgress = true;
+  let swBypassBlobReady: string | null = null; // Holds blob URL until safe to swap
 
   (async () => {
     try {
       const response = await fetch(audioUrl, { headers: { 'ngsw-bypass': 'true' } });
       const blob = await response.blob();
-      swBypassBlobUrl = URL.createObjectURL(blob);
-      ws.getMediaElement().src = swBypassBlobUrl;
+      const blobUrl = URL.createObjectURL(blob);
+      if (ws.isPlaying()) {
+        // Defer swap until playback pauses/finishes to avoid cutting audio
+        swBypassBlobReady = blobUrl;
+      } else {
+        swBypassBlobUrl = blobUrl;
+        const mediaEl = ws.getMediaElement();
+        // Re-lock play button: swapping src resets readyState
+        if (hasPeaks && !mediaEl.paused) lockPlay();
+        if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
+        mediaEl.src = swBypassBlobUrl;
+      }
     } catch {
       // Bypass fetch failed — if <audio> also errored, show error overlay
       if (ws.getMediaElement().error) {
@@ -327,8 +346,20 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     onPlay?.();
   });
 
+  // Apply deferred SW bypass blob swap when safe (not playing)
+  function applyDeferredSwBypass() {
+    if (swBypassBlobReady) {
+      swBypassBlobUrl = swBypassBlobReady;
+      swBypassBlobReady = null;
+      const mediaEl = ws.getMediaElement();
+      if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
+      mediaEl.src = swBypassBlobUrl;
+    }
+  }
+
   ws.on('pause', () => {
     playIcon.textContent = 'play_arrow';
+    applyDeferredSwBypass();
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'paused';
     }
@@ -337,6 +368,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
 
   ws.on('finish', () => {
     playIcon.textContent = 'play_arrow';
+    applyDeferredSwBypass();
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = 'paused';
     }
@@ -376,6 +408,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
           chromeFallbackBlobUrl = URL.createObjectURL(wav16Blob);
           // Directly swap the internal <audio> element's src
           const mediaEl = ws.getMediaElement();
+          if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
           mediaEl.src = chromeFallbackBlobUrl;
         } catch {
           // Failed to re-encode — playback may not work on Chromium for this format
@@ -397,9 +430,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     if (swBypassInProgress) return;
     if (ws.isPlaying()) onPause?.();
     // Reset play button loading state on error (retry button handles reload)
-    playIcon.textContent = 'play_arrow';
-    playBtn.classList.remove('ws-audio-loading');
-    playBtn.disabled = false;
+    unlockPlay();
     showErrorOverlay();
   });
 
@@ -433,9 +464,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
       }
       hideErrorOverlay();
       // Set play button to loading state during reload
-      playIcon.textContent = 'hourglass_top';
-      playBtn.classList.add('ws-audio-loading');
-      playBtn.disabled = true;
+      lockPlay();
       // Re-add skeleton for loading state
       const reloadSkeleton = document.createElement('div');
       reloadSkeleton.className = 'ws-skeleton';
@@ -447,9 +476,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
         reloadSkeleton.classList.add('ws-skeleton-out');
         setTimeout(() => reloadSkeleton.remove(), 400);
         // Unlock play button when audio is ready after reload
-        playIcon.textContent = 'play_arrow';
-        playBtn.classList.remove('ws-audio-loading');
-        playBtn.disabled = false;
+        unlockPlay();
       });
       ws.load(newUrl);
     },

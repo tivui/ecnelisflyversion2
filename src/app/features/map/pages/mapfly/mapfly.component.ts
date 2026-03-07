@@ -1215,6 +1215,19 @@ export class MapflyComponent implements OnInit, OnDestroy {
             this.activePopupPlayer?.destroy();
             requestAnimationFrame(async () => {
               const isDark = document.body.classList.contains('dark-theme');
+
+              // Show skeleton immediately while fetching peaks
+              const tempSkeleton = document.createElement('div');
+              tempSkeleton.className = 'ws-player';
+              const tempWaveform = document.createElement('div');
+              tempWaveform.className = 'ws-waveform';
+              const skelInner = document.createElement('div');
+              skelInner.className = 'ws-skeleton';
+              for (let i = 0; i < 5; i++) skelInner.appendChild(document.createElement('span'));
+              tempWaveform.appendChild(skelInner);
+              tempSkeleton.appendChild(tempWaveform);
+              wsContainer.appendChild(tempSkeleton);
+
               // Fetch peaks on-demand (not included in list query to avoid payload overflow)
               let peaks: number[][] | undefined;
               let duration: number | undefined;
@@ -1228,6 +1241,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
                   duration = peakResult.data.waveformDuration ?? undefined;
                 }
               } catch { /* fallback: WaveSurfer decodes natively */ }
+
+              // Remove temporary skeleton before creating the real player
+              tempSkeleton.remove();
+
               this.activePopupPlayer = createWaveSurferPlayer({
                 container: wsContainer,
                 audioUrl: url,
