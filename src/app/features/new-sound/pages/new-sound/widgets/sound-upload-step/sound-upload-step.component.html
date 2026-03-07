@@ -82,11 +82,14 @@
         <mat-icon class="upload-icon spinning">sync</mat-icon>
         <h3 class="upload-title">{{ 'sound.upload.upload-button' | translate }}...</h3>
         <mat-progress-bar
-          mode="determinate"
+          [mode]="progressMode"
           [value]="progress"
           class="progress-bar">
         </mat-progress-bar>
-        <p class="progress-text">{{ progress }}%</p>
+        <p class="progress-text">
+          @if (progressMode === 'determinate') { {{ progress }}% }
+          @else { {{ 'sound.upload.upload-button' | translate }}... }
+        </p>
       }
 
       @if (isUploaded) {

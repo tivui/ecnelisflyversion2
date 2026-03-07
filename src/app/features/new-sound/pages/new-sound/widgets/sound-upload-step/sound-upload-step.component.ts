@@ -64,6 +64,7 @@ export class SoundUploadStepComponent {
 
   selectedFile?: File;
   progress = 0;
+  progressMode: 'determinate' | 'indeterminate' = 'indeterminate';
   uploading = false;
   isUploaded = false;
   uploadedFilename?: string;
@@ -139,35 +140,34 @@ export class SoundUploadStepComponent {
     return ALLOWED_EXTENSIONS.includes(extension);
   }
 
-  upload() {
+  async upload() {
     if (!this.selectedFile) return;
 
     this.uploading = true;
     this.progress = 0;
+    this.progressMode = 'indeterminate';
 
-    const { progress$, result } = this.storageService.uploadSound(
-      this.selectedFile,
-    );
-
-    // Amplify's onProgress fires outside Angular zone — force change detection
-    progress$.subscribe((value) => {
-      this.ngZone.run(() => {
-        this.progress = value;
-        this.cdr.markForCheck();
-      });
-    });
-
-    result
-      .then((res) => {
-        this.isUploaded = true;
-        this.uploadedFilename = res.filename;
-        this.uploaded.emit(res.filename);
-      })
-      .catch(() => {
-        this.error = this.translate.instant('sound.upload.error-upload');
-      })
-      .finally(() => {
-        this.uploading = false;
-      });
+    try {
+      const res = await this.storageService.uploadSound(
+        this.selectedFile,
+        (percent) => {
+          // onProgress fires outside Angular zone — force change detection
+          this.ngZone.run(() => {
+            if (this.progressMode === 'indeterminate' && percent < 100) {
+              this.progressMode = 'determinate';
+            }
+            this.progress = percent;
+            this.cdr.markForCheck();
+          });
+        },
+      );
+      this.isUploaded = true;
+      this.uploadedFilename = res.filename;
+      this.uploaded.emit(res.filename);
+    } catch {
+      this.error = this.translate.instant('sound.upload.error-upload');
+    } finally {
+      this.uploading = false;
+    }
   }
 }

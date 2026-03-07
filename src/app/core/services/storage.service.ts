@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { getUrl, list, uploadData } from 'aws-amplify/storage';
-import { Observable, ReplaySubject } from 'rxjs';
 import { generateUniqueFilename } from './filename.service';
 import { AmplifyService } from './amplify.service';
 
@@ -55,45 +54,34 @@ export class StorageService {
   }
 
 /**
-   * Upload a sound file with progress tracking
-   * @returns Object with progress$ observable and result promise containing the sanitized filename
+   * Upload a sound file with progress tracking.
+   * Follows Amplify v6 pattern: uploadData().result is awaited directly
+   * to keep the upload task reference alive for onProgress callbacks.
+   *
+   * @param onProgress Callback with percent (0-100), called from outside Angular zone
+   * @returns The sanitized filename after successful upload
    */
-  uploadSound(
-    file: File
-  ): {
-    progress$: Observable<number>;
-    result: Promise<{ filename: string }>;
-  } {
-    // ReplaySubject(1) buffers the latest value so late subscribers don't miss progress
-    const progress$ = new ReplaySubject<number>(1);
-
-    // Generate a unique sanitized filename
+  async uploadSound(
+    file: File,
+    onProgress?: (percent: number) => void,
+  ): Promise<{ filename: string }> {
     const sanitizedFilename = generateUniqueFilename(file.name);
     const fullPath = `${this.basePath}${sanitizedFilename}`;
 
-    const uploadTask = uploadData({
+    const result = await uploadData({
       path: fullPath,
       data: file,
       options: {
         contentType: file.type,
         onProgress: ({ transferredBytes, totalBytes }) => {
           if (totalBytes) {
-            const percent = Math.round(
-              (transferredBytes / totalBytes) * 100
-            );
-            progress$.next(percent);
+            onProgress?.(Math.round((transferredBytes / totalBytes) * 100));
           }
         },
       },
-    });
+    }).result;
 
-    const result = uploadTask.result
-      .then(() => ({ filename: sanitizedFilename }))
-      .finally(() => {
-        progress$.complete();
-      });
-
-    return { progress$: progress$.asObservable(), result };
+    return { filename: sanitizedFilename };
   }
 
   /**
