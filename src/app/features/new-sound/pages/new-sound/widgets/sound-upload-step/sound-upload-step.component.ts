@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, NgZone, Output, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -52,7 +52,6 @@ const ALLOWED_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.w
 export class SoundUploadStepComponent {
   private readonly storageService = inject(StorageService);
   private readonly translate = inject(TranslateService);
-  private readonly ngZone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
 
   /** Expose constants to template */
@@ -64,12 +63,12 @@ export class SoundUploadStepComponent {
 
   selectedFile?: File;
   progress = 0;
-  progressMode: 'determinate' | 'indeterminate' = 'indeterminate';
   uploading = false;
   isUploaded = false;
   uploadedFilename?: string;
   error?: string;
   isDragging = false;
+  private simulatedTimer: ReturnType<typeof setInterval> | null = null;
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -145,29 +144,68 @@ export class SoundUploadStepComponent {
 
     this.uploading = true;
     this.progress = 0;
-    this.progressMode = 'indeterminate';
+    let useRealProgress = false;
+    this.startSimulatedProgress(this.selectedFile.size);
 
     try {
       const res = await this.storageService.uploadSound(
         this.selectedFile,
         (percent) => {
-          // onProgress fires outside Angular zone — force change detection
-          this.ngZone.run(() => {
-            if (this.progressMode === 'indeterminate' && percent < 100) {
-              this.progressMode = 'determinate';
-            }
+          // Real onProgress from Amplify — switch from simulation to real
+          if (!useRealProgress && percent > 0 && percent < 100) {
+            useRealProgress = true;
+            this.stopSimulatedProgress();
+          }
+          if (useRealProgress) {
             this.progress = percent;
             this.cdr.markForCheck();
-          });
+          }
         },
       );
+      this.stopSimulatedProgress();
+      this.progress = 100;
       this.isUploaded = true;
       this.uploadedFilename = res.filename;
       this.uploaded.emit(res.filename);
     } catch {
+      this.stopSimulatedProgress();
       this.error = this.translate.instant('sound.upload.error-upload');
     } finally {
       this.uploading = false;
+    }
+  }
+
+  /**
+   * Simulate smooth progress based on file size.
+   * Fallback when Amplify onProgress doesn't fire granularly.
+   * Curve: fast start, slows down approaching 90%, waits for real completion.
+   */
+  private startSimulatedProgress(fileSize: number) {
+    this.stopSimulatedProgress();
+    // Estimate total time: ~1 MB/s upload speed (conservative)
+    const estimatedSeconds = Math.max(fileSize / (1024 * 1024), 2);
+    const maxSimulated = 90;
+    const intervalMs = 200;
+    const totalTicks = (estimatedSeconds * 1000) / intervalMs;
+    let tick = 0;
+
+    this.simulatedTimer = setInterval(() => {
+      tick++;
+      const t = Math.min(tick / totalTicks, 1);
+      const eased = 1 - Math.pow(1 - t, 2);
+      this.progress = Math.min(Math.round(eased * maxSimulated), maxSimulated);
+      this.cdr.markForCheck();
+
+      if (this.progress >= maxSimulated) {
+        this.stopSimulatedProgress();
+      }
+    }, intervalMs);
+  }
+
+  private stopSimulatedProgress() {
+    if (this.simulatedTimer) {
+      clearInterval(this.simulatedTimer);
+      this.simulatedTimer = null;
     }
   }
 }

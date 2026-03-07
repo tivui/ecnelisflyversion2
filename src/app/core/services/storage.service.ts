@@ -54,11 +54,8 @@ export class StorageService {
   }
 
 /**
-   * Upload a sound file with progress tracking.
-   * Follows Amplify v6 pattern: uploadData().result is awaited directly
-   * to keep the upload task reference alive for onProgress callbacks.
-   *
-   * @param onProgress Callback with percent (0-100), called from outside Angular zone
+   * Upload a sound file to S3 with progress tracking.
+   * @param onProgress Callback with percent (0-100)
    * @returns The sanitized filename after successful upload
    */
   async uploadSound(
@@ -68,7 +65,7 @@ export class StorageService {
     const sanitizedFilename = generateUniqueFilename(file.name);
     const fullPath = `${this.basePath}${sanitizedFilename}`;
 
-    const result = await uploadData({
+    await uploadData({
       path: fullPath,
       data: file,
       options: {
