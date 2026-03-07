@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { getUrl, list, uploadData } from 'aws-amplify/storage';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable, ReplaySubject } from 'rxjs';
 import { generateUniqueFilename } from './filename.service';
 import { AmplifyService } from './amplify.service';
 
@@ -64,12 +64,8 @@ export class StorageService {
     progress$: Observable<number>;
     result: Promise<{ filename: string }>;
   } {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let progressObserver: any;
-
-    const progress$ = new Observable<number>((observer) => {
-      progressObserver = observer;
-    });
+    // ReplaySubject(1) buffers the latest value so late subscribers don't miss progress
+    const progress$ = new ReplaySubject<number>(1);
 
     // Generate a unique sanitized filename
     const sanitizedFilename = generateUniqueFilename(file.name);
@@ -81,11 +77,11 @@ export class StorageService {
       options: {
         contentType: file.type,
         onProgress: ({ transferredBytes, totalBytes }) => {
-          if (totalBytes && progressObserver) {
+          if (totalBytes) {
             const percent = Math.round(
               (transferredBytes / totalBytes) * 100
             );
-            progressObserver.next(percent);
+            progress$.next(percent);
           }
         },
       },
@@ -94,10 +90,10 @@ export class StorageService {
     const result = uploadTask.result
       .then(() => ({ filename: sanitizedFilename }))
       .finally(() => {
-        progressObserver?.complete();
+        progress$.complete();
       });
 
-    return { progress$, result };
+    return { progress$: progress$.asObservable(), result };
   }
 
   /**

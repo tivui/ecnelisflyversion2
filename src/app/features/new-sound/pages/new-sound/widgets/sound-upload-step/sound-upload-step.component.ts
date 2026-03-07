@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, NgZone, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -52,6 +52,8 @@ const ALLOWED_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.w
 export class SoundUploadStepComponent {
   private readonly storageService = inject(StorageService);
   private readonly translate = inject(TranslateService);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   /** Expose constants to template */
   readonly maxSizeMB = MAX_FILE_SIZE_MB;
@@ -147,8 +149,12 @@ export class SoundUploadStepComponent {
       this.selectedFile,
     );
 
+    // Amplify's onProgress fires outside Angular zone — force change detection
     progress$.subscribe((value) => {
-      this.progress = value;
+      this.ngZone.run(() => {
+        this.progress = value;
+        this.cdr.markForCheck();
+      });
     });
 
     result
