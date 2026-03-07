@@ -160,12 +160,21 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
   muteIcon.textContent = 'volume_up';
   muteBtn.appendChild(muteIcon);
 
+  // Volume slider (desktop only — hidden on mobile via CSS)
+  const volumeSlider = document.createElement('input');
+  volumeSlider.type = 'range';
+  volumeSlider.className = 'ws-volume-slider';
+  volumeSlider.min = '0';
+  volumeSlider.max = '100';
+  volumeSlider.value = '100';
+
   controlsDiv.appendChild(playBtn);
   controlsDiv.appendChild(timeCurrent);
   controlsDiv.appendChild(timeSeparator);
   controlsDiv.appendChild(timeTotal);
   controlsDiv.appendChild(spacer);
   controlsDiv.appendChild(muteBtn);
+  controlsDiv.appendChild(volumeSlider);
   wrapper.appendChild(controlsDiv);
 
   container.appendChild(wrapper);
@@ -439,11 +448,29 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
     ws.playPause();
   });
 
-  // Mute click
+  // Volume slider
+  let previousVolume = 1; // remember volume before mute
+  volumeSlider.addEventListener('input', () => {
+    const vol = parseInt(volumeSlider.value, 10) / 100;
+    ws.setVolume(vol);
+    isMuted = vol === 0;
+    muteIcon.textContent = vol === 0 ? 'volume_off' : vol < 0.5 ? 'volume_down' : 'volume_up';
+    if (vol > 0) previousVolume = vol;
+  });
+
+  // Mute click — toggles between 0 and previous volume
   muteBtn.addEventListener('click', () => {
     isMuted = !isMuted;
-    ws.setMuted(isMuted);
-    muteIcon.textContent = isMuted ? 'volume_off' : 'volume_up';
+    if (isMuted) {
+      previousVolume = parseInt(volumeSlider.value, 10) / 100 || 1;
+      ws.setVolume(0);
+      volumeSlider.value = '0';
+      muteIcon.textContent = 'volume_off';
+    } else {
+      ws.setVolume(previousVolume);
+      volumeSlider.value = String(Math.round(previousVolume * 100));
+      muteIcon.textContent = previousVolume < 0.5 ? 'volume_down' : 'volume_up';
+    }
   });
 
   const instance: WaveSurferPlayerInstance = {
