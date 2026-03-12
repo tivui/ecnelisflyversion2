@@ -761,7 +761,7 @@ const schema = a
         newCategory: a.string(),
       })
       .returns(a.json())
-      .authorization((allow) => [allow.group('ADMIN')])
+      .authorization((allow) => [allow.authenticated()])
       .handler(a.handler.function(sendSoundConfirmationEmail)),
   })
 

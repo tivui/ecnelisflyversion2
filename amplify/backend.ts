@@ -250,6 +250,7 @@ sendSoundEmailLambda.addToRolePolicy(
 );
 
 sendSoundEmailLambda.addEnvironment('SENDER_EMAIL', 'noreply@ecnelisfly.com');
+sendSoundEmailLambda.addEnvironment('ADMIN_EMAIL', 'ecnelisfly@gmail.com');
 sendSoundEmailLambda.addEnvironment('SEND_EMAIL_ENABLED', 'true');
 
 // ➡ Permissions Cognito pour la Lambda manage-cognito-user (admin operations)

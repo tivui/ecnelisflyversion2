@@ -2426,16 +2426,33 @@ export class MapflyComponent implements OnInit, OnDestroy {
           <button class="zoom-btn material-icons" id="zoom-in-${soundFilename}">add</button>
         </div>
       </div>
-    `, {
-      maxWidth: 340,
-      minWidth: 280,
-      autoPanPaddingTopLeft: L.point(10, 60),
-      autoPanPaddingBottomRight: L.point(10, 70),
-    });
+    `, { maxWidth: 340, minWidth: 280, autoPan: false });
 
     // Popup open logic (same as normal mode)
     marker.on('popupopen', () => {
       if (!s) return;
+
+      // Recentre map so the popup + marker are vertically centered in the viewport
+      requestAnimationFrame(() => {
+        const popupEl = marker.getPopup()?.getElement();
+        if (popupEl && this.map) {
+          const mapSize = this.map.getSize();
+          const popupHeight = popupEl.offsetHeight;
+          const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
+          const tipOffset = 43;
+          const popupTop = markerPoint.y - tipOffset - popupHeight;
+          const popupBottom = markerPoint.y + 10;
+          const totalHeight = popupBottom - popupTop;
+          const topPadding = 70;
+          const availableHeight = mapSize.y - topPadding;
+          const idealCenter = topPadding + availableHeight / 2;
+          const currentCenter = popupTop + totalHeight / 2;
+          const panY = currentCenter - idealCenter;
+          if (Math.abs(panY) > 10) {
+            this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+          }
+        }
+      });
 
       const titleEl = document.getElementById(`title-${soundFilename}`);
       const shortStoryEl = document.getElementById(`shortStory-${soundFilename}`);
