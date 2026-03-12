@@ -193,12 +193,90 @@ function buildHtml(payload: SoundEmailPayload): string {
 </html>`;
 }
 
+function buildAdminNotificationHtml(payload: SoundEmailPayload): string {
+  const action = payload.action || 'created';
+  const isModeration = action !== 'created';
+  const headerGradient = isModeration
+    ? 'linear-gradient(135deg,#f57c00,#ff9800)'
+    : 'linear-gradient(135deg,#1976d2,#3f51b5)';
+
+  let bodyLines: string[] = [];
+
+  if (action === 'created') {
+    const statusLabel = payload.soundStatus === 'public' ? 'Public (admin)' : 'En attente de modération';
+    bodyLines.push(`<strong>${payload.username}</strong> a ajouté un nouveau son : <strong>"${payload.soundTitle}"</strong>`);
+    bodyLines.push(`Statut : <strong>${statusLabel}</strong>`);
+  } else {
+    const actionLabels: Record<string, string> = {
+      approved: 'Approuvé',
+      approved_with_changes: 'Approuvé avec modifications',
+      rejected: 'Rejeté',
+    };
+    bodyLines.push(`Décision de modération pour le son <strong>"${payload.soundTitle}"</strong> de <strong>${payload.username}</strong> : <strong>${actionLabels[action] || action}</strong>`);
+    if (payload.oldCategory && payload.newCategory) {
+      bodyLines.push(`Catégorie modifiée : ${payload.oldCategory} → ${payload.newCategory}`);
+    }
+    if (payload.moderationNote) {
+      bodyLines.push(`Note : ${payload.moderationNote}`);
+    }
+  }
+
+  const subject = action === 'created'
+    ? `Nouveau son ajouté par ${payload.username} — Ecnelis FLY`
+    : `[Modération] ${payload.soundTitle} — Ecnelis FLY`;
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${subject}</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:${headerGradient};padding:28px 32px;text-align:center;">
+            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" height="56" style="display:block;margin:0 auto 12px;" />
+            <span style="color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:1px;">ECNELIS FLY — ADMIN</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px;">
+            <p style="margin:0 0 24px;font-size:1rem;color:#444;line-height:1.6;">${bodyLines.join('<br/><br/>')}</p>
+            <div style="text-align:center;margin:24px 0;">
+              <a href="https://www.ecnelisfly.com/admin/dashboard" style="display:inline-block;padding:12px 28px;background:#1976d2;color:#fff;text-decoration:none;border-radius:24px;font-weight:600;font-size:0.95rem;">
+                🔧 Tableau de bord
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f8f9fa;padding:16px 32px;text-align:center;border-top:1px solid #e0e0e0;">
+            <p style="margin:0;font-size:0.75rem;color:#aaa;">© 2021-2026 Ecnelis FLY · <a href="https://www.ecnelisfly.com" style="color:#1976d2;text-decoration:none;">ecnelisfly.com</a></p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function getAdminSubject(payload: SoundEmailPayload): string {
+  const action = payload.action || 'created';
+  if (action === 'created') return `Nouveau son ajouté par ${payload.username} — Ecnelis FLY`;
+  return `[Modération] ${payload.soundTitle} — Ecnelis FLY`;
+}
+
 export const handler = async (event: any) => {
   // Amplify Gen2 mutations pass args in event.arguments
   const payload: SoundEmailPayload = event.arguments ?? event;
   console.log(`${PREFIX} Invoked`, JSON.stringify(payload));
 
   const senderEmail = process.env['SENDER_EMAIL'];
+  const adminEmail = process.env['ADMIN_EMAIL'];
   const enabled = process.env['SEND_EMAIL_ENABLED'] === 'true';
 
   if (!enabled) {
@@ -216,10 +294,12 @@ export const handler = async (event: any) => {
     return { status: 'error', reason: 'Missing payload fields' };
   }
 
+  const ses = new SESv2Client({});
+  const action = payload.action || 'created';
+
+  // 1) Send user email (for all actions)
   const subject = getSubject(payload);
   const html = buildHtml(payload);
-
-  const ses = new SESv2Client({});
 
   try {
     await ses.send(new SendEmailCommand({
@@ -233,9 +313,31 @@ export const handler = async (event: any) => {
       },
     }));
     console.log(`${PREFIX} Email sent to ${payload.toEmail}`);
-    return { status: 'sent', toEmail: payload.toEmail };
   } catch (err) {
-    console.error(`${PREFIX} SES send failed:`, err);
+    console.error(`${PREFIX} SES send to user failed:`, err);
     return { status: 'error', reason: String(err) };
   }
+
+  // 2) Send admin notification email (separate email with admin-specific content)
+  if (adminEmail && adminEmail !== payload.toEmail) {
+    try {
+      const adminSubject = getAdminSubject(payload);
+      const adminHtml = buildAdminNotificationHtml(payload);
+      await ses.send(new SendEmailCommand({
+        FromEmailAddress: senderEmail,
+        Destination: { ToAddresses: [adminEmail] },
+        Content: {
+          Simple: {
+            Subject: { Data: adminSubject, Charset: 'UTF-8' },
+            Body: { Html: { Data: adminHtml, Charset: 'UTF-8' } },
+          },
+        },
+      }));
+      console.log(`${PREFIX} Admin notification sent to ${adminEmail}`);
+    } catch (err) {
+      console.warn(`${PREFIX} Admin notification failed (non-blocking):`, err);
+    }
+  }
+
+  return { status: 'sent', toEmail: payload.toEmail };
 };

@@ -242,6 +242,19 @@ export class ConfirmationStepComponent implements OnChanges {
       // Créer le son dans DynamoDB
       await this.amplifyService.client.models.Sound.create(soundToCreate);
 
+      // Send email notification (fire-and-forget)
+      const userEmail = appUser.email;
+      if (userEmail && !userEmail.startsWith('imported_')) {
+        (this.amplifyService.client as any).mutations.sendSoundEmail({
+          toEmail: userEmail,
+          username: appUser.username || '—',
+          soundTitle: soundToCreate.title,
+          soundStatus: soundToCreate.status,
+          lang: this.translate.currentLang || 'fr',
+          action: 'created',
+        }).catch((e: any) => console.warn('[ConfirmationStep] Email send failed (non-blocking):', e));
+      }
+
       // Afficher l'overlay de succès
       this.loading.set(false);
       this.success.set(true);
