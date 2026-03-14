@@ -1,6 +1,14 @@
 User-agent: *
 Allow: /
+
 Disallow: /admin/
-Disallow: /auth/
+Disallow: /account
+Disallow: /dashboard
+Disallow: /new-sound
+Disallow: /login
+Disallow: /quiz/*/play
+Disallow: /quiz/*/results/
+Disallow: /quiz/*/review/
+Disallow: /quiz/my-scores
 
 Sitemap: https://www.ecnelisfly.com/sitemap.xml

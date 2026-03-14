@@ -40,6 +40,8 @@ import { FeaturedSoundService } from './core/services/featured-sound.service';
 import { SiteVisitService } from './core/services/site-visit.service';
 import { DailyFeaturedSound } from './core/models/featured-sound.model';
 import { DashboardService } from './features/dashboard/services/dashboard.service';
+import { SeoService } from './core/services/seo.service';
+import { SEO_ROUTES, getRouteKey } from './core/models/seo-routes';
 
 @Component({
     selector: 'app-root',
@@ -79,6 +81,7 @@ export class AppComponent implements OnInit {
   private readonly appUpdateService = inject(AppUpdateService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
   private readonly dashboardService = inject(DashboardService);
+  private readonly seoService = inject(SeoService);
   private readonly siteVisitService = inject(SiteVisitService);
 
   public appUser = signal<AppUser | null>(null);
@@ -197,7 +200,7 @@ export class AppComponent implements OnInit {
     window.addEventListener('resize', () => checkMobile());
     screen.orientation?.addEventListener('change', () => checkMobile());
 
-    // Track current route for conditional UI
+    // Track current route for conditional UI + SEO meta tags
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects;
@@ -205,6 +208,15 @@ export class AppComponent implements OnInit {
         this.isLoginPage.set(url.startsWith('/login'));
         this.isCategoryMapPage.set(url.startsWith('/mapfly') && url.includes('category='));
         this.activeRoute.set(url);
+
+        // Update SEO meta tags per route
+        const routeKey = getRouteKey(url);
+        const lang = this.translate.currentLang || 'fr';
+        const seoData = SEO_ROUTES[routeKey];
+        if (seoData) {
+          const config = seoData[lang] || seoData['fr'];
+          this.seoService.update(config);
+        }
       }
     });
 
