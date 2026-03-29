@@ -239,7 +239,7 @@ export const categories: Record<string, Category> = {
       { key: 'flutefly' },
       { key: 'gongfly' },
       { key: 'guitarfly' },
-      { key: 'electricguitar' },
+      { key: 'electricguitarfly' },
       { key: 'harpfly' },
       { key: 'windmusicfly' },
       { key: 'bandfly' },
