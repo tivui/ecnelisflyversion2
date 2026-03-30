@@ -303,8 +303,8 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
       } else {
         swBypassBlobUrl = blobUrl;
         const mediaEl = ws.getMediaElement();
-        // Re-lock play button: swapping src resets readyState
-        if (hasPeaks && !mediaEl.paused) lockPlay();
+        // Re-lock play button: swapping src always resets readyState to 0
+        if (hasPeaks) lockPlay();
         if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
         mediaEl.src = swBypassBlobUrl;
       }
@@ -361,6 +361,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
       swBypassBlobUrl = swBypassBlobReady;
       swBypassBlobReady = null;
       const mediaEl = ws.getMediaElement();
+      if (hasPeaks) lockPlay();
       if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
       mediaEl.src = swBypassBlobUrl;
     }
@@ -417,6 +418,7 @@ export function createWaveSurferPlayer(config: WaveSurferPlayerConfig): WaveSurf
           chromeFallbackBlobUrl = URL.createObjectURL(wav16Blob);
           // Directly swap the internal <audio> element's src
           const mediaEl = ws.getMediaElement();
+          if (hasPeaks) lockPlay();
           if (hasPeaks) mediaEl.addEventListener('canplay', unlockPlay, { once: true });
           mediaEl.src = chromeFallbackBlobUrl;
         } catch {
