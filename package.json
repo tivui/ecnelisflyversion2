@@ -24,7 +24,7 @@
     "@angular/service-worker": "^20.3.17",
     "@aws-amplify/ui-angular": "^5.3.1",
     "@bluehalo/ngx-leaflet": "^20.0.0",
-    "@bluehalo/ngx-leaflet-markercluster": "^20.0.1",
+    "@bluehalo/ngx-leaflet-markercluster": "^21.0.0",
     "@dicebear/collection": "^9.3.1",
     "@dicebear/core": "^9.3.1",
     "@ngx-translate/core": "^17.0.0",
