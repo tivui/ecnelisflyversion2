@@ -163,7 +163,7 @@ function buildHtml(payload: SoundEmailPayload): string {
         <!-- Header -->
         <tr>
           <td style="background:${headerGradient};padding:28px 32px;text-align:center;">
-            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" height="56" style="display:block;margin:0 auto 12px;" />
+            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" width="56" height="56" style="display:block;margin:0 auto 12px;max-width:56px;" />
             <span style="color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:1px;">ECNELIS FLY</span>
           </td>
         </tr>
@@ -238,7 +238,7 @@ function buildAdminNotificationHtml(payload: SoundEmailPayload): string {
       <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
         <tr>
           <td style="background:${headerGradient};padding:28px 32px;text-align:center;">
-            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" height="56" style="display:block;margin:0 auto 12px;" />
+            <img src="https://www.ecnelisfly.com/img/logos/logo_blue_orange_left_round.png" alt="Ecnelis FLY" width="56" height="56" style="display:block;margin:0 auto 12px;max-width:56px;" />
             <span style="color:#fff;font-size:1.4rem;font-weight:700;letter-spacing:1px;">ECNELIS FLY — ADMIN</span>
           </td>
         </tr>
