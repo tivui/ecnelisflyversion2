@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { StorageService } from '../../../../../../core/services/storage.service';
 import { extractPeaksFromFile } from '../../../../../../core/services/peak-extraction.service';
+import { AuthService } from '../../../../../../core/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -53,9 +54,10 @@ export class SoundUploadStepComponent {
   private readonly storageService = inject(StorageService);
   private readonly translate = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly authService = inject(AuthService);
 
-  /** Expose constants to template */
   readonly maxSizeMB = MAX_FILE_SIZE_MB;
+  get isAdmin(): boolean { return this.authService.isInGroup('ADMIN'); }
   readonly allowedExtensions = ALLOWED_EXTENSIONS.map((e) => e.toUpperCase().slice(1)).join(', ');
 
   @Output() uploaded = new EventEmitter<string>();
@@ -102,8 +104,8 @@ export class SoundUploadStepComponent {
   }
 
   private processFile(file: File) {
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE_BYTES) {
+    // Validate file size (admins have no limit)
+    if (!this.isAdmin && file.size > MAX_FILE_SIZE_BYTES) {
       this.error = this.translate.instant('sound.upload.error-size', {
         max: MAX_FILE_SIZE_MB,
       });
