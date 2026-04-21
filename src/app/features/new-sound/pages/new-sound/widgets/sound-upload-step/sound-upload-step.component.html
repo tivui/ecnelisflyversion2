@@ -44,12 +44,14 @@
             <mat-icon>music_note</mat-icon>
             <span>{{ allowedExtensions }}</span>
           </div>
-          <div
-            class="constraint-item"
-            [matTooltip]="'sound.upload.size-tooltip' | translate">
-            <mat-icon>storage</mat-icon>
-            <span>{{ 'sound.upload.max-size-value' | translate: { size: maxSizeMB } }}</span>
-          </div>
+          @if (!isAdmin) {
+            <div
+              class="constraint-item"
+              [matTooltip]="'sound.upload.size-tooltip' | translate">
+              <mat-icon>storage</mat-icon>
+              <span>{{ 'sound.upload.max-size-value' | translate: { size: maxSizeMB } }}</span>
+            </div>
+          }
         </div>
       }
 
