@@ -204,7 +204,7 @@ export class AppComponent implements OnInit {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects;
-        this.isHomePage.set(url.startsWith('/home'));
+        this.isHomePage.set(url === '/' || url.startsWith('/home'));
         this.isLoginPage.set(url.startsWith('/login'));
         this.isCategoryMapPage.set(url.startsWith('/mapfly') && url.includes('category='));
         this.activeRoute.set(url);
