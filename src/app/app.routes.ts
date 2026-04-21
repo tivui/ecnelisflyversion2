@@ -8,7 +8,7 @@ import { MapflyComponent } from './features/map/pages/mapfly/mapfly.component';
 import { NewSoundComponent } from './features/new-sound/pages/new-sound/new-sound.component';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
+  { path: '', pathMatch: 'full', component: HomeComponent },
   { path: 'home', component: HomeComponent },
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'new-sound', component: NewSoundComponent, canActivate: [authGuard] },

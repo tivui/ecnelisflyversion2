@@ -42,6 +42,23 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
+    <!-- Static JSON-LD: always present without JS rendering -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Ecnelis FLY",
+      "alternateName": ["Carte sonore mondiale", "World Sound Map", "Soundmap World", "Sounds of the World", "Mapa sonoro mundial"],
+      "url": "https://www.ecnelisfly.com",
+      "description": "Interactive world sound map — carte sonore mondiale interactive. Explore and listen to geolocated sounds of the world from 111 countries: nature, music, cities, wildlife. Soundmap world, sounds of the world, field recording, soundscape.",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["fr", "en", "es"],
+      "keywords": "carte sonore mondiale, world sound map, soundmap world, sounds of the world, sons du monde, mapa sonoro mundial, field recording, soundscape, nature sounds, ambiance sonore",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "author": { "@type": "Organization", "name": "Ecnelis FLY", "url": "https://www.ecnelisfly.com" }
+    }
+    </script>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -63,6 +80,22 @@
     />
   </head>
   <body class="light-theme">
+    <noscript>
+      <h1>Ecnelis FLY — Carte sonore mondiale interactive | World Sound Map</h1>
+      <p>
+        Explorez la carte sonore mondiale Ecnelis FLY. Écoutez plus de 548 sons géolocalisés
+        de 111 pays : ambiances, nature, musique, animaux, villes. Partagez vos découvertes sonores.
+      </p>
+      <p>
+        Explore the interactive world sound map — soundmap world. Listen to sounds of the world
+        geolocated from 111 countries: nature, music, cities, wildlife. Free soundmap.
+      </p>
+      <p>
+        Explora el mapa sonoro mundial interactivo. Escucha sonidos del mundo geolocalizados
+        de 111 países: naturaleza, música, ciudades, animales.
+      </p>
+      <a href="https://www.ecnelisfly.com">Ecnelis FLY — World Sound Map / Carte sonore mondiale</a>
+    </noscript>
     <app-root></app-root>
   </body>
 </html>
