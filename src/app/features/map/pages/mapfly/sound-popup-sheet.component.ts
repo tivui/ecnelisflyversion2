@@ -296,7 +296,9 @@ export class SoundPopupSheetComponent implements AfterViewInit, OnDestroy {
   radarActive = signal(false);
   private radarMap: L.Map | null = null;
   currentZoom = signal(this.data.mapZoom ?? 17);
-  showRadar = computed(() => this.currentZoom() >= 5);
+  // Featured: radar always available (user needs global positioning context).
+  // Normal/journey: only when zoomed in enough (zoom >= 5) to be useful.
+  showRadar = computed(() => this.data.type === 'featured' || this.currentZoom() >= 5);
 
   likeIcon = computed(() =>
     this.isLiked()
