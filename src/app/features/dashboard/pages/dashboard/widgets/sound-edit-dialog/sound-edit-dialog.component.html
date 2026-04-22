@@ -225,7 +225,7 @@
             <mat-form-field appearance="outline">
               <mat-label>{{ "sound.link-title" | translate }}</mat-label>
               <input matInput formControlName="urlTitle" />
-              @if (metaForm.get('urlTitle')?.hasError('required')) {
+              @if (metaForm.hasError('urlTitleRequired')) {
                 <mat-error>{{ "sound.validation.url-title-required" | translate }}</mat-error>
               }
             </mat-form-field>
@@ -244,7 +244,7 @@
             <mat-form-field appearance="outline">
               <mat-label>{{ "sound.link-title-2" | translate }}</mat-label>
               <input matInput formControlName="secondaryUrlTitle" />
-              @if (metaForm.get('secondaryUrlTitle')?.hasError('required')) {
+              @if (metaForm.hasError('secondaryUrlTitleRequired')) {
                 <mat-error>{{ "sound.validation.url-title-required" | translate }}</mat-error>
               }
             </mat-form-field>

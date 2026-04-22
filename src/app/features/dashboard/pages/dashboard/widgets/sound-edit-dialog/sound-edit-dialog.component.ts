@@ -7,6 +7,8 @@ import {
   FormGroup,
   Validators,
   FormControl,
+  AbstractControl,
+  ValidationErrors,
 } from '@angular/forms';
 import {
   MatDialogModule,
@@ -52,6 +54,16 @@ import {
   getSubCategoryKeys,
 } from '../../../../../../../../amplify/data/categories';
 import { SoundDataStepDialogComponent } from '../../../../../new-sound/pages/new-sound/widgets/sound-data-step-dialog/sound-data-step-dialog.component';
+
+function urlsValidator(group: AbstractControl): ValidationErrors | null {
+  const url = group.get('url')?.value?.trim();
+  const urlTitle = group.get('urlTitle')?.value?.trim();
+  const secondaryUrl = group.get('secondaryUrl')?.value?.trim();
+  const secondaryUrlTitle = group.get('secondaryUrlTitle')?.value?.trim();
+  if (url && !urlTitle) return { urlTitleRequired: true };
+  if (secondaryUrl && !secondaryUrlTitle) return { secondaryUrlTitleRequired: true };
+  return null;
+}
 
 interface DialogData {
   sound: Sound;
@@ -162,7 +174,7 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
     status: this.statusControl,
     license: this.licenseControl,
     hashtags: ['', [Validators.maxLength(200)]],
-  });
+  }, { validators: urlsValidator });
 
   // License options
   licenseOptions: { value: LicenseType; label: string }[] = [
@@ -285,35 +297,26 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
   }
 
   private onUrl1Change(url: string | null) {
-    const urlTitleCtrl = this.metaForm.get('urlTitle')!;
     const secondaryUrlCtrl = this.metaForm.get('secondaryUrl')!;
     const secondaryUrlTitleCtrl = this.metaForm.get('secondaryUrlTitle')!;
 
     if (url?.trim()) {
-      urlTitleCtrl.addValidators(Validators.required);
       secondaryUrlCtrl.enable({ emitEvent: false });
       secondaryUrlTitleCtrl.enable({ emitEvent: false });
     } else {
-      urlTitleCtrl.removeValidators(Validators.required);
       secondaryUrlCtrl.setValue('', { emitEvent: false });
       secondaryUrlCtrl.disable({ emitEvent: false });
       secondaryUrlTitleCtrl.setValue('', { emitEvent: false });
-      secondaryUrlTitleCtrl.removeValidators(Validators.required);
       secondaryUrlTitleCtrl.disable({ emitEvent: false });
     }
-    urlTitleCtrl.updateValueAndValidity({ emitEvent: false });
-    secondaryUrlTitleCtrl.updateValueAndValidity({ emitEvent: false });
+    this.metaForm.updateValueAndValidity();
   }
 
   private onUrl2Change(url: string | null) {
-    const secondaryUrlTitleCtrl = this.metaForm.get('secondaryUrlTitle')!;
-    if (url?.trim()) {
-      secondaryUrlTitleCtrl.addValidators(Validators.required);
-    } else {
-      secondaryUrlTitleCtrl.removeValidators(Validators.required);
-      secondaryUrlTitleCtrl.setValue('', { emitEvent: false });
+    if (!url?.trim()) {
+      this.metaForm.get('secondaryUrlTitle')!.setValue('', { emitEvent: false });
     }
-    secondaryUrlTitleCtrl.updateValueAndValidity({ emitEvent: false });
+    this.metaForm.updateValueAndValidity();
   }
 
   private setupCategoryListeners() {
