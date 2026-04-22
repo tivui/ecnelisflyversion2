@@ -421,7 +421,9 @@
       "sound-file": "Sound file",
       "location": "Location",
       "title": "Title",
-      "category": "Category"
+      "category": "Category",
+      "url-title-required": "Link title is required",
+      "url2-requires-url1": "Fill in link 1 first"
     },
     "hint-marker": "Move the map or use the search to position the marker.",
     "sound-data-title": "Sound Title",

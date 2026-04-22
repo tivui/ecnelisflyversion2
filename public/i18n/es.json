@@ -427,7 +427,9 @@
       "sound-file": "Archivo de audio",
       "location": "Ubicación",
       "title": "Título",
-      "category": "Categoría"
+      "category": "Categoría",
+      "url-title-required": "El título del enlace es obligatorio",
+      "url2-requires-url1": "Primero rellena el enlace 1"
     },
     "hint-marker": "Mueva el mapa o use la búsqueda para colocar el marcador.",
     "sound-data-title": "Título del sonido",
