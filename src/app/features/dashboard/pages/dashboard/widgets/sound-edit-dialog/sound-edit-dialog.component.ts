@@ -190,7 +190,13 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
     this.initializeForms();
     this.buildCategories();
     this.setupCategoryListeners();
+    this.setupUrlListeners();
     this.setDateLocale(this.translate.currentLang);
+    // Apply initial URL state based on loaded sound data
+    this.onUrl1Change(this.metaForm.get('url')!.value);
+    if (this.metaForm.get('url')!.value?.trim()) {
+      this.onUrl2Change(this.metaForm.get('secondaryUrl')!.value);
+    }
   }
 
   ngOnDestroy() {
@@ -266,6 +272,48 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  private setupUrlListeners() {
+    this.metaForm.get('url')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(url => this.onUrl1Change(url));
+
+    this.metaForm.get('secondaryUrl')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(url => this.onUrl2Change(url));
+  }
+
+  private onUrl1Change(url: string | null) {
+    const urlTitleCtrl = this.metaForm.get('urlTitle')!;
+    const secondaryUrlCtrl = this.metaForm.get('secondaryUrl')!;
+    const secondaryUrlTitleCtrl = this.metaForm.get('secondaryUrlTitle')!;
+
+    if (url?.trim()) {
+      urlTitleCtrl.addValidators(Validators.required);
+      secondaryUrlCtrl.enable({ emitEvent: false });
+      secondaryUrlTitleCtrl.enable({ emitEvent: false });
+    } else {
+      urlTitleCtrl.removeValidators(Validators.required);
+      secondaryUrlCtrl.setValue('', { emitEvent: false });
+      secondaryUrlCtrl.disable({ emitEvent: false });
+      secondaryUrlTitleCtrl.setValue('', { emitEvent: false });
+      secondaryUrlTitleCtrl.removeValidators(Validators.required);
+      secondaryUrlTitleCtrl.disable({ emitEvent: false });
+    }
+    urlTitleCtrl.updateValueAndValidity({ emitEvent: false });
+    secondaryUrlTitleCtrl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private onUrl2Change(url: string | null) {
+    const secondaryUrlTitleCtrl = this.metaForm.get('secondaryUrlTitle')!;
+    if (url?.trim()) {
+      secondaryUrlTitleCtrl.addValidators(Validators.required);
+    } else {
+      secondaryUrlTitleCtrl.removeValidators(Validators.required);
+      secondaryUrlTitleCtrl.setValue('', { emitEvent: false });
+    }
+    secondaryUrlTitleCtrl.updateValueAndValidity({ emitEvent: false });
   }
 
   private setupCategoryListeners() {
@@ -537,12 +585,16 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
       updateData.longitude = locationValues.longitude;
       updateData.city = locationValues.city || undefined;
 
-      // Meta
-      const metaValues = this.metaForm.value;
-      updateData.url = metaValues.url || undefined;
-      updateData.urlTitle = metaValues.urlTitle || undefined;
-      updateData.secondaryUrl = metaValues.secondaryUrl || undefined;
-      updateData.secondaryUrlTitle = metaValues.secondaryUrlTitle || undefined;
+      // Meta — getRawValue() to include disabled controls (secondaryUrl/secondaryUrlTitle)
+      const metaValues = this.metaForm.getRawValue();
+      const url = metaValues.url?.trim() || undefined;
+      const urlTitle = url ? (metaValues.urlTitle?.trim() || undefined) : undefined;
+      const secondaryUrl = url ? (metaValues.secondaryUrl?.trim() || undefined) : undefined;
+      const secondaryUrlTitle = secondaryUrl ? (metaValues.secondaryUrlTitle?.trim() || undefined) : undefined;
+      updateData.url = url;
+      updateData.urlTitle = urlTitle;
+      updateData.secondaryUrl = secondaryUrl;
+      updateData.secondaryUrlTitle = secondaryUrlTitle;
       updateData.status = this.statusControl.value || undefined;
       updateData.license = this.licenseControl.value || undefined;
       updateData.hashtags = metaValues.hashtags || undefined;

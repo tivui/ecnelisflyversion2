@@ -225,6 +225,9 @@
             <mat-form-field appearance="outline">
               <mat-label>{{ "sound.link-title" | translate }}</mat-label>
               <input matInput formControlName="urlTitle" />
+              @if (metaForm.get('urlTitle')?.hasError('required')) {
+                <mat-error>{{ "sound.validation.url-title-required" | translate }}</mat-error>
+              }
             </mat-form-field>
 
             <!-- URL 2 -->
@@ -232,12 +235,18 @@
               <mat-label>{{ "sound.link-url-2" | translate }}</mat-label>
               <input matInput formControlName="secondaryUrl" type="url" />
               <mat-icon matSuffix>link</mat-icon>
+              @if (metaForm.get('secondaryUrl')?.disabled) {
+                <mat-hint>{{ "sound.validation.url2-requires-url1" | translate }}</mat-hint>
+              }
             </mat-form-field>
 
             <!-- URL Title 2 -->
             <mat-form-field appearance="outline">
               <mat-label>{{ "sound.link-title-2" | translate }}</mat-label>
               <input matInput formControlName="secondaryUrlTitle" />
+              @if (metaForm.get('secondaryUrlTitle')?.hasError('required')) {
+                <mat-error>{{ "sound.validation.url-title-required" | translate }}</mat-error>
+              }
             </mat-form-field>
 
             <!-- Hashtags -->
@@ -264,7 +273,7 @@
       mat-raised-button
       color="primary"
       (click)="save()"
-      [disabled]="saving() || infoForm.get('title')?.invalid"
+      [disabled]="saving() || infoForm.get('title')?.invalid || metaForm.invalid"
     >
       @if (saving()) {
         <mat-spinner diameter="20"></mat-spinner>
