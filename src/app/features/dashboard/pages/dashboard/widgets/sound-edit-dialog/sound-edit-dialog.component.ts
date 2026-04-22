@@ -350,6 +350,14 @@ export class SoundEditDialogComponent implements OnInit, OnDestroy {
     return this.translate.currentLang || 'fr';
   }
 
+  get hasUrlValidationError(): boolean {
+    const url = this.metaForm.get('url')?.value?.trim();
+    const urlTitle = this.metaForm.get('urlTitle')?.value?.trim();
+    const secUrl = this.metaForm.get('secondaryUrl')?.value?.trim();
+    const secTitle = this.metaForm.get('secondaryUrlTitle')?.value?.trim();
+    return (!!url && !urlTitle) || (!!secUrl && !secTitle);
+  }
+
   displayFn(option: Option | null): string {
     return option ? option.label : '';
   }
