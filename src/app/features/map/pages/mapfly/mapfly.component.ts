@@ -47,13 +47,14 @@ import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-she
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
 import 'leaflet-minimap';
+import { MatomoService } from '../../../../core/services/matomo.service';
 
 @Component({
-    selector: 'app-mapfly',
-    imports: [TranslatePipe, MatBottomSheetModule],
-    templateUrl: './mapfly.component.html',
-    styleUrls: ['./mapfly.component.scss'],
-    encapsulation: ViewEncapsulation.None
+  selector: 'app-mapfly',
+  imports: [TranslatePipe, MatBottomSheetModule],
+  templateUrl: './mapfly.component.html',
+  styleUrls: ['./mapfly.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class MapflyComponent implements OnInit, OnDestroy {
   private readonly appUserService = inject(AppUserService);
@@ -81,6 +82,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private currentUserLanguage = 'fr';
   private currentZoneId: string | null = null;
   private queryParamsSub?: Subscription;
+
+  private readonly matomo = inject(MatomoService);
 
   // Convertit ton currentUser$ en signal Angular
   currentUser = toSignal(this.appUserService.currentUser$, {
@@ -1007,313 +1010,337 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
         // --- Popup logic (desktop only — mobile uses BottomSheet) ---
         if (!this.isMobilePortrait) {
-        m.on('popupopen', () => {
-          // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
-          // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
-          // le flag _isRepositioningMarker permet de l'ignorer.
-          if (this.markersCluster.hasLayer(m)) {
-            this._isRepositioningMarker = true;
-            this.markersCluster.removeLayer(m); // popupclose intermédiaire ignoré via flag
-            this._isRepositioningMarker = false;
-            if (!this.map.hasLayer(m)) this.map.addLayer(m);
-            m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
-            return;
-          }
+          m.on('popupopen', () => {
 
-          const titleEl = document.getElementById(`title-${s.filename}`);
-          const shortStoryEl = document.getElementById(
-            `shortStory-${s.filename}`,
-          );
-          const btnTitleContainer = document.getElementById(
-            `btn-container-title-${s.filename}`,
-          );
-          const btnStoryContainer = document.getElementById(
-            `btn-container-shortStory-${s.filename}`,
-          );
-          const linksContainer = document.getElementById(`links-${s.filename}`);
-
-          // --- External links ---
-          if (linksContainer) {
-            const links: string[] = [];
-
-            if (s.url) {
-              const text = s.urlTitle?.trim() || s.url;
-              if (text) {
-                links.push(
-                  `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-                );
-              }
-            }
-
-            if (s.secondaryUrl) {
-              const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
-              if (text) {
-                links.push(
-                  `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
-                );
-              }
-            }
-
-            if (links.length) {
-              linksContainer.innerHTML = links.join(' | ');
-            } else {
-              linksContainer.innerHTML = ''; // nothing if link empty (null)
-            }
-          }
-
-          const recordInfoEl = document.getElementById(
-            `record-info-${s.filename}`,
-          );
-          if (
-            !titleEl ||
-            !shortStoryEl ||
-            !btnTitleContainer ||
-            !btnStoryContainer ||
-            !recordInfoEl ||
-            !linksContainer
-          )
-            return;
-
-          const title_i18n_obj = this.parseI18n(s.title_i18n);
-          const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
-
-          // --- Update record info ---
-          const updateRecordInfo = () => {
-            if (!recordInfoEl || !s.user?.username) return;
-            const flagImg = s.user.country
-              ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
-              : '';
-            const clickableId = `record-link-${s.filename}`;
-            const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
-            recordInfoEl.innerHTML = this.translate.instant(
-              'mapfly.record-info',
-              { city: s.city ?? '', username: userLinkHtml },
+            this.matomo.trackEvent(
+              'Carte',
+              'Ouverture son',
+              s.title ?? s.filename,
             );
-
-            const linkEl = document.getElementById(clickableId);
-            if (linkEl) {
-              linkEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tree = this.router.createUrlTree(['/mapfly'], {
-                  queryParams: { userId: s.userId },
-                });
-                window.location.href = window.location.origin + this.router.serializeUrl(tree);
-              });
+            // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
+            // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
+            // le flag _isRepositioningMarker permet de l'ignorer.
+            if (this.markersCluster.hasLayer(m)) {
+              this._isRepositioningMarker = true;
+              this.markersCluster.removeLayer(m); // popupclose intermédiaire ignoré via flag
+              this._isRepositioningMarker = false;
+              if (!this.map.hasLayer(m)) this.map.addLayer(m);
+              m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
+              return;
             }
-          };
 
-          updateRecordInfo();
+            const titleEl = document.getElementById(`title-${s.filename}`);
+            const shortStoryEl = document.getElementById(
+              `shortStory-${s.filename}`,
+            );
+            const btnTitleContainer = document.getElementById(
+              `btn-container-title-${s.filename}`,
+            );
+            const btnStoryContainer = document.getElementById(
+              `btn-container-shortStory-${s.filename}`,
+            );
+            const linksContainer = document.getElementById(`links-${s.filename}`);
 
-          // --- Translate button ---
-          let btn = document.getElementById(
-            `translate-all-${s.filename}`,
-          ) as HTMLButtonElement | null;
-          const updateTranslateButton = () => {
-            const lang = this.currentUserLanguage.toLowerCase().trim();
-            const translatedTitle = title_i18n_obj?.[lang];
-            const translatedStory = story_i18n_obj?.[lang];
-            const currentTitle = titleEl.textContent?.trim();
-            const currentStory = shortStoryEl.textContent?.trim();
-            const shouldShow =
-              (translatedTitle && translatedTitle !== currentTitle) ||
-              (translatedStory && translatedStory !== currentStory);
+            // --- External links ---
+            if (linksContainer) {
+              const links: string[] = [];
 
-            if (shouldShow) {
-              if (!btn) {
-                btn = document.createElement('button');
-                btn.id = `translate-all-${s.filename}`;
-                btn.classList.add('translate-btn');
-                btn.style.marginLeft = '8px';
+              if (s.url) {
+                const text = s.urlTitle?.trim() || s.url;
+                if (text) {
+                  links.push(
+                    `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                  );
+                }
+              }
 
-                const iconSpan = document.createElement('span');
-                iconSpan.classList.add('material-icons');
-                iconSpan.textContent = 'translate';
+              if (s.secondaryUrl) {
+                const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
+                if (text) {
+                  links.push(
+                    `<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+                  );
+                }
+              }
 
-                const textSpan = document.createElement('span');
-                textSpan.classList.add('btn-label');
-                textSpan.textContent = this.translate.instant(
-                  'common.action.translate',
-                );
-
-                btn.appendChild(iconSpan);
-                btn.appendChild(textSpan);
-                btnTitleContainer.appendChild(btn);
-
-                btn.addEventListener('click', () => {
-                  const lang = this.currentUserLanguage.toLowerCase().trim();
-                  if (title_i18n_obj?.[lang])
-                    titleEl.textContent = title_i18n_obj[lang];
-                  if (story_i18n_obj?.[lang])
-                    shortStoryEl.textContent = story_i18n_obj[lang];
-                  btn!.style.display = 'none';
-                });
+              if (links.length) {
+                linksContainer.innerHTML = links.join(' | ');
               } else {
-                const textSpan = btn.querySelector('.btn-label');
-                if (textSpan)
+                linksContainer.innerHTML = ''; // nothing if link empty (null)
+              }
+            }
+
+            const recordInfoEl = document.getElementById(
+              `record-info-${s.filename}`,
+            );
+            if (
+              !titleEl ||
+              !shortStoryEl ||
+              !btnTitleContainer ||
+              !btnStoryContainer ||
+              !recordInfoEl ||
+              !linksContainer
+            )
+              return;
+
+            const title_i18n_obj = this.parseI18n(s.title_i18n);
+            const story_i18n_obj = this.parseI18n(s.shortStory_i18n);
+
+            // --- Update record info ---
+            const updateRecordInfo = () => {
+              if (!recordInfoEl || !s.user?.username) return;
+              const flagImg = s.user.country
+                ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+                : '';
+              const clickableId = `record-link-${s.filename}`;
+              const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
+              recordInfoEl.innerHTML = this.translate.instant(
+                'mapfly.record-info',
+                { city: s.city ?? '', username: userLinkHtml },
+              );
+
+              const linkEl = document.getElementById(clickableId);
+              if (linkEl) {
+                linkEl.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  const tree = this.router.createUrlTree(['/mapfly'], {
+                    queryParams: { userId: s.userId },
+                  });
+                  window.location.href = window.location.origin + this.router.serializeUrl(tree);
+                });
+              }
+            };
+
+            updateRecordInfo();
+
+            // --- Translate button ---
+            let btn = document.getElementById(
+              `translate-all-${s.filename}`,
+            ) as HTMLButtonElement | null;
+            const updateTranslateButton = () => {
+              const lang = this.currentUserLanguage.toLowerCase().trim();
+              const translatedTitle = title_i18n_obj?.[lang];
+              const translatedStory = story_i18n_obj?.[lang];
+              const currentTitle = titleEl.textContent?.trim();
+              const currentStory = shortStoryEl.textContent?.trim();
+              const shouldShow =
+                (translatedTitle && translatedTitle !== currentTitle) ||
+                (translatedStory && translatedStory !== currentStory);
+
+              if (shouldShow) {
+                if (!btn) {
+                  btn = document.createElement('button');
+                  btn.id = `translate-all-${s.filename}`;
+                  btn.classList.add('translate-btn');
+                  btn.style.marginLeft = '8px';
+
+                  const iconSpan = document.createElement('span');
+                  iconSpan.classList.add('material-icons');
+                  iconSpan.textContent = 'translate';
+
+                  const textSpan = document.createElement('span');
+                  textSpan.classList.add('btn-label');
                   textSpan.textContent = this.translate.instant(
                     'common.action.translate',
                   );
-              }
-              btn.style.display = 'inline-flex';
-            } else if (btn) {
-              btn.style.display = 'none';
-            }
-          };
 
-          updateTranslateButton();
+                  btn.appendChild(iconSpan);
+                  btn.appendChild(textSpan);
+                  btnTitleContainer.appendChild(btn);
 
-          // --- Zoom & Download buttons ---
-          const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
-          const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
-          const downloadBtn = document.getElementById(`download-${s.filename}`);
-
-          if (zoomInBtn)
-            zoomInBtn.addEventListener('click', () =>
-              this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
-            );
-          if (zoomOutBtn)
-            zoomOutBtn.addEventListener('click', () =>
-              this.map.setView(
-                [
-                  s.latitude! > 20 ? s.latitude! : s.latitude! + 30,
-                  s.longitude!,
-                ],
-                2,
-              ),
-            );
-          if (downloadBtn)
-            downloadBtn.addEventListener('click', async () => {
-              const freshUrl = await this.storageService.getSoundUrl(s.filename);
-              const a = document.createElement('a');
-              a.href = freshUrl;
-              a.download = s.filename;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            });
-
-          // --- Share button ---
-          const shareBtn = document.getElementById(`share-${s.filename}`);
-          if (shareBtn)
-            shareBtn.addEventListener('click', () => {
-              const shareUrl = `${window.location.origin}/mapfly?lat=${s.latitude}&lng=${s.longitude}&zoom=17&soundFilename=${encodeURIComponent(s.filename)}`;
-              navigator.clipboard.writeText(shareUrl).then(() => {
-                this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
-              }).catch(() => {});
-            });
-
-          // --- Like button ---
-          const likeBtn = document.getElementById(`like-btn-${s.id}`);
-          if (likeBtn && s.id) {
-            const likeIcon = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
-            const likeCount = likeBtn.querySelector('.popup-like-count') as HTMLElement;
-
-            // Update visual state based on current liked status
-            const updateLikeVisual = () => {
-              if (!likeIcon || !likeCount) return;
-              const liked = this.likeService.isLiked(s.id!);
-              likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
-              likeBtn.classList.toggle('liked', liked);
-            };
-            updateLikeVisual();
-
-            likeBtn.addEventListener('click', async () => {
-              if (!this.isAuthenticated()) return;
-              const currentCount = parseInt(likeCount?.textContent || '0', 10);
-              const result = await this.likeService.toggleLike(s.id!, currentCount);
-              if (result && likeCount) {
-                likeCount.textContent = String(result.newCount);
-              }
-              updateLikeVisual();
-            });
-          }
-
-          // --- WaveSurfer player ---
-          const wsContainer = document.getElementById(`ws-player-${s.filename}`);
-          if (wsContainer) {
-            this.activePopupPlayer?.destroy();
-            requestAnimationFrame(async () => {
-              const isDark = document.body.classList.contains('dark-theme');
-
-              // Show skeleton immediately while fetching peaks
-              const tempSkeleton = document.createElement('div');
-              tempSkeleton.className = 'ws-player';
-              const tempWaveform = document.createElement('div');
-              tempWaveform.className = 'ws-waveform';
-              const skelInner = document.createElement('div');
-              skelInner.className = 'ws-skeleton';
-              for (let i = 0; i < 5; i++) skelInner.appendChild(document.createElement('span'));
-              tempWaveform.appendChild(skelInner);
-              tempSkeleton.appendChild(tempWaveform);
-              wsContainer.appendChild(tempSkeleton);
-
-              // Fetch peaks on-demand (not included in list query to avoid payload overflow)
-              let peaks: number[][] | undefined;
-              let duration: number | undefined;
-              try {
-                const peakResult: any = await this.amplifyService.client.models.Sound.get(
-                  { id: s.id! },
-                  { selectionSet: ['waveformPeaks', 'waveformDuration'] },
-                );
-                if (peakResult.data?.waveformPeaks) {
-                  peaks = JSON.parse(peakResult.data.waveformPeaks);
-                  duration = peakResult.data.waveformDuration ?? undefined;
+                  btn.addEventListener('click', () => {
+                    const lang = this.currentUserLanguage.toLowerCase().trim();
+                    if (title_i18n_obj?.[lang])
+                      titleEl.textContent = title_i18n_obj[lang];
+                    if (story_i18n_obj?.[lang])
+                      shortStoryEl.textContent = story_i18n_obj[lang];
+                    btn!.style.display = 'none';
+                  });
+                } else {
+                  const textSpan = btn.querySelector('.btn-label');
+                  if (textSpan)
+                    textSpan.textContent = this.translate.instant(
+                      'common.action.translate',
+                    );
                 }
-              } catch { /* fallback: WaveSurfer decodes natively */ }
-
-              // Remove temporary skeleton before creating the real player
-              tempSkeleton.remove();
-
-              this.activePopupPlayer = createWaveSurferPlayer({
-                container: wsContainer,
-                audioUrl: url,
-                isDarkTheme: isDark,
-                peaks,
-                duration,
-                mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
-                onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
-                onPause: () => this.ambientAudio?.unduck?.(),
-                getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
-              });
-              this.startThemeObserver();
-            });
-          }
-
-          // --- Minimap country label ---
-          this.updateMinimapCountryLabel(s.city);
-
-          // --- Read more toggle ---
-          this.wireReadMore(`shortStory-${s.filename}`, `rmb-${s.filename}`);
-
-          // --- Subscriptions ---
-          const recordSub = this.appUserService.currentUser$.subscribe(() =>
-            updateRecordInfo(),
-          );
-          const translateSub = this.appUserService.currentUser$.subscribe(() =>
-            updateTranslateButton(),
-          );
-
-          // --- Cleanup ---
-          m.on('popupclose', () => {
-            // Ignorer le close intermédiaire déclenché pendant le repositionnement hors cluster
-            if (this._isRepositioningMarker) return;
-
-            // Remettre le marker dans le cluster quand la popup se ferme réellement
-            if (this.map.hasLayer(m)) {
-              this.map.removeLayer(m);
-              if (!this.markersCluster.hasLayer(m)) {
-                this.markersCluster.addLayer(m);
+                btn.style.display = 'inline-flex';
+              } else if (btn) {
+                btn.style.display = 'none';
               }
+            };
+
+            updateTranslateButton();
+
+            // --- Zoom & Download buttons ---
+            const zoomInBtn = document.getElementById(`zoom-in-${s.filename}`);
+            const zoomOutBtn = document.getElementById(`zoom-out-${s.filename}`);
+            const downloadBtn = document.getElementById(`download-${s.filename}`);
+
+            if (zoomInBtn)
+              zoomInBtn.addEventListener('click', () =>
+                this.map.setView([s.latitude! + 0.0015, s.longitude!], 17),
+              );
+            if (zoomOutBtn)
+              zoomOutBtn.addEventListener('click', () =>
+                this.map.setView(
+                  [
+                    s.latitude! > 20 ? s.latitude! : s.latitude! + 30,
+                    s.longitude!,
+                  ],
+                  2,
+                ),
+              );
+            if (downloadBtn)
+              downloadBtn.addEventListener('click', async () => {
+                const freshUrl = await this.storageService.getSoundUrl(s.filename);
+                const a = document.createElement('a');
+                a.href = freshUrl;
+                a.download = s.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              });
+
+            // --- Share button ---
+            const shareBtn = document.getElementById(`share-${s.filename}`);
+            if (shareBtn)
+              shareBtn.addEventListener('click', () => {
+                const shareUrl = `${window.location.origin}/mapfly?lat=${s.latitude}&lng=${s.longitude}&zoom=17&soundFilename=${encodeURIComponent(s.filename)}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                  this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
+                }).catch(() => { });
+              });
+
+            // --- Like button ---
+            const likeBtn = document.getElementById(`like-btn-${s.id}`);
+            if (likeBtn && s.id) {
+              const likeIcon = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+              const likeCount = likeBtn.querySelector('.popup-like-count') as HTMLElement;
+
+              // Update visual state based on current liked status
+              const updateLikeVisual = () => {
+                if (!likeIcon || !likeCount) return;
+                const liked = this.likeService.isLiked(s.id!);
+                likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
+                likeBtn.classList.toggle('liked', liked);
+              };
+              updateLikeVisual();
+
+              likeBtn.addEventListener('click', async () => {
+                if (!this.isAuthenticated()) return;
+                const currentCount = parseInt(likeCount?.textContent || '0', 10);
+                const result = await this.likeService.toggleLike(s.id!, currentCount);
+                if (result && likeCount) {
+                  likeCount.textContent = String(result.newCount);
+                }
+                updateLikeVisual();
+
+                const isNowLiked = this.likeService.isLiked(s.id!);
+                this.matomo.trackEvent(
+                  'Son',
+                  isNowLiked ? 'Like' : 'Unlike',
+                  s.title ?? s.filename,
+                );
+              });
             }
 
-            recordSub.unsubscribe();
-            translateSub.unsubscribe();
-            this.stopThemeObserver();
-            this.activePopupPlayer?.destroy();
-            this.activePopupPlayer = null;
-            this.updateMinimapCountryLabel();
+            // --- WaveSurfer player ---
+            const wsContainer = document.getElementById(`ws-player-${s.filename}`);
+            if (wsContainer) {
+              this.activePopupPlayer?.destroy();
+              requestAnimationFrame(async () => {
+                const isDark = document.body.classList.contains('dark-theme');
+
+                // Show skeleton immediately while fetching peaks
+                const tempSkeleton = document.createElement('div');
+                tempSkeleton.className = 'ws-player';
+                const tempWaveform = document.createElement('div');
+                tempWaveform.className = 'ws-waveform';
+                const skelInner = document.createElement('div');
+                skelInner.className = 'ws-skeleton';
+                for (let i = 0; i < 5; i++) skelInner.appendChild(document.createElement('span'));
+                tempWaveform.appendChild(skelInner);
+                tempSkeleton.appendChild(tempWaveform);
+                wsContainer.appendChild(tempSkeleton);
+
+                // Fetch peaks on-demand (not included in list query to avoid payload overflow)
+                let peaks: number[][] | undefined;
+                let duration: number | undefined;
+                try {
+                  const peakResult: any = await this.amplifyService.client.models.Sound.get(
+                    { id: s.id! },
+                    { selectionSet: ['waveformPeaks', 'waveformDuration'] },
+                  );
+                  if (peakResult.data?.waveformPeaks) {
+                    peaks = JSON.parse(peakResult.data.waveformPeaks);
+                    duration = peakResult.data.waveformDuration ?? undefined;
+                  }
+                } catch { /* fallback: WaveSurfer decodes natively */ }
+
+                // Remove temporary skeleton before creating the real player
+                tempSkeleton.remove();
+
+                this.activePopupPlayer = createWaveSurferPlayer({
+                  container: wsContainer,
+                  audioUrl: url,
+                  isDarkTheme: isDark,
+                  peaks,
+                  duration,
+                  mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
+                  onPlay: () => {
+                    this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); this.matomo.trackEvent(
+                      'Son',           // Catégorie
+                      'Lecture',       // Action
+                      s.title ?? s.filename,  // Nom du son
+                    );
+                  },
+                  onPause: () => {
+                    this.ambientAudio?.unduck?.();
+
+                    // ★ MATOMO — Pause d'un son
+                    this.matomo.trackEvent('Son', 'Pause', s.title ?? s.filename);
+                  },
+                  getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
+                });
+                this.startThemeObserver();
+              });
+            }
+
+            // --- Minimap country label ---
+            this.updateMinimapCountryLabel(s.city);
+
+            // --- Read more toggle ---
+            this.wireReadMore(`shortStory-${s.filename}`, `rmb-${s.filename}`);
+
+            // --- Subscriptions ---
+            const recordSub = this.appUserService.currentUser$.subscribe(() =>
+              updateRecordInfo(),
+            );
+            const translateSub = this.appUserService.currentUser$.subscribe(() =>
+              updateTranslateButton(),
+            );
+
+            // --- Cleanup ---
+            m.on('popupclose', () => {
+              // Ignorer le close intermédiaire déclenché pendant le repositionnement hors cluster
+              if (this._isRepositioningMarker) return;
+
+              // Remettre le marker dans le cluster quand la popup se ferme réellement
+              if (this.map.hasLayer(m)) {
+                this.map.removeLayer(m);
+                if (!this.markersCluster.hasLayer(m)) {
+                  this.markersCluster.addLayer(m);
+                }
+              }
+
+              recordSub.unsubscribe();
+              translateSub.unsubscribe();
+              this.stopThemeObserver();
+              this.activePopupPlayer?.destroy();
+              this.activePopupPlayer = null;
+              this.updateMinimapCountryLabel();
+            });
           });
-        });
         } // end if (!this.isMobilePortrait)
 
         // --- Add marker to cluster ---
@@ -2394,7 +2421,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     };
 
     if (!this.isMobilePortrait) {
-    marker.bindPopup(`
+      marker.bindPopup(`
       <div class="popup-container featured-popup">
         <div class="featured-popup-header">
           <span class="material-icons featured-popup-icon">headphones</span>
@@ -2428,209 +2455,214 @@ export class MapflyComponent implements OnInit, OnDestroy {
       </div>
     `, { maxWidth: 340, minWidth: 280, autoPan: false });
 
-    // Popup open logic (same as normal mode)
-    marker.on('popupopen', () => {
-      if (!s) return;
+      // Popup open logic (same as normal mode)
+      marker.on('popupopen', () => {
+        if (!s) return;
 
-      // Recentre map so the popup + marker are vertically centered in the viewport
-      requestAnimationFrame(() => {
-        const popupEl = marker.getPopup()?.getElement();
-        if (popupEl && this.map) {
-          const mapSize = this.map.getSize();
-          const popupHeight = popupEl.offsetHeight;
-          const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
-          const tipOffset = 43;
-          const popupTop = markerPoint.y - tipOffset - popupHeight;
-          const popupBottom = markerPoint.y + 10;
-          const totalHeight = popupBottom - popupTop;
-          const topPadding = 70;
-          const availableHeight = mapSize.y - topPadding;
-          const idealCenter = topPadding + availableHeight / 2;
-          const currentCenter = popupTop + totalHeight / 2;
-          const panY = currentCenter - idealCenter;
-          if (Math.abs(panY) > 10) {
-            this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+        // Recentre map so the popup + marker are vertically centered in the viewport
+        requestAnimationFrame(() => {
+          const popupEl = marker.getPopup()?.getElement();
+          if (popupEl && this.map) {
+            const mapSize = this.map.getSize();
+            const popupHeight = popupEl.offsetHeight;
+            const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
+            const tipOffset = 43;
+            const popupTop = markerPoint.y - tipOffset - popupHeight;
+            const popupBottom = markerPoint.y + 10;
+            const totalHeight = popupBottom - popupTop;
+            const topPadding = 70;
+            const availableHeight = mapSize.y - topPadding;
+            const idealCenter = topPadding + availableHeight / 2;
+            const currentCenter = popupTop + totalHeight / 2;
+            const panY = currentCenter - idealCenter;
+            if (Math.abs(panY) > 10) {
+              this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+            }
           }
+        });
+
+        const titleEl = document.getElementById(`title-${soundFilename}`);
+        const shortStoryEl = document.getElementById(`shortStory-${soundFilename}`);
+        const btnTitleContainer = document.getElementById(`btn-container-title-${soundFilename}`);
+        const btnStoryContainer = document.getElementById(`btn-container-shortStory-${soundFilename}`);
+        const linksContainer = document.getElementById(`links-${soundFilename}`);
+        const recordInfoEl = document.getElementById(`record-info-${soundFilename}`);
+
+        // --- External links ---
+        if (linksContainer) {
+          const links: string[] = [];
+          if (s.url) {
+            const text = s.urlTitle?.trim() || s.url;
+            if (text) {
+              links.push(`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+            }
+          }
+          if (s.secondaryUrl) {
+            const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
+            if (text) {
+              links.push(`<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+            }
+          }
+          linksContainer.innerHTML = links.length ? links.join(' | ') : '';
+        }
+
+        // --- Record info (author + city) ---
+        if (recordInfoEl && s.user?.username) {
+          const flagImg = s.user.country
+            ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+            : '';
+          const clickableId = `record-link-${soundFilename}`;
+          const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
+          recordInfoEl.innerHTML = this.translate.instant(
+            'mapfly.record-info',
+            { city: s.city ?? soundCity ?? '', username: userLinkHtml },
+          );
+
+          const linkEl = document.getElementById(clickableId);
+          if (linkEl) {
+            linkEl.addEventListener('click', (e) => {
+              e.preventDefault();
+              const tree = this.router.createUrlTree(['/mapfly'], {
+                queryParams: { userId: s.userId },
+              });
+              window.location.href = window.location.origin + this.router.serializeUrl(tree);
+            });
+          }
+        }
+
+        // --- Translate button (uses teasing i18n instead of shortStory for featured popup) ---
+        if (titleEl && shortStoryEl && btnTitleContainer) {
+          const title_i18n_obj = this.parseI18n(s.title_i18n);
+          const teasingLang = this.currentUserLanguage.toLowerCase().trim();
+          const translatedTitle = title_i18n_obj?.[teasingLang];
+          const translatedTeasing = soundTeasingI18n?.[teasingLang];
+          const shouldShow =
+            (translatedTitle && translatedTitle !== titleEl.textContent?.trim()) ||
+            (translatedTeasing && translatedTeasing !== shortStoryEl.textContent?.trim());
+
+          if (shouldShow) {
+            const btn = document.createElement('button');
+            btn.classList.add('translate-btn');
+            btn.style.marginLeft = '8px';
+
+            const iconSpan = document.createElement('span');
+            iconSpan.classList.add('material-icons');
+            iconSpan.textContent = 'translate';
+
+            const textSpan = document.createElement('span');
+            textSpan.classList.add('btn-label');
+            textSpan.textContent = this.translate.instant('common.action.translate');
+
+            btn.appendChild(iconSpan);
+            btn.appendChild(textSpan);
+            btnTitleContainer.appendChild(btn);
+
+            btn.addEventListener('click', () => {
+              if (title_i18n_obj?.[teasingLang]) titleEl.textContent = title_i18n_obj[teasingLang];
+              if (soundTeasingI18n?.[teasingLang]) shortStoryEl.textContent = soundTeasingI18n[teasingLang];
+              btn.style.display = 'none';
+            });
+          }
+        }
+
+        // --- Like button (featured popup) ---
+        const featuredLikeBtn = document.getElementById(`like-btn-featured-${soundId}`);
+        if (featuredLikeBtn && soundId) {
+          const likeIcon = featuredLikeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+          const likeCount = featuredLikeBtn.querySelector('.popup-like-count') as HTMLElement;
+
+          const updateLikeVisual = () => {
+            if (!likeIcon) return;
+            const liked = this.likeService.isLiked(soundId);
+            likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
+            featuredLikeBtn.classList.toggle('liked', liked);
+          };
+          updateLikeVisual();
+
+          featuredLikeBtn.addEventListener('click', async () => {
+            if (!this.isAuthenticated()) return;
+            const currentCount = parseInt(likeCount?.textContent || '0', 10);
+            const result = await this.likeService.toggleLike(soundId, currentCount);
+            if (result && likeCount) {
+              likeCount.textContent = String(result.newCount);
+            }
+            updateLikeVisual();
+          });
+        }
+
+        // --- Zoom & Download buttons ---
+        const zoomInBtn = document.getElementById(`zoom-in-${soundFilename}`);
+        const zoomOutBtn = document.getElementById(`zoom-out-${soundFilename}`);
+        const downloadBtn = document.getElementById(`download-${soundFilename}`);
+
+        if (zoomInBtn)
+          zoomInBtn.addEventListener('click', () =>
+            this.map.setView([lat + 0.0015, lng], 17),
+          );
+        if (zoomOutBtn)
+          zoomOutBtn.addEventListener('click', () =>
+            this.map.setView([lat > 20 ? lat : lat + 30, lng], 2),
+          );
+        if (downloadBtn)
+          downloadBtn.addEventListener('click', async () => {
+            const freshUrl = await this.storageService.getSoundUrl(soundFilename);
+            const a = document.createElement('a');
+            a.href = freshUrl;
+            a.download = soundFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          });
+
+        // --- Share button ---
+        const shareBtn = document.getElementById(`share-${soundFilename}`);
+        if (shareBtn)
+          shareBtn.addEventListener('click', () => {
+            const shareUrl = `${window.location.origin}/mapfly?lat=${lat}&lng=${lng}&zoom=17&soundFilename=${encodeURIComponent(soundFilename)}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+              this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
+              this.matomo.trackEvent(
+                'Son',
+                'Partage',
+                s.title ?? s.filename,
+              );
+            }).catch(() => { });
+          });
+
+        // --- Minimap country label ---
+        this.updateMinimapCountryLabel(soundCity);
+
+        // --- Read more toggle ---
+        this.wireReadMore(`shortStory-${soundFilename}`, `rmb-featured-${soundFilename}`);
+
+        // --- WaveSurfer player ---
+        const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
+        if (wsContainer) {
+          this.activePopupPlayer?.destroy();
+          requestAnimationFrame(() => {
+            const isDark = document.body.classList.contains('dark-theme');
+            this.activePopupPlayer = createWaveSurferPlayer({
+              container: wsContainer,
+              audioUrl: url,
+              isDarkTheme: isDark,
+              peaks: s?.waveformPeaks ? JSON.parse(s.waveformPeaks) : undefined,
+              duration: s?.waveformDuration,
+              mediaMetadata: { title: soundTitle ?? 'Ecnelis FLY', artist: soundCity ?? undefined },
+              onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
+              onPause: () => this.ambientAudio?.unduck?.(),
+              getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
+            });
+            this.startThemeObserver();
+          });
         }
       });
 
-      const titleEl = document.getElementById(`title-${soundFilename}`);
-      const shortStoryEl = document.getElementById(`shortStory-${soundFilename}`);
-      const btnTitleContainer = document.getElementById(`btn-container-title-${soundFilename}`);
-      const btnStoryContainer = document.getElementById(`btn-container-shortStory-${soundFilename}`);
-      const linksContainer = document.getElementById(`links-${soundFilename}`);
-      const recordInfoEl = document.getElementById(`record-info-${soundFilename}`);
-
-      // --- External links ---
-      if (linksContainer) {
-        const links: string[] = [];
-        if (s.url) {
-          const text = s.urlTitle?.trim() || s.url;
-          if (text) {
-            links.push(`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
-          }
-        }
-        if (s.secondaryUrl) {
-          const text = s.secondaryUrlTitle?.trim() || s.secondaryUrl;
-          if (text) {
-            links.push(`<a href="${s.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
-          }
-        }
-        linksContainer.innerHTML = links.length ? links.join(' | ') : '';
-      }
-
-      // --- Record info (author + city) ---
-      if (recordInfoEl && s.user?.username) {
-        const flagImg = s.user.country
-          ? `<img src="/img/flags/${s.user.country}.png" alt="${s.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
-          : '';
-        const clickableId = `record-link-${soundFilename}`;
-        const userLinkHtml = `<span id="${clickableId}" class="router-link-style">${s.user.username}${flagImg}</span>`;
-        recordInfoEl.innerHTML = this.translate.instant(
-          'mapfly.record-info',
-          { city: s.city ?? soundCity ?? '', username: userLinkHtml },
-        );
-
-        const linkEl = document.getElementById(clickableId);
-        if (linkEl) {
-          linkEl.addEventListener('click', (e) => {
-            e.preventDefault();
-            const tree = this.router.createUrlTree(['/mapfly'], {
-              queryParams: { userId: s.userId },
-            });
-            window.location.href = window.location.origin + this.router.serializeUrl(tree);
-          });
-        }
-      }
-
-      // --- Translate button (uses teasing i18n instead of shortStory for featured popup) ---
-      if (titleEl && shortStoryEl && btnTitleContainer) {
-        const title_i18n_obj = this.parseI18n(s.title_i18n);
-        const teasingLang = this.currentUserLanguage.toLowerCase().trim();
-        const translatedTitle = title_i18n_obj?.[teasingLang];
-        const translatedTeasing = soundTeasingI18n?.[teasingLang];
-        const shouldShow =
-          (translatedTitle && translatedTitle !== titleEl.textContent?.trim()) ||
-          (translatedTeasing && translatedTeasing !== shortStoryEl.textContent?.trim());
-
-        if (shouldShow) {
-          const btn = document.createElement('button');
-          btn.classList.add('translate-btn');
-          btn.style.marginLeft = '8px';
-
-          const iconSpan = document.createElement('span');
-          iconSpan.classList.add('material-icons');
-          iconSpan.textContent = 'translate';
-
-          const textSpan = document.createElement('span');
-          textSpan.classList.add('btn-label');
-          textSpan.textContent = this.translate.instant('common.action.translate');
-
-          btn.appendChild(iconSpan);
-          btn.appendChild(textSpan);
-          btnTitleContainer.appendChild(btn);
-
-          btn.addEventListener('click', () => {
-            if (title_i18n_obj?.[teasingLang]) titleEl.textContent = title_i18n_obj[teasingLang];
-            if (soundTeasingI18n?.[teasingLang]) shortStoryEl.textContent = soundTeasingI18n[teasingLang];
-            btn.style.display = 'none';
-          });
-        }
-      }
-
-      // --- Like button (featured popup) ---
-      const featuredLikeBtn = document.getElementById(`like-btn-featured-${soundId}`);
-      if (featuredLikeBtn && soundId) {
-        const likeIcon = featuredLikeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
-        const likeCount = featuredLikeBtn.querySelector('.popup-like-count') as HTMLElement;
-
-        const updateLikeVisual = () => {
-          if (!likeIcon) return;
-          const liked = this.likeService.isLiked(soundId);
-          likeIcon.src = `img/icon/${liked ? 'clapping_hands_like_2' : 'clapping_hands_no_like'}.png`;
-          featuredLikeBtn.classList.toggle('liked', liked);
-        };
-        updateLikeVisual();
-
-        featuredLikeBtn.addEventListener('click', async () => {
-          if (!this.isAuthenticated()) return;
-          const currentCount = parseInt(likeCount?.textContent || '0', 10);
-          const result = await this.likeService.toggleLike(soundId, currentCount);
-          if (result && likeCount) {
-            likeCount.textContent = String(result.newCount);
-          }
-          updateLikeVisual();
-        });
-      }
-
-      // --- Zoom & Download buttons ---
-      const zoomInBtn = document.getElementById(`zoom-in-${soundFilename}`);
-      const zoomOutBtn = document.getElementById(`zoom-out-${soundFilename}`);
-      const downloadBtn = document.getElementById(`download-${soundFilename}`);
-
-      if (zoomInBtn)
-        zoomInBtn.addEventListener('click', () =>
-          this.map.setView([lat + 0.0015, lng], 17),
-        );
-      if (zoomOutBtn)
-        zoomOutBtn.addEventListener('click', () =>
-          this.map.setView([lat > 20 ? lat : lat + 30, lng], 2),
-        );
-      if (downloadBtn)
-        downloadBtn.addEventListener('click', async () => {
-          const freshUrl = await this.storageService.getSoundUrl(soundFilename);
-          const a = document.createElement('a');
-          a.href = freshUrl;
-          a.download = soundFilename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        });
-
-      // --- Share button ---
-      const shareBtn = document.getElementById(`share-${soundFilename}`);
-      if (shareBtn)
-        shareBtn.addEventListener('click', () => {
-          const shareUrl = `${window.location.origin}/mapfly?lat=${lat}&lng=${lng}&zoom=17&soundFilename=${encodeURIComponent(soundFilename)}`;
-          navigator.clipboard.writeText(shareUrl).then(() => {
-            this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
-          }).catch(() => {});
-        });
-
-      // --- Minimap country label ---
-      this.updateMinimapCountryLabel(soundCity);
-
-      // --- Read more toggle ---
-      this.wireReadMore(`shortStory-${soundFilename}`, `rmb-featured-${soundFilename}`);
-
-      // --- WaveSurfer player ---
-      const wsContainer = document.getElementById(`ws-player-featured-${soundFilename}`);
-      if (wsContainer) {
+      marker.on('popupclose', () => {
+        this.stopThemeObserver();
         this.activePopupPlayer?.destroy();
-        requestAnimationFrame(() => {
-          const isDark = document.body.classList.contains('dark-theme');
-          this.activePopupPlayer = createWaveSurferPlayer({
-            container: wsContainer,
-            audioUrl: url,
-            isDarkTheme: isDark,
-            peaks: s?.waveformPeaks ? JSON.parse(s.waveformPeaks) : undefined,
-            duration: s?.waveformDuration,
-            mediaMetadata: { title: soundTitle ?? 'Ecnelis FLY', artist: soundCity ?? undefined },
-            onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
-            onPause: () => this.ambientAudio?.unduck?.(),
-            getRefreshUrl: () => this.storageService.getSoundUrl(soundFilename),
-          });
-          this.startThemeObserver();
-        });
-      }
-    });
-
-    marker.on('popupclose', () => {
-      this.stopThemeObserver();
-      this.activePopupPlayer?.destroy();
-      this.activePopupPlayer = null;
-      this.updateMinimapCountryLabel();
-    });
+        this.activePopupPlayer = null;
+        this.updateMinimapCountryLabel();
+      });
     } // end if (!this.isMobilePortrait) — featured popup
 
     // Mobile: allow reopening sheet on marker click
@@ -2954,7 +2986,7 @@ export class MapflyComponent implements OnInit, OnDestroy {
     };
 
     if (!this.isMobilePortrait) {
-    marker.bindPopup(`
+      marker.bindPopup(`
       <div class="popup-container journey-popup">
         <div class="journey-popup-header" style="background: linear-gradient(180deg, ${color} 0%, ${color}cc 100%);">
           <span class="journey-step-badge">${stepLabel}</span>
@@ -2981,176 +3013,176 @@ export class MapflyComponent implements OnInit, OnDestroy {
       </div>
     `, { maxWidth: 350, minWidth: 280, autoPan: false });
 
-    // Popup open logic
-    marker.on('popupopen', () => {
-      // Recentre map so the popup + marker are vertically centered in the viewport
-      requestAnimationFrame(() => {
-        const popupEl = marker.getPopup()?.getElement();
-        if (popupEl && this.map) {
-          const mapSize = this.map.getSize();
-          const popupHeight = popupEl.offsetHeight;
-          const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
-          const tipOffset = 43; // popup tip above marker anchor
-          const popupTop = markerPoint.y - tipOffset - popupHeight;
-          const popupBottom = markerPoint.y + 10; // small margin below marker
-          const totalHeight = popupBottom - popupTop;
-          // Center the popup+marker vertically with top padding for stepper/toolbar
-          const topPadding = 70;
-          const availableHeight = mapSize.y - topPadding;
-          const idealCenter = topPadding + availableHeight / 2;
-          const currentCenter = popupTop + totalHeight / 2;
-          const panY = currentCenter - idealCenter;
-          if (Math.abs(panY) > 10) {
-            this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+      // Popup open logic
+      marker.on('popupopen', () => {
+        // Recentre map so the popup + marker are vertically centered in the viewport
+        requestAnimationFrame(() => {
+          const popupEl = marker.getPopup()?.getElement();
+          if (popupEl && this.map) {
+            const mapSize = this.map.getSize();
+            const popupHeight = popupEl.offsetHeight;
+            const markerPoint = this.map.latLngToContainerPoint(targetLatLng);
+            const tipOffset = 43; // popup tip above marker anchor
+            const popupTop = markerPoint.y - tipOffset - popupHeight;
+            const popupBottom = markerPoint.y + 10; // small margin below marker
+            const totalHeight = popupBottom - popupTop;
+            // Center the popup+marker vertically with top padding for stepper/toolbar
+            const topPadding = 70;
+            const availableHeight = mapSize.y - topPadding;
+            const idealCenter = topPadding + availableHeight / 2;
+            const currentCenter = popupTop + totalHeight / 2;
+            const panY = currentCenter - idealCenter;
+            if (Math.abs(panY) > 10) {
+              this.map.panBy([0, panY], { animate: true, duration: 0.4 });
+            }
           }
+        });
+
+        // Record info
+        // External links
+        const linksEl = document.getElementById(`journey-links-${stepIndex}`);
+        if (linksEl) {
+          const links: string[] = [];
+          if (sound.url) {
+            const text = sound.urlTitle?.trim() || sound.url;
+            links.push(`<a href="${sound.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+          }
+          if (sound.secondaryUrl) {
+            const text = sound.secondaryUrlTitle?.trim() || sound.secondaryUrl;
+            links.push(`<a href="${sound.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+          }
+          if (links.length) linksEl.innerHTML = links.join(' | ');
+        }
+
+        const recordInfoEl = document.getElementById(`journey-record-info-${stepIndex}`);
+        if (recordInfoEl && sound.user?.username) {
+          const flagImg = sound.user.country
+            ? `<img src="/img/flags/${sound.user.country}.png" alt="${sound.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
+            : '';
+          recordInfoEl.innerHTML = this.translate.instant(
+            'mapfly.record-info',
+            { city: sound.city ?? '', username: `${sound.user.username}${flagImg}` },
+          );
+        }
+
+        // Like button
+        const likeBtn = document.getElementById(`like-btn-journey-${sound.id}`);
+        if (likeBtn) {
+          const currentIsLiked = this.likeService.isLiked(sound.id!);
+          const imgEl = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+          if (imgEl) {
+            imgEl.src = currentIsLiked ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
+          }
+          likeBtn.addEventListener('click', async () => {
+            if (!this.isAuthenticated()) return;
+            const countEl = likeBtn.querySelector('.popup-like-count');
+            const btnImg = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
+            const currentCount = parseInt(countEl?.textContent || '0', 10);
+            const result = await this.likeService.toggleLike(sound.id!, currentCount);
+            if (result && countEl) {
+              countEl.textContent = String(result.newCount);
+            }
+            if (btnImg) {
+              btnImg.src = this.likeService.isLiked(sound.id!) ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
+            }
+          });
+        }
+
+        // Translate button
+        const titleEl = document.getElementById(`journey-title-${stepIndex}`);
+        const storyEl = document.getElementById(`journey-story-${stepIndex}`);
+        const translateContainer = document.getElementById(`journey-translate-container-${stepIndex}`);
+        if (translateContainer && titleEl) {
+          const title_i18n_obj = this.parseI18n(sound.title_i18n);
+          const story_i18n_obj = this.parseI18n(sound.shortStory_i18n);
+          const userLang = this.currentUserLanguage.toLowerCase().trim();
+          const translatedTitle = title_i18n_obj?.[userLang];
+          const translatedStory = story_i18n_obj?.[userLang];
+          const currentTitle = titleEl.textContent?.trim();
+          const currentStory = storyEl?.textContent?.trim();
+          const shouldShow =
+            (translatedTitle && translatedTitle !== currentTitle) ||
+            (translatedStory && translatedStory !== currentStory);
+
+          if (shouldShow) {
+            const btn = document.createElement('button');
+            btn.classList.add('translate-btn');
+            btn.style.marginLeft = '8px';
+            const iconSpan = document.createElement('span');
+            iconSpan.classList.add('material-icons');
+            iconSpan.textContent = 'translate';
+            const textSpan = document.createElement('span');
+            textSpan.classList.add('btn-label');
+            textSpan.textContent = this.translate.instant('common.action.translate');
+            btn.appendChild(iconSpan);
+            btn.appendChild(textSpan);
+            translateContainer.appendChild(btn);
+            btn.addEventListener('click', () => {
+              if (title_i18n_obj?.[userLang]) titleEl.textContent = title_i18n_obj[userLang];
+              if (storyEl && story_i18n_obj?.[userLang]) storyEl.textContent = story_i18n_obj[userLang];
+              btn.style.display = 'none';
+            });
+          }
+        }
+
+        // Navigation buttons
+        const prevBtn = document.getElementById(`journey-prev-${stepIndex}`);
+        const nextBtn = document.getElementById(`journey-next-${stepIndex}`);
+        const finishBtn = document.getElementById(`journey-finish-${stepIndex}`);
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', () => {
+            marker.closePopup();
+            this.flyToJourneyStep(stepIndex - 1);
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', () => {
+            marker.closePopup();
+            this.flyToJourneyStep(stepIndex + 1);
+          });
+        }
+        if (finishBtn) {
+          finishBtn.addEventListener('click', () => {
+            marker.closePopup();
+            this.router.navigate(['/journeys']);
+          });
+        }
+
+        // --- Minimap country label ---
+        this.updateMinimapCountryLabel(sound.city);
+
+        // --- Read more toggle ---
+        this.wireReadMore(`journey-story-${stepIndex}`, `rmb-journey-${stepIndex}`);
+
+        // --- WaveSurfer player ---
+        const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
+        if (wsContainer) {
+          this.activePopupPlayer?.destroy();
+          requestAnimationFrame(() => {
+            const isDark = document.body.classList.contains('dark-theme');
+            this.activePopupPlayer = createWaveSurferPlayer({
+              container: wsContainer,
+              audioUrl: url,
+              isDarkTheme: isDark,
+              peaks: sound.waveformPeaks ? JSON.parse(sound.waveformPeaks) : undefined,
+              duration: sound.waveformDuration,
+              mediaMetadata: { title: sound.title ?? 'Ecnelis FLY', artist: sound.city ?? undefined },
+              onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
+              onPause: () => this.ambientAudio?.unduck?.(),
+              getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
+            });
+            this.startThemeObserver();
+          });
         }
       });
 
-      // Record info
-      // External links
-      const linksEl = document.getElementById(`journey-links-${stepIndex}`);
-      if (linksEl) {
-        const links: string[] = [];
-        if (sound.url) {
-          const text = sound.urlTitle?.trim() || sound.url;
-          links.push(`<a href="${sound.url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
-        }
-        if (sound.secondaryUrl) {
-          const text = sound.secondaryUrlTitle?.trim() || sound.secondaryUrl;
-          links.push(`<a href="${sound.secondaryUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
-        }
-        if (links.length) linksEl.innerHTML = links.join(' | ');
-      }
-
-      const recordInfoEl = document.getElementById(`journey-record-info-${stepIndex}`);
-      if (recordInfoEl && sound.user?.username) {
-        const flagImg = sound.user.country
-          ? `<img src="/img/flags/${sound.user.country}.png" alt="${sound.user.country}" style="width:16px; height:12px; margin-left:4px; vertical-align:middle;" />`
-          : '';
-        recordInfoEl.innerHTML = this.translate.instant(
-          'mapfly.record-info',
-          { city: sound.city ?? '', username: `${sound.user.username}${flagImg}` },
-        );
-      }
-
-      // Like button
-      const likeBtn = document.getElementById(`like-btn-journey-${sound.id}`);
-      if (likeBtn) {
-        const currentIsLiked = this.likeService.isLiked(sound.id!);
-        const imgEl = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
-        if (imgEl) {
-          imgEl.src = currentIsLiked ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
-        }
-        likeBtn.addEventListener('click', async () => {
-          if (!this.isAuthenticated()) return;
-          const countEl = likeBtn.querySelector('.popup-like-count');
-          const btnImg = likeBtn.querySelector('.popup-like-icon') as HTMLImageElement;
-          const currentCount = parseInt(countEl?.textContent || '0', 10);
-          const result = await this.likeService.toggleLike(sound.id!, currentCount);
-          if (result && countEl) {
-            countEl.textContent = String(result.newCount);
-          }
-          if (btnImg) {
-            btnImg.src = this.likeService.isLiked(sound.id!) ? 'img/icon/clapping_hands_like_2.png' : 'img/icon/clapping_hands_no_like.png';
-          }
-        });
-      }
-
-      // Translate button
-      const titleEl = document.getElementById(`journey-title-${stepIndex}`);
-      const storyEl = document.getElementById(`journey-story-${stepIndex}`);
-      const translateContainer = document.getElementById(`journey-translate-container-${stepIndex}`);
-      if (translateContainer && titleEl) {
-        const title_i18n_obj = this.parseI18n(sound.title_i18n);
-        const story_i18n_obj = this.parseI18n(sound.shortStory_i18n);
-        const userLang = this.currentUserLanguage.toLowerCase().trim();
-        const translatedTitle = title_i18n_obj?.[userLang];
-        const translatedStory = story_i18n_obj?.[userLang];
-        const currentTitle = titleEl.textContent?.trim();
-        const currentStory = storyEl?.textContent?.trim();
-        const shouldShow =
-          (translatedTitle && translatedTitle !== currentTitle) ||
-          (translatedStory && translatedStory !== currentStory);
-
-        if (shouldShow) {
-          const btn = document.createElement('button');
-          btn.classList.add('translate-btn');
-          btn.style.marginLeft = '8px';
-          const iconSpan = document.createElement('span');
-          iconSpan.classList.add('material-icons');
-          iconSpan.textContent = 'translate';
-          const textSpan = document.createElement('span');
-          textSpan.classList.add('btn-label');
-          textSpan.textContent = this.translate.instant('common.action.translate');
-          btn.appendChild(iconSpan);
-          btn.appendChild(textSpan);
-          translateContainer.appendChild(btn);
-          btn.addEventListener('click', () => {
-            if (title_i18n_obj?.[userLang]) titleEl.textContent = title_i18n_obj[userLang];
-            if (storyEl && story_i18n_obj?.[userLang]) storyEl.textContent = story_i18n_obj[userLang];
-            btn.style.display = 'none';
-          });
-        }
-      }
-
-      // Navigation buttons
-      const prevBtn = document.getElementById(`journey-prev-${stepIndex}`);
-      const nextBtn = document.getElementById(`journey-next-${stepIndex}`);
-      const finishBtn = document.getElementById(`journey-finish-${stepIndex}`);
-
-      if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-          marker.closePopup();
-          this.flyToJourneyStep(stepIndex - 1);
-        });
-      }
-      if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-          marker.closePopup();
-          this.flyToJourneyStep(stepIndex + 1);
-        });
-      }
-      if (finishBtn) {
-        finishBtn.addEventListener('click', () => {
-          marker.closePopup();
-          this.router.navigate(['/journeys']);
-        });
-      }
-
-      // --- Minimap country label ---
-      this.updateMinimapCountryLabel(sound.city);
-
-      // --- Read more toggle ---
-      this.wireReadMore(`journey-story-${stepIndex}`, `rmb-journey-${stepIndex}`);
-
-      // --- WaveSurfer player ---
-      const wsContainer = document.getElementById(`ws-player-journey-${stepIndex}`);
-      if (wsContainer) {
+      marker.on('popupclose', () => {
+        this.stopThemeObserver();
         this.activePopupPlayer?.destroy();
-        requestAnimationFrame(() => {
-          const isDark = document.body.classList.contains('dark-theme');
-          this.activePopupPlayer = createWaveSurferPlayer({
-            container: wsContainer,
-            audioUrl: url,
-            isDarkTheme: isDark,
-            peaks: sound.waveformPeaks ? JSON.parse(sound.waveformPeaks) : undefined,
-            duration: sound.waveformDuration,
-            mediaMetadata: { title: sound.title ?? 'Ecnelis FLY', artist: sound.city ?? undefined },
-            onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
-            onPause: () => this.ambientAudio?.unduck?.(),
-            getRefreshUrl: () => this.storageService.getSoundUrl(sound.filename),
-          });
-          this.startThemeObserver();
-        });
-      }
-    });
-
-    marker.on('popupclose', () => {
-      this.stopThemeObserver();
-      this.activePopupPlayer?.destroy();
-      this.activePopupPlayer = null;
-      this.updateMinimapCountryLabel();
-    });
+        this.activePopupPlayer = null;
+        this.updateMinimapCountryLabel();
+      });
     } // end if (!this.isMobilePortrait) — journey popup
 
     // Mobile: allow reopening sheet on marker click

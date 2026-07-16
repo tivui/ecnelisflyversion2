@@ -42,31 +42,32 @@ import { DailyFeaturedSound } from './core/models/featured-sound.model';
 import { DashboardService } from './features/dashboard/services/dashboard.service';
 import { SeoService } from './core/services/seo.service';
 import { SEO_ROUTES, getRouteKey } from './core/models/seo-routes';
+import { MatomoService } from './core/services/matomo.service';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    imports: [
-        RouterOutlet,
-        CommonModule,
-        MatToolbarModule,
-        MatSlideToggleModule,
-        MatIconModule,
-        MatButtonModule,
-        MatSidenavModule,
-        AmplifyAuthenticatorModule,
-        TranslatePipe,
-        MatInputModule,
-        RouterOutlet,
-        RouterLink,
-        MatMenuModule,
-        MatTooltipModule,
-        SidenavMenuComponent,
-        PwaInstallBannerComponent,
-        UserAvatarComponent,
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    MatToolbarModule,
+    MatSlideToggleModule,
+    MatIconModule,
+    MatButtonModule,
+    MatSidenavModule,
+    AmplifyAuthenticatorModule,
+    TranslatePipe,
+    MatInputModule,
+    RouterOutlet,
+    RouterLink,
+    MatMenuModule,
+    MatTooltipModule,
+    SidenavMenuComponent,
+    PwaInstallBannerComponent,
+    UserAvatarComponent,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppComponent implements OnInit {
   public readonly authenticator = inject(AuthenticatorService);
@@ -77,6 +78,7 @@ export class AppComponent implements OnInit {
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
   private readonly authService = inject(AuthService);
+  private readonly matomo = inject(MatomoService);
   private readonly document = inject(DOCUMENT);
   private readonly appUpdateService = inject(AppUpdateService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
@@ -187,6 +189,9 @@ export class AppComponent implements OnInit {
   public selectedLang = signal<Language>('fr');
 
   constructor() {
+    // ★ Initialiser Matomo
+    this.matomo.init();
+
     this.translate.addLangs(this.languages);
 
     // Mobile portrait detection
@@ -217,6 +222,7 @@ export class AppComponent implements OnInit {
           const config = seoData[lang] || seoData['fr'];
           this.seoService.update(config);
         }
+
       }
     });
 
@@ -285,10 +291,10 @@ export class AppComponent implements OnInit {
     // Load featured sound for bottom nav
     this.featuredSoundService.getTodayFeatured()
       .then((daily) => this.bottomNavFeatured.set(daily))
-      .catch(() => {});
+      .catch(() => { });
 
     // Track site visit (1x per session, non-blocking)
-    this.siteVisitService.recordVisit().catch(() => {});
+    this.siteVisitService.recordVisit().catch(() => { });
 
     // 2️⃣ Listen to authentication events (Amplify Hub)
     Hub.listen('auth', async ({ payload }) => {
