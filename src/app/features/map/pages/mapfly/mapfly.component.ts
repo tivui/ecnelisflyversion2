@@ -1012,11 +1012,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
         if (!this.isMobilePortrait) {
           m.on('popupopen', () => {
 
-            this.matomo.trackEvent(
-              'Carte',
-              'Ouverture son',
-              s.title ?? s.filename,
-            );
             // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
             // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
             // le flag _isRepositioningMarker permet de l'ignorer.
@@ -1028,6 +1023,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
               m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
               return;
             }
+
+            this.matomo.trackEvent(
+              'Carte',
+              'Ouverture son',
+              s.title ?? s.filename,
+            );
 
             const titleEl = document.getElementById(`title-${s.filename}`);
             const shortStoryEl = document.getElementById(
