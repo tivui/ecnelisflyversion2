@@ -16,19 +16,20 @@ import {
   calculateStars,
 } from '../../models/quiz.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { MatomoService } from '../../../../core/services/matomo.service';
 
 @Component({
-    selector: 'app-quiz-results',
-    imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        TranslateModule,
-        UserAvatarComponent,
-    ],
-    templateUrl: './quiz-results.component.html',
-    styleUrl: './quiz-results.component.scss'
+  selector: 'app-quiz-results',
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TranslateModule,
+    UserAvatarComponent,
+  ],
+  templateUrl: './quiz-results.component.html',
+  styleUrl: './quiz-results.component.scss'
 })
 export class QuizResultsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -36,6 +37,7 @@ export class QuizResultsComponent implements OnInit {
   private readonly quizService = inject(QuizService);
   private readonly appUserService = inject(AppUserService);
   private readonly translate = inject(TranslateService);
+  private readonly matomoService = inject(MatomoService);
 
   loading = signal(true);
   quiz = signal<Quiz | null>(null);
@@ -127,6 +129,12 @@ export class QuizResultsComponent implements OnInit {
       ]);
       this.quiz.set(quiz);
       this.leaderboard.set(leaderboard);
+      this.matomoService.trackEvent(
+        'Quiz',
+        'Terminé',
+        quiz?.title ?? this.quizId,
+        this.localScore(),
+      );
     } catch (error) {
       console.error('Error loading quiz:', error);
     } finally {
