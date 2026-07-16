@@ -1289,7 +1289,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
                   duration,
                   mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
                   onPlay: () => {
-                    this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); this.matomo.trackEvent(
+                    this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); // ★ MATOMO — Dimensions d'action (ID confirmés : Catégorie son=4, Pays du son=5, Zone=6)
+                    this.matomo.setCustomDimension(4, s.category ?? 'inconnue');
+                    this.matomo.setCustomDimension(5, s.city ?? 'inconnu');
+                    this.matomo.setCustomDimension(6, this.currentZone()?.name ?? 'aucune'); this.matomo.trackEvent(
                       'Son',           // Catégorie
                       'Lecture',       // Action
                       s.title ?? s.filename,  // Nom du son
