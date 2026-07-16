@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AmplifyService } from './amplify.service';
 import { BrowserService } from './browser.service';
 import { v4 as uuidv4 } from 'uuid';
+import { MatomoService } from './matomo.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class AppUserService {
   private readonly logService = inject(LogService);
   private readonly amplifyService = inject(AmplifyService);
   private readonly browserService = inject(BrowserService);
+  private readonly matomoService = inject(MatomoService);
 
   private readonly _currentUser = new BehaviorSubject<AppUser | null>(null);
   public readonly currentUser$ = this._currentUser.asObservable();
@@ -199,6 +201,8 @@ export class AppUserService {
         }
 
         userRecord = created.data;
+
+        this.matomoService.trackEvent('Utilisateur', 'Inscription');
       }
 
       // --------------------------------------------------
