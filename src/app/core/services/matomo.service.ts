@@ -31,6 +31,10 @@ export class MatomoService {
 
   private initialized = false;
 
+  private lastEventFired = new Map<string, number>();
+  private readonly DEDUPE_WINDOW_MS = 500;
+
+
   /**
    * Initialise le tracker Matomo.
    * À appeler UNE SEULE FOIS dans AppComponent.ngOnInit().
@@ -111,6 +115,16 @@ export class MatomoService {
     name?: string,
     value?: number,
   ): void {
+    // Ignore les déclenchements identiques trop rapprochés (doublons techniques)
+    const key = `${category}|${action}|${name ?? ''}`;
+    const now = Date.now();
+    const lastFired = this.lastEventFired.get(key);
+    if (lastFired && now - lastFired < this.DEDUPE_WINDOW_MS) {
+      console.log(`[Matomo] Doublon ignoré : ${key}`);
+      return;
+    }
+    this.lastEventFired.set(key, now);
+
     window._paq = window._paq || [];
     window._paq.push(['trackEvent', category, action, name, value]);
     console.log(`[Matomo] Événement : ${category} / ${action} / ${name ?? ''}`);
