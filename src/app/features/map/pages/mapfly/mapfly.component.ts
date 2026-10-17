@@ -47,7 +47,6 @@ import { SoundPopupSheetComponent, SoundPopupSheetData } from './sound-popup-she
 import { createWaveSurferPlayer, WaveSurferPlayerInstance } from '../../../../core/services/wavesurfer-player.service';
 import { HeadphoneReminderService } from '../../../../core/services/headphone-reminder.service';
 import 'leaflet-minimap';
-import { MatomoService } from '../../../../core/services/matomo.service';
 
 @Component({
   selector: 'app-mapfly',
@@ -82,8 +81,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
   private currentUserLanguage = 'fr';
   private currentZoneId: string | null = null;
   private queryParamsSub?: Subscription;
-
-  private readonly matomo = inject(MatomoService);
 
   // Convertit ton currentUser$ en signal Angular
   currentUser = toSignal(this.appUserService.currentUser$, {
@@ -1011,7 +1008,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
         // --- Popup logic (desktop only — mobile uses BottomSheet) ---
         if (!this.isMobilePortrait) {
           m.on('popupopen', () => {
-
             // Empêche le clustering d'absorber ce marker tant que sa popup est ouverte.
             // markersCluster.removeLayer() déclenche popupclose de façon synchrone —
             // le flag _isRepositioningMarker permet de l'ignorer.
@@ -1023,12 +1019,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
               m.openPopup(); // re-déclenche popupopen sur le marker maintenant hors cluster
               return;
             }
-
-            this.matomo.trackEvent(
-              'Carte',
-              'Ouverture son',
-              s.title ?? s.filename,
-            );
 
             const titleEl = document.getElementById(`title-${s.filename}`);
             const shortStoryEl = document.getElementById(
@@ -1235,13 +1225,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
                   likeCount.textContent = String(result.newCount);
                 }
                 updateLikeVisual();
-
-                const isNowLiked = this.likeService.isLiked(s.id!);
-                this.matomo.trackEvent(
-                  'Son',
-                  isNowLiked ? 'Like' : 'Unlike',
-                  s.title ?? s.filename,
-                );
               });
             }
 
@@ -1288,22 +1271,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
                   peaks,
                   duration,
                   mediaMetadata: { title: s.title ?? 'Ecnelis FLY', artist: s.city ?? undefined },
-                  onPlay: () => {
-                    this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); // ★ MATOMO — Dimensions d'action (ID confirmés : Catégorie son=4, Pays du son=5, Zone=6)
-                    this.matomo.setCustomDimension(4, s.category ?? 'inconnue');
-                    this.matomo.setCustomDimension(5, s.city ?? 'inconnu');
-                    this.matomo.setCustomDimension(6, this.currentZone()?.name ?? 'aucune'); this.matomo.trackEvent(
-                      'Son',           // Catégorie
-                      'Lecture',       // Action
-                      s.title ?? s.filename,  // Nom du son
-                    );
-                  },
-                  onPause: () => {
-                    this.ambientAudio?.unduck?.();
-
-                    // ★ MATOMO — Pause d'un son
-                    this.matomo.trackEvent('Son', 'Pause', s.title ?? s.filename);
-                  },
+                  onPlay: () => { this.headphoneReminder.showIfNeeded(); this.ambientAudio?.duck?.(); },
+                  onPause: () => this.ambientAudio?.unduck?.(),
                   getRefreshUrl: () => this.storageService.getSoundUrl(s.filename),
                 });
                 this.startThemeObserver();
@@ -2625,11 +2594,6 @@ export class MapflyComponent implements OnInit, OnDestroy {
             const shareUrl = `${window.location.origin}/mapfly?lat=${lat}&lng=${lng}&zoom=17&soundFilename=${encodeURIComponent(soundFilename)}`;
             navigator.clipboard.writeText(shareUrl).then(() => {
               this.snackBar.open(this.translate.instant('mapfly.share.copied'), undefined, { duration: 2500 });
-              this.matomo.trackEvent(
-                'Son',
-                'Partage',
-                s.title ?? s.filename,
-              );
             }).catch(() => { });
           });
 
