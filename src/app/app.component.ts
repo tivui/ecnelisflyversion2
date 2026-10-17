@@ -42,7 +42,6 @@ import { DailyFeaturedSound } from './core/models/featured-sound.model';
 import { DashboardService } from './features/dashboard/services/dashboard.service';
 import { SeoService } from './core/services/seo.service';
 import { SEO_ROUTES, getRouteKey } from './core/models/seo-routes';
-import { MatomoService } from './core/services/matomo.service';
 
 @Component({
   selector: 'app-root',
@@ -78,7 +77,6 @@ export class AppComponent implements OnInit {
   private readonly browserService = inject(BrowserService);
   private readonly amplifyI18n = inject(AmplifyI18nService);
   private readonly authService = inject(AuthService);
-  private readonly matomo = inject(MatomoService);
   private readonly document = inject(DOCUMENT);
   private readonly appUpdateService = inject(AppUpdateService);
   private readonly featuredSoundService = inject(FeaturedSoundService);
@@ -189,9 +187,6 @@ export class AppComponent implements OnInit {
   public selectedLang = signal<Language>('fr');
 
   constructor() {
-    // ★ Initialiser Matomo
-    this.matomo.init();
-
     this.translate.addLangs(this.languages);
 
     // Mobile portrait detection
@@ -222,7 +217,6 @@ export class AppComponent implements OnInit {
           const config = seoData[lang] || seoData['fr'];
           this.seoService.update(config);
         }
-
       }
     });
 
@@ -248,9 +242,6 @@ export class AppComponent implements OnInit {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.isDark.set(prefersDark);
     this.applyTheme(prefersDark ? 'dark' : 'light');
-
-    // ★ MATOMO — Dimension Thème, valable pour TOUS les visiteurs dès l'arrivée
-    this.matomo.setCustomDimension(2, prefersDark ? 'dark' : 'light');
 
     // 1️⃣ Try to load user from backend (if authenticated)
     const appUser = await this.appUserService.loadCurrentUser();
@@ -290,9 +281,6 @@ export class AppComponent implements OnInit {
     this.selectedLang.set(defaultLang);
     this.translate.use(defaultLang);
     this.amplifyI18n.init(defaultLang);
-
-    // ★ MATOMO — Dimension Langue, valable pour TOUS les visiteurs (connectés ou non)
-    this.matomo.setCustomDimension(1, defaultLang);
 
     // Load featured sound for bottom nav
     this.featuredSoundService.getTodayFeatured()
@@ -391,9 +379,6 @@ export class AppComponent implements OnInit {
 
     // Persist to DynamoDB
     await this.appUserService.updateLanguage(languageSelected);
-
-    // ★ MATOMO — Langue mise à jour en cours de visite
-    this.matomo.setCustomDimension(1, languageSelected);
   }
 
   toggleDarkMode() {
@@ -405,9 +390,6 @@ export class AppComponent implements OnInit {
 
     // Save preference in backend
     this.appUserService.updateTheme(theme);
-
-    // ★ MATOMO — Thème mis à jour en cours de visite
-    this.matomo.setCustomDimension(2, theme);
   }
 
   private applyTheme(theme: Theme) {
