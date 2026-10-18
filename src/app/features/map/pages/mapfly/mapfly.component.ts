@@ -1459,6 +1459,12 @@ export class MapflyComponent implements OnInit, OnDestroy {
     this.searchResults.set([]);
     this.searchFocused.set(false);
 
+    // Mobile : fermer le clavier virtuel (le mousedown preventDefault garde le focus sur l'input).
+    // Sinon le viewport visible est reduit pendant le calcul du centrage au-dessus de la bottom sheet.
+    if (this.isMobilePortrait) {
+      (document.activeElement as HTMLElement | null)?.blur();
+    }
+
     if (this.searchMode() === 'sounds' && result.filename) {
       // Sound search: zoom to marker and open popup
       const marker = this.markerLookup[result.filename];
@@ -1467,7 +1473,8 @@ export class MapflyComponent implements OnInit, OnDestroy {
         this.markersCluster.zoomToShowLayer(marker, () => {
           if (this.isMobilePortrait) {
             const sheetData = (marker as any).__soundSheetData;
-            if (sheetData) this.openSoundSheet(sheetData);
+            // Laisser le clavier se fermer et les animations cluster se terminer avant de centrer
+            if (sheetData) setTimeout(() => this.openSoundSheet(sheetData), 350);
           } else {
             marker.openPopup();
             // On mobile, shift map up so popup is well centered below search bar
@@ -1654,6 +1661,10 @@ export class MapflyComponent implements OnInit, OnDestroy {
 
   /** Center a marker in the visible map area (top half, above the bottom sheet). */
   private centerMarkerAboveSheet(lat: number, lng: number, zoom?: number) {
+    // Stoppe toute animation en cours (zoomToShowLayer, cluster) qui ecraserait le centrage,
+    // et resynchronise la taille de la carte (fermeture du clavier virtuel au 1er centrage)
+    this.map.stop();
+    this.map.invalidateSize({ pan: false });
     const mapSize = this.map.getSize();
     const sheetHeight = mapSize.y * 0.5; // bottom sheet max-height: 50vh
     const targetZoom = zoom ?? this.map.getZoom();
