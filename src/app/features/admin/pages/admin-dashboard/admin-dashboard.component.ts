@@ -135,6 +135,19 @@ export class AdminDashboardComponent implements OnInit {
 
   // Site visits
   visitStats = signal<VisitStats | null>(null);
+  visitChartPeriod = signal<'daily' | 'monthly'>('daily');
+  visitChartSeries = computed(() => {
+    const stats = this.visitStats();
+    if (!stats) return [];
+    if (this.visitChartPeriod() === 'daily') return stats.timeSeries;
+    return stats.monthlyTimeSeries.map(({ name, value }) => ({
+      name: new Date(`${name}-01T12:00:00`).toLocaleDateString(this.translate.currentLang || 'fr', {
+        month: 'short',
+        year: '2-digit',
+      }),
+      value,
+    }));
+  });
 
   visitsColorScheme: Color = {
     name: 'visits',

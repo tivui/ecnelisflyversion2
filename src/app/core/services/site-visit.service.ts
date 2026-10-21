@@ -7,6 +7,7 @@ export interface VisitStats {
   thisWeek: number;
   thisMonth: number;
   timeSeries: { name: string; value: number }[];
+  monthlyTimeSeries: { name: string; value: number }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,6 +86,20 @@ export class SiteVisitService {
       timeSeries.push({ name: label, value: visitMap.get(dateStr) ?? 0 });
     }
 
-    return { total, today, thisWeek, thisMonth, timeSeries };
+    // Build a rolling 12-month series from the daily records already loaded.
+    const monthlyVisitMap = new Map<string, number>();
+    for (const visit of allVisits) {
+      const month = visit.id.slice(0, 7);
+      monthlyVisitMap.set(month, (monthlyVisitMap.get(month) ?? 0) + visit.count);
+    }
+
+    const monthlyTimeSeries: { name: string; value: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      monthlyTimeSeries.push({ name: monthKey, value: monthlyVisitMap.get(monthKey) ?? 0 });
+    }
+
+    return { total, today, thisWeek, thisMonth, timeSeries, monthlyTimeSeries };
   }
 }
