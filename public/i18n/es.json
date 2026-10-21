@@ -528,7 +528,11 @@
         "today": "Hoy",
         "week": "Esta semana",
         "month": "Este mes",
-        "chartTitle": "Visitas en 30 días"
+        "dailyChartTitle": "Visitas en 30 días",
+        "monthlyChartTitle": "Visitas por mes (últimos 12 meses)",
+        "period": "Período del gráfico de visitas",
+        "daily": "Día",
+        "monthly": "Mes"
       },
       "moderation": "Moderación",
       "pendingCount": "{{count}} sonido(s) pendiente(s)",

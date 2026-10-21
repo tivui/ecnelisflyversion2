@@ -69,12 +69,30 @@
               <div class="kpi-label">{{ 'admin.dashboard.visits.month' | translate }}</div>
             </div>
           </div>
-          @if (visitStats()!.timeSeries.length > 0) {
+          @if (visitChartSeries().length > 0) {
             <div class="charts-row">
               <div class="chart-card">
-                <h3 class="chart-title">{{ 'admin.dashboard.visits.chartTitle' | translate }}</h3>
+                <div class="visit-chart-header">
+                  <h3 class="chart-title">
+                    {{ (visitChartPeriod() === 'daily' ? 'admin.dashboard.visits.dailyChartTitle' : 'admin.dashboard.visits.monthlyChartTitle') | translate }}
+                  </h3>
+                  <div class="visit-period-toggle" role="group" [attr.aria-label]="'admin.dashboard.visits.period' | translate">
+                    <button
+                      type="button"
+                      [class.active]="visitChartPeriod() === 'daily'"
+                      [attr.aria-pressed]="visitChartPeriod() === 'daily'"
+                      (click)="visitChartPeriod.set('daily')"
+                    >{{ 'admin.dashboard.visits.daily' | translate }}</button>
+                    <button
+                      type="button"
+                      [class.active]="visitChartPeriod() === 'monthly'"
+                      [attr.aria-pressed]="visitChartPeriod() === 'monthly'"
+                      (click)="visitChartPeriod.set('monthly')"
+                    >{{ 'admin.dashboard.visits.monthly' | translate }}</button>
+                  </div>
+                </div>
                 <ngx-charts-bar-vertical
-                  [results]="visitStats()!.timeSeries"
+                  [results]="visitChartSeries()"
                   [scheme]="visitsColorScheme"
                   [view]="chartWide()"
                   [xAxis]="true"

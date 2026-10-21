@@ -147,6 +147,50 @@
   text-align: center;
 }
 
+.visit-chart-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 14px;
+
+  .chart-title {
+    margin-bottom: 8px;
+  }
+}
+
+.visit-period-toggle {
+  display: inline-flex;
+  padding: 3px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(25, 118, 210, 0.08);
+
+  button {
+    border: 0;
+    border-radius: 6px;
+    padding: 5px 10px;
+    background: transparent;
+    color: #526070;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button.active {
+    background: #1976d2;
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(25, 118, 210, 0.25);
+  }
+
+  button:focus-visible {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+  }
+}
+
 // Moderation
 .moderation-section {
   border-radius: 12px;
@@ -489,6 +533,19 @@
 
   .chart-title {
     color: #c5cae9;
+  }
+
+  .visit-period-toggle {
+    background: rgba(144, 202, 249, 0.1);
+
+    button {
+      color: #b0b8cc;
+    }
+
+    button.active {
+      background: #3f51b5;
+      color: #fff;
+    }
   }
 
   .section-title {

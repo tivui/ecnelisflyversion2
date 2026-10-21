@@ -532,7 +532,11 @@
         "today": "Aujourd'hui",
         "week": "Cette semaine",
         "month": "Ce mois",
-        "chartTitle": "Visites sur 30 jours"
+        "dailyChartTitle": "Visites sur 30 jours",
+        "monthlyChartTitle": "Visites par mois (12 derniers mois)",
+        "period": "Période du graphique des visites",
+        "daily": "Jour",
+        "monthly": "Mois"
       },
       "approve": "Approuver",
       "reject": "Rejeter",
